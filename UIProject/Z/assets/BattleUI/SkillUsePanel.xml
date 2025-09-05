@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="565,565" pivot="0.5,0.5" anchor="true" opaque="false">
+  <displayList>
+    <component id="n4_l6f0" name="n4" src="l6f04c" fileName="SkillUsePanelBack.xml" xy="0,0"/>
+    <image id="n0_kbte" name="n0" src="kbte3w" fileName="多边形.png" xy="-121,-128" pivot="0.5,0.5" size="788,788"/>
+    <component id="n1_kbte" name="mainSkillInfo" src="kbte48" fileName="MainSkillInfo.xml" xy="368,358">
+      <ProgressBar max="100"/>
+    </component>
+    <component id="n3_kbte" name="Leave" src="kbte4b" fileName="Leave.xml" xy="102,93" pivot="0.5,0.5" anchor="true" size="212,214" aspect="true" scale="0.75,0.75"/>
+    <component id="n5_hy1b" name="ShowSkillRange" src="hy1b62" fileName="ShowSkillRange.xml" xy="534,375"/>
+  </displayList>
+</component>

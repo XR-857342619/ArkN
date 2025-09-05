@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1920,1080" opaque="false">
+  <controller name="showInfo" pages="0,,1,,2," selected="0"/>
+  <displayList>
+    <component id="n4_t5h9" name="Team" src="t5h95" fileName="btn.xml" xy="33,979"/>
+    <component id="n6_gbwm" name="unselect" src="f1463m" fileName="Container.xml" pkg="vp312gab" xy="0,0" size="1920,1080">
+      <gearDisplay controller="showInfo" pages="1,2"/>
+    </component>
+    <component id="n5_gbwm" name="MissionInfo" src="gbwmv" fileName="MissionInfo/MissionInfo.xml" xy="1920,0">
+      <gearXY controller="showInfo" pages="0,2" values="1920,0,1,0|1920,0,1,0" default="1424,0,0.742,0" tween="true" positionsInPercent="true"/>
+      <relation target="" sidePair="right-right%"/>
+    </component>
+    <text id="n7_voep" name="gold" xy="21,117" size="141,42" fontSize="30" vars="true" text="源石锭：{c=1}"/>
+    <text id="n8_voep" name="hope" xy="21,169" size="111,42" fontSize="30" vars="true" text="希望：{c=1}"/>
+    <component id="n9_k32v" name="back" src="k32v17" fileName="UnitInfo/back.xml" xy="9,10"/>
+    <component id="n10_k32v" name="home" src="k32v19" fileName="UnitInfo/home.xml" xy="232,10"/>
+  </displayList>
+</component>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="500,10" extention="ProgressBar">
+  <displayList>
+    <graph id="n31_kbte" name="n31" xy="0,0" size="500,10" type="rect" lineSize="0" fillColor="#ff000000"/>
+    <graph id="n32_kbte" name="bar" xy="0,0" size="500,10" type="rect" lineSize="0" fillColor="#ff009fff"/>
+    <image id="n34_bcc3" name="n34" src="bcc35x" fileName="sprite_hp_thumb$0.png" xy="495,-4" size="115,42" aspect="true">
+      <relation target="n32_kbte" sidePair="left-right"/>
+    </image>
+    <text id="n33_r58k" name="title" xy="554,21" pivot="0.5,0.5" anchor="true" size="72,29" fontSize="20" color="#ffffff" align="center" strokeColor="#000000" text="123123">
+      <relation target="n34_bcc3" sidePair="center-center%,middle-middle%"/>
+    </text>
+  </displayList>
+  <ProgressBar titleType="valueAndmax"/>
+</component>

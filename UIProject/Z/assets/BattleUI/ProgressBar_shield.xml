@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="50,41" extention="ProgressBar">
+  <displayList>
+    <image id="n1_hwog" name="bar" src="hwogsf" fileName="strife_ui_boss_shield_progress.png" xy="0,0" size="50,41" fillMethod="radial360" fillClockwise="false"/>
+  </displayList>
+  <ProgressBar/>
+</component>

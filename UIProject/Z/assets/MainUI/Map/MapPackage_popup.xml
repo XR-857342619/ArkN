@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="311,325" opaque="false">
+  <displayList>
+    <graph id="n2_pkao" name="n2" xy="0,0" size="311,325" type="rect" fillColor="#ff666666"/>
+    <list id="n1_pkao" name="list" xy="0,0" size="311,325" overflow="scroll" margin="5,5,5,5" lineGap="5" defaultItem="ui://k4mja8t1pkaor6e" autoClearItems="true">
+      <relation target="" sidePair="width-width"/>
+      <item title="Main"/>
+      <item title="001"/>
+      <item title="002"/>
+    </list>
+  </displayList>
+  <relation target="n1_pkao" sidePair="height-height"/>
+</component>

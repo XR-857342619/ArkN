@@ -1,0 +1,7 @@
+{"Id":"迅使被动","Type":"数值变化","StopLess":2,"StopNeed":2,"LastTime":0.01,"DeadRemain":1,"Data":{"t":["DefenceRate"]}}
+{"Id":"迅使防御提升","Type":"数值变化","LastingEffect":23,"LastTime":0.01,"Data":{"t":["DefenceRate"]}}
+{"Id":"清道夫被动","Type":"数值变化","RoundNeed":1,"LastTime":0.01,"Data":{"t":["AttackRate","DefenceRate"]}}
+{"Id":"红豆buff","Type":"数值变化","LastingEffect":336,"LastTime":9999,"DeadRemain":1,"Data":{"t":["AttackGapAdd","AttackRate"]}}
+{"Id":"红豆刀特效","Type":"普通Buff","LastingEffect":335}
+{"Id":"风笛3buff","Type":"数值变化","LastingEffect":21,"Data":{"t":["AttackRate","DefenceRate","StopCountAdd","AttackGapRate"]}}
+{"Id":"伊内丝部署标记","Type":"普通Buff"}

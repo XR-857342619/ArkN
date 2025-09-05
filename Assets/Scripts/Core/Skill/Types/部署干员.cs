@@ -1,0 +1,117 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Units;
+using UnityEngine;
+
+namespace Skills
+{
+    public class 部署干员 : Skill
+    {
+        public 干员 Operator;
+        //public 干员 skilloprator;
+        //public Vector2Int pos;
+        public DirectionEnum direction = DirectionEnum.Right;
+        public Vector3 pos = new Vector3(float.MaxValue, 0, float.MaxValue);
+        public string targetDirection = "FixedDirection";
+        public string setMod = "Add";
+        public string targetPos = "";
+        public string name = "";
+        public override void Init()
+        {
+            base.Init();
+            targetPos = SkillData.Data.GetStr("TargetPos");
+            targetDirection = SkillData.Data.GetStr("UseMod");
+            setMod = SkillData.Data.GetStr("SetMod");
+            if (targetDirection == "FixedDirection")
+                Enum.TryParse(SkillData.Data.GetStr("Direction"), out direction);
+        }
+        public override void Start()
+        {
+            base.Start();
+            switch (targetPos)
+            {
+                case "useSelfPos":
+                    //Debug.Log("useSlefPos:" + Unit.Position);
+                    pos = Unit.Position;
+                    break;
+                case "useTargetPos":
+                    if (SkillData.Skills.Count() > 0)
+                    {
+                        var skill = Unit.LearnSkill(SkillData.Skills[0]);
+                        skill.Init();
+                        List<Unit> targets = skill.GetAttackTarget();
+                        if (targets.Count > 0)
+                        {
+                            pos = targets[0].Position;
+                        }
+                    }
+                    else
+                    {
+                        pos = Unit.Position;
+                    }
+                    break;
+                case "useAttackPoint":
+                    foreach (var point in AttackPoints)
+                    {
+                        if (point != Unit.Position2)
+                        {
+                            pos.x = point.x;
+                            pos.y = point.y;
+                        }
+                    }
+                    break;
+            }
+            Operator = Battle.CreatePlayerUnit(Database.Instance.GetIndex<UnitData>(SkillData.Data.GetStr("UnitId")));
+            Operator = Operator as 干员;
+            if (targetDirection == "UserDirection")
+            {
+                name = SkillData.Data.GetStr("UserName");
+                if (Battle.AllUnits.Find(x => x.UnitData.Name == name) is Units.干员 skilloprator)
+                    direction = skilloprator.Direction_E;
+            }
+            //Log.Debug("获取到技能来源:" + skilloprator.UnitData.Name);
+            //if (SkillData.AttackPoints is not null)
+            //    pos = SkillData.AttackPoints[0];
+            //else
+            //    pos = skilloprator.GridPos;
+            Tile tile = Battle.Map.Tiles[(int)pos.x, (int)pos.y];
+            Debug.Log("获取到部署位置:" + pos + " 方向:" + direction);
+            Units.干员 toRemove = null;
+            foreach (Unit unit in tile.Units)
+            {
+                if (unit is Units.干员 oprator)
+                {
+                    if (!oprator.UnitData.NotUseTile && setMod == "Replace" && !Operator.UnitData.NotUseTile)
+                    {
+                        toRemove = oprator;
+                        tile.Units.Remove(oprator);
+                    }
+                    else
+                        continue;
+                }
+                //tile.Units.Remove(skilloprator);
+            }
+            if (tile.CanSet(Operator, Operator.UnitData.NotUseTile))
+            {
+                Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);
+                Log.Debug(Operator.Skills.Count());
+                GameObject go = Operator.UnitModel.gameObject;
+                go.transform.position = new Vector3(pos.x, pos.y, 0.5f);
+                Operator.ChangePos((int)pos.x, (int)pos.y, direction);
+                Operator.JoinMap();
+                Operator.Parent = Battle.AllUnits.Find(x => x.UnitData.Name == name) as Units.干员??null;
+                tile.Units.Add(Operator);
+            }
+            else
+            {
+                if (toRemove is not null)
+                    tile.Units.Add(toRemove);
+                Log.Debug("无法部署干员:" + Operator.UnitData.Name + "于" + pos);
+                return;
+            }
+        }
+    }
+}

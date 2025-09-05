@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="683,1080" opaque="false">
+  <controller name="left" exported="true" pages="0,,1," selected="0"/>
+  <controller name="time" pages="0,,1," selected="0"/>
+  <controller name="palyerUnit" pages="0,,1," selected="1"/>
+  <displayList>
+    <image id="n52_voep" name="n52" src="voep4i" fileName="Map/渐变.png" pkg="k4mja8t1" xy="0,0" pivot="1,0" anchor="true" scale="-1,1" alpha="0.7"/>
+    <component id="n51_kbte" name="standPic" src="voep4z" fileName="Pic.xml" xy="-75,19" alpha="0.2">
+      <relation target="" sidePair="left-left%,bottom-bottom%"/>
+    </component>
+    <graph id="n42_kbte" name="n42" xy="34,527" size="448,100" type="rect" lineSize="0" fillColor="#66000000">
+      <gearDisplay controller="palyerUnit" pages="0"/>
+      <relation target="" sidePair="left-left%,top-middle%"/>
+    </graph>
+    <text id="n45_kbte" name="subSkill" xy="42,535" size="431,83" fontSize="25" color="#ffffff" align="center" vAlign="middle" autoSize="none" strokeColor="#000000" text="技能可以治疗友方单位">
+      <gearDisplay controller="palyerUnit" pages="0"/>
+      <relation target="" sidePair="left-left%,top-middle%"/>
+    </text>
+    <graph id="n41_kbte" name="n41" xy="346,395" size="135,100" group="n66_bcc3" type="rect" lineSize="0" fillColor="#66000000"/>
+    <list id="n71_hy1b" name="attackArea" xy="346,395" size="135,100" group="n66_bcc3" layout="pagination" selectionMode="none" overflow="scroll" scroll="both" margin="5,5,5,5" lineGap="1" colGap="1" defaultItem="ui://k4mja8t1k6t714" align="center" vAlign="middle" autoClearItems="true">
+      <relation target="n41_kbte" sidePair="width-width%,height-height%,center-center%,middle-middle%,rightext-right%,topext-top%,bottomext-bottom%,leftext-left%"/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+    </list>
+    <text id="n43_kbte" name="n43" xy="361,476" size="104,35" group="n66_bcc3" fontSize="25" color="#ffffff" align="center" strokeColor="#000000" text="攻击范围">
+      <relation target="n41_kbte" sidePair="center-center%,top-bottom%"/>
+    </text>
+    <group id="n66_bcc3" name="arkRange" xy="346,395" size="135,116" advanced="true">
+      <relation target="n65_bcc3" sidePair="left-right%"/>
+      <relation target="" sidePair="top-middle%"/>
+    </group>
+    <graph id="n64_bcc3" name="n64" xy="34,395" size="305,100" group="n65_bcc3" type="rect" lineSize="0" fillColor="#66000000"/>
+    <list id="n67_bcc3" name="attrList" xy="34,395" size="305,100" group="n65_bcc3" layout="flow_vt" selectionMode="none" overflow="scroll" scroll="horizontal" scrollBarFlags="80" scrollBar="auto" margin="3,0,10,10" lineGap="-3" colGap="10" lineItemCount="4" defaultItem="ui://vp312gabbcc35y" autoClearItems="true">
+      <relation target="" sidePair="left-left,top-top"/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+    </list>
+    <group id="n65_bcc3" name="attrInfo" xy="34,395" size="305,100" advanced="true">
+      <relation target="" sidePair="left-left%,top-middle%"/>
+    </group>
+    <component id="n31_kbte" name="Hp" src="kbte3t" fileName="Hp0.xml" xy="34,667">
+      <relation target="" sidePair="left-left%,top-middle%"/>
+      <ProgressBar value="100" max="100"/>
+    </component>
+    <graph id="n46_kbte" name="n46" xy="34,698" size="610,171" group="n60_x9ub" type="rect" lineSize="0" fillColor="#4c000000">
+      <relation target="n50_kbte" sidePair="height-height"/>
+    </graph>
+    <text id="n47_kbte" name="SkillName" xy="151,710" size="104,35" group="n60_x9ub" fontSize="25" color="#cccccc" align="center" strokeColor="#000000" text="技能名字"/>
+    <loader id="n48_kbte" name="skillIcon" xy="61,714" size="77,77" group="n60_x9ub" fill="scaleNoBorder"/>
+    <text id="n50_kbte" name="SkillDesc" xy="55,799" size="564,56" group="n60_x9ub" fontSize="20" color="#ffffff" ubb="true" autoSize="height" strokeColor="#000000" text="一大堆的技能描述,一大堆的技能描述一大堆的技能描述一大堆的技能描述[color=#33CCFF]一段变色文字[/color]一大堆的技能描述"/>
+    <component id="n54_voep" name="Recover" src="voep4q" fileName="TeamSelect/Recover.xml" pkg="k4mja8t1" xy="151,757" group="n60_x9ub"/>
+    <component id="n55_voep" name="UseType" src="voep4r" fileName="TeamSelect/UseType.xml" pkg="k4mja8t1" xy="262,757" group="n60_x9ub"/>
+    <image id="n56_voep" name="n56" src="voep3p" fileName="TeamSelect/技能_持续时间背景.png" pkg="k4mja8t1" xy="375,757" group="n60_x9ub">
+      <gearDisplay controller="time" pages="0"/>
+    </image>
+    <text id="n57_voep" name="lastTime" xy="424,772" pivot="0.5,0.5" anchor="true" size="18,35" group="n60_x9ub" fontSize="25" color="#ffffff" strokeColor="#000000" text="1">
+      <gearDisplay controller="time" pages="0"/>
+    </text>
+    <group id="n60_x9ub" name="skillInfo" xy="34,698" size="610,171" advanced="true">
+      <gearDisplay controller="palyerUnit" pages="0"/>
+      <relation target="" sidePair="left-left%,top-middle%"/>
+    </group>
+    <text id="n27_kbte" name="name" xy="239,286" size="109,48" fontSize="35" color="#ffffff" strokeColor="#000000" text="阿米娅">
+      <relation target="n29_kbte" sidePair="left-right%"/>
+      <relation target="n53_voep" sidePair="top-middle%"/>
+    </text>
+    <text id="n28_kbte" name="n28" xy="145,232" size="37,42" fontSize="30" color="#ffffff" align="center" text="Lv">
+      <relation target="n53_voep" sidePair="left-right%,top-top%"/>
+    </text>
+    <text id="n29_kbte" name="Lv" xy="162,256" size="62,66" fontSize="50" color="#ffffff" align="center" text="50">
+      <relation target="n28_kbte" sidePair="left-left%,top-middle%"/>
+    </text>
+    <component id="n53_voep" name="Pro" src="voep3f" fileName="UnitInfo/Pro.xml" pkg="k4mja8t1" xy="34,228" scale="0.8,0.8">
+      <relation target="" sidePair="left-left%,top-middle%"/>
+    </component>
+    <graph id="n62_h25x" name="n62" xy="34,519" size="610,135" group="n68_bcc3" type="rect" lineSize="0" fillColor="#4c000000">
+      <gearDisplay controller="palyerUnit" pages="1"/>
+      <relation target="n50_kbte" sidePair="height-height"/>
+    </graph>
+    <text id="n63_h25x" name="midUnitDesc" xy="49,534" size="580,105" group="n68_bcc3" fontSize="20" color="#ffffff" autoSize="none" text="技能可以治疗友方单位">
+      <gearDisplay controller="palyerUnit" pages="1"/>
+    </text>
+    <group id="n68_bcc3" name="desc" xy="34,519" size="610,135" advanced="true">
+      <relation target="" sidePair="left-left%,top-middle%"/>
+    </group>
+  </displayList>
+</component>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="vp312gab">
+  <resources>
+    <component id="f1460" name="Battle.xml" path="/" exported="true"/>
+    <image id="f1463i" name="sprite_base_hp.png" path="/"/>
+    <image id="f1463j" name="sprite_enemy.png" path="/"/>
+    <image id="f1463k" name="sprite_info_bar_2part.png" path="/"/>
+    <component id="f1463l" name="BuildSprite.xml" path="/" exported="true"/>
+    <component id="f1463m" name="Container.xml" path="/" exported="true"/>
+    <image id="kbte3n" name="char_002_amiya_head.png" path="/"/>
+    <component id="kbte3o" name="Head.xml" path="/"/>
+    <component id="kbte3p" name="circleBar.xml" path="/"/>
+    <image id="kbte3r" name="n20.png" path="/"/>
+    <component id="kbte3s" name="BattleLeft.xml" path="/"/>
+    <component id="kbte3t" name="Hp0.xml" path="/"/>
+    <image id="kbte3u" name="char_002_amiya_1+.png" path="/"/>
+    <image id="kbte3v" name="多边形 1.png" path="/"/>
+    <image id="kbte3w" name="多边形.png" path="/"/>
+    <component id="kbte3x" name="灰罩.xml" path="/"/>
+    <component id="kbte3y" name="SetPanel.xml" path="/SetPanel/"/>
+    <image id="kbte3z" name="图层 1.png" path="/"/>
+    <component id="kbte40" name="CostBar.xml" path="/"/>
+    <component id="h4sa41" name="BattleUnit.xml" path="/" exported="true"/>
+    <component id="h4sa42" name="Hp1.xml" path="/"/>
+    <component id="h4sa43" name="SK0.xml" path="/"/>
+    <component id="h4sa45" name="Hp2.xml" path="/"/>
+    <image id="h4sa46" name="n37.png" path="/"/>
+    <component id="kbte47" name="SkillUsePanel.xml" path="/"/>
+    <component id="kbte48" name="MainSkillInfo.xml" path="/"/>
+    <image id="kbte49" name="bar.png" path="/"/>
+    <image id="kbte4a" name="btn_escape.png" path="/"/>
+    <component id="kbte4b" name="Leave.xml" path="/"/>
+    <component id="l6f04c" name="SkillUsePanelBack.xml" path="/"/>
+    <component id="kbte4d" name="评价星星.xml" path="/"/>
+    <image id="kbte4e" name="闪耀效果.png" path="/FX/"/>
+    <image id="kbte4f" name="Star.png" path="/IconMoney/"/>
+    <component id="n3en4g" name="DamageInfo.xml" path="/" exported="true"/>
+    <image id="t5h94h" name="Arrow4.png" path="/SetPanel/" scale9grid="0,0,-497,-563"/>
+    <image id="t5h94i" name="Border.png" path="/SetPanel/" scale9grid="0,0,-301,-301"/>
+    <image id="t5h94j" name="Cursor.png" path="/SetPanel/" scale9grid="0,0,-545,-542"/>
+    <image id="t5h94k" name="Cancel.png" path="/SetPanel/" scale9grid="0,0,-468,-470"/>
+    <component id="t5h94l" name="grip.xml" path="/SetPanel/"/>
+    <image id="t5h94n" name="Border1.png" path="/SetPanel/"/>
+    <component id="t5h94o" name="DragPanel.xml" path="/" exported="true"/>
+    <image id="t5h94p" name="Notice.png" path="/SetPanel/" scale9grid="0,0,-497,-695"/>
+    <image id="t5h94r" name="任务目标_一般.png" path="/"/>
+    <image id="t5h94t" name="部署费用.png" path="/"/>
+    <image id="gbwm4v" name="设置齿轮(1).png" path="/"/>
+    <component id="gbwm4w" name="Setting.xml" path="/"/>
+    <component id="gbwm4x" name="GiveUP.xml" path="/"/>
+    <component id="gbwm4y" name="CancelGiveUp.xml" path="/"/>
+    <component id="voep4z" name="Pic.xml" path="/"/>
+    <image id="voep50" name="技能_持续时间背景.png" path="/TeamSelect/"/>
+    <component id="rkte51" name="FastSpeed.xml" path="/"/>
+    <component id="rkte52" name="Pause.xml" path="/"/>
+    <component id="ku3z53" name="Container(1).xml" path="/"/>
+    <image id="iexc55" name="椭圆 1.png" path="/"/>
+    <component id="iexc56" name="ElementBar.xml" path="/"/>
+    <image id="iexc58" name="btn_speed_3x.png" path="/"/>
+    <image id="iexc59" name="btn_speed_1x.png" path="/" scale9grid="0,0,-23,-27"/>
+    <image id="iexc5a" name="btn_speed_2x.png" path="/" scale9grid="0,0,-22,-27"/>
+    <image id="iexc5b" name="btn_play.png" path="/" scale9grid="0,0,-33,-39"/>
+    <image id="iexc5c" name="btn_pause.png" path="/"/>
+    <image id="iexc5d" name="btn_range.png" path="/" scale9grid="0,0,-34,-39"/>
+    <image id="iexc5e" name="sprite_skill_ready.png" path="/" scale9grid="0,0,-16,-16"/>
+    <image id="qn1s5f" name="关卡选择_星_已完成.png" path="/"/>
+    <image id="qn1s5g" name="关卡选择_星_未完成.png" path="/"/>
+    <image id="fji95h" name="btn_nextFrame.png" path="/"/>
+    <component id="fji95i" name="Slider2.xml" path="/"/>
+    <component id="fji95j" name="Slider1_grip.xml" path="/"/>
+    <component id="fji95k" name="Sbtn.xml" path="/"/>
+    <component id="fji95m" name="DamageInfoItem.xml" path="/"/>
+    <component id="fji95n" name="Damage_grip.xml" path="/"/>
+    <component id="fji95o" name="Damage.xml" path="/"/>
+    <component id="fji95p" name="exit.xml" path="/"/>
+    <image id="fji95q" name="关闭键X.png" path="/"/>
+    <image id="bcc35r" name="sprite_skill_stop.png" path="/"/>
+    <image id="bcc35t" name="sprite_skill_ready_bar.png" path="/"/>
+    <image id="bcc35u" name="sprite_skill_bullet.png" path="/"/>
+    <image id="bcc35v" name="sprite_skill_notready.png" path="/"/>
+    <image id="bcc35x" name="sprite_hp_thumb$0.png" path="/"/>
+    <component id="bcc35y" name="attrInfo.xml" path="/"/>
+    <image id="hy1bsh" name="sprite_skill_range_off.png" path="/"/>
+    <image id="hy1b5z" name="sprite_skill_range_on.png" path="/"/>
+    <image id="hy1b60" name="sprite_skill_stop$2.png" path="/"/>
+    <component id="hy1b62" name="ShowSkillRange.xml" path="/"/>
+    <image id="hy1b63" name="sprite_practice.png" path="/"/>
+    <image id="hwogsf" name="strife_ui_boss_shield_progress.png" path="/"/>
+    <component id="hwogsi" name="Slider_shield_grip.xml" path="/"/>
+    <component id="hwogsk" name="ProgressBar_shield.xml" path="/"/>
+    <image id="hwogsl" name="sprite_enemy_boss_hp_hit_effect.png" path="/"/>
+    <image id="hwogsm" name="sprite_enemy_boss_hud_large.png" path="/"/>
+    <image id="hwogsn" name="sprite_enemy_boss_avatar_bg.png" path="/"/>
+    <image id="hwogso" name="sprite_enemy_boss_hp_bg.png" path="/"/>
+    <component id="hwogsq" name="ProgressBar_boss.xml" path="/"/>
+    <component id="hwogsr" name="ProgressBar_boss_small.xml" path="/"/>
+    <image id="hwogss" name="sprite_respawn_back.png" path="/"/>
+    <image id="hwogst" name="sprite_respawn_cd.png" path="/"/>
+    <image id="hwogsu" name="sprite_respawn_ring.png" path="/"/>
+    <image id="hwogsw" name="sprite_charactercard_choesn.png" path="/"/>
+    <image id="hwogsx" name="sprite_charactercard_underframe.png" path="/"/>
+    <image id="hwogsy" name="sprite_rarity_6.png" path="/"/>
+    <component id="fva0sz" name="DiyBar.xml" path="/"/>
+  </resources>
+  <publish name="" genCode="true"/>
+</packageDescription>

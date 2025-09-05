@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="130,130" extention="Label">
+  <displayList>
+    <graph id="n2_n7no" name="n2" xy="0,0" size="130,130" alpha="0.5" type="rect" corner="15"/>
+    <loader id="n1_n7no" name="icon" xy="2,2" size="125,125" url="ui://kera0i3huizyvb" fill="scale" clearOnPublish="true"/>
+  </displayList>
+</component>

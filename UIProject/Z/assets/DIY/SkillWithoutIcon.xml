@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1000,140" extention="Button">
+  <controller name="button" pages="7,up,8,down" selected="0"/>
+  <displayList>
+    <graph id="n1_o8qy" name="n1" xy="0,0" size="1000,140" touchable="false" type="rect" lineSize="2" corner="10">
+      <gearDisplay controller="button" pages="7"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <graph id="n2_o8qy" name="n2" xy="0,0" size="1000,140" touchable="false" type="rect" lineSize="2" lineColor="#ff00ccff" corner="10">
+      <gearDisplay controller="button" pages="8"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <text id="n3_o8qy" name="title" xy="144,5" size="160,42" fontSize="30" align="center" vAlign="middle" autoSize="none" singleLine="true" text="默认技能">
+      <relation target="n5_o8qy" sidePair="left-left%"/>
+      <relation target="" sidePair="top-top%"/>
+    </text>
+    <loader id="n5_o8qy" name="icon" xy="11,6" size="128,128" url="ui://k1fe9lywnf8znn" clearOnPublish="true">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </loader>
+    <text id="n6_o8qy" name="describe" xy="140,52" size="304,83" fontSize="20" leading="1" autoSize="ellipsis" text="默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述默认描述"/>
+    <component id="n8_o8qy" name="n8" src="o8qy5" fileName="exitBtn.xml" xy="7,6" size="128,128" alpha="0"/>
+    <component id="n11_o8qy" name="type" src="o8qyo" fileName="ComboBox_skill.xml" xy="311,6" size="128,40">
+      <ComboBox visibleItemCount="10">
+        <item title="近战"/>
+        <item title="普通技能"/>
+        <item title="群攻"/>
+      </ComboBox>
+    </component>
+    <component id="n17_n7no" name="readyType" src="n7nor" fileName="AttributeLable_skill.xml" xy="461,0" controller="type,2">
+      <Label title="激活方式:"/>
+    </component>
+    <component id="n18_n7no" name="useType" src="n7nor" fileName="AttributeLable_skill.xml" xy="726,0" controller="type,2">
+      <Label title="使用方式:"/>
+    </component>
+    <component id="n19_n7no" name="trigger" src="n7nor" fileName="AttributeLable_skill.xml" xy="461,47" controller="type,2">
+      <Label title="激活时点:"/>
+    </component>
+    <component id="n20_n7no" name="attackFly" src="n7nor" fileName="AttributeLable_skill.xml" xy="461,94" controller="type,1">
+      <Label title="对空:"/>
+    </component>
+    <component id="n21_n7no" name="damageType" src="n7nor" fileName="AttributeLable_skill.xml" xy="726,94" controller="type,2">
+      <Label title="伤害类型:"/>
+    </component>
+    <component id="n22_n7no" name="targetTeam" src="n7nor" fileName="AttributeLable_skill.xml" xy="726,47" controller="type,2">
+      <Label title="敌对组:"/>
+    </component>
+  </displayList>
+  <Button mode="Radio"/>
+</component>

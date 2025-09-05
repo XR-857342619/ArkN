@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1920,1080" opaque="false">
+  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="1">
+    <remark page="0" value="正常"/>
+    <remark page="1" value="放置单位"/>
+    <remark page="2" value="放置单位_选择位置"/>
+    <remark page="3" value="放置单位_选择朝向"/>
+    <remark page="4" value="单位使用技能"/>
+    <remark page="5" value="结算"/>
+    <remark page="6" value="设置"/>
+    <remark page="7" value="演习设置"/>
+    <action type="change_page" fromPage="" toPage="0,1" objectId="n25_kbte" controller="left" targetPage="0"/>
+    <action type="change_page" fromPage="" toPage="8,9" objectId="n25_kbte" controller="left" targetPage="1"/>
+    <action type="play_transition" fromPage="" toPage="11" transition="t3"/>
+  </controller>
+  <controller name="win" pages="0,,1," selected="0"/>
+  <controller name="isPreview" pages="0,,1," selected="1"/>
+  <displayList>
+    <image id="n57_t5h9" name="n57" src="t5h94r" fileName="任务目标_一般.png" xy="681,26" group="n42_kbte"/>
+    <text id="n11_f146" name="enemy" xy="869,58" pivot="0.5,0.5" anchor="true" size="44,48" group="n42_kbte" fontSize="35" color="#ffffff" align="center" text="10"/>
+    <text id="n13_f146" name="hp" xy="1161,58" pivot="0.5,0.5" anchor="true" size="44,48" group="n42_kbte" fontSize="35" color="#ffffff" align="center" text="10"/>
+    <component id="n35_h4sa" name="Units" src="f1463m" fileName="Container.xml" xy="0,0" group="n42_kbte"/>
+    <component id="n54_n3en" name="DamageInfo" src="f1463m" fileName="Container.xml" xy="0,0" group="n42_kbte"/>
+    <component id="n41_kbte" name="SkillUseBack" src="f1463m" fileName="Container.xml" xy="0,0" size="1920,1080" group="n42_kbte">
+      <gearDisplay controller="state" pages="10"/>
+    </component>
+    <component id="n25_kbte" name="left" src="kbte3s" fileName="BattleLeft.xml" xy="-1,0" size="683,1080" group="n42_kbte">
+      <gearDisplay controller="state" pages="1,8,10"/>
+    </component>
+    <component id="n15_f146" name="Builds" src="f1463m" fileName="Container.xml" xy="0,0" group="n42_kbte">
+      <relation target="" sidePair="right-right"/>
+    </component>
+    <component id="n40_kbte" name="SkillUsePanel" src="kbte47" fileName="SkillUsePanel.xml" xy="948,484" group="n42_kbte">
+      <gearDisplay controller="state" pages="10"/>
+    </component>
+    <component id="n61_gbwm" name="Setting" src="gbwm4w" fileName="Setting.xml" xy="25,19" group="n42_kbte"/>
+    <image id="n59_t5h9" name="n59" src="t5h94t" fileName="部署费用.png" xy="1613,747" group="n55_tku9"/>
+    <text id="n22_kbte" name="number" xy="1863,825" size="21,42" group="n55_tku9" fontSize="30" color="#ffffff" text="8"/>
+    <text id="n24_kbte" name="cost" xy="1860,783" pivot="0.5,0.5" anchor="true" size="49,54" group="n55_tku9" fontSize="40" color="#ffffff" align="center" text="30"/>
+    <component id="n30_kbte" name="costBar" src="kbte40" fileName="CostBar.xml" xy="1749,819" size="171,5" group="n55_tku9">
+      <ProgressBar value="51" max="1"/>
+    </component>
+    <group id="n55_tku9" name="youxia" xy="1613,747" size="307,123" group="n42_kbte" advanced="true">
+      <relation target="" sidePair="right-right"/>
+    </group>
+    <component id="n71_rkte" name="GameSpeed" src="rkte51" fileName="FastSpeed.xml" xy="1572,33" group="n42_kbte">
+      <gearDisplay controller="state" pages="0,1,8,9,10,11,12"/>
+      <relation target="" sidePair="right-right"/>
+    </component>
+    <component id="n73_rkte" name="Pause" src="rkte52" fileName="Pause.xml" xy="1742,34" group="n42_kbte">
+      <relation target="" sidePair="right-right"/>
+    </component>
+    <image id="n84_fji9" name="nextFrame" src="fji95h" fileName="btn_nextFrame.png" xy="1399,33" group="n42_kbte">
+      <gearDisplay controller="isPreview" pages="1"/>
+      <gearDisplay2 controller="state" pages="1,8,9,10" condition="0"/>
+    </image>
+    <image id="n125_hy1b" name="n125" src="hy1b63" fileName="sprite_practice.png" xy="678,87" group="n42_kbte">
+      <gearDisplay controller="isPreview" pages="1"/>
+    </image>
+    <group id="n42_kbte" name="normalGroup" xy="-1,0" size="1921,1080" advanced="true">
+      <gearDisplay controller="state" pages="0,1,8,9,10,12,13"/>
+    </group>
+    <graph id="n105_t03z" name="background" xy="0,0" size="1920,1080" group="n93_fji9" alpha="0" type="rect" lineSize="0"/>
+    <graph id="n106_t03z" name="bg" xy="50,100" size="1820,880" group="n93_fji9" alpha="0.8" type="rect" corner="30">
+      <relation target="" sidePair="width-width,height-height,center-center%,middle-middle%"/>
+    </graph>
+    <text id="n107_t03z" name="n107" xy="110,294" size="142,42" group="n93_fji9" fontSize="30" text="无限COST"/>
+    <text id="n108_t03z" name="n108" xy="110,150" size="124,42" group="n93_fji9" fontSize="30" text="游戏流速"/>
+    <text id="n109_t03z" name="n109" xy="110,366" size="184,42" group="n93_fji9" fontSize="30" text="无限目标生命"/>
+    <text id="n110_t03z" name="n110" xy="727,150" size="124,42" group="n93_fji9" fontSize="30" text="伤害统计"/>
+    <component id="n111_t03z" name="gameSpeed" src="fji95i" fileName="Slider2.xml" xy="360,156" size="280,30" group="n93_fji9">
+      <Slider value="4" max="8" min="1"/>
+    </component>
+    <component id="n112_t03z" name="isInfCost" src="fji95k" fileName="Sbtn.xml" xy="360,290" group="n93_fji9"/>
+    <component id="n113_t03z" name="isInfHealth" src="fji95k" fileName="Sbtn.xml" xy="360,362" group="n93_fji9"/>
+    <text id="n114_t03z" name="n114" xy="110,438" size="165,42" group="n93_fji9" fontSize="30" text="再部署无CD"/>
+    <component id="n115_t03z" name="isNoCD" src="fji95k" fileName="Sbtn.xml" xy="360,434" group="n93_fji9"/>
+    <text id="n117_t03z" name="n117" xy="110,582" size="184,42" group="n93_fji9" fontSize="30" text="不限可部署数"/>
+    <text id="n118_t03z" name="n118" xy="110,510" size="184,42" group="n93_fji9" fontSize="30" text="部署位无限制"/>
+    <component id="n119_t03z" name="isInfUnitCount" src="fji95k" fileName="Sbtn.xml" xy="360,578" group="n93_fji9"/>
+    <component id="n120_t03z" name="isNoLimitBuild" src="fji95k" fileName="Sbtn.xml" xy="360,506" group="n93_fji9"/>
+    <text id="n121_t03z" name="n121" xy="110,222" size="184,42" group="n93_fji9" fontSize="30" text="技力回复速度"/>
+    <component id="n122_t03z" name="GiveUp2" src="gbwm4x" fileName="GiveUP.xml" xy="110,864" size="167,68" group="n93_fji9">
+      <relation target="n106_t03z" sidePair="left-left%,top-bottom%"/>
+    </component>
+    <component id="n123_t03z" name="skillPowerSpeed" src="fji95i" fileName="Slider2.xml" xy="360,228" size="280,30" group="n93_fji9" controller="c1,1">
+      <Slider value="8" max="16" min="1"/>
+    </component>
+    <component id="n104_iyaj" name="exitSetting" src="fji95p" fileName="exit.xml" xy="1820,126" size="30,30" group="n93_fji9">
+      <gearDisplay controller="state" pages="13"/>
+      <relation target="n106_t03z" sidePair="right-right%"/>
+      <Button controller="state" page="0"/>
+    </component>
+    <group id="n93_fji9" name="previewGroup" xy="0,0" size="1920,1080" advanced="true">
+      <gearDisplay controller="state" pages="13"/>
+    </group>
+    <list id="n116_t03z" name="DamageInfoList" xy="727,200" size="1100,740" overflow="scroll" defaultItem="ui://vp312gabfji95m" autoClearItems="true">
+      <gearDisplay controller="state" pages="11,13"/>
+      <gearXY controller="state" pages="11" values="772,38" default="727,200"/>
+      <gearSize controller="state" pages="11" values="1100,1039,1,1" default="1100,740,1,1"/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+    </list>
+    <component id="n53_kbte" name="endClick" src="f1463m" fileName="Container.xml" xy="0,0" size="1920,1080" group="n52_kbte"/>
+    <loader id="n43_kbte" name="endPic" xy="-21,4" size="1025,1024" group="n52_kbte" touchable="false"/>
+    <graph id="n45_kbte" name="n45" xy="0,600" size="1920,480" group="n52_kbte" touchable="false" type="rect" lineSize="0" fillColor="#66000000">
+      <relation target="" sidePair="width-width,bottom-bottom"/>
+    </graph>
+    <text id="n46_kbte" name="n46" xy="23,945" size="332,106" group="n52_kbte" fontSize="82" color="#ffffff" align="center" text="行动结束"/>
+    <graph id="n50_kbte" name="n50" xy="661,625" size="10,420" group="n52_kbte" touchable="false" type="rect" lineSize="0"/>
+    <text id="n51_kbte" name="n51" xy="904,783" size="304,129" group="n52_kbte" fontSize="100" color="#ffffff" align="center" text="胜利！">
+      <gearText controller="win" pages="1" values="作战失败" default="胜利！"/>
+    </text>
+    <image id="n75_qn1s" name="n75" src="qn1s5f" fileName="关卡选择_星_已完成.png" xy="122,757" group="n52_kbte"/>
+    <image id="n76_qn1s" name="n76" src="qn1s5f" fileName="关卡选择_星_已完成.png" xy="239,757" group="n52_kbte"/>
+    <image id="n77_qn1s" name="n77" src="qn1s5f" fileName="关卡选择_星_已完成.png" xy="356,757" group="n52_kbte">
+      <gearDisplay controller="win" pages="0"/>
+    </image>
+    <image id="n78_qn1s" name="n78" src="qn1s5g" fileName="关卡选择_星_未完成.png" xy="363,762" group="n52_kbte">
+      <gearDisplay controller="win" pages="1"/>
+    </image>
+    <group id="n52_kbte" name="endGroup" xy="-21,0" size="1941,1080" advanced="true">
+      <gearDisplay controller="state" pages="11"/>
+    </group>
+    <graph id="n64_gbwm" name="GiveUpBack" xy="0,0" size="1920,1080" group="n70_gbwm" type="rect" lineSize="0" fillColor="#b2000000">
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <graph id="n63_gbwm" name="n63" xy="0,292" size="1920,495" group="n70_gbwm" type="rect">
+      <relation target="" sidePair="width-width"/>
+    </graph>
+    <text id="n65_gbwm" name="n65" xy="762,318" size="394,65" group="n70_gbwm" fontSize="49" text="是否放弃本局游戏">
+      <relation target="" sidePair="center-center"/>
+    </text>
+    <component id="n66_gbwm" name="CancelGiveUp" src="gbwm4y" fileName="CancelGiveUp.xml" xy="0,712" group="n70_gbwm">
+      <relation target="" sidePair="left-left"/>
+      <relation target="n63_gbwm" sidePair="rightext-right%"/>
+    </component>
+    <component id="n67_gbwm" name="GiveUp" src="gbwm4x" fileName="GiveUP.xml" xy="960,712" group="n70_gbwm">
+      <relation target="n63_gbwm" sidePair="right-right"/>
+      <relation target="n66_gbwm" sidePair="left-left,leftext-left"/>
+    </component>
+    <group id="n70_gbwm" name="giveupGroup" xy="0,0" size="1920,1080" advanced="true">
+      <gearDisplay controller="state" pages="12"/>
+    </group>
+  </displayList>
+  <transition name="win1"/>
+  <transition name="win2"/>
+  <transition name="win3"/>
+  <transition name="reset"/>
+</component>

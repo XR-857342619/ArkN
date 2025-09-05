@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="75,75" extention="Button">
+  <controller name="button" pages="0,up,1,down" selected="1"/>
+  <displayList>
+    <graph id="n3_6ew9" name="n3" xy="37,37" pivot="0.5,0.5" anchor="true" size="75,75" rotation="90" type="regular_polygon" fillColor="#ffcccccc" sides="3" distances="0.5,0.5,0.5">
+      <gearLook controller="button" pages="1" values="1,90,0,1" default="1,0,0,1" tween="true"/>
+    </graph>
+  </displayList>
+  <Button mode="Check"/>
+</component>

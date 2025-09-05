@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6b194f808b1af6499c93410e504af42, type: 3}
+  m_Name: enemy_1553_lrdead_Atlas
+  m_EditorClassIdentifier: 
+  atlasFile: {fileID: 4900000, guid: 32e6870dda3f9004b94c1fd99f75ae17, type: 3}
+  materials:
+  - {fileID: 2100000, guid: aea8cacb74550584186cc1e06e2d229f, type: 2}
+  - {fileID: 2100000, guid: f14498860f0cd854581c480f5d4a7e22, type: 2}
+  - {fileID: 2100000, guid: 11118e26180427e468828f093327f2ce, type: 2}
+  - {fileID: 2100000, guid: 62c2799c9df02b94f91f2834331f0902, type: 2}
+  - {fileID: 2100000, guid: 3c3b8e392a3121b4ab99976615cd881c, type: 2}
+  - {fileID: 2100000, guid: f259b287e3223d8468e16515feff8711, type: 2}
+  - {fileID: 2100000, guid: bdd83da1c3062ea42b71004df7d9e44a, type: 2}
+  - {fileID: 2100000, guid: c8e5e724a7bffc241a41ebc643119d18, type: 2}
+  - {fileID: 2100000, guid: 351595ea0c6b44b46b765d09866e3505, type: 2}
+  - {fileID: 2100000, guid: 54234b94c4828ab46ad62206eecc4739, type: 2}
+  - {fileID: 2100000, guid: 33585c979056973428e467f73c590d4f, type: 2}
+  - {fileID: 2100000, guid: affa93a723c84054fa934867a75953b0, type: 2}

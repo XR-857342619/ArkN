@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="304,177" extention="Button">
+  <controller name="button" pages="0,up,1,down" selected="0"/>
+  <displayList>
+    <image id="n3_hnil" name="n3" src="hnilr60" fileName="FunUI/rogue_bg.png" xy="0,0" alpha="0.8">
+      <gearColor controller="button" pages="1" values="#cccccc" default="#ffffff"/>
+    </image>
+    <image id="n4_hnil" name="n4" src="hnilr61" fileName="FunUI/rogue_text.png" xy="0,0"/>
+  </displayList>
+  <Button/>
+</component>

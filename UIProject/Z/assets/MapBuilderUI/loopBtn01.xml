@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="75,75" extention="Button">
+  <controller name="button" pages="3,up,4,down" selected="0"/>
+  <controller name="mode" exported="true" pages="0,,1,,2," selected="0"/>
+  <displayList>
+    <image id="n3_fji9" name="n3" src="fji9r6w" fileName="24gl-repeat2.png" xy="0,0" size="75,75">
+      <gearDisplay controller="mode" pages="0"/>
+    </image>
+    <image id="n4_fji9" name="n4" src="fji9r6v" fileName="24gl-repeat2 (1).png" xy="0,0" size="75,75">
+      <gearDisplay controller="mode" pages="1"/>
+    </image>
+    <image id="n5_fji9" name="n5" src="fji9r6u" fileName="24gl-repeatOnce2.png" xy="0,0" size="75,75">
+      <gearDisplay controller="mode" pages="2"/>
+    </image>
+  </displayList>
+  <Button downEffect="dark" downEffectValue="0.8"/>
+</component>

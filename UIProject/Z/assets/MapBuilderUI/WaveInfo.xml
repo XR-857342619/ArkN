@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1190,130" extention="Button">
+  <controller name="button" pages="2,up,3,down" selected="1"/>
+  <displayList>
+    <graph id="n58_l5br" name="n58" xy="0,0" size="1180,130" alpha="0.8" type="rect" lineSize="0" corner="20"/>
+    <graph id="n52_rj18" name="n52" xy="617,12" size="83,47" type="rect"/>
+    <graph id="n46_q2un" name="n46" xy="868,13" size="83,47" type="rect"/>
+    <graph id="n45_q2un" name="n45" xy="773,13" size="83,47" type="rect"/>
+    <graph id="n37_q2un" name="n37" xy="243,60" size="83,47" type="rect"/>
+    <graph id="n38_q2un" name="n38" xy="478,62" size="53,44" type="rect"/>
+    <graph id="n39_q2un" name="n39" xy="709,63" size="53,44" type="rect"/>
+    <graph id="n25_q2un" name="headback" xy="57,5" size="120,120" type="rect" corner="20"/>
+    <text id="n26_q2un" name="name" xy="180,15" size="154,42" fontSize="30" color="#0066ff" align="center" autoSize="shrink" strokeColor="#ffffff" text="怪物的名字"/>
+    <text id="n28_q2un" name="n28" xy="179,63" size="64,42" fontSize="30" align="center" text="在第"/>
+    <text id="n29_q2un" name="delay" xy="244,62" size="80,42" fontSize="30" align="center" autoSize="none" text="110" input="true" keyboardType="4"/>
+    <text id="n30_q2un" name="n30" xy="325,63" size="154,42" fontSize="30" align="center" text="秒出现，共"/>
+    <text id="n31_q2un" name="count" xy="479,63" size="54,42" fontSize="30" align="center" autoSize="none" text="3" input="true" keyboardType="4"/>
+    <text id="n32_q2un" name="n32" xy="527,63" size="184,42" fontSize="30" align="center" text="波，每波间隔"/>
+    <text id="n34_q2un" name="n34" xy="764,63" size="34,42" fontSize="30" align="center" text="秒"/>
+    <text id="n33_q2un" name="gap" xy="708,63" size="54,42" fontSize="30" align="center" autoSize="none" text="3" input="true" keyboardType="4"/>
+    <loader id="n35_q2un" name="head" xy="66,14" size="102,102" touchable="false" url="ui://kera0i3hq2un1ca" fill="scale"/>
+    <text id="n36_q2un" name="n36" xy="343,15" size="64,42" fontSize="30" text="路径"/>
+    <text id="n41_q2un" name="n41" xy="697,15" size="94,42" fontSize="30" text="偏移："/>
+    <text id="n42_q2un" name="x" xy="775,15" size="80,42" fontSize="30" align="center" autoSize="none" text="110" input="true"/>
+    <text id="n43_q2un" name="y" xy="870,15" size="80,42" fontSize="30" align="center" autoSize="none" text="110" input="true"/>
+    <text id="n44_q2un" name="n44" xy="850,15" size="34,42" fontSize="30" text="，"/>
+    <component id="n48_q2un" name="path" src="q2unf" fileName="ComboBox2.xml" xy="412,20" size="120,32">
+      <ComboBox visibleItemCount="10" autoClearItems="true">
+        <item title="路径0"/>
+        <item title="路径1"/>
+        <item title="0"/>
+        <item title="0"/>
+      </ComboBox>
+    </component>
+    <text id="n50_rj18" name="n50" xy="537,21" size="75,34" fontSize="24" text="检查点"/>
+    <text id="n51_rj18" name="checkPoint" xy="615,15" size="80,42" fontSize="30" align="center" autoSize="none" text="110" input="true"/>
+    <text id="n56_iexc" name="n56" xy="815,65" size="64,42" fontSize="30" text="标签"/>
+    <graph id="n55_iexc" name="n55" xy="891,63" size="83,47" touchable="false" type="rect"/>
+    <text id="n57_iexc" name="tag" xy="893,65" size="80,42" fontSize="30" align="center" autoSize="none" text="110" input="true"/>
+    <graph id="n49_q2un" name="n49" xy="0,0" size="1180,130" touchable="false" type="rect" lineSize="3" lineColor="#ffffff00" fillColor="#00ffffff" corner="20">
+      <gearDisplay controller="button" pages="3"/>
+    </graph>
+    <image id="n61_l5br" name="n61" src="l5brr6r" fileName="框.png" xy="117,65" pivot="0.5,0.5" anchor="true" size="105,105"/>
+  </displayList>
+  <Button mode="Radio"/>
+</component>

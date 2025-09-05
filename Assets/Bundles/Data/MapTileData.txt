@@ -1,0 +1,8 @@
+{"Type":0,"Model":"Road"}
+{"Type":1,"Model":"Battle"}
+{"Type":2,"Model":"Tower"}
+{"Type":3,"Model":"Tower"}
+{"Type":4,"Model":"Event"}
+{"Type":5,"Model":"Heal"}
+{"Type":6,"Model":"Reward"}
+{"Type":7,"Model":"Shop"}

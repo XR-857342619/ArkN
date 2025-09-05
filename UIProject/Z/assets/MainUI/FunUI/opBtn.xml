@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="393,201" extention="Button">
+  <controller name="button" pages="0,up,1,down" selected="0"/>
+  <displayList>
+    <image id="n3_hnil" name="n3" src="hnilr5x" fileName="FunUI/op_bg.png" xy="0,0" alpha="0.8">
+      <gearColor controller="button" pages="1" values="#cccccc" default="#ffffff"/>
+    </image>
+    <image id="n4_hnil" name="n4" src="hnilr5y" fileName="FunUI/op_ic.png" xy="0,0" alpha="0.25" color="#000000"/>
+    <image id="n5_hnil" name="n5" src="hnilr5z" fileName="FunUI/op_text.png" xy="0,0"/>
+  </displayList>
+  <Button/>
+</component>

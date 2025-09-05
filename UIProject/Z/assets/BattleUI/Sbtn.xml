@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="100,50" extention="Button">
+  <controller name="button" pages="0,up,1,down" selected="0"/>
+  <displayList>
+    <graph id="n9_qn1s" name="n9" xy="0,6" size="100,38" group="n10_qn1s" type="rect" lineSize="0" fillColor="#ff999999"/>
+    <group id="n10_qn1s" name="n10" xy="0,6" size="100,38"/>
+    <graph id="n13_qn1s" name="n13" xy="4,10" size="92,30" group="n14_qn1s" type="rect" lineSize="0" lineColor="#ff00ccff" fillColor="#ff666666">
+      <gearColor controller="button" pages="1" values="#00ccff" default="#666666" duration="0.2"/>
+    </graph>
+    <group id="n14_qn1s" name="n14" xy="4,10" size="92,30"/>
+    <graph id="n19_qn1s" name="n19" xy="4,0" size="40,50" type="rect" lineSize="0">
+      <gearXY controller="button" pages="1" values="56,0" default="4,0" duration="0.2"/>
+    </graph>
+  </displayList>
+  <Button mode="Check"/>
+</component>

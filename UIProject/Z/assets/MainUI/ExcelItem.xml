@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1430,75" extention="Label">
+  <controller name="leaf" pages="0,,1," selected="0"/>
+  <controller name="expanded" pages="0,,1," selected="0"/>
+  <controller name="selectedIndex" exported="true" pages="0,,1," selected="0"/>
+  <displayList>
+    <graph id="n1_6ew9" name="n1" xy="0,0" size="1430,75" type="rect" lineSize="3"/>
+    <image id="n2_6ew9" name="n2" src="6ew9r6j" fileName="文件夹.png" xy="56,0" size="75,75">
+      <gearDisplay controller="leaf" pages="0"/>
+      <relation target="n6_6ew9" sidePair="left-right"/>
+    </image>
+    <image id="n3_6ew9" name="n3" src="6ew9r6i" fileName="表格.png" xy="55,0" size="75,75">
+      <gearDisplay controller="leaf" pages="1"/>
+      <relation target="n6_6ew9" sidePair="left-right"/>
+    </image>
+    <component id="n4_6ew9" name="selectBtn" src="qn1sr5o" fileName="Sbtn.xml" xy="1300,12" controller="button,0">
+      <Button controller="selectedIndex" page="1"/>
+    </component>
+    <graph id="n5_6ew9" name="indent" xy="0,0" size="0,75" visible="false" alpha="0" type="rect"/>
+    <component id="n6_6ew9" name="n6" src="6ew9r6p" fileName="expandBtn.xml" xy="0,0">
+      <gearDisplay controller="leaf" pages="0"/>
+      <relation target="n5_6ew9" sidePair="left-right"/>
+      <Button controller="expanded" page="1"/>
+    </component>
+    <text id="n7_6ew9" name="title" xy="127,0" size="124,75" fontSize="30" vAlign="middle" autoSize="none" singleLine="true" text="">
+      <relation target="n5_6ew9" sidePair="left-right"/>
+    </text>
+    <text id="n9_ip2q" name="path" xy="264,0" size="919,75" fontSize="30" color="#999999" vAlign="middle" autoSize="none" singleLine="true" text="">
+      <relation target="n7_6ew9" sidePair="left-right"/>
+    </text>
+  </displayList>
+</component>

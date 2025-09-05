@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1920,1080">
+  <controller name="funPage" pages="0,unit,1,skill,4,buff,5,modify" selected="0"/>
+  <controller name="isNew" pages="0,,1," selected="0"/>
+  <controller name="unitType" pages="0,normal,1,opreator,2,enemy" selected="0"/>
+  <controller name="selectIcon" pages="0,f,1,t,5,edr,6,nedr" selected="2"/>
+  <displayList>
+    <image id="n138_o8qy" name="n138" src="o8qyk" fileName="干员信息_背景2.png" xy="0,0" size="1920,1080" group="n15_o8qy">
+      <relation target="" sidePair="width-width%,height-height%"/>
+    </image>
+    <graph id="n0_daj1" name="n0" xy="0,0" size="1920,1080" group="n15_o8qy" alpha="0.2" type="rect" lineSize="0" fillColor="#ff999999">
+      <relation target="" sidePair="width-width%,height-height%"/>
+    </graph>
+    <graph id="n13_o8qy" name="n13" xy="50,60" size="1820,980" group="n15_o8qy" alpha="0.5" type="rect" corner="15">
+      <relation target="" sidePair="width-width%,height-height%"/>
+    </graph>
+    <group id="n15_o8qy" name="background" xy="0,0" size="1920,1080" advanced="true">
+      <relation target="" sidePair="width-width,height-height,center-center%,middle-middle%"/>
+    </group>
+    <component id="n8_o8qy" name="exit" src="o8qy5" fileName="exitBtn.xml" xy="100,25" size="200,75" group="n14_o8qy">
+      <Button title="&lt;        "/>
+    </component>
+    <component id="n9_o8qy" name="Unit" src="o8qy7" fileName="switchBtn.xml" xy="310,25" group="n14_o8qy">
+      <Button checked="true" title="单位" controller="funPage" page="0"/>
+    </component>
+    <component id="n10_o8qy" name="Skill" src="o8qy7" fileName="switchBtn.xml" xy="520,25" group="n14_o8qy">
+      <Button title="技能" controller="funPage" page="1"/>
+    </component>
+    <component id="n11_o8qy" name="Buff" src="o8qy7" fileName="switchBtn.xml" xy="730,25" group="n14_o8qy" touchable="false" grayed="true">
+      <Button title="Buff" controller="funPage" page="4"/>
+    </component>
+    <component id="n12_o8qy" name="Modify" src="o8qy7" fileName="switchBtn.xml" xy="940,25" group="n14_o8qy" touchable="false" grayed="true">
+      <Button title="Modify" controller="funPage" page="5"/>
+    </component>
+    <component id="n157_n7no" name="excels" src="o8qyb" fileName="ComboBox1.xml" xy="1357,32" group="n14_o8qy">
+      <ComboBox visibleItemCount="10" autoClearItems="true">
+        <item title="表0"/>
+        <item title="表1"/>
+        <item title="表2"/>
+      </ComboBox>
+    </component>
+    <component id="n158_n7no" name="folders" src="o8qyb" fileName="ComboBox1.xml" xy="1153,32" group="n14_o8qy">
+      <ComboBox visibleItemCount="10" autoClearItems="true">
+        <item title="Main"/>
+        <item title="xx"/>
+        <item title="xxxx"/>
+      </ComboBox>
+    </component>
+    <group id="n14_o8qy" name="switchBtns" xy="100,25" size="1457,75" advanced="true">
+      <relation target="" sidePair="left-left%,top-top%"/>
+    </group>
+    <component id="n16_o8qy" name="selectUnitCombobox" src="o8qyb" fileName="ComboBox1.xml" xy="770,130" size="272,60" group="n29_o8qy">
+      <ComboBox visibleItemCount="10" autoClearItems="true">
+        <item title="单位1"/>
+        <item title="单位2"/>
+        <item title="单位3"/>
+        <item title="单位4"/>
+        <item title="单位5"/>
+      </ComboBox>
+    </component>
+    <component id="n17_o8qy" name="isNewBtn" src="o8qye" fileName="checkBtn.xml" xy="145,125" size="220,70" group="n29_o8qy">
+      <Button title="修改原单位" selectedTitle="创建新单位" controller="isNew" page="1"/>
+    </component>
+    <component id="n20_o8qy" name="normal" src="o8qy5" fileName="exitBtn.xml" xy="380,125" size="180,70" group="n29_o8qy">
+      <gearDisplay controller="unitType" pages="0"/>
+      <Button title="中立单位" titleFontSize="40" controller="unitType" page="1"/>
+    </component>
+    <component id="n21_o8qy" name="opreator" src="o8qy5" fileName="exitBtn.xml" xy="380,125" size="180,70" group="n29_o8qy">
+      <gearDisplay controller="unitType" pages="1"/>
+      <Button title="干员" titleFontSize="40" controller="unitType" page="2"/>
+    </component>
+    <component id="n22_o8qy" name="enemy" src="o8qy5" fileName="exitBtn.xml" xy="380,125" size="180,70" group="n29_o8qy">
+      <gearDisplay controller="unitType" pages="2"/>
+      <Button title="敌人" titleFontSize="40" controller="unitType" page="0"/>
+    </component>
+    <graph id="n151_n7no" name="n151" xy="565,130" size="200,60" group="n29_o8qy" touchable="false" type="rect" lineSize="2" fillColor="#fffafafa" corner="20"/>
+    <text id="n152_n7no" name="unitNameInput" xy="575,133" size="180,55" group="n29_o8qy" fontSize="20" vAlign="middle" autoSize="none" singleLine="true" autoClearText="true" text="" input="true" prompt="搜索单位"/>
+    <text id="n168_ig0m" name="n168" xy="786,111" size="75,19" group="n29_o8qy" fontSize="12" text="选择参考单位">
+      <gearDisplay controller="isNew" pages="1"/>
+    </text>
+    <group id="n29_o8qy" name="selecUnit" xy="145,111" size="897,84" group="n19_o8qy" advanced="true">
+      <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
+    </group>
+    <component id="n128_o8qy" name="OpAtkGap" src="o8qyj" fileName="AttributeLable.xml" xy="144,874" size="595,65" group="n95_o8qy" customData="攻击间隔:AttackGap:float">
+      <Label title="攻击间隔:"/>
+    </component>
+    <component id="n130_o8qy" name="Cost" src="o8qyj" fileName="AttributeLable.xml" xy="144,714" size="595,65" group="n95_o8qy" customData="消耗/Cost:int">
+      <Label title="部署费用:"/>
+    </component>
+    <component id="n131_o8qy" name="OpStopCount" src="o8qyj" fileName="AttributeLable.xml" xy="144,794" size="595,65" group="n95_o8qy" customData="阻挡个数/StopCount:int">
+      <Label title="阻挡数:"/>
+    </component>
+    <component id="n132_o8qy" name="ResetTime" src="o8qyj" fileName="AttributeLable.xml" xy="144,952" size="595,65" group="n95_o8qy" customData="复活时间/ResetTime:int">
+      <Label title="再部署时间:"/>
+    </component>
+    <group id="n95_o8qy" name="Opreator" xy="144,714" size="595,303" group="n19_o8qy" advanced="true">
+      <gearDisplay controller="unitType" pages="1"/>
+      <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
+    </group>
+    <component id="n133_o8qy" name="Weight" src="o8qyj" fileName="AttributeLable.xml" xy="144,714" size="595,65" group="n96_o8qy" customData="重量/Weight:int">
+      <Label title="重量:"/>
+    </component>
+    <component id="n129_o8qy" name="EnAtkGap" src="o8qyj" fileName="AttributeLable.xml" xy="144,874" size="595,65" group="n96_o8qy" customData="攻击间隔:AttackGap:float">
+      <Label title="攻击间隔:"/>
+    </component>
+    <component id="n134_o8qy" name="EnStopCount" src="o8qyj" fileName="AttributeLable.xml" xy="144,794" size="595,65" group="n96_o8qy" customData="阻挡个数/StopCount:int">
+      <Label title="占用阻挡数:"/>
+    </component>
+    <group id="n96_o8qy" name="Enmey" xy="144,714" size="595,225" group="n19_o8qy" advanced="true">
+      <gearDisplay controller="unitType" pages="2"/>
+      <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
+    </group>
+    <component id="n127_o8qy" name="NotUseTile" src="o8qyj" fileName="AttributeLable.xml" xy="144,714" size="595,65" group="n112_o8qy" customData="不占用地板/NotUseTile:bool" controller="type,1">
+      <Label title="不占用地板:"/>
+    </component>
+    <group id="n112_o8qy" name="NormalUnit" xy="144,714" size="595,65" group="n19_o8qy" advanced="true">
+      <gearDisplay controller="unitType" pages="0"/>
+      <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
+    </group>
+    <component id="n165_tw0x" name="modeName" src="o8qyj" fileName="AttributeLable.xml" xy="321,220" size="417,65" group="n114_o8qy" customData="Model/Model:string">
+      <Label title="模型:"/>
+    </component>
+    <component id="n166_tw0x" name="unitName" src="o8qyj" fileName="AttributeLable.xml" xy="321,315" size="417,65" group="n114_o8qy" customData="Id/Id:string">
+      <Label title="名称:"/>
+    </component>
+    <component id="n122_o8qy" name="HP" src="o8qyj" fileName="AttributeLable.xml" xy="144,394" size="595,65" group="n114_o8qy" customData="血/Hp:int">
+      <Label title="血量:"/>
+    </component>
+    <component id="n123_o8qy" name="Def" src="o8qyj" fileName="AttributeLable.xml" xy="144,474" size="595,65" group="n114_o8qy" customData="防/Defence:int" controller="type,0">
+      <Label title="防御:"/>
+    </component>
+    <component id="n124_o8qy" name="MicDef" src="o8qyj" fileName="AttributeLable.xml" xy="144,554" size="595,65" group="n114_o8qy" customData="魔防/MagicDefence:int" controller="type,0">
+      <Label title="法抗:"/>
+    </component>
+    <component id="n125_o8qy" name="Atk" src="o8qyj" fileName="AttributeLable.xml" xy="144,634" size="595,65" group="n114_o8qy" customData="攻/Attack:int">
+      <Label title="攻击力:"/>
+    </component>
+    <group id="n114_o8qy" name="uintGeneralAttribute" xy="144,220" size="595,479" group="n19_o8qy" advanced="true">
+      <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
+    </group>
+    <loader id="n30_o8qy" name="unitIcon" xy="145,219" size="160,160" group="n137_o8qy" align="center" vAlign="middle" fill="scale" playing="false"/>
+    <component id="n65_o8qy" name="mode" src="o8qy5" fileName="exitBtn.xml" xy="145,219" size="160,160" group="n137_o8qy">
+      <Button title="选择&#xA;模型" titleFontSize="60" controller="selectIcon" page="1"/>
+    </component>
+    <group id="n137_o8qy" name="Mode" xy="145,219" size="160,160" group="n19_o8qy" advanced="true">
+      <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
+    </group>
+    <component id="n139_o8qy" name="selectUnitAttribute" src="o8qyb" fileName="ComboBox1.xml" xy="1057,132" size="370,60" group="n140_o8qy">
+      <relation target="n136_o8qy" sidePair="right-left%"/>
+      <ComboBox visibleItemCount="10" autoClearItems="true">
+        <item title="属性1"/>
+        <item title="属性2"/>
+        <item title="属性3"/>
+        <item title="属性4"/>
+        <item title="属性5"/>
+      </ComboBox>
+    </component>
+    <component id="n136_o8qy" name="newUnitAttribute" src="o8qy5" fileName="exitBtn.xml" xy="1431,127" size="198,65" group="n140_o8qy">
+      <relation target="n13_o8qy" sidePair="right-right%,top-top%"/>
+      <Button title="添加修改" titleFontSize="40"/>
+    </component>
+    <list id="n115_o8qy" name="addUnitAttribute" xy="780,218" size="1050,800" group="n140_o8qy" layout="flow_hz" overflow="scroll" margin="10,0,0,0" lineGap="15" colGap="40" defaultItem="ui://0tzprgeuo8qyj" autoClearItems="true">
+      <relation target="n13_o8qy" sidePair="top-top%,rightext-right%"/>
+      <relation target="n114_o8qy" sidePair="left-left%"/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+    </list>
+    <component id="n141_o8qy" name="delUnitAttribute" src="o8qy5" fileName="exitBtn.xml" xy="1635,127" size="198,65" group="n140_o8qy">
+      <relation target="n13_o8qy" sidePair="right-right%,top-top%"/>
+      <Button title="撤销修改" titleFontSize="40"/>
+    </component>
+    <group id="n140_o8qy" name="unitAttributeList" xy="780,127" size="1053,891" group="n19_o8qy" advanced="true"/>
+    <group id="n19_o8qy" name="unit" xy="144,111" size="1689,907" advanced="true">
+      <gearDisplay controller="funPage" pages="0"/>
+      <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
+    </group>
+    <list id="n142_o8qy" name="skillList" xy="145,207" size="994,793" group="n149_n7no" overflow="scroll" lineGap="3" defaultItem="ui://0tzprgeuo8qyn" autoClearItems="true">
+      <relation target="n13_o8qy" sidePair="left-left%,top-top%,bottomext-bottom%"/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+    </list>
+    <component id="n150_n7no" name="newSkill" src="o8qy5" fileName="exitBtn.xml" xy="140,127" size="200,70" group="n149_n7no">
+      <Button title="新建技能" titleFontSize="40"/>
+    </component>
+    <component id="n160_aaas" name="delSkill" src="o8qy5" fileName="exitBtn.xml" xy="355,127" size="200,70" group="n149_n7no">
+      <Button title="删除技能" titleFontSize="40"/>
+    </component>
+    <component id="n144_n7no" name="selectSkillAttribute" src="o8qyb" fileName="ComboBox1.xml" xy="1042,128" size="370,60" group="n148_n7no">
+      <gearLook controller="isNew" pages="1" values="1,0,1,0" default="1,0,0,1"/>
+      <relation target="n145_n7no" sidePair="right-left%"/>
+      <ComboBox visibleItemCount="10" autoClearItems="true">
+        <item title="属性1"/>
+        <item title="属性2"/>
+        <item title="属性3"/>
+        <item title="属性4"/>
+        <item title="属性5"/>
+      </ComboBox>
+    </component>
+    <component id="n145_n7no" name="newSkillAttribute" src="o8qy5" fileName="exitBtn.xml" xy="1426,126" size="198,65" group="n148_n7no">
+      <relation target="n13_o8qy" sidePair="right-right%,top-top%"/>
+      <Button title="添加修改" titleFontSize="40"/>
+    </component>
+    <list id="n146_n7no" name="addSkillAttribute" xy="1175,208" size="655,800" group="n148_n7no" layout="flow_hz" overflow="scroll" margin="10,0,0,0" lineGap="15" colGap="40" defaultItem="ui://0tzprgeuo8qyj" align="center" autoClearItems="true">
+      <relation target="n13_o8qy" sidePair="top-top%,rightext-right%"/>
+      <relation target="n114_o8qy" sidePair="left-left%"/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+    </list>
+    <component id="n147_n7no" name="delSkillAttribute" src="o8qy5" fileName="exitBtn.xml" xy="1635,126" size="198,65" group="n148_n7no">
+      <relation target="n13_o8qy" sidePair="right-right%,top-top%"/>
+      <Button title="撤销修改" titleFontSize="40"/>
+    </component>
+    <group id="n148_n7no" name="skillAttributeList" xy="1042,126" size="791,882" group="n149_n7no" advanced="true"/>
+    <group id="n149_n7no" name="skill" xy="140,126" size="1693,882" advanced="true">
+      <gearDisplay controller="funPage" pages="1"/>
+      <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
+    </group>
+    <component id="n159_n7no" name="back" src="o8qy5" fileName="exitBtn.xml" xy="-594,-175" size="2544,1430" group="n155_n7no" aspect="true" alpha="0.2">
+      <gearDisplay controller="selectIcon" pages="1"/>
+      <relation target="" sidePair="rightext-right%,topext-top%,bottomext-bottom%,leftext-left%"/>
+      <Button title=" " controller="selectIcon" page="0"/>
+    </component>
+    <graph id="n153_n7no" name="n000" xy="160,115" size="1600,850" group="n155_n7no" alpha="0.5" type="rect" corner="15"/>
+    <list id="n154_n7no" name="icons" xy="175,140" size="1570,800" group="n155_n7no" layout="flow_hz" overflow="scroll" lineGap="2" colGap="2" defaultItem="ui://0tzprgeun7nos" align="center" autoClearItems="true">
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+    </list>
+    <group id="n155_n7no" name="iconList" xy="-594,-175" size="2544,1430" advanced="true">
+      <gearDisplay controller="selectIcon" pages="1"/>
+      <relation target="" sidePair="center-center%,top-top%"/>
+    </group>
+    <richtext id="n156_n7no" name="tip" xy="0,0" size="125,1080" fontSize="20" color="#ff0000" autoSize="none" autoClearText="true" text=""/>
+    <component id="n167_tw0x" name="save" src="o8qy5" fileName="exitBtn.xml" xy="1586,32" size="120,60">
+      <relation target="n13_o8qy" sidePair="right-right%"/>
+      <relation target="" sidePair="top-top%"/>
+      <Button title="保存" titleFontSize="30"/>
+    </component>
+    <component id="n170_ig0m" name="saveAsNew" src="o8qy5" fileName="exitBtn.xml" xy="1716,32" size="120,60">
+      <relation target="n13_o8qy" sidePair="right-right%"/>
+      <relation target="" sidePair="top-top%"/>
+      <Button title="另存为" titleFontSize="30"/>
+    </component>
+    <component id="n171_ig0m" name="back_2" src="o8qy5" fileName="exitBtn.xml" xy="-312,-175" size="2544,1430" group="n174_ig0m" aspect="true" alpha="0.2">
+      <gearDisplay controller="selectIcon" pages="5"/>
+      <relation target="" sidePair="rightext-right%,topext-top%,bottomext-bottom%,leftext-left%"/>
+      <Button title=" " controller="selectIcon" page="6"/>
+    </component>
+    <graph id="n172_ig0m" name="n001" xy="629,209" size="660,660" group="n174_ig0m" alpha="0.8" type="rect" corner="15"/>
+    <list id="n173_ig0m" name="blocks" xy="683,261" size="550,550" group="n174_ig0m" layout="flow_hz" overflow="scroll" margin="2,0,0,0" lineGap="-5" colGap="-5" lineItemCount="12" defaultItem="ui://0tzprgeuig0mu" align="center">
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+    </list>
+    <group id="n174_ig0m" name="editRange" xy="-312,-175" size="2544,1430" advanced="true">
+      <gearDisplay controller="selectIcon" pages="5"/>
+      <relation target="" sidePair="center-center%,top-top%"/>
+    </group>
+  </displayList>
+</component>

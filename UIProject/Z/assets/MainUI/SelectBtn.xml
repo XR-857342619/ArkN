@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="232,75" extention="Label">
+  <displayList>
+    <image id="n12_voep" name="n12" src="voep3x" fileName="2.png" xy="-2,-2"/>
+  </displayList>
+</component>

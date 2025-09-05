@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="wof4wytz">
+  <resources>
+    <component id="ei150" name="MapBuilder.xml" path="/" exported="true"/>
+    <component id="ei151" name="MapInfo.xml" path="/"/>
+    <component id="ei152" name="ComboBox1_item.xml" path="/"/>
+    <component id="ei153" name="ComboBox1_popup.xml" path="/"/>
+    <component id="ei154" name="ComboBox1.xml" path="/" exported="true"/>
+    <component id="ei155" name="ContractIcon.xml" path="/"/>
+    <component id="ei156" name="btn.xml" path="/"/>
+    <component id="ei157" name="PathInfo.xml" path="/"/>
+    <component id="ei158" name="PathPage.xml" path="/"/>
+    <component id="jh399" name="PathPoint.xml" path="/"/>
+    <component id="jh39a" name="box.xml" path="/"/>
+    <component id="q2unb" name="WaveInfo.xml" path="/"/>
+    <component id="q2unc" name="WavePage.xml" path="/"/>
+    <component id="q2une" name="ComboBox2_popup.xml" path="/"/>
+    <component id="q2unf" name="ComboBox2.xml" path="/" exported="true"/>
+    <component id="q2ung" name="EnemyInfo.xml" path="/"/>
+    <component id="dy0mh" name="MidPage.xml" path="/"/>
+    <component id="dy0mi" name="MidInfo.xml" path="/"/>
+    <component id="dy0mj" name="MidUnitInfo.xml" path="/"/>
+    <component id="rj18m" name="ScrollBar1_grip.xml" path="/"/>
+    <component id="rj18n" name="ScrollBar1.xml" path="/" exported="true"/>
+    <image id="iexco" name="图层 1.png" path="/"/>
+    <component id="hnilp" name="Sbtn.xml" path="/"/>
+    <image id="hnilr6d" name="Backgroundpro.jpg" path="/"/>
+    <component id="hnilq" name="contractBtn.xml" path="/"/>
+    <component id="mpwhr6e" name="PackageEditor.xml" path="/"/>
+    <component id="u7wgr6f" name="Slider1.xml" path="/"/>
+    <component id="u7wgr6g" name="Slider1_grip.xml" path="/"/>
+    <image id="u7wgr6i" name="箭头镂空-左.png" path="/"/>
+    <image id="u7wgr6j" name="切换.png" path="/"/>
+    <image id="u7wgr6k" name="暂停.png" path="/"/>
+    <image id="u7wgr6l" name="播放.png" path="/"/>
+    <component id="u7wgr6m" name="Play.xml" path="/"/>
+    <component id="u7wgr6n" name="arrow.xml" path="/"/>
+    <component id="axior6o" name="btn_1.xml" path="/"/>
+    <component id="l5brr6p" name="ComboBox2_item.xml" path="/"/>
+    <image id="l5brr6r" name="框.png" path="/"/>
+    <component id="fji9r6s" name="Slider2.xml" path="/"/>
+    <image id="fji9r6u" name="24gl-repeatOnce2.png" path="/"/>
+    <image id="fji9r6v" name="24gl-repeat2 (1).png" path="/"/>
+    <image id="fji9r6w" name="24gl-repeat2.png" path="/"/>
+    <component id="fji9r6x" name="loopBtn01.xml" path="/"/>
+  </resources>
+  <publish name="" genCode="true"/>
+</packageDescription>

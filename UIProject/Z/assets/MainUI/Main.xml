@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1920,1080">
+  <controller name="settingC" exported="true" pages="0,,1," selected="1"/>
+  <controller name="subSetting" exported="true" pages="0,,1,,2,,3," selected="0"/>
+  <displayList>
+    <image id="n25_r5qv" name="n25" src="r5qvr53" fileName="场景_视野.png" xy="0,0" size="1920,1080" aspect="true">
+      <relation target="" sidePair="width-width,height-height,center-center,middle-middle"/>
+    </image>
+    <loader id="n4_kbte" name="standPic" xy="4,173" size="1010,1010" aspect="true" align="center" fill="scale" useResize="true"/>
+    <graph id="n8_kbte" name="n8" xy="0,484" size="255,65" type="rect" lineSize="0" fillColor="#7f000000"/>
+    <text id="n5_kbte" name="Name" xy="9,518" pivot="0,0.5" anchor="true" size="242,48" fontSize="35" color="#ffffff" align="center" vAlign="middle" autoSize="none" singleLine="true" text="玩家名字" input="true"/>
+    <component id="n28_r5qv" name="Setting" src="r5qvr55" fileName="SettingBtn.xml" xy="30,25" size="90,90" aspect="true">
+      <Button controller="settingC" page="1"/>
+    </component>
+    <text id="n22_ulof" name="n22" xy="16,994" size="156,57" fontSize="43" color="#ffffff" strokeColor="#000000" text="Version"/>
+    <text id="n23_ulof" name="Version" xy="178,994" size="65,57" fontSize="43" color="#ffffff" strokeColor="#000000" text="2.0"/>
+    <component id="n93_hnil" name="Export" src="hnilr6c" fileName="FunUI/eeBtn.xml" xy="1438,717" group="n54_qn1s">
+      <relation target="" sidePair="right-right%"/>
+    </component>
+    <component id="n94_hnil" name="rogue" src="hnilr6b" fileName="FunUI/rg_Btn.xml" xy="1136,699" group="n54_qn1s">
+      <relation target="n93_hnil" sidePair="right-right%"/>
+    </component>
+    <component id="n95_hnil" name="member" src="hnilr6a" fileName="FunUI/opBtn.xml" xy="1360,490" group="n54_qn1s">
+      <relation target="" sidePair="right-right%"/>
+    </component>
+    <component id="n97_hnil" name="battle" src="hnilr68" fileName="FunUI/tasBtn.xml" xy="1092,165" group="n54_qn1s">
+      <relation target="" sidePair="right-right%"/>
+    </component>
+    <component id="n96_hnil" name="Map" src="hnilr67" fileName="FunUI/meBtn.xml" xy="1107,221" group="n54_qn1s">
+      <relation target="n97_hnil" sidePair="left-left%"/>
+    </component>
+    <component id="n98_hnil" name="team" src="hnilr69" fileName="FunUI/tmBtn.xml" xy="1035,494" group="n54_qn1s">
+      <relation target="n95_hnil" sidePair="right-right%"/>
+    </component>
+    <group id="n54_qn1s" name="funpage" xy="1035,165" size="779,746"/>
+    <graph id="n21_10uur" name="n21" xy="0,0" size="1920,1080" group="n19_10uur" alpha="0.5" type="rect" lineSize="0" lineColor="#ffffffff">
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <graph id="n29_a7vb" name="n29" xy="0,137" size="1920,20" group="n32_a7vb" type="rect" lineSize="0">
+      <relation target="" sidePair="width-width%,left-left,right-right,top-top"/>
+    </graph>
+    <graph id="n31_a7vb" name="n31" xy="284,2" size="322,137" group="n32_a7vb" type="rect" lineSize="0">
+      <relation target="" sidePair="width-width%,left-left%,bottom-top"/>
+    </graph>
+    <group id="n32_a7vb" name="top" xy="0,2" size="1920,155" group="n19_10uur"/>
+    <graph id="n15_10uur" name="n15" xy="390,157" size="1534,923" group="n19_10uur" alpha="0.75" type="rect" lineSize="0" fillColor="#ffbdbdbd">
+      <relation target="" sidePair="width-width,bottom-bottom,rightext-right"/>
+      <relation target="n31_a7vb" sidePair="left-left%"/>
+      <relation target="n29_a7vb" sidePair="top-bottom"/>
+    </graph>
+    <component id="n30_a7vb" name="close" src="kbteh" fileName="back.xml" xy="20,33" size="220,74" group="n19_10uur" aspect="true">
+      <gearDisplay controller="settingC" pages="1"/>
+      <Button controller="settingC" page="0"/>
+    </component>
+    <image id="n33_a7vb" name="n33" src="a7vbr57" fileName="设置_黑.png" xy="297,25" size="90,90" group="n19_10uur" aspect="true">
+      <relation target="n31_a7vb" sidePair="left-left%"/>
+    </image>
+    <text id="n34_a7vb" name="n34" xy="420,38" size="182,76" group="n19_10uur" fontSize="50" autoSize="none" text="设置">
+      <relation target="n31_a7vb" sidePair="left-right%"/>
+    </text>
+    <component id="n42_a7vb" name="n42" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,200" size="275,83" group="n44_a7vb" grayed="true">
+      <gearLook controller="subSetting" pages="0,1,2" values="1,0,1,1|1,0,0,1|1,0,0,1" default="1,0,1,1"/>
+      <relation target="" sidePair="left-left%"/>
+      <relation target="n29_a7vb" sidePair="top-top%"/>
+      <relation target="n15_10uur" sidePair="right-right%"/>
+      <Button title="游戏" titleFontSize="50" selectedTitle="游戏" controller="subSetting" page="0"/>
+    </component>
+    <component id="n43_a7vb" name="n43" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,303" size="275,83" group="n44_a7vb">
+      <gearLook controller="subSetting" pages="0,2" values="1,0,0,1|1,0,0,1" default="1,0,1,1"/>
+      <relation target="n42_a7vb" sidePair="top-top%"/>
+      <relation target="" sidePair="left-left%"/>
+      <relation target="n15_10uur" sidePair="right-right%"/>
+      <Button title="声音" titleFontSize="50" selectedTitle="声音" controller="subSetting" page="1"/>
+    </component>
+    <component id="n99_6ew9" name="n99" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,406" size="275,83" group="n44_a7vb">
+      <gearLook controller="subSetting" pages="0,2" values="1,0,0,1|1,0,0,1" default="1,0,1,1"/>
+      <relation target="n42_a7vb" sidePair="top-top%"/>
+      <relation target="" sidePair="left-left%"/>
+      <relation target="n15_10uur" sidePair="right-right%"/>
+      <Button title="导表设置" titleFontSize="50" selectedTitle="导表设置" controller="subSetting" page="2"/>
+    </component>
+    <component id="n105_pf8n" name="importSpine" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,509" size="275,83" group="n44_a7vb">
+      <gearLook controller="subSetting" pages="0,2" values="1,0,0,1|1,0,0,1" default="1,0,1,1"/>
+      <relation target="n42_a7vb" sidePair="top-top%"/>
+      <relation target="" sidePair="left-left%"/>
+      <relation target="n15_10uur" sidePair="right-right%"/>
+      <Button title="Spine导入" titleFontSize="50" selectedTitle="Spine导入" controller="subSetting" page="3"/>
+    </component>
+    <group id="n44_a7vb" name="settinglist" xy="50,200" size="275,392" group="n19_10uur"/>
+    <component id="n16_10uur" name="bgm" src="10uur4y" fileName="Slider1.xml" xy="612,211" size="745,30" group="n82_qn1s">
+      <gearDisplay controller="subSetting" pages="1"/>
+      <relation target="n17_10uur" sidePair="left-left%,top-top"/>
+      <Slider value="50" max="100"/>
+    </component>
+    <text id="n17_10uur" name="n17" xy="458,205" size="125,40" group="n82_qn1s" fontSize="29" text="Bgm音量">
+      <gearDisplay controller="subSetting" pages="1"/>
+      <relation target="n15_10uur" sidePair="right-left%,top-top%"/>
+    </text>
+    <group id="n82_qn1s" name="bgmG" xy="458,205" size="899,40" group="n19_10uur" advanced="true">
+      <gearDisplay controller="subSetting" pages="1"/>
+    </group>
+    <text id="n75_qn1s" name="n75" xy="453,300" size="364,54" group="n83_qn1s" fontSize="40" text="显示损伤条详细数值">
+      <gearDisplay controller="subSetting" pages="0"/>
+      <relation target="n15_10uur" sidePair="left-left%"/>
+    </text>
+    <component id="n80_qn1s" name="ShowHp" src="qn1sr5o" fileName="Sbtn.xml" xy="1045,200" group="n83_qn1s" controller="button,0">
+      <gearDisplay controller="subSetting" pages="0"/>
+      <relation target="n15_10uur" sidePair="left-left%,top-top%"/>
+    </component>
+    <component id="n81_qn1s" name="ShowElement" src="qn1sr5o" fileName="Sbtn.xml" xy="1045,302" group="n83_qn1s" controller="button,0">
+      <gearDisplay controller="subSetting" pages="0"/>
+      <relation target="n15_10uur" sidePair="left-left%"/>
+      <relation target="n80_qn1s" sidePair="top-top%"/>
+    </component>
+    <text id="n45_a7vb" name="n45" xy="453,198" size="404,54" group="n83_qn1s" fontSize="40" text="显示敌方血条详细数值">
+      <gearDisplay controller="subSetting" pages="0"/>
+      <relation target="n15_10uur" sidePair="left-left%"/>
+    </text>
+    <group id="n83_qn1s" name="gamesteeing" xy="453,198" size="692,156" group="n19_10uur" advanced="true">
+      <gearDisplay controller="subSetting" pages="0"/>
+    </group>
+    <text id="n100_6ew9" name="n100" xy="453,198" size="364,54" group="n102_6ew9" fontSize="40" text="选择需要导入的表格">
+      <gearDisplay controller="subSetting" pages="2"/>
+      <relation target="n15_10uur" sidePair="left-left%"/>
+    </text>
+    <list id="n104_ip2q" name="ExcelList" xy="453,274" size="1430,735" group="n102_6ew9" overflow="scroll" margin="0,0,5,0" clipSoftness="5,0" lineGap="1" defaultItem="ui://k4mja8t16ew9r6q" autoClearItems="true" treeView="true" indent="25" clickToExpand="0">
+      <gearDisplay controller="subSetting" pages="2"/>
+      <relation target="n100_6ew9" sidePair="left-left,top-bottom%"/>
+      <item title="100" name="0001" level="0"/>
+      <item title="101" level="1"/>
+      <item title="110" level="1"/>
+      <item title="111" level="2"/>
+      <item title="112" level="2"/>
+      <item title="1002" level="0"/>
+      <item title="10033" level="1"/>
+    </list>
+    <group id="n102_6ew9" name="ExcelSetting" xy="453,198" size="1430,811" group="n19_10uur" advanced="true">
+      <gearDisplay controller="subSetting" pages="2"/>
+    </group>
+    <group id="n19_10uur" name="subpage" xy="0,0" size="1924,1080" advanced="true">
+      <gearDisplay controller="settingC" pages="1"/>
+    </group>
+  </displayList>
+</component>

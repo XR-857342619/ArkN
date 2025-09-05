@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="0tzprgeu">
+  <resources>
+    <component id="t03z0" name="Main.xml" path="/" exported="true"/>
+    <image id="daj12" name="Backgroundpro.jpg" path="/"/>
+    <component id="o8qy5" name="exitBtn.xml" path="/"/>
+    <component id="o8qy7" name="switchBtn.xml" path="/"/>
+    <component id="o8qyb" name="ComboBox1.xml" path="/" exported="true"/>
+    <component id="o8qyc" name="ComboBox1_popup.xml" path="/"/>
+    <component id="o8qyd" name="ComboBox1_item.xml" path="/"/>
+    <component id="o8qye" name="checkBtn.xml" path="/"/>
+    <component id="o8qyf" name="ComboBox_icon.xml" path="/" exported="true"/>
+    <component id="o8qyg" name="ComboBox_iocn_item.xml" path="/"/>
+    <component id="o8qyh" name="ComboBox_icon_popup.xml" path="/"/>
+    <component id="o8qyi" name="boolBtn.xml" path="/"/>
+    <component id="o8qyj" name="AttributeLable.xml" path="/"/>
+    <image id="o8qyk" name="干员信息_背景2.png" path="/"/>
+    <component id="o8qyn" name="SkillWithoutIcon.xml" path="/"/>
+    <component id="o8qyo" name="ComboBox_skill.xml" path="/" exported="true"/>
+    <component id="o8qyp" name="ComboBox_skill_popup.xml" path="/"/>
+    <component id="o8qyq" name="ComboBox_skill_item.xml" path="/"/>
+    <component id="n7nor" name="AttributeLable_skill.xml" path="/"/>
+    <component id="n7nos" name="iconLabel.xml" path="/"/>
+    <component id="ig0mu" name="blockBtn.xml" path="/"/>
+  </resources>
+  <publish name="" genCode="true"/>
+</packageDescription>

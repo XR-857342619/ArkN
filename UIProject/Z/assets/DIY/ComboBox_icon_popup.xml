@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="150,200">
+  <displayList>
+    <graph id="n0_ei15" name="n0" xy="0,0" size="150,200" touchable="false" type="rect" lineColor="#ffa0a0a0" fillColor="#fff0f0f0" corner="20">
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <list id="n1_ei15" name="list" xy="0,0" size="150,200" overflow="scroll" defaultItem="ui://0tzprgeuo8qyg" autoClearItems="true">
+      <relation target="" sidePair="width-width"/>
+    </list>
+  </displayList>
+  <relation target="n1_ei15" sidePair="height-height"/>
+</component>

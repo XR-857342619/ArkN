@@ -1,0 +1,1 @@
+{"Id":"影哨子弹","Type":"大飞镖","Model":"frostl_attack_01_trail","Speed":10,"Data":{"LifeTime":0,"Radius":1.4,"Trigger":0.02,"MoveHeight":0,"TriggerTimes":1,"TargetTeam":2,"MaxTargetCount":6}}

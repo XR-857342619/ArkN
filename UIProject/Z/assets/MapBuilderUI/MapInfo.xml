@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1920,1080">
+  <controller name="editcontract" pages="0,,1," selected="0"/>
+  <displayList>
+    <image id="n65_hnil" name="n65" src="hnilr6d" fileName="Backgroundpro.jpg" xy="0,0" size="1920,1080" aspect="true">
+      <relation target="" sidePair="width-width,height-height"/>
+    </image>
+    <text id="n40_ei15" name="n40" xy="755,829" size="394,42" group="n81_hnil" fontSize="30" text="选择一个方式来创建你的地图">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </text>
+    <text id="n7_ei15" name="n7" xy="573,909" size="244,42" group="n68_hnil" fontSize="30" text="使用场景创建地图">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </text>
+    <graph id="n8_ei15" name="n8" xy="828,905" size="267,51" group="n68_hnil" type="rect" corner="20">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </graph>
+    <text id="n9_ei15" name="SceneName" xy="841,909" size="240,42" group="n68_hnil" fontSize="30" autoSize="none" singleLine="true" text="" input="true">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </text>
+    <group id="n68_hnil" name="ifscene" xy="573,905" size="522,51" group="n81_hnil"/>
+    <text id="n29_ei15" name="n29" xy="573,983" size="244,42" group="n74_hnil" fontSize="30" text="使用方块创建地图">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </text>
+    <graph id="n30_ei15" name="n30" xy="886,979" size="76,51" group="n74_hnil" type="rect" corner="20">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </graph>
+    <text id="n31_ei15" name="width" xy="899,983" size="51,42" group="n74_hnil" fontSize="30" autoSize="none" singleLine="true" text="12" input="true" keyboardType="4">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </text>
+    <text id="n32_ei15" name="n32" xy="844,983" size="34,42" group="n74_hnil" fontSize="30" text="宽">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </text>
+    <graph id="n33_ei15" name="n33" xy="1018,978" size="76,51" group="n74_hnil" type="rect" corner="20">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </graph>
+    <text id="n34_ei15" name="height" xy="1031,983" size="51,42" group="n74_hnil" fontSize="30" autoSize="none" singleLine="true" text="8" input="true" keyboardType="4">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </text>
+    <text id="n35_ei15" name="n35" xy="976,983" size="34,42" group="n74_hnil" fontSize="30" text="高">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </text>
+    <group id="n74_hnil" name="size" xy="573,978" size="521,52" group="n81_hnil"/>
+    <graph id="n38_ei15" name="next" xy="1142,905" size="204,120" group="n76_hnil" type="rect" corner="20">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </graph>
+    <text id="n39_ei15" name="n39" xy="1186,939" size="116,51" group="n76_hnil" fontSize="38" text="下一步">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </text>
+    <group id="n76_hnil" name="nest" xy="1142,905" size="204,120" group="n81_hnil"/>
+    <group id="n81_hnil" name="craetsetting" xy="573,829" size="773,201" group="n83_hnil"/>
+    <text id="n46_jh39" name="n46" xy="108,231" size="94,42" group="n80_hnil" fontSize="30" text="文件名">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <graph id="n47_jh39" name="n47" xy="258,227" size="267,51" group="n80_hnil" type="rect" corner="20">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </graph>
+    <text id="n48_jh39" name="FileName" xy="271,231" size="240,42" group="n80_hnil" fontSize="30" autoSize="none" singleLine="true" text="文件名" input="true">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <group id="n80_hnil" name="filename" xy="108,227" size="417,51" group="n82_hnil"/>
+    <text id="n0_ei15" name="n0" xy="108,303" size="94,42" group="n66_hnil" fontSize="30" text="地图名">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <graph id="n1_ei15" name="n1" xy="258,298" size="267,51" group="n66_hnil" type="rect" corner="20">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </graph>
+    <text id="n2_ei15" name="MapName" xy="271,303" size="240,42" group="n66_hnil" fontSize="30" autoSize="none" singleLine="true" text="地图名" input="true">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <group id="n66_hnil" name="name" xy="108,298" size="417,51" group="n82_hnil"/>
+    <text id="n4_ei15" name="n4" xy="93,375" size="124,42" group="n67_hnil" fontSize="30" text="地图简述">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <graph id="n5_ei15" name="n5" xy="258,370" size="267,51" group="n67_hnil" type="rect" corner="20">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </graph>
+    <text id="n6_ei15" name="MapDesc" xy="271,375" size="240,42" group="n67_hnil" fontSize="30" autoSize="none" singleLine="true" text="挑战xxx" input="true">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <group id="n67_hnil" name="mapinfo" xy="93,370" size="432,51" group="n82_hnil"/>
+    <text id="n10_ei15" name="n10" xy="78,447" size="154,42" group="n69_hnil" fontSize="30" text="防御点生命">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <graph id="n11_ei15" name="n11" xy="258,442" size="267,51" group="n69_hnil" type="rect" corner="20">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </graph>
+    <text id="n12_ei15" name="InitHp" xy="271,447" size="240,42" group="n69_hnil" fontSize="30" autoSize="none" singleLine="true" text="3" input="true" keyboardType="4">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <group id="n69_hnil" name="hp" xy="78,442" size="447,51" group="n82_hnil"/>
+    <text id="n13_ei15" name="n13" xy="63,519" size="184,42" group="n70_hnil" fontSize="30" text="初始部署费用">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <graph id="n14_ei15" name="n14" xy="258,514" size="267,51" group="n70_hnil" type="rect" corner="20">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </graph>
+    <text id="n15_ei15" name="InitCost" xy="271,519" size="240,42" group="n70_hnil" fontSize="30" autoSize="none" singleLine="true" text="10" input="true" keyboardType="4">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <group id="n70_hnil" name="initcost" xy="63,514" size="462,51" group="n82_hnil"/>
+    <text id="n16_ei15" name="n16" xy="78,591" size="154,42" group="n71_hnil" fontSize="30" text="可用部署位">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <graph id="n17_ei15" name="n17" xy="258,586" size="267,51" group="n71_hnil" type="rect" corner="20">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </graph>
+    <text id="n18_ei15" name="BuildCount" xy="271,591" size="240,42" group="n71_hnil" fontSize="30" autoSize="none" singleLine="true" text="9" input="true" keyboardType="4">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <group id="n71_hnil" name="maxsetcont" xy="78,586" size="447,51" group="n82_hnil"/>
+    <text id="n19_ei15" name="n19" xy="63,663" size="184,42" group="n72_hnil" fontSize="30" text="部署费用上限">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <graph id="n20_ei15" name="n20" xy="258,658" size="267,51" group="n72_hnil" type="rect" corner="20">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </graph>
+    <text id="n21_ei15" name="MaxCost" xy="271,663" size="240,42" group="n72_hnil" fontSize="30" autoSize="none" singleLine="true" text="99" input="true" keyboardType="4">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <group id="n72_hnil" name="maxcost" xy="63,658" size="462,51" group="n82_hnil"/>
+    <text id="n61_luym" name="n61" xy="93,735" size="124,42" group="n77_hnil" fontSize="30" text="箱子个数">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <text id="n63_luym" name="BoxCount" xy="271,735" size="240,42" group="n77_hnil" fontSize="30" autoSize="none" singleLine="true" text="9" input="true" keyboardType="4">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <graph id="n62_luym" name="n62" xy="258,730" size="267,51" group="n77_hnil" type="rect" corner="20">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </graph>
+    <group id="n77_hnil" name="box" xy="93,730" size="432,51" group="n82_hnil"/>
+    <text id="n60_10uur" name="n60" xy="63,807" size="184,42" group="n78_hnil" fontSize="30" text="部署位无限制">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <component id="n64_hnil" name="NoBuildLimit" src="hnilp" fileName="Sbtn.xml" xy="341,803" group="n78_hnil">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </component>
+    <group id="n78_hnil" name="setunlimit" xy="63,803" size="378,50" group="n82_hnil"/>
+    <component id="n92_pkao" name="SMapPackageIndex" src="ei154" fileName="ComboBox1.xml" xy="258,155" size="267,50" group="n93_pkao">
+      <relation target="" sidePair="left-left%,top-top%"/>
+      <ComboBox visibleItemCount="10" autoClearItems="true">
+        <item title="00"/>
+        <item title="01"/>
+      </ComboBox>
+    </component>
+    <text id="n91_pkao" name="n91" xy="108,159" size="94,42" group="n93_pkao" fontSize="30" text="地图包">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <group id="n93_pkao" name="mappackage" xy="108,155" size="417,50" group="n82_hnil"/>
+    <group id="n82_hnil" name="basicsetting" xy="63,155" size="462,698" group="n83_hnil"/>
+    <group id="n83_hnil" name="mapsetting" xy="63,155" size="1283,875"/>
+    <text id="n58_ic0q" name="n58" xy="260,75" size="154,42" group="n79_hnil" fontSize="30" text="选则地图包">
+      <relation target="" sidePair="left-left%,top-top%"/>
+    </text>
+    <component id="n44_ei15" name="load" src="ei156" fileName="btn.xml" xy="79,71" group="n79_hnil">
+      <relation target="" sidePair="left-left%,top-top%"/>
+      <Button title="载入地图"/>
+    </component>
+    <component id="n88_hnil" name="MapPackageIndex" src="ei154" fileName="ComboBox1.xml" xy="434,71" group="n79_hnil">
+      <relation target="" sidePair="left-left%,top-top%"/>
+      <ComboBox visibleItemCount="10" autoClearItems="true">
+        <item title="00"/>
+        <item title="01"/>
+      </ComboBox>
+    </component>
+    <component id="n89_pkao" name="quickLoad" src="ei154" fileName="ComboBox1.xml" xy="798,71" group="n79_hnil">
+      <relation target="" sidePair="left-left%,top-top%"/>
+      <ComboBox visibleItemCount="10" autoClearItems="true">
+        <item title="00"/>
+        <item title="01"/>
+      </ComboBox>
+    </component>
+    <text id="n90_pkao" name="n90" xy="654,75" size="124,42" group="n79_hnil" fontSize="30" text="选则地图">
+      <relation target="" sidePair="left-left%,top-top%"/>
+    </text>
+    <group id="n79_hnil" name="importmap" xy="79,71" size="919,50"/>
+    <graph id="n87_hnil" name="n87" xy="0,0" size="1920,1080" group="n75_hnil" alpha="0.75" type="rect" fillColor="#ff999999">
+      <gearDisplay controller="editcontract" pages="1"/>
+    </graph>
+    <graph id="n36_ei15" name="n36" xy="919,154" size="901,630" group="n75_hnil" alpha="0.5" type="rect" corner="20">
+      <gearXY controller="editcontract" pages="0,1" values="919,154|129,146" tween="true"/>
+      <gearSize controller="editcontract" pages="0,1" values="901,630,1,1|1660,811,1,1" tween="true"/>
+      <relation target="" sidePair=""/>
+    </graph>
+    <graph id="n27_ei15" name="n27" xy="1195,71" size="349,50" group="n75_hnil" type="rect" corner="20">
+      <gearXY controller="editcontract" pages="0,1" values="1195,71|785,71" tween="true"/>
+    </graph>
+    <text id="n28_ei15" name="n28" xy="1236,75" size="274,42" group="n75_hnil" fontSize="30" text="编辑本地图合约信息">
+      <gearXY controller="editcontract" pages="0,1" values="1236,75|823,75" tween="true"/>
+    </text>
+    <component id="n85_hnil" name="n85" src="hnilq" fileName="contractBtn.xml" xy="1570,71" group="n75_hnil">
+      <gearXY controller="editcontract" pages="0,1" values="1570,71|1162,71" tween="true"/>
+      <gearLook controller="editcontract" pages="1" values="0,0,0,1" default="1,0,0,1" tween="true"/>
+      <Button title="展开" controller="editcontract" page="1"/>
+    </component>
+    <list id="n37_ei15" name="Contract" xy="938,172" size="863,597" group="n75_hnil" layout="flow_hz" overflow="scroll" defaultItem="ui://wof4wytzei155">
+      <gearXY controller="editcontract" pages="0,1" values="938,172|142,200" tween="true"/>
+      <gearSize controller="editcontract" pages="0,1" values="863,597,1,1|1635,737,1,1" tween="true"/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+    </list>
+    <component id="n86_hnil" name="n86" src="hnilq" fileName="contractBtn.xml" xy="1570,71" group="n75_hnil" alpha="0" touchable="false">
+      <gearXY controller="editcontract" pages="0,1" values="1570,71|1162,71" tween="true"/>
+      <gearLook controller="editcontract" pages="0,1" values="0,0,0,0|1,0,0,1"/>
+      <Button title="收起" controller="editcontract" page="0"/>
+    </component>
+    <group id="n75_hnil" name="contract" xy="0,0" size="1920,1080"/>
+  </displayList>
+</component>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="411,88" extention="Button">
+  <controller name="button" pages="2,up,3,down" selected="0"/>
+  <displayList>
+    <image id="n16_voep" name="n16" src="voep1t" fileName="TeamUIRes/team_name_02.png" xy="-1,-2">
+      <gearDisplay controller="button" pages="2"/>
+    </image>
+    <image id="n17_voep" name="n17" src="voep1u" fileName="TeamUIRes/team_name_01.png" xy="-1,-2">
+      <gearDisplay controller="button" pages="3"/>
+    </image>
+    <text id="n15_r8hr" name="title" xy="68,26" size="159,53" fontSize="39" color="#ffffff" text="第一编队"/>
+  </displayList>
+  <Button mode="Radio"/>
+</component>

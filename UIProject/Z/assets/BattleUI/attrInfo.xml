@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="105,25" extention="Label">
+  <displayList>
+    <text id="n0_bcc3" name="title" xy="0,1" size="64,23" fontSize="15" color="#ffffff" align="center" vAlign="middle" singleLine="true" autoClearText="true" text="四字属性">
+      <relation target="" sidePair="left-left"/>
+    </text>
+    <text id="n2_bcc3" name="value" xy="64,1" size="39,23" fontSize="15" color="#ffffff" vAlign="middle" singleLine="true" autoClearText="true" text="1145">
+      <relation target="n0_bcc3" sidePair="left-right%"/>
+    </text>
+  </displayList>
+</component>

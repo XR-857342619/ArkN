@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="50,50" extention="Button">
+  <controller name="button" pages="0,up,1,Rdown,4,down" selected="0"/>
+  <displayList>
+    <graph id="n0_ig0m" name="n0" xy="0,0" size="50,50" alpha="0.8" type="rect" lineSize="5" lineColor="#ff333333" fillColor="#ffd4d4d4">
+      <gearDisplay controller="button" pages="0"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <graph id="n1_ig0m" name="n1" xy="0,0" size="50,50" alpha="0.8" type="rect" lineSize="5" lineColor="#ff333333" fillColor="#ffff6600">
+      <gearDisplay controller="button" pages="1"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <graph id="n2_ig0m" name="n2" xy="0,0" size="50,50" alpha="0.8" type="rect" lineSize="5" lineColor="#ff333333" fillColor="#ff00ccff">
+      <gearDisplay controller="button" pages="4"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+  </displayList>
+  <Button mode="Check"/>
+</component>

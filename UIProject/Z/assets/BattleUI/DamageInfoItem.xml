@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1100,140" extention="Label">
+  <displayList>
+    <graph id="n3_fji9" name="n3" xy="0,0" size="1100,140" alpha="0.7" type="rect" corner="30">
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <text id="n0_fji9" name="title" xy="131,19" size="111,30" fontSize="20" align="center" vAlign="middle" leading="0" autoSize="ellipsis" singleLine="true" autoClearText="true" text="维什戴尔">
+      <relation target="" sidePair="width-width%"/>
+      <relation target="n2_fji9" sidePair="left-right%"/>
+    </text>
+    <component id="n8_fji9" name="nomal" src="fji95o" fileName="Damage.xml" xy="249,51" size="790,20">
+      <relation target="n11_fji9" sidePair="middle-middle%,left-right%"/>
+      <relation target="" sidePair="right-right%"/>
+      <Slider max="1"/>
+    </component>
+    <component id="n9_fji9" name="real" src="fji95o" fileName="Damage.xml" xy="249,99" size="790,18">
+      <relation target="n13_fji9" sidePair="middle-middle%,left-right%"/>
+      <relation target="" sidePair="right-right%"/>
+      <Slider max="1"/>
+    </component>
+    <component id="n10_fji9" name="magic" src="fji95o" fileName="Damage.xml" xy="249,75" size="790,20">
+      <relation target="n12_fji9" sidePair="middle-middle%,left-right%"/>
+      <relation target="" sidePair="right-right%"/>
+      <Slider max="1"/>
+    </component>
+    <text id="n11_fji9" name="n11" xy="146,49" size="80,24" fontSize="16" autoSize="none" text="    物    伤    ">
+      <relation target="n2_fji9" sidePair="left-right%"/>
+      <relation target="n0_fji9" sidePair="top-bottom"/>
+    </text>
+    <text id="n12_fji9" name="n12" xy="146,73" size="80,24" fontSize="16" autoSize="none" text="    法    伤    ">
+      <relation target="n2_fji9" sidePair="left-right%"/>
+      <relation target="n11_fji9" sidePair="top-bottom"/>
+    </text>
+    <text id="n13_fji9" name="n13" xy="146,97" size="80,24" fontSize="16" autoSize="none" text="    真    伤    ">
+      <relation target="n2_fji9" sidePair="left-right%"/>
+      <relation target="n12_fji9" sidePair="top-bottom"/>
+    </text>
+    <component id="n14_t03z" name="total" src="fji95o" fileName="Damage.xml" xy="248,24" size="790,20">
+      <relation target="" sidePair="right-right%"/>
+      <relation target="n0_fji9" sidePair="left-right"/>
+      <Slider max="1"/>
+    </component>
+    <loader id="n2_fji9" name="icon" xy="20,20" size="100,100" align="center" vAlign="middle" fill="scale" useResize="true">
+      <relation target="" sidePair="left-left%"/>
+    </loader>
+  </displayList>
+</component>

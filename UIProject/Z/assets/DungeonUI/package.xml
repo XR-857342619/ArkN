@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="hgasjns6">
+  <resources>
+    <component id="t5h90" name="DungeonStart.xml" path="/" exported="true"/>
+    <component id="t5h91" name="StartGame.xml" path="/"/>
+    <component id="t5h92" name="StartUnit.xml" path="/"/>
+    <component id="t5h93" name="InitUnit.xml" path="/"/>
+    <component id="t5h94" name="Map.xml" path="/" exported="true"/>
+    <component id="t5h95" name="btn.xml" path="/"/>
+    <component id="t5h97" name="TeamSkill.xml" path="/Team/"/>
+    <component id="t5h98" name="TeamUnit.xml" path="/Team/"/>
+    <component id="t5h99" name="back.xml" path="/"/>
+    <image id="t5h9a" name="图层 1.png" path="/"/>
+    <component id="t5h9b" name="TeamSelect.xml" path="/Team/" exported="true"/>
+    <component id="t5h9q" name="LeftUnitInfo.xml" path="/Team/Folder/"/>
+    <component id="t5h9r" name="Container.xml" path="/Team/Folder/"/>
+    <component id="t5h9s" name="SkillInfo.xml" path="/Team/Folder/"/>
+    <component id="t5h9t" name="SelectBtn.xml" path="/Team/"/>
+    <component id="t5h9u" name="SelectBtn(1).xml" path="/Team/"/>
+    <component id="gbwmv" name="MissionInfo.xml" path="/MissionInfo/"/>
+    <component id="gbwmw" name="go.xml" path="/MissionInfo/"/>
+    <component id="gbwmx" name="Battle.xml" path="/DungeonBattle/" exported="true"/>
+    <component id="gbwmy" name="BattleContract.xml" path="/DungeonBattle/" exported="true"/>
+    <component id="gbwmz" name="Relic.xml" path="/DungeonBattle/"/>
+    <component id="gbwm10" name="GoBattle.xml" path="/DungeonBattle/"/>
+    <component id="gbwm11" name="Dialogue.xml" path="/Dialougue/" exported="true"/>
+    <image id="gbwm12" name="rl_camp.png" path="/Dialougue/"/>
+    <component id="gbwm13" name="Choice.xml" path="/Dialougue/"/>
+    <component id="gbwm14" name="Reward.xml" path="/Dialougue/"/>
+    <component id="gbwm15" name="Recruit.xml" path="/Recruit/" exported="true"/>
+    <component id="gbwm16" name="RecruitUnit.xml" path="/Recruit/"/>
+    <component id="k32v17" name="back.xml" path="/UnitInfo/"/>
+    <image id="k32v18" name="退出按钮.png" path="/UnitInfo/"/>
+    <component id="k32v19" name="home.xml" path="/UnitInfo/"/>
+    <image id="k32v1a" name="退到主菜单.png" path="/UnitInfo/"/>
+  </resources>
+  <publish name="" genCode="true"/>
+</packageDescription>

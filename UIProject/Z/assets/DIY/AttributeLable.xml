@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="500,65" extention="Label">
+  <controller name="type" exported="true" pages="0,text,1,bool" selected="0"/>
+  <displayList>
+    <graph id="n1_o8qy" name="n1" xy="0,0" size="500,65" type="rect" lineSize="2" fillColor="#ffe4e4e4" corner="15">
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <graph id="n2_o8qy" name="n2" xy="65,6" pivot="0.5,0.5" size="429,54" type="rect" lineSize="2" fillColor="#ffc2c2c2" corner="14">
+      <gearDisplay controller="type" pages="0"/>
+      <relation target="n4_o8qy" sidePair="leftext-right%"/>
+      <relation target="" sidePair="rightext-right%"/>
+    </graph>
+    <text id="n4_o8qy" name="title" xy="13,18" size="50,29" fontSize="20" vAlign="middle" text="血量:">
+      <relation target="n1_o8qy" sidePair="middle-middle%,left-left%"/>
+    </text>
+    <component id="n6_o8qy" name="bool" src="o8qyi" fileName="boolBtn.xml" xy="64,6" size="430,54">
+      <gearDisplay controller="type" pages="1"/>
+      <relation target="n4_o8qy" sidePair="leftext-right%"/>
+      <relation target="" sidePair="rightext-right%"/>
+      <Button title="False" titleColor="#000000" titleFontSize="30" selectedTitle="True"/>
+    </component>
+    <text id="n7_tw0x" name="text" xy="71,2" size="408,60" fontSize="25" vAlign="middle" autoSize="none" singleLine="true" text="" input="true" keyboardType="2">
+      <gearDisplay controller="type" pages="0"/>
+      <relation target="n4_o8qy" sidePair="leftext-right%"/>
+      <relation target="" sidePair="rightext-right%"/>
+    </text>
+  </displayList>
+</component>

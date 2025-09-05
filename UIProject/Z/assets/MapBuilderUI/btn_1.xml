@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="156,50" extention="Button">
+  <controller name="button" pages="2,up,3,down" selected="1"/>
+  <displayList>
+    <graph id="n0_ei15" name="n0" xy="0,0" size="156,50" type="rect" fillColor="#ff47bcf4" corner="20">
+      <gearColor controller="button" pages="2" values="#ffffff" default="#47bcf4"/>
+    </graph>
+    <text id="n1_ei15" name="title" xy="78,25" pivot="0.5,0.5" anchor="true" size="124,42" fontSize="30" align="center" text="编辑路线"/>
+  </displayList>
+  <Button mode="Check"/>
+</component>

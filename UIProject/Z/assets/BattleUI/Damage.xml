@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="35,20" extention="Slider">
+  <displayList>
+    <graph id="n0_fji9" name="n0" xy="0,0" size="35,20" type="rect" lineColor="#ff999999" fillColor="#fff0f0f0" corner="15">
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <graph id="n1_fji9" name="bar" xy="3,2" size="28,16" type="rect" fillColor="#ff3399ff" corner="10"/>
+    <text id="n2_fji9" name="title" xy="9,-11" size="44,42" fontSize="23" color="#ffffff" vAlign="middle" leading="0" autoSize="none" strokeColor="#000000" autoClearText="true" text="55">
+      <relation target="" sidePair="width-width"/>
+      <relation target="n0_fji9" sidePair="left-left"/>
+    </text>
+    <component id="n3_fji9" name="grip" src="fji95n" fileName="Damage_grip.xml" xy="26,-5" alpha="0">
+      <relation target="n1_fji9" sidePair="right-right"/>
+    </component>
+  </displayList>
+  <Slider titleType="value" changeOnClick="false"/>
+</component>

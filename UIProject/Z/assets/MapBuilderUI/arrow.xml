@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="75,75" extention="Button">
+  <controller name="button" pages="0,up,1,down" selected="1"/>
+  <displayList>
+    <image id="n0_u7wg" name="n0" src="u7wgr6i" fileName="箭头镂空-左.png" xy="37,37" pivot="0.5,0.5" anchor="true" size="75,75" color="#47bcf4">
+      <gearColor controller="button" pages="1" values="#47bcf4" default="#ffffff"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </image>
+  </displayList>
+  <Button mode="Check"/>
+</component>
