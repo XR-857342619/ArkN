@@ -16,12 +16,13 @@ namespace Skills
         public Vector3 pointB;    // 第二个点
         public Vector3 linePoint; // 直线经过的点
         public Vector2 lineDirection; // 直线方向（xz平面）
-        public string damageType;
+        public DamageTypeEnum damageType;
+        public bool ignoreDamageTypeLimit;
 
         public override void Init()
         {
             base.Init();
-            damageType = SkillData.Data.GetStr("DamageTypeLimit")?? "";
+            ignoreDamageTypeLimit = !DamageTypeEnum.TryParse(SkillData.Data.GetStr("DamageTypeLimit"), out damageType);
         }
         public override void Start()
         {
@@ -35,7 +36,7 @@ namespace Skills
                 if (s != null && CanUseTo(s))
                     source = s;
                 var skill = Battle.TriggerDatas.Peek().Skill;
-                if (skill != null && CanUseTo(skill))
+                if (skill != null)
                     sourceSkill = skill;
             }
             pointA = target.Position;
@@ -48,7 +49,7 @@ namespace Skills
             if (target != null && source != null)
             {
                 if (ArePointsOnOppositeSides())
-                    if (sourceSkill.SkillData.DamageType == damageType || damageType == "")
+                    if (sourceSkill.SkillData.DamageType == damageType || ignoreDamageTypeLimit)
                         base.Start();
             }
             //base.Start();
