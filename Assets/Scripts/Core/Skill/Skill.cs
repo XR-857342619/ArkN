@@ -1502,5 +1502,55 @@ public class Skill
         }
         tiles.Clear();
     }
+    public void CopyState(Skill skill)
+    {
+        if (skill == null) return;
+
+        // 基本属性
+        //this.Unit = skill.Unit;
+        this.Parent = skill.Parent;
+        this.Modifies = new List<Modify>(skill.Modifies);
+        this.Targets = new List<Unit>(skill.Targets);
+        this.AttackPoints = new List<Vector2Int>(skill.AttackPoints);
+        this.Power = skill.Power;
+        this.PowerCount = skill.PowerCount;
+        this.MaxPowerBase = skill.MaxPowerBase;
+        this.StartId = skill.StartId;
+        this.Id = skill.Id;
+        this.UseCount = skill.UseCount;
+        this.IsCantOpen = skill.IsCantOpen;
+        this.IsCantUse = skill.IsCantUse;
+        this.IsCantCast = skill.IsCantCast;
+        this.IsCantCastCount = skill.IsCantCastCount;
+        this.IsCantBurst = skill.IsCantBurst;
+        this.IsCantLoop = skill.IsCantLoop;
+        this.IsNormalAttack = skill.IsNormalAttack;
+        this.showRange = skill.showRange;
+        this.showBar = skill.showBar;
+        this.canStop = skill.canStop;
+
+        // 计时器
+        this.Cooldown.Set(skill.Cooldown.value);
+        this.Casting.Set(skill.Casting.value);
+        this.Bursting.Set(skill.Bursting.value);
+        this.Opening.Set(skill.Opening.value);
+        this.LoopingStart.Set(skill.LoopingStart.value);
+        this.LoopingEnd.Set(skill.LoopingEnd.value);
+        this.Waiting.Set(skill.Waiting.value);
+
+        // 效果
+        this.ReadyEffect = skill.ReadyEffect;
+        this.LoopStartEffect = skill.LoopStartEffect;
+        this.LoopCastEffect = skill.LoopCastEffect;
+
+        // 其他属性
+        this.Destroyed = skill.Destroyed;
+        this.SkillData = skill.SkillData;
+
+        // 临时变量
+        //this.tempTargets = new List<Unit>(skill.tempTargets);
+        //this.tiles = new List<GameObject>(skill.tiles);
+    }
+
 }
 
