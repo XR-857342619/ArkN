@@ -99,7 +99,7 @@ namespace Skills
                 Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);
                 Log.Debug(Operator.Skills.Count());
                 GameObject go = Operator.UnitModel.gameObject;
-                go.transform.position = new Vector3(pos.x, pos.y, 0.5f);
+                go.transform.position = new Vector3(pos.x,0 ,pos.y);
                 Operator.ChangePos((int)pos.x, (int)pos.y, direction);
                 Operator.JoinMap();
                 Operator.Parent = Battle.AllUnits.Find(x => x.UnitData.Name == name) as Units.干员??null;
