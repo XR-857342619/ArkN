@@ -66,11 +66,12 @@ namespace Skills
                 Unit.MainSkill = new Skill();
                 Unit.MainSkill.CopyState(SkillSource.MainSkill);
                 Unit.MainSkill.Unit = Unit;
+                //Unit.MainSkill.Reset();
             }
             else if (targetMod == "useSkillId")
             {
-                var skillData = Database.Instance.Get<SkillData>(Database.Instance.GetIndex<SkillData>(SkillData.Data.GetStr("SkillId")));
-                Unit.MainSkill = Unit.LearnSkill(skillData);
+                var skillId = Database.Instance.GetIndex<SkillData>(SkillData.Data.GetStr("SkillId"));
+                Unit.MainSkill = Unit.LearnSkill(skillId);
                 Unit.MainSkill.Init();
             }
             base.Cast();

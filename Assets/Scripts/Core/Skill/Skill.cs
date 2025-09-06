@@ -1545,7 +1545,7 @@ public class Skill
 
         // 其他属性
         this.Destroyed = skill.Destroyed;
-        this.SkillData = skill.SkillData;
+        //this.SkillData = skill.SkillData;;
 
         // 临时变量
         //this.tempTargets = new List<Unit>(skill.tempTargets);
