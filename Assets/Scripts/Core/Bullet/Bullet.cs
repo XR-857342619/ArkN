@@ -50,6 +50,7 @@ public class Bullet
         Battle.TriggerDatas.Push(new TriggerData()
         {
             User = Skill.Unit,
+            Skill = Skill,
             Target = Target,
         });
         Skill.Unit.Trigger(TriggerEnum.弹道命中);

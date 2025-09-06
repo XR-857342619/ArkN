@@ -529,6 +529,28 @@ public class Battle
         return result;
     }
 
+    public HashSet<Bullet> FindAllBullets(Vector2 pos)
+    {
+        HashSet<Bullet> result = new HashSet<Bullet>();
+        foreach (Bullet bullet in Bullets)
+        {
+            if (bullet.Position.x < pos.x+0.5 && bullet.Position.x > pos.x-0.5 && bullet.Position.z < pos.y+0.5 && bullet.Position.z > pos.y-0.5)
+                result.Add(bullet);
+        }
+        return result;
+    }
+
+    public HashSet<Bullet> FindAllBullets(Vector3 pos, float radius)
+    {
+        HashSet<Bullet> result = new HashSet<Bullet>();
+        foreach (var bullet in Bullets)
+        {
+            if ((bullet.Position - pos).magnitude < radius)
+                result.Add(bullet);
+        }
+        return result;
+    }
+
     void updateUnitMap()
     {
         foreach (var tile in UnitMap)
