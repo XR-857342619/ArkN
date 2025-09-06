@@ -77,7 +77,7 @@ namespace Skills
             //    pos = SkillData.AttackPoints[0];
             //else
             //    pos = skilloprator.GridPos;
-            Tile tile = Battle.Map.Tiles[(int)pos.x, (int)pos.y];
+            Tile tile = Battle.Map.Tiles[(int)pos.x, (int)pos.z];
             Debug.Log("获取到部署位置:" + pos + " 方向:" + direction);
             Units.干员 toRemove = null;
             foreach (Unit unit in tile.Units)
@@ -99,8 +99,8 @@ namespace Skills
                 Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);
                 Log.Debug(Operator.Skills.Count());
                 GameObject go = Operator.UnitModel.gameObject;
-                go.transform.position = new Vector3(pos.x, pos.y, 0.5f);
-                Operator.ChangePos((int)pos.x, (int)pos.y, direction);
+                go.transform.position = new Vector3(pos.x, 0.5f, pos.z);
+                Operator.ChangePos((int)pos.x, (int)pos.z, direction);
                 Operator.JoinMap();
                 Operator.Parent = Battle.AllUnits.Find(x => x.UnitData.Name == name) as Units.干员??null;
                 tile.Units.Add(Operator);
