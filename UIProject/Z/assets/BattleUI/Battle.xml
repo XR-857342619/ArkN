@@ -13,10 +13,12 @@
     <action type="change_page" fromPage="" toPage="8,9" objectId="n25_kbte" controller="left" targetPage="1"/>
     <action type="play_transition" fromPage="" toPage="11" transition="t3"/>
   </controller>
-  <controller name="win" pages="0,,1," selected="0"/>
+  <controller name="win" pages="0,,1," selected="1"/>
   <controller name="isPreview" pages="0,,1," selected="1"/>
   <displayList>
-    <image id="n57_t5h9" name="n57" src="t5h94r" fileName="任务目标_一般.png" xy="681,26" group="n42_kbte"/>
+    <image id="n57_t5h9" name="n57" src="t5h94r" fileName="任务目标_一般.png" xy="681,26" group="n42_kbte">
+      <relation target="" sidePair="center-center%"/>
+    </image>
     <text id="n11_f146" name="enemy" xy="869,58" pivot="0.5,0.5" anchor="true" size="44,48" group="n42_kbte" fontSize="35" color="#ffffff" align="center" text="10"/>
     <text id="n13_f146" name="hp" xy="1161,58" pivot="0.5,0.5" anchor="true" size="44,48" group="n42_kbte" fontSize="35" color="#ffffff" align="center" text="10"/>
     <component id="n35_h4sa" name="Units" src="f1463m" fileName="Container.xml" xy="0,0" group="n42_kbte"/>
@@ -53,9 +55,11 @@
     <image id="n84_fji9" name="nextFrame" src="fji95h" fileName="btn_nextFrame.png" xy="1399,33" group="n42_kbte">
       <gearDisplay controller="isPreview" pages="1"/>
       <gearDisplay2 controller="state" pages="1,8,9,10" condition="0"/>
+      <relation target="" sidePair="right-right%"/>
     </image>
     <image id="n125_hy1b" name="n125" src="hy1b63" fileName="sprite_practice.png" xy="678,87" group="n42_kbte">
       <gearDisplay controller="isPreview" pages="1"/>
+      <relation target="" sidePair="center-center%"/>
     </image>
     <group id="n42_kbte" name="normalGroup" xy="-1,0" size="1921,1080" advanced="true">
       <gearDisplay controller="state" pages="0,1,8,9,10,12,13"/>
@@ -111,7 +115,7 @@
     </graph>
     <text id="n46_kbte" name="n46" xy="23,945" size="332,106" group="n52_kbte" fontSize="82" color="#ffffff" align="center" text="行动结束"/>
     <graph id="n50_kbte" name="n50" xy="661,625" size="10,420" group="n52_kbte" touchable="false" type="rect" lineSize="0"/>
-    <text id="n51_kbte" name="n51" xy="904,783" size="304,129" group="n52_kbte" fontSize="100" color="#ffffff" align="center" text="胜利！">
+    <text id="n51_kbte" name="n51" xy="904,783" size="404,129" group="n52_kbte" fontSize="100" color="#ffffff" align="center" text="作战失败">
       <gearText controller="win" pages="1" values="作战失败" default="胜利！"/>
     </text>
     <image id="n75_qn1s" name="n75" src="qn1s5f" fileName="关卡选择_星_已完成.png" xy="122,757" group="n52_kbte"/>

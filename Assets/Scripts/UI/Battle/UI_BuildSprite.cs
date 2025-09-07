@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace BattleUI
 {
@@ -20,6 +21,7 @@ namespace BattleUI
         protected override void OnUpdate()
         {
             base.OnUpdate();
+            //this.width = Screen.width/13 <= 50 ? 50 : Screen.width/13;
             if (Unit == null) return;
             m_cooldown.selectedIndex = Unit.Reseting.Finished() || BattleManager.Instance.IsNoCD ? 0 : 1;
             m_bar.value = Unit.Reseting.value;
