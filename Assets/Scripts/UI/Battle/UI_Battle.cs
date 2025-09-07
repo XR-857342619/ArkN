@@ -239,17 +239,18 @@ namespace BattleUI
             var units = Battle.PlayerUnits.Where(x => x.InputTime == -1).GroupBy(x => x.Id).ToList();
             units.Sort((x, y) => y.FirstOrDefault().UnitData.Cost - x.FirstOrDefault().UnitData.Cost);
             int width = 182;
-            if (units.Count() * width > Screen.width)
-                width = Screen.width/units.Count();
+            //Debug.Log(this.width+"--"+Screen.width);
+            if (units.Count() * width > this.width)
+                width = (int)this.width/units.Count();
             foreach (var group in units)
             {
                 var head = UIPool.GetObject(UI_BuildSprite.URL) as UI_BuildSprite;
-                head.width = width;
+                //head.width = width;
                 head.SetUnit(group.FirstOrDefault());
                 m_Builds.AddChild(head);
                 head.xy = new UnityEngine.Vector2(
                     //width * 0.9f - units.IndexOf(group) * head.width,
-                    Screen.width - units.IndexOf(group) * width,
+                    this.width - (units.IndexOf(group)+1) * width,
                     group.FirstOrDefault() == selectedUnit ? height - 50f : height);
                 head.onClick.Set(() => clickUnit(group.FirstOrDefault()));
                 head.draggable = true;
