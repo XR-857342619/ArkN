@@ -732,10 +732,14 @@ public class Skill
                 Effect(target);
             }
         }
+        Log.Debug("还剩"+ BurstCount + "次连击");
         BurstCount--;
-        if (BurstCount != -1)
+        if (BurstCount >= -1)
             if (SkillData.BurstDelay > 0)
+            {
+                Log.Debug("连击延迟" + SkillData.BurstDelay + "秒");
                 Bursting.Set(SkillData.BurstDelay);
+            }
             else
                 Burst();
     }
