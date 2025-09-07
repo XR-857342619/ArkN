@@ -23,9 +23,9 @@ public class GameData
     {
         //Debug.Log("GameData初始化");
         var str = SaveHelper.LoadFile("/data.sav");
-        Debug.Log(str);
         if (!string.IsNullOrEmpty(str))
         {
+            Debug.Log(str);
             try
             {
                 instance = JsonHelper.FromJson<GameData>(str);
