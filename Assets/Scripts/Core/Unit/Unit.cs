@@ -188,7 +188,7 @@ public class Unit
             }
         if (UnitData.LifeTime != 0) LifeTime=new CountDown(UnitData.LifeTime);
         CreateModel();
-        Log.Debug("载入模型");
+        //Log.Debug("载入模型");
         Refresh();
         Hp = MaxHp;
     }
@@ -772,7 +772,7 @@ public class Unit
                 干员 oprator = unit as 干员;
                 if (oprator.Parent != null)
                     oprator = oprator.Parent;
-                Debug.Log(oprator.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
+                //Debug.Log(oprator.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
                 OpDamageInfo opDamageInfo = BattleManager.Instance.OpDamageInfos.Find(x => x.UnitId == oprator.UnitData.Id);
                 if (damageInfo.DamageType == DamageTypeEnum.Normal)
                     opDamageInfo.NomalDamage += damageInfo.FinalDamage;
@@ -784,7 +784,7 @@ public class Unit
                     Debug.LogError("未知伤害类型");
                 opDamageInfo.TotalDamage += damageInfo.FinalDamage;
             }
-            //Debug.Log(unit.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
+            Debug.Log(unit.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
         }
     }
 
@@ -925,7 +925,7 @@ public class Unit
                             breakSkill = skill;
                             ElementProtect.Set(skill.SkillData.Cooldown);
                             //skill.Cast();
-                            Log.Debug("元素爆发:" + skill.SkillData.Id);
+                            //Log.Debug("元素爆发:" + skill.SkillData.Id);
                         }
                     }
                     //skill.Targets.Remove(this);
@@ -936,7 +936,7 @@ public class Unit
                     Target = this,
                     Skill = breakSkill,
                 });
-                Log.Debug("事件:元素爆发");
+                //Log.Debug("事件:元素爆发");
                 if (this.IfAlive)
                     this.Trigger(TriggerEnum.元素爆发);
                 Battle.TriggerDatas.Pop();

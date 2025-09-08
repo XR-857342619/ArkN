@@ -46,6 +46,7 @@ public class Skill
     /// 连发计时
     /// </summary>
     public CountDown Bursting = new CountDown();
+    public CountDown BurstGap = new CountDown();
 
     /// <summary>
     /// 连发计数
@@ -81,6 +82,8 @@ public class Skill
     public bool IsCantBurst = false;
     public bool IsCantLoop = false;
     public bool IsNormalAttack = false;
+    public int 递归深度 = 1000;
+    public bool IsBursting = false;
 
     public virtual void Init()
     {
@@ -110,7 +113,7 @@ public class Skill
         Reset();
         IsNormalAttack = SkillData.UseType == SkillUseTypeEnum.自动 && SkillData.MaxPower == 0 && SkillData.ModelAnimation != null && SkillData.DamageRate > 0;//4个条件判断技能是否为普攻，判断条件存疑
         //Waiting.Finish();
-        Debug.Log(SkillData.Id + "初始化完成");
+        //Debug.Log(SkillData.Id + "初始化完成");
     }
 
     public Skill GetFinalParent()
@@ -201,9 +204,14 @@ public class Skill
         {
             Cast();
         }
-
-        if (Bursting.Update(SystemConfig.DeltaTime))
+        //if (Bursting.value != 0) Debug.Log("Bursting:"+Bursting.value);
+        //if (Bursting.Update(SystemConfig.DeltaTime))
+        if (BurstGap.Update(SystemConfig.DeltaTime) && IsBursting)
         {
+            //BurstGap.Update(SystemConfig.DeltaTime);
+            //Log.Debug("连击延迟" + BurstGap.value + "秒");
+            //Debug.Log("连击延迟" + BurstGap.value + "秒");
+            //if (BurstGap.Finished())
             Burst();
         }
 
@@ -216,6 +224,7 @@ public class Skill
             }
         }
         Waiting.Update(SystemConfig.DeltaTime);
+        //BurstGap.Update(SystemConfig.DeltaTime);
         //Debug.Log(Waiting.value);
     }
 
@@ -505,8 +514,6 @@ public class Skill
     public virtual void Start()
     {
         if (!Useable()) return;
-        if (showRange)
-            ShowUnitAttackArea();
         if (Targets.Count == 0)
         {
             FindTarget();
@@ -529,7 +536,9 @@ public class Skill
 
         //走到这里技能就真的用出来了
         UseCount++;
-        //Log.Debug(SkillData.Id + "开始使用");
+        if (showRange)
+            ShowUnitAttackArea();
+        Log.Debug(SkillData.Id + "开始使用");
         //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "使用次数:" + UseCount);
         if (SkillData.ReadyType == SkillReadyEnum.充能释放)
         {
@@ -631,7 +640,8 @@ public class Skill
             Power -= MaxPower;
         }
 
-        if (SkillData.PowerUseType == PowerRecoverTypeEnum.攻击 && IsNormalAttack)//有动作有伤害的技能视为普攻，用于消耗弹药
+        //if (SkillData.PowerUseType == PowerRecoverTypeEnum.攻击 && IsNormalAttack)//有动作有伤害的技能视为普攻，用于消耗弹药
+        if (SkillData.PowerUseType == PowerRecoverTypeEnum.攻击)//有动作有伤害的技能视为普攻，用于消耗弹药
         {
             UpdateOpening(1);
         }
@@ -671,7 +681,13 @@ public class Skill
         CastExSkill();
         if (SkillData.BurstCount > 0)
         {
-            Burst();
+            //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "开始Burst");
+            //Burst();
+            BurstCount = SkillData.BurstCount;
+            IsBursting = true;
+            BurstGap.Set(SkillData.BurstDelay);
+            LastTargets.Clear();
+            LastTargets.AddRange(Targets);
         }
         Targets.Clear();
         if (SkillData.CastEffect != null)
@@ -714,34 +730,78 @@ public class Skill
 
     protected virtual void Burst()
     {
-        if (BurstCount == -1)
+        Debug.Log("正在连发");
+        //if (BurstCount == SkillData.BurstCount)
+        //{
+        //    BurstCount = SkillData.BurstCount;
+        //    LastTargets.Clear();
+        //    LastTargets.AddRange(Targets);
+        //}
+        if (SkillData.BurstFind || SkillData.RegetTarget) //当目标为随机时
         {
-            BurstCount = SkillData.BurstCount;
             LastTargets.Clear();
-            LastTargets.AddRange(Targets);
+            LastTargets.AddRange(GetAttackTarget());
         }
-        else
+        foreach (var target in LastTargets)
         {
-            if (SkillData.BurstFind || SkillData.RegetTarget) //当目标为随机时
-            {
-                LastTargets.Clear();
-                LastTargets.AddRange(GetAttackTarget());
-            }
-            foreach (var target in LastTargets)
-            {
-                Effect(target);
-            }
+            Effect(target);
         }
-        Log.Debug("还剩"+ BurstCount + "次连击");
+        Debug.Log(LastTargets.Count + "个目标");
         BurstCount--;
-        if (BurstCount >= -1)
-            if (SkillData.BurstDelay > 0)
-            {
-                Log.Debug("连击延迟" + SkillData.BurstDelay + "秒");
-                Bursting.Set(SkillData.BurstDelay);
-            }
-            else
-                Burst();
+        if (BurstCount > 0)
+            BurstGap.Set(SkillData.BurstDelay);
+        else
+            IsBursting = false;
+        //递归深度--;
+        //if (递归深度 < 0)
+        //{
+        //    Log.Error("Burst深度超出限制");
+        //    return;
+        //}
+        //if (BurstCount == -1)
+        //{
+        //    BurstCount = SkillData.BurstCount;
+        //    LastTargets.Clear();
+        //    LastTargets.AddRange(Targets);
+        //}
+        //Debug.Log(Bursting.value+" "+Bursting.Finished());
+        //if (Bursting.Finished())
+        //{
+        //    Bursting.Set(SkillData.BurstDelay * (SkillData.BurstCount+1));
+        //    //Debug.Log("开始Burst:"+SkillData.BurstDelay * SkillData.BurstCount);
+        //    BurstGap.Set(SkillData.BurstDelay);
+        //    Log.Debug("设置BurstGap" + BurstGap.value);
+        //}
+        ////else
+        ////{
+        ////if (SkillData.BurstFind || SkillData.RegetTarget) //当目标为随机时
+        ////{
+        ////    LastTargets.Clear();
+        ////    LastTargets.AddRange(GetAttackTarget());
+        ////}
+        ////foreach (var target in LastTargets)
+        ////{
+        ////    Effect(target);
+        ////}
+        ////}
+        ////Debug.Log(BurstGap.value);
+        //if (BurstCount > 0 && BurstGap.Finished())
+        //{
+        //    Log.Debug(SkillData.Id + "还剩" + BurstCount + "次连击");
+        //    if (SkillData.BurstFind || SkillData.RegetTarget) //当目标为随机时
+        //    {
+        //        LastTargets.Clear();
+        //        LastTargets.AddRange(GetAttackTarget());
+        //    }
+        //    foreach (var target in LastTargets)
+        //    {
+        //        Effect(target);
+        //    }
+        //    BurstGap.Set(SkillData.BurstDelay);
+        //    //Log.Debug("设置BurstGap" + BurstGap.value);
+        //    BurstCount--;
+        //    //Burst();
+        //}
     }
 
     /// <summary>
@@ -1267,6 +1327,7 @@ public class Skill
             Opening.Finish();
         }
         BurstCount = -1;
+        IsBursting = false;
     }
 
     protected virtual void OnOpenEnd()

@@ -416,7 +416,7 @@ namespace Units
 
         void findNewPath()
         {
-            Debug.Log("NowPathPoint:" + NowPathPoint);
+            //Debug.Log("NowPathPoint:" + NowPathPoint);
             var offset = new Vector3(WaveData.OffsetX, 0, WaveData.OffetsetY);
             if (Height <= 0)
                 TempPath = Battle.Map.FindPath(Position - offset, NextPoint - offset, PathPoints[NowPathPoint].DirectMove);
@@ -520,7 +520,7 @@ namespace Units
                 PathPoints.Insert(NowPathPoint + tmpPathPointList.Count, tmpPoint);
 
                 findNewPath();
-                Debug.Log("插入临时路径点成功:" + pos + "lasttime:" + time);
+                //Debug.Log("插入临时路径点成功:" + pos + "lasttime:" + time);
                 DisplayPath();
                 return true;
             }

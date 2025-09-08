@@ -113,7 +113,7 @@ public class SpineModel : UnitModel
         //切入其他状态时，若有进入动画，播放
         if (!nowAnimations.StringsEqual(animations) && animations.Length>1)
         {
-            Debug.Log($"{Unit.UnitData.Id}播放切入动画{animations[0]}");
+            //Debug.Log($"{Unit.UnitData.Id}播放切入动画{animations[0]}");
             var _beginAnimation = SkeletonAnimation.Skeleton.Data.FindAnimation(animations[0]);
             SkeletonAnimation.state.AddAnimation(0, animations[0], false, 0);
             delay += _beginAnimation.Duration;

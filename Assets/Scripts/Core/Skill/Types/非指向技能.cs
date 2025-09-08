@@ -31,8 +31,12 @@ namespace Skills
                 Cast();
             }
 
-            if (Bursting.Update(SystemConfig.DeltaTime))
+            if (BurstGap.Update(SystemConfig.DeltaTime) && IsBursting)
             {
+                //BurstGap.Update(SystemConfig.DeltaTime);
+                //Log.Debug("连击延迟" + BurstGap.value + "秒");
+                //Debug.Log("连击延迟" + BurstGap.value + "秒");
+                //if (BurstGap.Finished())
                 Burst();
             }
         }
@@ -107,33 +111,31 @@ namespace Skills
             CastExSkill();
             if (SkillData.BurstCount > 0)
             {
-                Burst();
+                BurstCount = SkillData.BurstCount;
+                IsBursting = true;
+                BurstGap.Set(SkillData.BurstDelay);
+                LastTargets.Clear();
+                LastTargets.AddRange(Targets);
             }
         }
 
         protected override void Burst()
         {
-            if (BurstCount == -1)
+            if (SkillData.BurstFind || SkillData.RegetTarget) //当目标为随机时
             {
-                BurstCount = SkillData.BurstCount;
                 LastTargets.Clear();
-                LastTargets.AddRange(Targets);
+                LastTargets.AddRange(GetAttackTarget());
             }
-            else
+            foreach (var target in LastTargets)
             {
-                if (SkillData.BurstFind || SkillData.RegetTarget) //当目标为随机时
-                {
-                    LastTargets.Clear();
-                    LastTargets.AddRange(GetAttackTarget());
-                }
                 Effect(null);
             }
+            //Debug.Log(LastTargets.Count + "个目标");
             BurstCount--;
-            if (BurstCount != -1)
-                if (SkillData.BurstDelay > 0)
-                    Bursting.Set(SkillData.BurstDelay);
-                else
-                    Burst();
+            if (BurstCount > 0)
+                BurstGap.Set(SkillData.BurstDelay);
+            else
+                IsBursting = false;
         }
     }
 }
