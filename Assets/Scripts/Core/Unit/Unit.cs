@@ -79,6 +79,8 @@ public class Unit
     public float HpRecover;
     public float HpRecoverBase, HpRecoverAdd, HpRecoverRate;
 
+    public float ElementBreakRecoverRate;
+
     public int Team;
 
     public int Weight;
@@ -204,6 +206,8 @@ public class Unit
         PowerSpeed = 1f;
         AgiBase = 100 + UnitData.ExAgi;
         AttackGapBase = UnitData.AttackGap;
+        ElementBreakRecoverRate = 1f;
+        EleInjures = new Dictionary<string, float>();
         Height = UnitData.Height;
         if (Battle.MapData.UnitOvDatas != null)
         {
@@ -246,6 +250,7 @@ public class Unit
         DamageReceiveRate = MagicDamageReceiveRate = HealReceiveRate = NormalDamageReceiveRate = ElementDamageReceiveRate = 1;
         StopCountAdd = 0;
         HpRecoverRate = 0;
+        ElementBreakRecoverRate = 1f;
         Hatre = UnitData.Hatred;
         foreach (var buff in Buffs)
         {
@@ -923,7 +928,7 @@ public class Unit
                         if (skill.CanUseTo(this))
                         {
                             breakSkill = skill;
-                            ElementProtect.Set(skill.SkillData.Cooldown);
+                            ElementProtect.Set(skill.SkillData.Cooldown * ElementBreakRecoverRate);
                             //skill.Cast();
                             //Log.Debug("元素爆发:" + skill.SkillData.Id);
                         }

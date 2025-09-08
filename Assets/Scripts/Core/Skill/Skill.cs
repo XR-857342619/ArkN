@@ -87,10 +87,12 @@ public class Skill
 
     public virtual void Init()
     {
+        Debug.Log(SkillData.Id + "初始化");
         if (SkillData.Modifys != null)
         {
             for (int i = 0; i < SkillData.Modifys.Length; i++)
             {
+                Debug.Log(SkillData.Modifys[i]);
                 Modifies.Add(ModifyManager.Instance.Get(SkillData.Modifys[i], this));
             }
         }

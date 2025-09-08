@@ -11,8 +11,8 @@ namespace Bullets
         public int maxLinkNum;
         public List<Unit> LinkedTargets;
         public bool canBack;
-        public Unit LastTarget = null;
-        protected Unit tmp = new Unit();
+        public List<Unit> UsedTarget = new List<Unit>();
+        public Unit tmp;
         public Skill findTargetSkill;
         public override void Init()
         {
@@ -30,13 +30,15 @@ namespace Bullets
             if (BulletData.ScaleX == 1) scaleX = Target.ScaleX;
             if (BulletData.ScaleX == 2) scaleX = Skill.Unit.ScaleX;
             BulletModel.transform.localScale = new Vector3(scaleX, 1, 1);
+            tmp = Battle.CreateTempUnit(this.Position, (TargetPos - this.Position).ToV2());
             findTargetSkill = tmp.LearnSkill(Database.Instance.GetIndex<SkillData>(skillId));
             findTargetSkill.Init();
+            Debug.Log(findTargetSkill);
         }
         public override void Update()
         {
             tmp.Position = Position;
-            tmp.Direction = Direction;
+            tmp.Direction = Direction.ToV2();
             tickTime += SystemConfig.DeltaTime;
             if (Target != null && Target.Alive())
                 TargetPos = GetTargetPos(Target);
@@ -74,13 +76,13 @@ namespace Bullets
                     Skill.Hit(Target, this);
                 //if (maxLinkNum)
                 maxLinkNum--;
-                LastTarget = Target;
+                UsedTarget.Add(Target);
                 if (maxLinkNum > 0)
                 {
                     findTargetSkill.FindTarget();
                     if (!canBack)
                     {
-                        Target = findTargetSkill.Targets.Find(x => x.Alive() && x != LastTarget);
+                        Target = findTargetSkill.Targets.Find(x => x.Alive() && !UsedTarget.Contains(x));
                     }
                     else
                     {
@@ -88,7 +90,10 @@ namespace Bullets
                     }
                 }
                 else
+                {
+                    Battle.AllUnits.Remove(tmp);
                     Finish();
+                }
             }
             Postion = StartPosition + (TargetPos - StartPosition) * (time / totalTime);
             if (moveHeight > 0)

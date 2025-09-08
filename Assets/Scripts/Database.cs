@@ -149,7 +149,9 @@ public class Database
                 values[i] = JsonHelper.FromJson<T>(arr[i]);
                 if (typeof(T) == typeof(SkillData))
                 {
-                    SkillData skill = values[i] as SkillData;
+                    SkillData skill = values[i] as SkillData?? null;
+                    if (skill == null)
+                        continue;
                     if (skill.Type == "全局技能")
                     {
                         globalSkills.Add(i);
@@ -193,7 +195,9 @@ public class Database
                 values[i] = JsonHelper.FromJson<T>(arr[i]);
                 if (typeof(T) == typeof(SkillData))
                 {
-                    SkillData skill = values[i] as SkillData;
+                    SkillData skill = values[i] as SkillData ?? null;
+                    if (skill == null)
+                        continue;
                     if (skill.Type == "全局技能")
                     {
                         globalSkills.Add(i);

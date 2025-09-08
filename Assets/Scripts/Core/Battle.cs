@@ -350,6 +350,26 @@ public class Battle
         return unit;
     }
 
+    public Unit CreateTempUnit(Vector3 pos, Vector2 direction)
+    {
+        //var unitData = Database.Instance.Get<UnitData>(id);
+        //if (unitData == null) return null;
+        var unit = typeof(Battle).Assembly.CreateInstance(nameof(Units) + ".普通单位") as Unit;
+        //unit.Id = Database.Instance.GetIndex(unitData);
+        unit.Battle = this;
+        unit.Position = pos;
+        unit.Direction = direction;
+        unit.Init();
+        //if (lifeTime != 0) unit.LifeTime = new CountDown(lifeTime);
+        //if (!unit.UnitData.NotUseTile)
+        //    Map.Tiles[(int)pos.x, (int)pos.z].Units.Add(unit);
+        //else
+        //    Map.Tiles[(int)pos.x, (int)pos.z].MidUnit = unit;
+        AllUnits.Add(unit);
+        //if (unit.Team == 0) PlayerUnits2.Add(unit);
+        return unit;
+    }
+
     public Units.干员 CreatePlayerUnit(ICard card,int skill)
     {
         var config = Database.Instance.Get<UnitData>(card.UnitId);

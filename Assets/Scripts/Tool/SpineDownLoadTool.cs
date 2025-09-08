@@ -23,6 +23,12 @@ public class SpineDownLoadTool : MonoBehaviour
         A a = JsonHelper.FromJson<A>(TextAsset.text);
         foreach (var kv in a.spCharGroups)
         {
+            string path = Dir + kv.Key;
+            if (Directory.Exists(path))
+            {
+                Debug.Log(path + " 已存在");
+                continue;
+            }
             float t = Time.time;
             Debug.Log($"开始爬取{kv.Key}");
             yield return StartCoroutine(dowloadOne(kv.Key));
