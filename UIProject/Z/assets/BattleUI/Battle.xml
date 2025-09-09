@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080" opaque="false">
-  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="1">
+  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="7">
     <remark page="0" value="正常"/>
     <remark page="1" value="放置单位"/>
     <remark page="2" value="放置单位_选择位置"/>
@@ -13,7 +13,7 @@
     <action type="change_page" fromPage="" toPage="8,9" objectId="n25_kbte" controller="left" targetPage="1"/>
     <action type="play_transition" fromPage="" toPage="11" transition="t3"/>
   </controller>
-  <controller name="win" pages="0,,1," selected="1"/>
+  <controller name="win" pages="0,,1," selected="0"/>
   <controller name="isPreview" pages="0,,1," selected="1"/>
   <displayList>
     <image id="n57_t5h9" name="n57" src="t5h94r" fileName="任务目标_一般.png" xy="681,26" group="n42_kbte">
@@ -56,11 +56,6 @@
     <component id="n73_rkte" name="Pause" src="rkte52" fileName="Pause.xml" xy="1742,34" group="n42_kbte">
       <relation target="" sidePair="right-right"/>
     </component>
-    <image id="n84_fji9" name="nextFrame" src="fji95h" fileName="btn_nextFrame.png" xy="1399,33" group="n42_kbte">
-      <gearDisplay controller="isPreview" pages="1"/>
-      <gearDisplay2 controller="state" pages="1,8,9,10" condition="0"/>
-      <relation target="" sidePair="right-right%"/>
-    </image>
     <image id="n125_hy1b" name="n125" src="hy1b63" fileName="sprite_practice.png" xy="678,87" group="n42_kbte">
       <gearDisplay controller="isPreview" pages="1"/>
       <relation target="" sidePair="center-center%"/>
@@ -94,7 +89,7 @@
     <component id="n123_t03z" name="skillPowerSpeed" src="fji95i" fileName="Slider2.xml" xy="360,228" size="280,30" group="n93_fji9" controller="c1,1">
       <Slider value="8" max="16" min="1"/>
     </component>
-    <component id="n104_iyaj" name="exitSetting" src="fji95p" fileName="exit.xml" xy="1820,126" size="30,30" group="n93_fji9">
+    <component id="n104_iyaj" name="exitSetting" src="fji95p" fileName="exit.xml" xy="1786,126" size="64,64" group="n93_fji9">
       <gearDisplay controller="state" pages="13"/>
       <relation target="n106_t03z" sidePair="right-right%"/>
       <Button controller="state" page="0"/>
@@ -102,37 +97,51 @@
     <group id="n93_fji9" name="previewGroup" xy="0,0" size="1920,1080" advanced="true">
       <gearDisplay controller="state" pages="13"/>
     </group>
-    <list id="n116_t03z" name="DamageInfoList" xy="727,200" size="1100,740" overflow="scroll" defaultItem="ui://vp312gabfji95m" autoClearItems="true">
+    <component id="n53_kbte" name="endClick" src="f1463m" fileName="Container.xml" xy="0,0" size="541,1080" group="n52_kbte"/>
+    <loader id="n43_kbte" name="endPic" xy="0,0" size="544,1080" group="n52_kbte" touchable="false" url="ui://kera0i3huizy10h" vAlign="middle" fill="scale">
+      <relation target="" sidePair="height-height"/>
+    </loader>
+    <graph id="n45_kbte" name="n45" xy="0,0" size="1920,1080" group="n52_kbte" touchable="false" type="rect" lineSize="0" fillColor="#66000000">
+      <relation target="" sidePair="width-width,bottom-bottom"/>
+    </graph>
+    <text id="n46_kbte" name="n46" xy="34,692" size="332,106" group="n52_kbte" fontSize="82" color="#ffffff" align="center" text="行动结束">
+      <relation target="" sidePair="left-left%,top-middle%"/>
+    </text>
+    <graph id="n50_kbte" name="n50" xy="34,802" size="431,21" group="n52_kbte" touchable="false" type="rect" lineSize="0">
+      <relation target="" sidePair="left-left%"/>
+      <relation target="n46_kbte" sidePair="top-bottom%"/>
+    </graph>
+    <text id="n51_kbte" name="result" xy="5,824" size="458,129" group="n52_kbte" fontSize="100" color="#ffffff" align="center" autoSize="none" text="作战胜利！">
+      <gearText controller="win" pages="0,1" values="作战胜利！|作战失败"/>
+      <relation target="" sidePair="left-left%"/>
+      <relation target="n50_kbte" sidePair="top-bottom%"/>
+    </text>
+    <image id="n75_qn1s" name="w1" src="qn1s5f" fileName="关卡选择_星_已完成.png" xy="34,953" group="n126_7vgs"/>
+    <image id="n76_qn1s" name="w2" src="qn1s5f" fileName="关卡选择_星_已完成.png" xy="151,953" group="n126_7vgs"/>
+    <image id="n77_qn1s" name="w3" src="qn1s5f" fileName="关卡选择_星_已完成.png" xy="268,953" group="n126_7vgs">
+      <gearDisplay controller="win" pages="0"/>
+    </image>
+    <group id="n126_7vgs" name="n126" xy="34,953" size="321,92" group="n52_kbte" advanced="true">
+      <relation target="n51_kbte" sidePair="top-bottom%"/>
+      <relation target="" sidePair="left-left%"/>
+    </group>
+    <graph id="n127_7vgs" name="n127" xy="543,0" size="10,1080" group="n52_kbte" touchable="false" type="rect" lineSize="0">
+      <relation target="n43_kbte" sidePair="left-right%"/>
+    </graph>
+    <group id="n52_kbte" name="endGroup" xy="0,0" size="1920,1080" advanced="true">
+      <gearDisplay controller="state" pages="11"/>
+    </group>
+    <list id="n116_t03z" name="DamageInfoList" xy="727,200" size="1100,740" overflow="scroll" defaultItem="ui://vp312gabfji95m" vAlign="middle" autoClearItems="true">
       <gearDisplay controller="state" pages="11,13"/>
-      <gearXY controller="state" pages="11" values="772,38" default="727,200"/>
+      <gearXY controller="state" pages="11" values="692,38" default="727,200"/>
       <gearSize controller="state" pages="11" values="1100,1039,1,1" default="1100,740,1,1"/>
+      <relation target="" sidePair="right-right%"/>
       <item/>
       <item/>
       <item/>
       <item/>
       <item/>
     </list>
-    <component id="n53_kbte" name="endClick" src="f1463m" fileName="Container.xml" xy="0,0" size="1920,1080" group="n52_kbte"/>
-    <loader id="n43_kbte" name="endPic" xy="-21,4" size="1025,1024" group="n52_kbte" touchable="false"/>
-    <graph id="n45_kbte" name="n45" xy="0,600" size="1920,480" group="n52_kbte" touchable="false" type="rect" lineSize="0" fillColor="#66000000">
-      <relation target="" sidePair="width-width,bottom-bottom"/>
-    </graph>
-    <text id="n46_kbte" name="n46" xy="23,945" size="332,106" group="n52_kbte" fontSize="82" color="#ffffff" align="center" text="行动结束"/>
-    <graph id="n50_kbte" name="n50" xy="661,625" size="10,420" group="n52_kbte" touchable="false" type="rect" lineSize="0"/>
-    <text id="n51_kbte" name="n51" xy="904,783" size="404,129" group="n52_kbte" fontSize="100" color="#ffffff" align="center" text="作战失败">
-      <gearText controller="win" pages="1" values="作战失败" default="胜利！"/>
-    </text>
-    <image id="n75_qn1s" name="n75" src="qn1s5f" fileName="关卡选择_星_已完成.png" xy="122,757" group="n52_kbte"/>
-    <image id="n76_qn1s" name="n76" src="qn1s5f" fileName="关卡选择_星_已完成.png" xy="239,757" group="n52_kbte"/>
-    <image id="n77_qn1s" name="n77" src="qn1s5f" fileName="关卡选择_星_已完成.png" xy="356,757" group="n52_kbte">
-      <gearDisplay controller="win" pages="0"/>
-    </image>
-    <image id="n78_qn1s" name="n78" src="qn1s5g" fileName="关卡选择_星_未完成.png" xy="363,762" group="n52_kbte">
-      <gearDisplay controller="win" pages="1"/>
-    </image>
-    <group id="n52_kbte" name="endGroup" xy="-21,0" size="1941,1080" advanced="true">
-      <gearDisplay controller="state" pages="11"/>
-    </group>
     <graph id="n64_gbwm" name="GiveUpBack" xy="0,0" size="1920,1080" group="n70_gbwm" type="rect" lineSize="0" fillColor="#b2000000">
       <relation target="" sidePair="width-width,height-height"/>
     </graph>

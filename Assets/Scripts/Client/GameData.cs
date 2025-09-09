@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class GameData
@@ -102,7 +103,12 @@ public class GameData
             instance.ExcelList = new List<string>();
         }
         else
-        { 
+        {
+            foreach (var item in instance.ExcelList)
+            {
+                if (!System.IO.Directory.Exists(item))
+                    instance.ExcelList.Remove(item);
+            }
             ExcelList = instance.ExcelList;
             //Debug.Log("读取ExcelList成功");
             //foreach (var item in ExcelList)

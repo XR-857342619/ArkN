@@ -16,6 +16,7 @@ namespace BattleUI
         GObjectPool UIPool;
 
         public Unit selectedUnit;
+        public Unit mvp;
         public Units.干员 SelectPlayerUnit => selectedUnit as Units.干员;
 
         GameObject worldUI;
@@ -197,28 +198,39 @@ namespace BattleUI
 
             m_state.selectedIndex = 5;
             BattleCamera.Instance.Blur = true;
-            var unit = Battle.PlayerUnits[UnityEngine.Random.Range(0, Battle.PlayerUnits.Count)];
-            string picName = unit.UnitData.StandPic;
-            m_endPic.texture = new NTexture(ResHelper.GetAsset<Texture>(PathHelper.StandPicPath + picName));
+            if (Battle.PlayerUnits.Count > 0)
+            {
+                var unit = Battle.PlayerUnits[UnityEngine.Random.Range(0, Battle.PlayerUnits.Count)];
+                string picName = unit.UnitData.StandPic;
+                //m_endPic.texture = new NTexture(ResHelper.GetAsset<Texture>(PathHelper.StandPicPath + picName));
+                if (mvp != null)
+                    m_endPic.icon = "ui://Res/" + mvp.UnitData.HalfIcon;
+            }
             if (Battle.Win)
             {
                 m_win.selectedIndex = 0;
-                if (Battle.Hp >= 10)
-                {
-                    m_win3.Play();
-                }
-                else if (Battle.Hp >= 5)
-                {
-                    m_win2.Play();
-                }
-                else
-                {
-                    m_win1.Play();
-                }
             }
             else
             {
                 m_win.selectedIndex = 1;
+            }
+            if (Battle.Hp == Battle.MapData.InitHp)
+            {
+                m_w3.visible = true;
+                m_w2.visible = true;
+                m_w1.visible = true;
+            }
+            else if (Battle.Hp >= 2)
+            {
+                m_w3.visible = false;
+                m_w2.visible = true;
+                m_w1.visible = true;
+            }
+            else
+            {
+                m_w3.visible = false;
+                m_w2.visible = false;
+                m_w1.visible = true;
             }
         }
 
@@ -463,7 +475,9 @@ namespace BattleUI
         public void freshDamageInfo()
         {
             List<OpDamageInfo> sortedDamageInfos = BattleManager.Instance.OpDamageInfos.OrderByDescending(x => x.TotalDamage).ToList();
+            if (sortedDamageInfos.Count == 0) return;
             float maxTotal = sortedDamageInfos[0].TotalDamage;
+            mvp = Battle.PlayerUnits.Find(x => x.UnitData.Id == sortedDamageInfos[0].UnitId);
             GObject[] damageInfoItems = m_DamageInfoList.GetChildren();
             for (int i = 0; i < damageInfoItems.Length; i++)
             {

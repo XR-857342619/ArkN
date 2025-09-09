@@ -2,10 +2,10 @@
 <component size="683,1080" opaque="false">
   <controller name="left" exported="true" pages="0,,1," selected="0"/>
   <controller name="time" pages="0,,1," selected="0"/>
-  <controller name="palyerUnit" pages="0,,1," selected="1"/>
+  <controller name="palyerUnit" pages="0,,1," selected="0"/>
   <displayList>
     <image id="n52_voep" name="n52" src="voep4i" fileName="Map/渐变.png" pkg="k4mja8t1" xy="0,0" pivot="1,0" anchor="true" scale="-1,1" alpha="0.7"/>
-    <component id="n51_kbte" name="standPic" src="voep4z" fileName="Pic.xml" xy="-75,19" alpha="0.2">
+    <component id="n51_kbte" name="standPic" src="voep4z" fileName="Pic.xml" xy="0,0" size="680,1080" alpha="0.2">
       <relation target="" sidePair="left-left%,bottom-bottom%"/>
     </component>
     <graph id="n42_kbte" name="n42" xy="34,527" size="448,100" type="rect" lineSize="0" fillColor="#66000000">
