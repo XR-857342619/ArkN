@@ -53,7 +53,7 @@ public class Bullet
             Skill = Skill,
             Target = Target,
         });
-        Skill.Unit.Trigger(TriggerEnum.弹道命中);
+        Battle.Trigger(TriggerEnum.弹道命中);
         Battle.TriggerDatas.Pop();
         //GameObject.Destroy(BulletModel.gameObject);
     }

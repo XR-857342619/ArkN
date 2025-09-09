@@ -24,7 +24,7 @@ namespace Skills
             base.Init();
             ignoreDamageTypeLimit = !DamageTypeEnum.TryParse(SkillData.Data.GetStr("DamageTypeLimit"), out damageType);
         }
-        public override void Start()
+        public override void FindTarget()
         {
             if (Battle.TriggerDatas.Count > 0)
             {
@@ -50,7 +50,7 @@ namespace Skills
             {
                 if (ArePointsOnOppositeSides())
                     if (sourceSkill.SkillData.DamageType == damageType || ignoreDamageTypeLimit)
-                        base.Start();
+                        Targets.Add(target);
             }
             //base.Start();
         }
