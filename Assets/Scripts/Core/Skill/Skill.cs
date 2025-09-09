@@ -87,12 +87,12 @@ public class Skill
 
     public virtual void Init()
     {
-        Debug.Log(SkillData.Id + "初始化");
+        //Debug.Log(SkillData.Id + "初始化");
         if (SkillData.Modifys != null)
         {
             for (int i = 0; i < SkillData.Modifys.Length; i++)
             {
-                Debug.Log(SkillData.Modifys[i]);
+                //Debug.Log(SkillData.Modifys[i]);
                 Modifies.Add(ModifyManager.Instance.Get(SkillData.Modifys[i], this));
             }
         }
@@ -754,56 +754,6 @@ public class Skill
             BurstGap.Set(SkillData.BurstDelay);
         else
             IsBursting = false;
-        //递归深度--;
-        //if (递归深度 < 0)
-        //{
-        //    Log.Error("Burst深度超出限制");
-        //    return;
-        //}
-        //if (BurstCount == -1)
-        //{
-        //    BurstCount = SkillData.BurstCount;
-        //    LastTargets.Clear();
-        //    LastTargets.AddRange(Targets);
-        //}
-        //Debug.Log(Bursting.value+" "+Bursting.Finished());
-        //if (Bursting.Finished())
-        //{
-        //    Bursting.Set(SkillData.BurstDelay * (SkillData.BurstCount+1));
-        //    //Debug.Log("开始Burst:"+SkillData.BurstDelay * SkillData.BurstCount);
-        //    BurstGap.Set(SkillData.BurstDelay);
-        //    Log.Debug("设置BurstGap" + BurstGap.value);
-        //}
-        ////else
-        ////{
-        ////if (SkillData.BurstFind || SkillData.RegetTarget) //当目标为随机时
-        ////{
-        ////    LastTargets.Clear();
-        ////    LastTargets.AddRange(GetAttackTarget());
-        ////}
-        ////foreach (var target in LastTargets)
-        ////{
-        ////    Effect(target);
-        ////}
-        ////}
-        ////Debug.Log(BurstGap.value);
-        //if (BurstCount > 0 && BurstGap.Finished())
-        //{
-        //    Log.Debug(SkillData.Id + "还剩" + BurstCount + "次连击");
-        //    if (SkillData.BurstFind || SkillData.RegetTarget) //当目标为随机时
-        //    {
-        //        LastTargets.Clear();
-        //        LastTargets.AddRange(GetAttackTarget());
-        //    }
-        //    foreach (var target in LastTargets)
-        //    {
-        //        Effect(target);
-        //    }
-        //    BurstGap.Set(SkillData.BurstDelay);
-        //    //Log.Debug("设置BurstGap" + BurstGap.value);
-        //    BurstCount--;
-        //    //Burst();
-        //}
     }
 
     /// <summary>
@@ -1363,6 +1313,7 @@ public class Skill
 
     protected virtual void OnBeAttack(Unit target)
     {
+        Debug.Log(target.UnitData.Name +"被攻击");
         Battle.TriggerDatas.Push(new TriggerData()
         {
             User = Unit,

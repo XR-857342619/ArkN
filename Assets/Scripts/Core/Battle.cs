@@ -437,7 +437,7 @@ public class Battle
         result.Skill = skill;
         Bullets.Add(result);
         result.Init();
-        Debug.Log("创建子弹");
+        //Debug.Log("创建子弹");
         Debug.Log(result.Id + " "+result.Position+" "+result.TargetPos+" "+result.Target+" "+result.Skill);
         return result;
     }
