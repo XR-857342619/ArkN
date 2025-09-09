@@ -18,7 +18,7 @@ namespace Skills
             base.Init();
             targetPos = SkillData.Data.GetStr("TargetPos");
             useMod = SkillData.Data.GetStr("UseMod");
-            if (useMod == "limitDistance")
+            if (useMod == ">limitDistance" || useMod == "<limitDistance")
                 distanceLimit = SkillData.Data.GetFloat("DistanceLimit");
         }
 
