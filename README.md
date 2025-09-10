@@ -10,5 +10,5 @@
 X2r(None)
 # 其他贡献者
 ---
-* HJsama: UI素材导入
+* HJsama: UI素材导入 部分Wiki编写
 * top1一方通行：部分干员还原
