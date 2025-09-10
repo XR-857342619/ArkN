@@ -182,7 +182,8 @@ public class Database
             Addressables.ReleaseInstance(operation);
         }
         if (string.IsNullOrEmpty(text)) return;
-        var arr = text.Split('\n');
+        //var arr = text.Split('\n');
+        var arr = text.Split('\n').Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
         IConfig[] values = new IConfig[arr.Length];
         for (int i = 0; i < arr.Length; i++)
         {

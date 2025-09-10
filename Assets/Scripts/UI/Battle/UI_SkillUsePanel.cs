@@ -10,10 +10,13 @@ namespace BattleUI
     partial class UI_SkillUsePanel
     {
         public Unit Unit;
+        public List<Unit> tileUnits;
         public bool skillUseing = false;
-        public void SetUnit(Unit unit)
+        public void SetUnit(Unit unit, List<Unit> tileUnits)
         {
             this.Unit = unit;
+            this.tileUnits = tileUnits;
+            Debug.Log("tileUnits:" + tileUnits.Count);
         }
         partial void Init()
         {
@@ -27,6 +30,26 @@ namespace BattleUI
                     //Debug.Log("showSkillArea:" + BattleCamera.Instance.showSkillArea);
                     BattleCamera.Instance.ShowUnitAttackArea();
                 }
+            });
+            m_headIconLast.onClick.Add(() =>
+            {
+                Debug.Log("lastOp");
+                if (tileUnits == null || tileUnits.Count == 1) return;
+                if (Unit == tileUnits.First()) return;
+                Unit = tileUnits[tileUnits.IndexOf(Unit) - 1];
+                UI_Battle.Instance.m_left.SetUnit(Unit);
+                UI_Battle.Instance.selectedUnit = Unit;
+                BattleCamera.Instance.ShowUnitInfo(Unit);
+            });
+            m_headIconNext.onClick.Add(() =>
+            {
+                Debug.Log("nextOp");
+                if (tileUnits == null || tileUnits.Count == 1) return;                
+                if (Unit == tileUnits.Last()) return;
+                Unit = tileUnits[tileUnits.IndexOf(Unit) + 1];
+                UI_Battle.Instance.m_left.SetUnit(Unit);
+                UI_Battle.Instance.selectedUnit = Unit;
+                BattleCamera.Instance.ShowUnitInfo(Unit);
             });
         }
 
@@ -67,6 +90,33 @@ namespace BattleUI
             {
                 m_mainSkillInfo.visible = false;
                 m_ShowSkillRange.visible = false;
+            }
+            if (tileUnits == null || tileUnits.Count == 1)
+            {
+                m_LastOp.visible = false;
+                m_NextOp.visible = false;
+            }
+            else if (tileUnits.Count > 1 && Unit == tileUnits.First())
+            {
+                m_LastOp.visible = false;
+                m_NextOp.visible = true;
+                m_headIconNext.url = IconHelper.ToHeadIcon(tileUnits[tileUnits.IndexOf(Unit) + 1].UnitData.HeadIcon);
+                //Debug.Log("headIconNext:" + m_headIconNext.icon);
+            }
+            else if (tileUnits.Count > 1 && Unit == tileUnits.Last())
+            {
+                m_LastOp.visible = true;
+                m_NextOp.visible = false;
+                m_headIconLast.url = IconHelper.ToHeadIcon(tileUnits[tileUnits.IndexOf(Unit) - 1].UnitData.HeadIcon);
+                //Debug.Log("headIconLast:" + m_headIconLast.icon);
+            }
+            else
+            {
+                m_LastOp.visible = true;
+                m_NextOp.visible = true;
+                m_headIconLast.url = IconHelper.ToHeadIcon(tileUnits[tileUnits.IndexOf(Unit) - 1].UnitData.HeadIcon);
+                m_headIconNext.url = IconHelper.ToHeadIcon(tileUnits[tileUnits.IndexOf(Unit) + 1].UnitData.HeadIcon);
+                //Debug.Log("headIconLast:" + m_headIconLast.icon + " headIconNext:" + m_headIconNext.icon);
             }
         }
     }

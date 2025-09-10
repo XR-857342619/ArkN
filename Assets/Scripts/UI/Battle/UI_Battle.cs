@@ -17,6 +17,7 @@ namespace BattleUI
 
         public Unit selectedUnit;
         public Unit mvp;
+        public List<Unit> units;
         public Units.干员 SelectPlayerUnit => selectedUnit as Units.干员;
 
         GameObject worldUI;
@@ -163,10 +164,20 @@ namespace BattleUI
             unit.uiUnit = null;
         }
 
+        public void ChooseUnit(List<Unit> units)
+        {
+            TimeHelper.Instance.SetGameSpeed(0.2f);
+            selectedUnit = units.Last();
+            this.units = units;
+            m_state.selectedIndex = 4;
+            m_left.SetUnit(units.Last());
+            BattleCamera.Instance.ShowUnitInfo(units.Last());
+        }
         public void ChooseUnit(Unit unit)
         {
             TimeHelper.Instance.SetGameSpeed(0.2f);
             selectedUnit = unit;
+            this.units = new List<Unit>() { unit };
             m_state.selectedIndex = 4;
             m_left.SetUnit(unit);
             BattleCamera.Instance.ShowUnitInfo(unit);
@@ -247,7 +258,7 @@ namespace BattleUI
             int width = 182;
             //Debug.Log(this.width+"--"+Screen.width);
             if (units.Count() * width > this.width)
-                width = (int)this.width/units.Count();
+                width = (int)this.width/units.Count()+1;
             foreach (var group in units)
             {
                 var head = UIPool.GetObject(UI_BuildSprite.URL) as UI_BuildSprite;
@@ -259,7 +270,11 @@ namespace BattleUI
                 //Log.Debug(units.IndexOf(group));
                 //Log.Debug(this.width - (units.IndexOf(group) * width));
                 head.xy = new UnityEngine.Vector2(
-                    this.width - (units.IndexOf(group) * width),
+//# if UNITY_EDITOR
+                    this.width - ((units.IndexOf(group) + 1)* width),
+//# else
+                    //this.width - ((units.IndexOf(group) - 1) * width),
+//# endif
                     //Screen.width - (units.IndexOf(group)) * width,
                     group.FirstOrDefault() == selectedUnit ? height - 50f : height);
                 head.onClick.Set(() => clickUnit(group.FirstOrDefault()));
@@ -361,7 +376,7 @@ namespace BattleUI
                     dragPanel.m_DirectionPanel.m_grip.position = new Vector2(dragPanel.m_DirectionPanel.width / 2, dragPanel.m_DirectionPanel.height / 2);
                     break;
                 case 4:
-                    m_SkillUsePanel.SetUnit(selectedUnit);
+                    m_SkillUsePanel.SetUnit(selectedUnit, units);
                     break;
             }
         }

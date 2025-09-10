@@ -2,10 +2,24 @@
 <component size="565,565" pivot="0.5,0.5" anchor="true" opaque="false">
   <displayList>
     <component id="n4_l6f0" name="n4" src="l6f04c" fileName="SkillUsePanelBack.xml" xy="0,0"/>
-    <image id="n0_kbte" name="n0" src="kbte3w" fileName="多边形.png" xy="-121,-128" pivot="0.5,0.5" size="788,788"/>
+    <image id="n0_kbte" name="n0" src="kbte3w" fileName="多边形.png" xy="-111,-111" pivot="0.5,0.5" size="788,788"/>
     <component id="n1_kbte" name="mainSkillInfo" src="kbte48" fileName="MainSkillInfo.xml" xy="368,358">
       <ProgressBar max="100"/>
     </component>
+    <loader id="n8_o9lz" name="headIconNext" xy="191,470" pivot="0.5,0.5" size="182,185" group="n11_o9lz" aspect="true" scale="0.75,0.75" url="ui://kera0i3hbcc31r8" align="center" vAlign="middle" fill="scaleNoBorder"/>
+    <image id="n9_o9lz" name="n9" src="hwogsw" fileName="sprite_charactercard_choesn.png" xy="182,459" pivot="0.5,0.5" group="n11_o9lz" aspect="true" scale="0.75,0.75">
+      <relation target="" sidePair="center-center%,middle-middle%"/>
+    </image>
+    <group id="n11_o9lz" name="NextOp" xy="182,459" size="200,207" advanced="true">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </group>
+    <loader id="n7_o9lz" name="headIconLast" xy="191,-95" pivot="0.5,0.5" size="182,185" group="n12_o9lz" scale="0.75,0.75" url="ui://kera0i3hbcc31r8" align="center" vAlign="middle" fill="scaleNoBorder"/>
+    <image id="n10_o9lz" name="n10" src="hwogsw" fileName="sprite_charactercard_choesn.png" xy="182,-106" pivot="0.5,0.5" group="n12_o9lz" scale="0.75,0.75">
+      <relation target="" sidePair="center-center%,middle-middle%"/>
+    </image>
+    <group id="n12_o9lz" name="LastOp" xy="182,-106" size="200,207" advanced="true">
+      <relation target="" sidePair="center-center%,top-top%"/>
+    </group>
     <component id="n3_kbte" name="Leave" src="kbte4b" fileName="Leave.xml" xy="102,93" pivot="0.5,0.5" anchor="true" size="212,214" aspect="true" scale="0.75,0.75"/>
     <component id="n5_hy1b" name="ShowSkillRange" src="hy1b62" fileName="ShowSkillRange.xml" xy="534,375"/>
   </displayList>

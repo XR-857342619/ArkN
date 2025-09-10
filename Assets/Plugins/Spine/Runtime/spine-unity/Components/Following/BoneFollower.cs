@@ -95,7 +95,7 @@ namespace Spine.Unity {
 		public bool SetBone (string name) {
 			bone = skeletonRenderer.skeleton.FindBone(name);
 			if (bone == null) {
-				Debug.LogError("Bone not found: " + name, this);
+				//Debug.LogError("Bone not found: " + name, this);
 				return false;
 			}
 			boneName = name;
