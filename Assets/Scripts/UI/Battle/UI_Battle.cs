@@ -107,13 +107,6 @@ namespace BattleUI
             {
                 BattleManager.Instance.IsNoLimitBuild = m_isNoLimitBuild.selected;
             });
-            foreach (OpDamageInfo damageInfo in BattleManager.Instance.OpDamageInfos)
-            {
-                GLabel damageInfoItem = UIPackage.CreateObject("BattleUI", "DamageInfoItem").asLabel;
-                damageInfoItem.title = damageInfo.UnitId;
-                //Debug.Log(damageInfo.UnitId);
-                m_DamageInfoList.AddChild(damageInfoItem);
-            }
             //BattleManager.Instance.OpDamageInfos.Clear();
 
         }
@@ -232,6 +225,7 @@ namespace BattleUI
                 m_w2.visible = false;
                 m_w1.visible = true;
             }
+            BattleManager.Instance.OpDamageInfos.Clear();
         }
 
         public void ExitBattle()
@@ -260,9 +254,13 @@ namespace BattleUI
                 //head.width = width;
                 head.SetUnit(group.FirstOrDefault());
                 m_Builds.AddChild(head);
+                //Log.Debug(head.width);
+                //Log.Debug(this.width);
+                //Log.Debug(units.IndexOf(group));
+                //Log.Debug(this.width - (units.IndexOf(group) * width));
                 head.xy = new UnityEngine.Vector2(
-                    //width * 0.9f - units.IndexOf(group) * head.width,
-                    this.width - (units.IndexOf(group)+1) * width,
+                    this.width - (units.IndexOf(group) * width),
+                    //Screen.width - (units.IndexOf(group)) * width,
                     group.FirstOrDefault() == selectedUnit ? height - 50f : height);
                 head.onClick.Set(() => clickUnit(group.FirstOrDefault()));
                 head.draggable = true;
@@ -417,6 +415,15 @@ namespace BattleUI
 
         public void Enter()
         {
+            m_DamageInfoList.RemoveChildren();
+            foreach (OpDamageInfo damageInfo in BattleManager.Instance.OpDamageInfos)
+            {
+                GLabel damageInfoItem = UIPackage.CreateObject("BattleUI", "DamageInfoItem").asLabel;
+                damageInfoItem.title = damageInfo.UnitId;
+                //Debug.Log(damageInfo.UnitId);
+                m_DamageInfoList.AddChild(damageInfoItem);
+            }
+            //Debug.Log("Enter");
             m_state.SetSelectedIndex(0);
             BattleManager.Instance.ReSetPreviwSetting();
             if (BattleManager.Instance.IsPreview)

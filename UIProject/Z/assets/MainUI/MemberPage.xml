@@ -6,7 +6,7 @@
     </image>
     <component id="n10_voep" name="back" src="voep3c" fileName="UnitInfo/back.xml" xy="20,12"/>
     <component id="n11_voep" name="home" src="voep3d" fileName="UnitInfo/home.xml" xy="244,12"/>
-    <list id="n0_kbte" name="Cards" xy="124,117" size="1539,835" scale="1.1,1.1" layout="flow_vt" overflow="scroll" scroll="horizontal" scrollBarFlags="4" lineGap="15" colGap="22" defaultItem="ui://k4mja8t1kbte1" autoClearItems="true">
+    <list id="n0_kbte" name="Cards" xy="124,117" size="1539,835" scale="1.1,1.1" layout="flow_vt" overflow="scroll" scroll="horizontal" scrollBarFlags="4" clipSoftness="200,0" lineGap="15" colGap="22" defaultItem="ui://k4mja8t1kbte1" autoClearItems="true">
       <relation target="" sidePair="width-width"/>
       <item/>
       <item/>

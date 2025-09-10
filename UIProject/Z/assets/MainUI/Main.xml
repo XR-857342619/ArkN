@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080">
-  <controller name="settingC" exported="true" pages="0,,1," selected="1"/>
+  <controller name="settingC" exported="true" pages="0,,1," selected="0"/>
   <controller name="subSetting" exported="true" pages="0,,1,,2,,3," selected="0"/>
   <displayList>
     <image id="n25_r5qv" name="n25" src="r5qvr53" fileName="场景_视野.png" xy="0,0" size="1920,1080" aspect="true">
       <relation target="" sidePair="width-width,height-height,center-center,middle-middle"/>
     </image>
     <loader id="n4_kbte" name="standPic" xy="4,173" size="1010,1010" aspect="true" align="center" fill="scale" useResize="true"/>
-    <graph id="n8_kbte" name="n8" xy="0,484" size="255,65" type="rect" lineSize="0" fillColor="#7f000000"/>
-    <text id="n5_kbte" name="Name" xy="9,518" pivot="0,0.5" anchor="true" size="242,48" fontSize="35" color="#ffffff" align="center" vAlign="middle" autoSize="none" singleLine="true" text="玩家名字" input="true"/>
+    <graph id="n8_kbte" name="n8" xy="0,484" size="255,65" type="rect" lineSize="0" fillColor="#7f000000">
+      <relation target="" sidePair="middle-middle%,left-left"/>
+    </graph>
+    <text id="n5_kbte" name="Name" xy="9,518" pivot="0,0.5" anchor="true" size="242,48" fontSize="35" color="#ffffff" align="center" vAlign="middle" autoSize="none" singleLine="true" text="玩家名字" input="true">
+      <relation target="n8_kbte" sidePair="center-center%,middle-middle%"/>
+    </text>
     <component id="n28_r5qv" name="Setting" src="r5qvr55" fileName="SettingBtn.xml" xy="30,25" size="90,90" aspect="true">
       <Button controller="settingC" page="1"/>
     </component>
     <text id="n22_ulof" name="n22" xy="16,994" size="156,57" fontSize="43" color="#ffffff" strokeColor="#000000" text="Version"/>
-    <text id="n23_ulof" name="Version" xy="178,994" size="65,57" fontSize="43" color="#ffffff" strokeColor="#000000" text="2.0"/>
+    <text id="n23_ulof" name="Version" xy="178,994" size="65,58" fontSize="43" color="#ffffff" strokeColor="#000000" text="2.9"/>
     <component id="n93_hnil" name="Export" src="hnilr6c" fileName="FunUI/eeBtn.xml" xy="1438,717" group="n54_qn1s">
       <relation target="" sidePair="right-right%"/>
     </component>
@@ -140,5 +144,9 @@
     <group id="n19_10uur" name="subpage" xy="0,0" size="1924,1080" advanced="true">
       <gearDisplay controller="settingC" pages="1"/>
     </group>
+    <text id="n106_o9lz" name="InitError" xy="9,551" size="76,81" fontSize="30" color="#ff0000" strokeColor="#660000" autoClearText="true" text="error&#xA;1">
+      <relation target="" sidePair="middle-middle%,left-left"/>
+      <relation target="n8_kbte" sidePair="top-bottom%"/>
+    </text>
   </displayList>
 </component>

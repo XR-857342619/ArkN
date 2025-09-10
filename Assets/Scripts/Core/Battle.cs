@@ -89,6 +89,16 @@ public class Battle
         //读取中立单位信息
         foreach (var u in MapData.UnitInfos)
         {
+            try
+            {
+                Database.Instance.Get<UnitData>(u.UnitId);
+            }
+            catch (Exception e)
+            {
+                TipManager.Instance.ShowTip("地图单位数据错误：" + u.UnitId);
+                Debug.LogError(e);
+                continue;
+            }
             SceneUnits.Add(new MapUnitInfo()
             {
                 Time = u.ActiveTime,

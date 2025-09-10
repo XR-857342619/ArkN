@@ -67,5 +67,5 @@
 {"Id":"捆绑弹道","Type":"持续施法子弹","Model":"slchan_skill_01_trail","Line":"slchan_skill_02_line","Speed":10,"FaceCamera":2,"Data":{"LifeTime":20}}
 {"Id":"黑蛇火球","Type":"冲击波","Model":"amgoat_skill_02_trail","Speed":2.5}
 {"Id":"炮火先兆者弹道","Type":"延迟打击","Model":"skfire_skill_02_trail1","Speed":10,"FaceCamera":2,"Data":{"delay":2.5}}
+{"Id":"CCB链式弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"Data":{"MoveHeight":0,"MaxLinkNum":10,"CanBack":"false","SkillId":"链式弹道索敌"}}
 {"Id":"影哨子弹","Type":"大飞镖","Model":"frostl_attack_01_trail","Speed":10,"Data":{"LifeTime":0,"Radius":1.4,"Trigger":0.02,"MoveHeight":0,"TriggerTimes":1,"TargetTeam":2,"MaxTargetCount":6}}
-{"Id":"CCB链式弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"Data":{"MoveHeight":0,"MaxLinkNum":3,"CanBack":"true","SkillId":"链式弹道索敌"}}

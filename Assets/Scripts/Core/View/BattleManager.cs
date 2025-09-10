@@ -98,10 +98,26 @@ public class BattleManager : MonoBehaviour
             if (!string.IsNullOrEmpty(wave.sUnitId))
                 await ResHelper.Prepare(Database.Instance.GetIndex<UnitData>(wave.sUnitId));
         }
+        List<UnitInfo> toRemove = new List<UnitInfo>();
         foreach (var wave in mapInfo.UnitInfos)
         {
-            await ResHelper.Prepare(Database.Instance.GetIndex<UnitData>(wave.UnitId));
+            try
+            {
+                await ResHelper.Prepare(Database.Instance.GetIndex<UnitData>(wave.UnitId));
+            }
+            catch (Exception e)
+            {
+                if (e is NullReferenceException)
+                    //mapInfo.UnitInfos.Remove(wave);
+                    toRemove.Add(wave);
+                TipManager.Instance.ShowTip("波次信息加载失败：" + wave.UnitId);
+                Debug.LogError(e);
+            }
         }
+        //foreach (var wave in toRemove)
+        //{
+        //    mapInfo.UnitInfos.Remove(wave);
+        //}
 
         Pause = false;
         var battleUI = UIManager.Instance.ChangeView<BattleUI.UI_Battle>(BattleUI.UI_Battle.URL);

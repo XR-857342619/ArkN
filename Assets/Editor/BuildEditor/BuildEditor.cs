@@ -56,7 +56,22 @@ public class BuildEditor
         List<string> paths = EditorResHelper.GetAllResourcePath(PathHelper.StandPicPath, true);
         //var group = groupName == null ? setting.DefaultGroup : setting.FindGroup(groupName);
         var group = setting.FindGroup("StandPic");
-        var unitDatas = Database.Instance.GetAll<UnitData>().Select(x => x.StandPic).ToList();
+        List<string> unitDatas = new List<string>();
+        //Debug.Log(Database.Instance.GetAll<UnitData>().Select(x => x.StandPic != null).Count());
+        foreach (var unitData in Database.Instance.GetAll<UnitData>())
+        {
+            try
+            {
+                if (unitData.StandPic != null)
+                    unitDatas.Add(unitData.StandPic);
+                //Debug.Log(unitData.StandPic);
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log(e.Message);
+            }
+        }
+        //var unitDatas = Database.Instance.GetAll<UnitData>().Select(x => x.StandPic)?.ToList();
         foreach (string path in paths)
         {
             string path1 = path.Replace('\\', '/');

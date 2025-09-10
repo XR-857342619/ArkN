@@ -25,6 +25,7 @@ public class TipManager : MonoBehaviour
     private static TipManager instance;
 
     List<TipItem> Tips = new List<TipItem>();
+    public List<string> initErorrTips = new List<string>();
 
     public class TipItem
     {
@@ -43,7 +44,7 @@ public class TipManager : MonoBehaviour
             startTime = Time.time,
         };
         Tips.Add(tipItem);
-        tip.position = new Vector3(GRoot.inst.width, 300);
+        tip.position = new Vector3(GRoot.inst.width, GRoot.inst.height/2);
         if (Tips.Count > 1 && tip.y - Tips[Tips.Count - 2].com.y < tip.height + 10 )
         {
             tip.y = Tips[Tips.Count - 2].com.y + tip.height + 10;
@@ -69,7 +70,7 @@ public class TipManager : MonoBehaviour
             if (i == 0)
             {
                 item.com.y -= 400 * Time.deltaTime;
-                if (item.com.y < 100) item.com.y = 100;
+                if (item.com.y < 250) item.com.y = 250;
             }
             else
             {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080" opaque="false">
-  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="7">
+  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="0">
     <remark page="0" value="正常"/>
     <remark page="1" value="放置单位"/>
     <remark page="2" value="放置单位_选择位置"/>
@@ -14,7 +14,7 @@
     <action type="play_transition" fromPage="" toPage="11" transition="t3"/>
   </controller>
   <controller name="win" pages="0,,1," selected="0"/>
-  <controller name="isPreview" pages="0,,1," selected="1"/>
+  <controller name="isPreview" pages="0,,1," selected="0"/>
   <displayList>
     <image id="n57_t5h9" name="n57" src="t5h94r" fileName="任务目标_一般.png" xy="681,26" group="n42_kbte">
       <relation target="" sidePair="center-center%"/>
@@ -25,7 +25,9 @@
     <text id="n13_f146" name="hp" xy="1161,58" pivot="0.5,0.5" anchor="true" size="44,48" group="n42_kbte" fontSize="35" color="#ffffff" align="center" text="10">
       <relation target="n57_t5h9" sidePair="right-right%"/>
     </text>
-    <component id="n35_h4sa" name="Units" src="f1463m" fileName="Container.xml" xy="0,0" group="n42_kbte"/>
+    <component id="n35_h4sa" name="Units" src="f1463m" fileName="Container.xml" xy="1920,1080" group="n42_kbte">
+      <relation target="" sidePair="right-right,bottom-bottom"/>
+    </component>
     <component id="n54_n3en" name="DamageInfo" src="f1463m" fileName="Container.xml" xy="0,0" group="n42_kbte"/>
     <component id="n41_kbte" name="SkillUseBack" src="f1463m" fileName="Container.xml" xy="0,0" size="1920,1080" group="n42_kbte">
       <gearDisplay controller="state" pages="10"/>
@@ -104,7 +106,7 @@
     <graph id="n45_kbte" name="n45" xy="0,0" size="1920,1080" group="n52_kbte" touchable="false" type="rect" lineSize="0" fillColor="#66000000">
       <relation target="" sidePair="width-width,bottom-bottom"/>
     </graph>
-    <text id="n46_kbte" name="n46" xy="34,692" size="332,106" group="n52_kbte" fontSize="82" color="#ffffff" align="center" text="行动结束">
+    <text id="n46_kbte" name="n46" xy="34,692" size="0,86" group="n52_kbte" fontSize="82" color="#ffffff" align="center" text="行动结束">
       <relation target="" sidePair="left-left%,top-middle%"/>
     </text>
     <graph id="n50_kbte" name="n50" xy="34,802" size="431,21" group="n52_kbte" touchable="false" type="rect" lineSize="0">

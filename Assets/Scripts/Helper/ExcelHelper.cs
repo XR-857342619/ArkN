@@ -266,6 +266,7 @@ public class ExcelHelper
         {
             Debug.LogError(e);
             Debug.Log(e.Message);
+            TipManager.Instance.ShowTip("导表错误:"+e.Message);
             throw e;
         }
     }

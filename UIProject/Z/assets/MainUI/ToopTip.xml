@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component size="180,50" pivot="1,0" anchor="true" extention="Label">
+<component size="1920,50" pivot="1,0" anchor="true" extention="Label">
   <displayList>
-    <graph id="n0_kbte" name="n0" xy="0,0" size="180,50" type="rect" lineSize="0" fillColor="#99333333"/>
-    <text id="n1_kbte" name="title" xy="90,25" pivot="0.5,0.5" anchor="true" size="44,48" fontSize="35" color="#ffffff" align="center" text="12"/>
+    <graph id="n0_kbte" name="n0" xy="1870,0" size="50,50" type="rect" lineSize="0" fillColor="#99000000">
+      <relation target="n1_kbte" sidePair="leftext-left"/>
+      <relation target="" sidePair="right-right"/>
+    </graph>
+    <text id="n1_kbte" name="title" xy="1897,25" pivot="0.5,0.5" anchor="true" size="44,48" fontSize="35" color="#ffffff" text="12">
+      <relation target="" sidePair="middle-middle%,right-right"/>
+    </text>
   </displayList>
 </component>

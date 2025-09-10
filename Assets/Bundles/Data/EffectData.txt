@@ -344,4 +344,3 @@
 {"Id":"桃金娘击中","Prefab":"myrtle_attack_01_hit","ScaleXFollow":2,"FaceCamera":60,"LifeTime":5}
 {"Id":"桃金娘抬手","Prefab":"myrtle_attack_01_start","ScaleXFollow":2,"FaceCamera":60,"LifeTime":0.3}
 {"Id":"桃金娘Buff","Prefab":"myrtle_skill_02_buff","ScaleXFollow":2,"FaceCamera":60,"LifeTime":40}
-

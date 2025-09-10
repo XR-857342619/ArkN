@@ -1,10 +1,6 @@
-﻿using FairyGUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class GameData
@@ -26,7 +22,7 @@ public class GameData
         var str = SaveHelper.LoadFile("/data.sav");
         if (!string.IsNullOrEmpty(str))
         {
-            Debug.Log(str);
+            //Debug.Log(str);
             try
             {
                 instance = JsonHelper.FromJson<GameData>(str);
@@ -43,18 +39,28 @@ public class GameData
             catch (Exception e)
             {
                 Debug.LogError($"读取存档失败，错误信息:\n{e}");
+                TipManager.Instance.initErorrTips.Add("读取存档失败:"+e.Message);
             }
         }
 
         List<int> ids = new List<int>();
         for (int i = instance.Cards.Count - 1; i >= 0; i--)
         {
-            if (ids.Contains(instance.Cards[i].Id))
+            try
             {
-                instance.Cards.RemoveAt(i);
+                if (ids.Contains(instance.Cards[i].Id))
+                {
+                    instance.Cards.RemoveAt(i);
+                }
+                else
+                    ids.Add(instance.Cards[i].Id);
             }
-            else
-                ids.Add(instance.Cards[i].Id);
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                TipManager.Instance.initErorrTips.Add("读取Card数据失败:" + e.Message);
+                //TipManager.Instance.ShowTip("读取Card数据失败:" + e.Message);
+            }
         }
         //CardData[] tmp = Database.Instance.GetAll<CardData>();
         //Debug.Log(tmp[90]);
@@ -66,17 +72,25 @@ public class GameData
             //Debug.Log(unitConfig.Id);
             //Debug.Log(times);
             //times++;
-            if (unitConfig == null) continue;
-            if (instance.Cards.Any(x => unitConfig.units.Contains(x.Id))) continue;
-            var unitdata = Database.Instance.Get<UnitData>(unitConfig.units.Last());
-            Card card = new Card()
+            try
             {
-                UnitId = unitdata.Id,
-                Level = unitdata.Level,
-                Upgrade = unitdata.Upgrade,
-            };
-            if (card.UnitData.MainSkill != null) card.DefaultUsingSkill = card.UnitData.MainSkill.Length - 1;
-            instance.Cards.Add(card);
+                if (unitConfig == null) continue;
+                if (instance.Cards.Any(x => unitConfig.units.Contains(x.Id))) continue;
+                var unitdata = Database.Instance.Get<UnitData>(unitConfig.units.Last());
+                Card card = new Card()
+                {
+                    UnitId = unitdata.Id,
+                    Level = unitdata.Level,
+                    Upgrade = unitdata.Upgrade,
+                };
+                if (card.UnitData.MainSkill != null) card.DefaultUsingSkill = card.UnitData.MainSkill.Length - 1;
+                instance.Cards.Add(card);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                TipManager.Instance.initErorrTips.Add("读取CardData数据失败:" + e.Message);
+            }
         }
         if (instance.Teams[0] == null)
         {
@@ -104,11 +118,13 @@ public class GameData
         }
         else
         {
+            List<string> toRemove = new List<string>();
             foreach (var item in instance.ExcelList)
             {
                 if (!System.IO.Directory.Exists(item))
-                    instance.ExcelList.Remove(item);
+                    toRemove.Add(item);
             }
+            instance.ExcelList.RemoveAll(x => toRemove.Contains(x));
             ExcelList = instance.ExcelList;
             //Debug.Log("读取ExcelList成功");
             //foreach (var item in ExcelList)

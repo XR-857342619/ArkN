@@ -29,6 +29,7 @@ namespace MainUI
         public GTree m_ExcelList;
         public GGroup m_ExcelSetting;
         public GGroup m_subpage;
+        public GTextField m_InitError;
         public const string URL = "ui://k4mja8t1kbte0";
 
         public static UI_Main CreateInstance()
@@ -62,6 +63,7 @@ namespace MainUI
             m_ExcelList = (GTree)GetChildAt(33);
             m_ExcelSetting = (GGroup)GetChildAt(34);
             m_subpage = (GGroup)GetChildAt(35);
+            m_InitError = (GTextField)GetChildAt(36);
             Init();
         }
         partial void Init();

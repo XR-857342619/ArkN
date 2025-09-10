@@ -516,7 +516,16 @@ public class Unit
         var skill = typeof(Unit).Assembly.CreateInstance(nameof(Skills) + "." + skillConfig.Type) as Skill;
         skill.Unit = this;
         skill.Id = skillId;
-        skill.Init();
+        try
+        {
+            skill.Init();
+        }
+        catch (Exception e)
+        {
+            Debug.Log(skillConfig.Id+"技能初始化失败");
+            TipManager.Instance.ShowTip(skillConfig.Id+"技能初始化失败"+e.Message);
+            Log.Error(e);
+        }
         if (parent != null) skill.Parent = parent;
         if (Skills.Count > 0 && skillId < Skills.Last().Id)
         {

@@ -123,59 +123,16 @@ namespace MainUI
             m_importSpine.onClick.Add(OpenFolderDialog);
             //GTree exceltree = m_ExcelList;
             //GTreeNode rootNode = exceltree.rootNode;
-            GTreeNode rootNode = m_ExcelList.rootNode;
-            List<string> ExcelFolderPaths = Database.Instance.GetExcelPathList();
-            List<string> ExcelFolderNames = new List<string>();
-            List<string> ExcelFilePaths = new List<string>();
-            List<string> ExcelFileNames = new List<string>();
-            ExcelFolderNames.AddRange(ExcelFolderPaths.Select(x => System.IO.Path.GetFileNameWithoutExtension(x)));
-
-            for (int i = 0; i < ExcelFolderNames.Count; i++)
+            TreeViewInit();
+            if (TipManager.Instance.initErorrTips.Count > 0)
             {
-                //Debug.Log(ExcelFolderNames[i]);
-                GTreeNode item_folder = new GTreeNode(true);
-                rootNode.AddChild(item_folder);
-                //Debug.Log(item_folder.level);
-                GComponent obj_folder = item_folder.cell;
-                obj_folder.GetChild("title").text = ExcelFolderNames[i];
-                obj_folder.GetChild("selectBtn").asButton.onClick.Add(() =>
+                m_InitError.text += "喜报:\n初始化错误\n";
+                foreach (string i in TipManager.Instance.initErorrTips)
                 {
-                    ExccelListClicke(item_folder);
-                });
-                ExcelFilePaths.AddRange(Database.Instance.GetExcelFileList(ExcelFolderPaths[i]));
-                ExcelFileNames.AddRange(ExcelFilePaths.Select(x => System.IO.Path.GetFileNameWithoutExtension(x)));
-                item_folder.expanded = true;
-                for (int j = 0; j < ExcelFileNames.Count; j++)
-                {
-                    //Debug.Log(ExcelFileNames[j]);
-                    GTreeNode item_file = new GTreeNode(false);
-                    string path = ExcelFolderPaths[i] + "\\" + ExcelFileNames[j] + ".xlsx";
-                    rootNode.AddChild(item_file);
-                    //Debug.Log(item_folder.GetChildAt(j).level);
-                    GComponent obj_file = item_file.cell;
-                    obj_file.GetChild("title").text = ExcelFileNames[j];
-                    obj_file.GetChild("path").text = path;
-                    //Debug.Log(obj_file.GetChild("path").text);
-                    //Debug.Log(obj_file.GetChild("title").text);
-                    obj_file.GetChild("selectBtn").asButton.onClick.Add(() =>
-                    {
-                        ExccelListClicke(item_file);
-                    });
-                    if (ExcelList.Contains(path))
-                    {
-                        obj_file.GetChild("selectBtn").asButton.GetController("button").selectedIndex = 1;
-                    }
-                    item_folder.AddChild(item_file);
-                    rootNode.RemoveChild(item_file);
-
-                    //Debug.Log();
-                    //item_file.text = ExcelFileNames[j];
-                    //Debug.Log(item_file.GetChildAt(0));
+                    TipManager.Instance.ShowTip(i);
+                    m_InitError.text += i + "\n";
                 }
-                ExcelFileNames.Clear();
-                ExcelFilePaths.Clear();
             }
-            freshNode();
         }
 
         protected override void OnUpdate()
@@ -238,6 +195,63 @@ namespace MainUI
                 //    Debug.Log(i);
                 //}
             }
+        }
+
+        public void TreeViewInit()
+        {
+            GTreeNode rootNode = m_ExcelList.rootNode;
+            List<string> ExcelFolderPaths = Database.Instance.GetExcelPathList();
+            List<string> ExcelFolderNames = new List<string>();
+            List<string> ExcelFilePaths = new List<string>();
+            List<string> ExcelFileNames = new List<string>();
+            ExcelFolderNames.AddRange(ExcelFolderPaths.Select(x => System.IO.Path.GetFileNameWithoutExtension(x)));
+
+            for (int i = 0; i < ExcelFolderNames.Count; i++)
+            {
+                //Debug.Log(ExcelFolderNames[i]);
+                GTreeNode item_folder = new GTreeNode(true);
+                rootNode.AddChild(item_folder);
+                //Debug.Log(item_folder.level);
+                GComponent obj_folder = item_folder.cell;
+                obj_folder.GetChild("title").text = ExcelFolderNames[i];
+                obj_folder.GetChild("selectBtn").asButton.onClick.Add(() =>
+                {
+                    ExccelListClicke(item_folder);
+                });
+                ExcelFilePaths.AddRange(Database.Instance.GetExcelFileList(ExcelFolderPaths[i]));
+                ExcelFileNames.AddRange(ExcelFilePaths.Select(x => System.IO.Path.GetFileNameWithoutExtension(x)));
+                item_folder.expanded = true;
+                for (int j = 0; j < ExcelFileNames.Count; j++)
+                {
+                    //Debug.Log(ExcelFileNames[j]);
+                    GTreeNode item_file = new GTreeNode(false);
+                    string path = ExcelFolderPaths[i] + "\\" + ExcelFileNames[j] + ".xlsx";
+                    rootNode.AddChild(item_file);
+                    //Debug.Log(item_folder.GetChildAt(j).level);
+                    GComponent obj_file = item_file.cell;
+                    obj_file.GetChild("title").text = ExcelFileNames[j];
+                    obj_file.GetChild("path").text = path;
+                    //Debug.Log(obj_file.GetChild("path").text);
+                    //Debug.Log(obj_file.GetChild("title").text);
+                    obj_file.GetChild("selectBtn").asButton.onClick.Add(() =>
+                    {
+                        ExccelListClicke(item_file);
+                    });
+                    if (ExcelList.Contains(path))
+                    {
+                        obj_file.GetChild("selectBtn").asButton.GetController("button").selectedIndex = 1;
+                    }
+                    item_folder.AddChild(item_file);
+                    rootNode.RemoveChild(item_file);
+
+                    //Debug.Log();
+                    //item_file.text = ExcelFileNames[j];
+                    //Debug.Log(item_file.GetChildAt(0));
+                }
+                ExcelFileNames.Clear();
+                ExcelFilePaths.Clear();
+            }
+            freshNode();
         }
         public void freshNode()
         {
