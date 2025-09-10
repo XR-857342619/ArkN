@@ -199,7 +199,16 @@ namespace BattleUI
                 UIPool.ReturnObject(uiUnit);
             }
             m_Units.RemoveChildren();
-
+            foreach (var build in m_Builds.GetChildren())
+            {
+                //UIPool.ReturnObject(build);
+                build.Dispose();
+            }
+            foreach (var damageInfo in m_DamageInfo.GetChildren())
+            {
+                //UIPool.ReturnObject(damageInfo);
+                damageInfo.Dispose();
+            }
             m_state.selectedIndex = 5;
             BattleCamera.Instance.Blur = true;
             if (Battle.PlayerUnits.Count > 0)
@@ -421,6 +430,7 @@ namespace BattleUI
         {
             //if (BattleManager.Instance.IsPreview)
             //    BattleManager.Instance.ReSetPreviwSetting();
+            BattleEnd();
             BattleManager.Instance.Battle.GiveUp();
             TimeHelper.Instance.SetGameSpeed(1f);
             TimeHelper.Instance.SetFastSpeed(false);
@@ -430,6 +440,11 @@ namespace BattleUI
 
         public void Enter()
         {
+            foreach (var damageInfo in m_DamageInfo.GetChildren())
+            {
+                //UIPool.ReturnObject(damageInfo);
+                damageInfo.Dispose();
+            }
             m_DamageInfoList.RemoveChildren();
             foreach (OpDamageInfo damageInfo in BattleManager.Instance.OpDamageInfos)
             {
