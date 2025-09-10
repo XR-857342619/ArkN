@@ -140,7 +140,8 @@ public class Database
             //Debug.Log(name + "load from address");
             text = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(PathHelper.DataPath + name + ".txt").text;
         }
-        var arr = text.Split('\n');
+        //var arr = text.Split('\n');
+        var arr = text.Split('\n').Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
         IConfig[] values = new IConfig[arr.Length];
         for (int i = 0; i < arr.Length; i++)
         {

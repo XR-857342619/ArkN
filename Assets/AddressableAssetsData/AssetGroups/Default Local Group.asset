@@ -8881,6 +8881,14 @@ MonoBehaviour:
     m_Address: Assets/Bundles/Units/enemy_9005_aicemn
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 0ff251064990b1140b8766d9ea34ce3e
+    m_Address: "Assets/Bundles/Audio/\u820D\u76D8\u6301\u96BE\u9898\u7EB3\u5A46\u7F57\u4E3A\u8C1B"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6abd8c806ae40d54e82979179b086730
+    m_Address: "Assets/Bundles/Audio/\u5DF2\u81F3"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 242fd0e985ecef14caef48a8cdb9ed24, type: 2}
   m_SchemaSet:

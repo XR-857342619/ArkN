@@ -81,7 +81,8 @@ public class BattleManager : MonoBehaviour
             await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         }
         SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
-        AudioManager.Instance.PlayBackgroundAudio("battle");
+        //AudioManager.Instance.PlayBackgroundAudio("battle");
+        AudioManager.Instance.PlayBackgroundAudio("已至");
         await TimeHelper.Instance.WaitAsync(0.5f);
         Battle = new Battle();
         Battle.Init(battleConfig);
