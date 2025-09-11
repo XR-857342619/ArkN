@@ -2225,10 +2225,6 @@ MonoBehaviour:
     m_Address: Assets/Bundles/Data/Map/Main/002
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: a56be30485f4718439bb711e59365a6e
-    m_Address: Assets/Bundles/Data/Map/test01/001
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   - m_GUID: d64db8f64993ac8419eadef280b5334c
     m_Address: Assets/Bundles/Data/Map/test02/002
     m_ReadOnly: 0

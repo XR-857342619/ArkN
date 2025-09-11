@@ -175,7 +175,7 @@ public class ExcelExportEditor
                     using (StreamWriter sw = new StreamWriter(txt))
                     {
                         if (sb.ToString() != "" ||　sb.ToString() != "\n")
-                        sw.Write(sb.ToString());
+                            sw.Write(sb.ToString());
                         sw.Close();
                         txt.Close();
                     }
