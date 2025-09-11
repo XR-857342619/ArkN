@@ -127,7 +127,8 @@ public class ExcelHelper
                     using (FileStream txt = new FileStream(PathHelper.AppHotfixResPath + "/Data/" + sheet.TableName + ".txt", FileMode.Append))
                     using (StreamWriter sw = new StreamWriter(txt))
                     {
-                        sw.Write(sb.ToString());
+                        if (sb.ToString() != "" || sb.ToString() != "\n")
+                            sw.Write(sb.ToString());
                         sw.Close();
                         txt.Close();
                     }

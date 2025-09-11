@@ -12,6 +12,7 @@ namespace Bullets
         public List<Unit> LinkedTargets;
         public bool canBack;
         public List<Unit> UsedTarget = new List<Unit>();
+        public Unit lastTaget;
         public Unit tmp;
         public Skill findTargetSkill;
         public override void Init()
@@ -86,7 +87,8 @@ namespace Bullets
                     }
                     else
                     {
-                        Target = findTargetSkill.Targets.Find(x => x.Alive());
+                        var targets = findTargetSkill.Targets;
+                        Target = targets.Find(x => x.Alive() && (targets.Count <= 1 ? true : x != lastTaget));
                     }
                 }
                 else

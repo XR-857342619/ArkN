@@ -141,7 +141,15 @@ public class Database
             text = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(PathHelper.DataPath + name + ".txt").text;
         }
         //var arr = text.Split('\n');
-        var arr = text.Split('\n').Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
+        var arr = File.ReadLines(PathHelper.AppHotfixResPath + "/Data/" + name + ".txt")
+              .Where(line => !string.IsNullOrWhiteSpace(line))
+              .ToArray();
+        foreach (var s in arr)
+        {
+            if (s == "" || s == "\n")
+                Debug.Log("empty line"+s+"in"+name);
+        }
+        //var arr = text.Split('\n').Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
         IConfig[] values = new IConfig[arr.Length];
         for (int i = 0; i < arr.Length; i++)
         {
@@ -171,7 +179,9 @@ public class Database
     private async Task AddAsync<T>(string name) where T : IConfig
     {
         string text;
-        text = SaveHelper.LoadFile("/Data/" + name + ".txt");
+        text = SaveHelper.LoadFile(PathHelper.AppHotfixResPath + "/Data/" + name + ".txt");
+        Debug.Log(PathHelper.AppHotfixResPath + "/Data/" + name + ".txt");
+        Debug.Log(PathHelper.AppResPath + "/Data/" + name + ".txt");
         if (string.IsNullOrEmpty(text))
         {
             Debug.Log(name + "load from address");
@@ -183,7 +193,10 @@ public class Database
         }
         if (string.IsNullOrEmpty(text)) return;
         //var arr = text.Split('\n');
-        var arr = text.Split('\n').Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
+        //var arr = text.Split('\n').Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
+        var arr = File.ReadLines(PathHelper.AppResPath + "/Data/" + name + ".txt")
+              .Where(line => !string.IsNullOrWhiteSpace(line))
+              .ToArray();
         IConfig[] values = new IConfig[arr.Length];
         for (int i = 0; i < arr.Length; i++)
         {

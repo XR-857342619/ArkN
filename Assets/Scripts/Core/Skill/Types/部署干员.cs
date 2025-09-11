@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Units;
 using UnityEngine;
+using static EnemyInfoExcelTool;
 
 namespace Skills
 {
@@ -64,8 +65,16 @@ namespace Skills
                     }
                     break;
             }
-            Operator = Battle.CreatePlayerUnit(Database.Instance.GetIndex<UnitData>(SkillData.Data.GetStr("UnitId")));
-            Operator = Operator as 干员;
+            string unitId = SkillData.Data.GetStr("UnitId");
+            Unit battleOp = Battle.AllUnits.Find(x => x.UnitData.Id == unitId);
+            if (battleOp is not null)
+            {
+                Operator = battleOp as 干员;
+            }
+            else
+            {
+                Operator = Battle.CreatePlayerUnit(Database.Instance.GetIndex<UnitData>(unitId)) as 干员;
+            }
             if (targetDirection == "UserDirection")
             {
                 name = SkillData.Data.GetStr("UserName");
