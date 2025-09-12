@@ -465,7 +465,6 @@ public class Database
         //获取全部Excel文件夹的路径
         var path = PathHelper.ExcelResPath + "\\Excel\\";
         List<string> paths = Directory.GetDirectories(path).ToList();
-        paths.RemoveAll(x => x.Contains("$"));
         return paths;
     }
     public List<string> GetExcelPathNames(List<string> paths)
@@ -485,7 +484,11 @@ public class Database
         //获取Excel文件夹下所有文件路径
         List<string> paths = new List<string>();
         paths = Directory.GetFiles(path).ToList();
-
+        paths.RemoveAll(x => System.IO.Path.GetFileName(x).StartsWith("~$"));
+        foreach (var file in paths)
+        {
+            Debug.Log(file);
+        }
         //FileHelper.GetAllFiles(paths, path);
         return paths;
 

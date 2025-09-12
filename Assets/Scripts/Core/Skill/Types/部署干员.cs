@@ -96,13 +96,15 @@ namespace Skills
                     if (!oprator.UnitData.NotUseTile && setMod == "Replace" && !Operator.UnitData.NotUseTile)
                     {
                         toRemove = oprator;
-                        tile.Units.Remove(oprator);
+                        //tile.Units.Remove(oprator);
                     }
                     else
                         continue;
                 }
                 //tile.Units.Remove(skilloprator);
             }
+            if (toRemove is not null)
+                toRemove.LeaveMap();
             if (tile.CanSet(Operator, Operator.UnitData.NotUseTile))
             {
                 Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);
