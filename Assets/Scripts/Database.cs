@@ -13,7 +13,7 @@ public class Database
 #if UNITY_EDITOR
         instance = new Database().Init1()
 #else
-            instance = new Database().Init()
+            instance = new Database()
 #endif
             : instance;
     private static Database instance;
@@ -311,7 +311,7 @@ public class Database
 
     private void Add<T>(string name) where T : IConfig
     {
-//#if UNITY_EDITOR
+#if UNITY_EDITOR
         var text = SaveHelper.LoadFile("/Data/" + name + ".txt"); 
         if (string.IsNullOrEmpty(text))
         {
@@ -357,7 +357,7 @@ public class Database
             }
         }
         dic.Add(typeof(T), values);
-//#endif
+#endif
     }
 
     private async Task AddAsync<T>(string name) where T : IConfig
