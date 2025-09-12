@@ -1046,11 +1046,11 @@ public class Skill
                 tempTargets.Add(t);
         }
         //仅自己的情况下 优化一下
-        //if (tempTargets.Count == 0 && SkillData.TargetFilter == SkillTargetFilterEnum.仅自己)
-        //{
-        //    tempTargets.Add(Unit);
-        //    return tempTargets;
-        //}
+        if (tempTargets.Count == 0 && SkillData.TargetFilter == SkillTargetFilterEnum.仅自己)
+        {
+            tempTargets.Add(Unit);
+            return tempTargets;
+        }
         if (!SkillData.UseEventTarget && !SkillData.UseEventUser)
         {
             if (AttackPoints == null && !SkillData.AttackAreaWithMain)//根据攻击范围进行索敌
