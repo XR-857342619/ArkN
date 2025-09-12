@@ -784,8 +784,10 @@ public class Unit
             if (unit is Units.干员)
             {
                 干员 oprator = unit as 干员;
-                if (oprator.Parent != null)
+                while (oprator.Parent != null)
+                {
                     oprator = oprator.Parent;
+                }
                 //Debug.Log(oprator.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
                 OpDamageInfo opDamageInfo = BattleManager.Instance.OpDamageInfos.Find(x => x.UnitId == oprator.UnitData.Id);
                 if (damageInfo.DamageType == DamageTypeEnum.Normal)
