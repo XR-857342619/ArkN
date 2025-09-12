@@ -84,7 +84,7 @@ namespace MainUI
                 {
                     foreach (string path in ExcelList)
                     { 
-                        Debug.Log(path);
+                        //Debug.Log(path);
                     }
                     ExcelHelper.Export(ExcelList);
                     Database.Instance.Clear();

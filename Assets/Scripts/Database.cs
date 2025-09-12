@@ -13,7 +13,7 @@ public class Database
 #if UNITY_EDITOR
         instance = new Database().Init1()
 #else
-            instance = new Database()
+            instance = new Database().Init()
 #endif
             : instance;
     private static Database instance;
@@ -59,6 +59,7 @@ public class Database
 
     public Database Init1()
     {
+        Debug.Log("init1 database");
         try
         {
             if (dic.Count > 0) return this;
@@ -141,12 +142,14 @@ public class Database
 
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
+            TipManager.Instance.SendMessage("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return false;
         }
 
         if (id < 0 || id >= configs.Length)
         {
+            TipManager.Instance.SendMessage($"Invalid id {id} for type {typeof(T).Name}. Valid range: 0-{configs.Length - 1}");
             Debug.LogWarning($"Invalid id {id} for type {typeof(T).Name}. Valid range: 0-{configs.Length - 1}");
             return false;
         }
@@ -161,12 +164,14 @@ public class Database
 
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
+            TipManager.Instance.SendMessage("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return false;
         }
 
         if (string.IsNullOrEmpty(id))
         {
+            TipManager.Instance.SendMessage($"Invalid (null or empty) id for type {typeof(T).Name}");
             Debug.LogWarning($"Invalid (null or empty) id for type {typeof(T).Name}");
             return false;
         }
@@ -199,12 +204,14 @@ public class Database
     {
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
+            TipManager.Instance.SendMessage("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return null;
         }
 
         if (match == null)
         {
+            TipManager.Instance.SendMessage("Null match function for type " + typeof(T).Name);
             Debug.LogWarning($"Null match function for type {typeof(T).Name}");
             return null;
         }
@@ -219,6 +226,7 @@ public class Database
     {
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
+            TipManager.Instance.SendMessage("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return Array.Empty<T>();
         }
@@ -235,12 +243,14 @@ public class Database
 
         if (config == null)
         {
+            TipManager.Instance.SendMessage("Null config for type " + typeof(T).Name);
             Debug.LogWarning($"Null config for type {typeof(T).Name}");
             return false;
         }
 
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
+            TipManager.Instance.SendMessage("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return false;
         }
@@ -255,12 +265,14 @@ public class Database
 
         if (string.IsNullOrEmpty(id))
         {
+            TipManager.Instance.SendMessage($"Invalid (null or empty) id for type {typeof(T).Name}");
             Debug.LogWarning($"Invalid (null or empty) id for type {typeof(T).Name}");
             return false;
         }
 
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
+            TipManager.Instance.SendMessage("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return false;
         }
@@ -307,7 +319,7 @@ public class Database
             text = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(PathHelper.DataPath + name + ".txt").text;
         }
         var arr = text.Split('\n');
-        Debug.Log(PathHelper.AppResPath + "/Data/" + name + ".txt");
+        //Debug.Log(PathHelper.AppResPath + "/Data/" + name + ".txt");
         //var arr = File.ReadLines(PathHelper.AppHotfixResPath + "/Data/" + name + ".txt")
         //.Where(line => !string.IsNullOrWhiteSpace(line))
         //.ToArray();
@@ -351,13 +363,13 @@ public class Database
     private async Task AddAsync<T>(string name) where T : IConfig
     {
         string text;
-        text = SaveHelper.LoadFile(PathHelper.AppResPath + "/Data/" + name + ".txt");
+        text = SaveHelper.LoadFile("/Data/" + name + ".txt");
         //Debug.Log(PathHelper.AppHotfixResPath + "/Data/" + name + ".txt");
         //Debug.Log(PathHelper.AppResPath + "/Data/" + name + ".txt");
-        //Debug.Log(name);
+        Debug.Log(name);
         if (string.IsNullOrEmpty(text))
         {
-            Debug.Log(name + "load from address");
+            //Debug.Log(name + "load from address");
             var operation = Addressables.LoadAssetAsync<TextAsset>(PathHelper.DataPath + name);
             var txt= operation.WaitForCompletion().text;
             await operation.Task;

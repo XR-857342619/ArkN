@@ -5837,10 +5837,6 @@ MonoBehaviour:
     m_Address: Assets/Bundles/Data/CardData
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: 9d4634e5c0329554eabb9d46d06e97d9
-    m_Address: Assets/Bundles/Data/ContractData
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   - m_GUID: f67ea17d8fde380439781023bfc51b50
     m_Address: Assets/Bundles/Data/EffectData
     m_ReadOnly: 0
@@ -9679,6 +9675,10 @@ MonoBehaviour:
     m_SerializedLabels: []
   - m_GUID: eb67c31ad5cc84c45bebb40f5383d1e1
     m_Address: Assets/Bundles/Image/StandPic/zumama
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cb933c57b02f10f4c8da7d2f710296df
+    m_Address: Assets/Bundles/Units/end
     m_ReadOnly: 0
     m_SerializedLabels: []
   m_ReadOnly: 0
