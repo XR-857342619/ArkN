@@ -51,5 +51,3 @@
 {"Id":"环境：高价值目标I","Icon":"环境：高价值目标I","Name":"环境：高价值目标I","Description":"所有我方单位的攻击力降低10%","Group":17,"Skills":[754],"Level":1}
 {"Id":"环境：高价值目标II","Icon":"环境：高价值目标II","Name":"环境：高价值目标II","Description":"所有我方单位的攻击力降低25%","Group":17,"Skills":[755],"Level":2}
 {"Id":"环境：高价值目标III","Icon":"环境：高价值目标III","Name":"环境：高价值目标III","Description":"所有我方单位的攻击力降低50%","Group":17,"Skills":[756],"Level":3}
-
-

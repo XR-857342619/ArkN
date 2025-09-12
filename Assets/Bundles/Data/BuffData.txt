@@ -270,7 +270,6 @@
 {"Id":"减防地板减防","Type":"数值变化","UnSourceCheck":1,"LastingEffect":37,"LastTime":9999,"Data":{"t":["DefenceRateFin"]}}
 {"Id":"减速地板减速buff","Type":"数值变化","UnSourceCheck":1,"LastTime":0.1,"Data":{"t":["SpeedRate"]}}
 {"Id":"中立单位减速","Type":"数值变化","UnSourceCheck":1,"LastingEffect":22,"LastTime":0.2,"Data":{"t":["SpeedRate"]}}
-
 {"Id":"迅使被动","Type":"数值变化","StopLess":2,"StopNeed":2,"LastTime":0.01,"DeadRemain":1,"Data":{"t":["DefenceRate"]}}
 {"Id":"迅使防御提升","Type":"数值变化","LastingEffect":23,"LastTime":0.01,"Data":{"t":["DefenceRate"]}}
 {"Id":"清道夫被动","Type":"数值变化","RoundNeed":1,"LastTime":0.01,"Data":{"t":["AttackRate","DefenceRate"]}}

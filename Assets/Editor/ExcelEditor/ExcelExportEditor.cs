@@ -174,8 +174,11 @@ public class ExcelExportEditor
                     using (FileStream txt = new FileStream(exportPath + sheet.TableName + ".txt", FileMode.Append))
                     using (StreamWriter sw = new StreamWriter(txt))
                     {
-                        if (sb.ToString() != "" ||　sb.ToString() != "\n")
+                        if (sb.ToString() != "\n")
+                        {
+                            Debug.Log(sb.ToString());
                             sw.Write(sb.ToString());
+                        }
                         sw.Close();
                         txt.Close();
                     }

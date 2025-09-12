@@ -86,73 +86,245 @@ public class Database
         return this;
     }
 
+    #region
+    //public T Get<T>(int id) where T : class, IConfig
+    //{
+    //    dic.TryGetValue(typeof(T), out IConfig[] r);
+    //    if (r == null || id < 0 || id >= r.Length)
+    //    {
+    //        Debug.LogWarning($"cant find {typeof(T).Name} ,id {id}");
+    //        return null;
+    //    }
+    //    return r[id] as T;
+    //}
+
+    //public T Get<T>(string id) where T : class, IConfig
+    //{
+    //    dic.TryGetValue(typeof(T), out IConfig[] r);
+    //    Debug.Log(id);
+    //    return r.FirstOrDefault(x => x.Id == id) as T;
+    //}
+
+    //public T Get<T>(Func<T, bool> match) where T : class, IConfig
+    //{
+    //    dic.TryGetValue(typeof(T), out IConfig[] r);
+    //    return r.FirstOrDefault(x => match(x as T)) as T;
+    //}
+
+    //public T[] GetAll<T>() where T : class, IConfig
+    //{
+    //    dic.TryGetValue(typeof(T), out IConfig[] r);
+    //    return r?.Select(x => x as T).ToArray();
+    //}
+
+    //public int GetIndex<T>(T t) where T : class, IConfig
+    //{
+    //    dic.TryGetValue(typeof(T), out IConfig[] r);
+    //    var result = Array.IndexOf(r, t);
+    //    if (result == -1) throw new Exception($"cant find {typeof(T).Name} ,id {t.Id}");
+    //    return result;
+    //}
+
+    //public int GetIndex<T>(string id) where T : class, IConfig
+    //{
+    //    dic.TryGetValue(typeof(T), out IConfig[] r);
+    //    var result = Array.FindIndex(r, x => x.Id == id);
+    //    if (result == -1) throw new Exception($"cant find {typeof(T).Name} ,id {id}");
+    //    return result;
+    //}
+
+    #endregion
+
+    public bool TryGet<T>(int id, out T result) where T : class, IConfig
+    {
+        result = null;
+
+        if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
+        {
+            Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
+            return false;
+        }
+
+        if (id < 0 || id >= configs.Length)
+        {
+            Debug.LogWarning($"Invalid id {id} for type {typeof(T).Name}. Valid range: 0-{configs.Length - 1}");
+            return false;
+        }
+
+        result = configs[id] as T;
+        return result != null;
+    }
+
+    public bool TryGet<T>(string id, out T result) where T : class, IConfig
+    {
+        result = null;
+
+        if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
+        {
+            Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(id))
+        {
+            Debug.LogWarning($"Invalid (null or empty) id for type {typeof(T).Name}");
+            return false;
+        }
+
+        result = configs.FirstOrDefault(x => x?.Id == id) as T;
+        return result != null;
+    }
+
     public T Get<T>(int id) where T : class, IConfig
     {
-        dic.TryGetValue(typeof(T), out IConfig[] r);
-        if (r == null || id < 0 || id >= r.Length)
+        if (TryGet(id, out T result))
         {
-            Debug.LogWarning($"cant find {typeof(T).Name} ,id {id}");
-            return null;
+            return result;
         }
-        return r[id] as T;
+
+        return null;
     }
 
     public T Get<T>(string id) where T : class, IConfig
     {
-        dic.TryGetValue(typeof(T), out IConfig[] r);
-        return r.FirstOrDefault(x => x.Id == id) as T;
+        if (TryGet(id, out T result))
+        {
+            return result;
+        }
+
+        return null;
     }
 
     public T Get<T>(Func<T, bool> match) where T : class, IConfig
     {
-        dic.TryGetValue(typeof(T), out IConfig[] r);
-        return r.FirstOrDefault(x => match(x as T)) as T;
+        if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
+        {
+            Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
+            return null;
+        }
+
+        if (match == null)
+        {
+            Debug.LogWarning($"Null match function for type {typeof(T).Name}");
+            return null;
+        }
+
+        return configs
+            .Where(x => x != null)
+            .Select(x => x as T)
+            .FirstOrDefault(match);
     }
 
     public T[] GetAll<T>() where T : class, IConfig
     {
-        dic.TryGetValue(typeof(T), out IConfig[] r);
-        return r?.Select(x => x as T).ToArray();
+        if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
+        {
+            Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
+            return Array.Empty<T>();
+        }
+
+        return configs
+            .Where(x => x != null)
+            .Select(x => x as T)
+            .ToArray();
     }
 
-    public int GetIndex<T>(T t) where T : class, IConfig
+    public bool TryGetIndex<T>(T config, out int index) where T : class, IConfig
     {
-        dic.TryGetValue(typeof(T), out IConfig[] r);
-        var result = Array.IndexOf(r, t);
-        if (result == -1) throw new Exception($"cant find {typeof(T).Name} ,id {t.Id}");
-        return result;
+        index = -1;
+
+        if (config == null)
+        {
+            Debug.LogWarning($"Null config for type {typeof(T).Name}");
+            return false;
+        }
+
+        if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
+        {
+            Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
+            return false;
+        }
+
+        index = Array.IndexOf(configs, config);
+        return index >= 0;
+    }
+
+    public bool TryGetIndex<T>(string id, out int index) where T : class, IConfig
+    {
+        index = -1;
+
+        if (string.IsNullOrEmpty(id))
+        {
+            Debug.LogWarning($"Invalid (null or empty) id for type {typeof(T).Name}");
+            return false;
+        }
+
+        if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
+        {
+            Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
+            return false;
+        }
+
+        for (int i = 0; i < configs.Length; i++)
+        {
+            if (configs[i]?.Id == id)
+            {
+                index = i;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public int GetIndex<T>(T config) where T : class, IConfig
+    {
+        if (TryGetIndex(config, out int index))
+        {
+            return index;
+        }
+
+        throw new Exception($"Can't find {typeof(T).Name} with id {config?.Id}");
     }
 
     public int GetIndex<T>(string id) where T : class, IConfig
     {
-        dic.TryGetValue(typeof(T), out IConfig[] r);
-        var result = Array.FindIndex(r, x => x.Id == id);
-        if (result == -1) throw new Exception($"cant find {typeof(T).Name} ,id {id}");
-        return result;
+        if (TryGetIndex<T>(id, out int index))
+        {
+            return index;
+        }
+
+        throw new Exception($"Can't find {typeof(T).Name} with id {id}");
     }
 
     private void Add<T>(string name) where T : IConfig
     {
-#if UNITY_EDITOR
+//#if UNITY_EDITOR
         var text = SaveHelper.LoadFile("/Data/" + name + ".txt"); 
         if (string.IsNullOrEmpty(text))
         {
             //Debug.Log(name + "load from address");
             text = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(PathHelper.DataPath + name + ".txt").text;
         }
-        //var arr = text.Split('\n');
-        var arr = File.ReadLines(PathHelper.AppHotfixResPath + "/Data/" + name + ".txt")
-              .Where(line => !string.IsNullOrWhiteSpace(line))
-              .ToArray();
-        foreach (var s in arr)
-        {
-            if (s == "" || s == "\n")
-                Debug.Log("empty line"+s+"in"+name);
-        }
+        var arr = text.Split('\n');
+        Debug.Log(PathHelper.AppResPath + "/Data/" + name + ".txt");
+        //var arr = File.ReadLines(PathHelper.AppHotfixResPath + "/Data/" + name + ".txt")
+        //.Where(line => !string.IsNullOrWhiteSpace(line))
+        //.ToArray();
+        //foreach (var s in arr)
+        //{
+        //    //if (s == "" || s == "\n")
+        //        Debug.Log("empty line"+s+"in"+name);
+        //}
         //var arr = text.Split('\n').Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
         IConfig[] values = new IConfig[arr.Length];
         for (int i = 0; i < arr.Length; i++)
         {
+            if (JsonHelper.FromJson<T>(arr[i])?.Id == null && i != arr.Length - 1)
+            {
+                //Debug.Log(JsonHelper.FromJson<T>(arr[i]).Id);
+                continue;
+            }
             try
             {
                 values[i] = JsonHelper.FromJson<T>(arr[i]);
@@ -173,7 +345,7 @@ public class Database
             }
         }
         dic.Add(typeof(T), values);
-#endif
+//#endif
     }
 
     private async Task AddAsync<T>(string name) where T : IConfig
@@ -181,8 +353,8 @@ public class Database
         string text;
         text = SaveHelper.LoadFile(PathHelper.AppResPath + "/Data/" + name + ".txt");
         //Debug.Log(PathHelper.AppHotfixResPath + "/Data/" + name + ".txt");
-        Debug.Log(PathHelper.AppResPath + "/Data/" + name + ".txt");
-        Debug.Log(name);
+        //Debug.Log(PathHelper.AppResPath + "/Data/" + name + ".txt");
+        //Debug.Log(name);
         if (string.IsNullOrEmpty(text))
         {
             Debug.Log(name + "load from address");
