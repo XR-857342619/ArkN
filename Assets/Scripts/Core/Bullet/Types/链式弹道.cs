@@ -75,6 +75,7 @@ namespace Bullets
             Vector3 Postion;
             float totalTime = (TargetPos - StartPosition).magnitude / BulletData.Speed;
             Postion = StartPosition + (TargetPos - StartPosition) * (time / totalTime);
+            Debug.Log(Postion);
             if (moveHeight > 0)
             {
                 float t = time / totalTime;

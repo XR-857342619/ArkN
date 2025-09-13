@@ -1480,8 +1480,8 @@ public class Skill
             EffectManager.Instance.ReturnEffect(LoopCastEffect);
             LoopCastEffect = null;
         }
-        //if (showRange)
-            //HideUnitAttackArea();
+        if (showRange)
+            HideUnitAttackArea();
     }
     public void ShowUnitAttackArea()
     {
