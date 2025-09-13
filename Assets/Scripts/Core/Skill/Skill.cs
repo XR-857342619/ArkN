@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Bullets;
 
 public class Skill
 {
@@ -846,7 +847,7 @@ public class Skill
                         //ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
                         //ps.Play();
                     }
-                    dInfo = GetDamageInfo(t, t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage);
+                    dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage)*((bullet != null && bullet is 链式弹道  linkBullet) ? linkBullet.reductionRate : 1));
                     t.Damage(dInfo);
 
                     if (!SkillData.IfHeal)

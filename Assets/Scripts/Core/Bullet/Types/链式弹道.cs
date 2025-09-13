@@ -9,6 +9,9 @@ namespace Bullets
         float tickTime;
         string skillId;
         public int maxLinkNum;
+        public int linkNum;
+        public float reductionRate;
+        public float reductionBase;
         public List<Unit> LinkedTargets;
         public bool canBack;
         public List<Unit> UsedTarget = new List<Unit>();
@@ -22,6 +25,9 @@ namespace Bullets
                 TargetPos = GetTargetPos(Target);
             moveHeight = BulletData.Data.GetFloat("MoveHeight");
             maxLinkNum = BulletData.Data.GetInt("MaxLinkNum");
+            linkNum = 0;
+            reductionBase = BulletData.Data.GetFloat("ReductionRate",0);
+            reductionRate = 1 - reductionBase * linkNum;
             canBack = BulletData.Data.GetBool("CanBack");
             skillId = BulletData.Data.GetStr("SkillId");
             //Debug.Log("高度:" + moveHeight);
@@ -39,7 +45,7 @@ namespace Bullets
         public override void Update()
         {
             tmp.Position = Position;
-            tmp.Direction = Direction.ToV2();
+            //tmp.Direction = Direction.ToV2();
             tickTime += SystemConfig.DeltaTime;
             if (Target != null && Target.Alive())
                 TargetPos = GetTargetPos(Target);
@@ -77,6 +83,8 @@ namespace Bullets
                     Skill.Hit(Target, this);
                 //if (maxLinkNum)
                 maxLinkNum--;
+                linkNum++;
+                reductionRate = 1 - reductionBase * linkNum;
                 UsedTarget.Add(Target);
                 if (maxLinkNum > 0)
                 {
