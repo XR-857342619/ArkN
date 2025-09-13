@@ -15,6 +15,8 @@ public enum TriggerEnum
     离场,
     攻击,
     被击,
+    被治疗,
+    治疗,
     致命,
     击杀,
     死亡,

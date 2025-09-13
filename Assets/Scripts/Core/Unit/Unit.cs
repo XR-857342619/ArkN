@@ -856,6 +856,15 @@ public class Unit
         if (ifShowHeal) UnitModel.ShowHeal(heal);
         if (Hp > MaxHp)
             Hp = MaxHp;
+        Battle.TriggerDatas.Push(new TriggerData()
+        {
+            User = heal.GetSourceUnit(),
+            Target = this,
+            //Skill = source,
+        });
+        Trigger(TriggerEnum.被治疗);
+        Battle.TriggerDatas.Pop();
+        Debug.Log(UnitData.Name + " 受到" + heal.GetSourceUnit().UnitData.Name + "的" + heal.FinalDamage + "点治疗");
     }
 
     public void Damage(DamageInfo damageInfo)

@@ -16,7 +16,7 @@ namespace BattleUI
         {
             this.Unit = unit;
             this.tileUnits = tileUnits;
-            Debug.Log("tileUnits:" + tileUnits.Count);
+            //Debug.Log("tileUnits:" + tileUnits.Count);
         }
         partial void Init()
         {

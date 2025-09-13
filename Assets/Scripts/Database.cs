@@ -28,7 +28,7 @@ public class Database
 
     public async Task Init()
     {
-        Debug.Log("init database");
+        //Debug.Log("init database");
         try
         {
             if (dic.Count > 0) return;
@@ -59,7 +59,7 @@ public class Database
 
     public Database Init1()
     {
-        Debug.Log("init1 database");
+        //Debug.Log("init1 database");
         try
         {
             if (dic.Count > 0) return this;
@@ -366,7 +366,7 @@ public class Database
         text = SaveHelper.LoadFile("/Data/" + name + ".txt");
         //Debug.Log(PathHelper.AppHotfixResPath + "/Data/" + name + ".txt");
         //Debug.Log(PathHelper.AppResPath + "/Data/" + name + ".txt");
-        Debug.Log(name);
+        //Debug.Log(name);
         if (string.IsNullOrEmpty(text))
         {
             //Debug.Log(name + "load from address");

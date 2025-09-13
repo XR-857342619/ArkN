@@ -75,7 +75,6 @@ namespace Bullets
             Vector3 Postion;
             float totalTime = (TargetPos - StartPosition).magnitude / BulletData.Speed;
             Postion = StartPosition + (TargetPos - StartPosition) * (time / totalTime);
-            Debug.Log(Postion);
             if (moveHeight > 0)
             {
                 float t = time / totalTime;
@@ -88,12 +87,12 @@ namespace Bullets
                 tmp.Position = Position;
                 if (Target == null)
                 {
-                    Debug.Log("弹道位置" + Position + " 索敌起始位置:" + tmp.Position);
+                    //Debug.Log("弹道位置" + Position + " 索敌起始位置:" + tmp.Position);
                     Skill.Hit(TargetPos.ToV2(), this);
                 }
                 else if (Target != null && Target.Alive())
                 {
-                    Debug.Log("弹道位置" + Position + " 索敌起始位置:" + tmp.Position);
+                    //Debug.Log("弹道位置" + Position + " 索敌起始位置:" + tmp.Position);
                     Skill.Hit(Target, this);
                 }
                 //if (maxLinkNum)

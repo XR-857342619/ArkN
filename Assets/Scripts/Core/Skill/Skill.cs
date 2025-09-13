@@ -89,7 +89,7 @@ public class Skill
 
     public virtual void Init()
     {
-        Debug.Log(SkillData.Id + "初始化");
+        //Debug.Log(SkillData.Id + "初始化");
         if (SkillData.Modifys != null)
         {
             for (int i = 0; i < SkillData.Modifys.Length; i++)
@@ -466,7 +466,7 @@ public class Skill
             u1.Start.Finish();
             u1.StartEnd();
         }
-        Debug.Log("OpenSkill");
+        //Debug.Log("OpenSkill");
         if (SkillData.StopOtherSkill)
         {
             Unit.BreakAllCast();
@@ -606,7 +606,7 @@ public class Skill
                 //Log.Debug(Unit.UnitData.Id + "的" + SkillData.Id + "的打断时机:");
             }
             Casting.Set(duration);
-            Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "AttackStart,pointDelay:" + duration + ",fullDuration" + fullDuration + ",beginDuration" + beginDuration + ",Time:" + Time.time + ",Cooldown:" + Cooldown.value);
+            //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "AttackStart,pointDelay:" + duration + ",fullDuration" + fullDuration + ",beginDuration" + beginDuration + ",Time:" + Time.time + ",Cooldown:" + Cooldown.value);
             if (IsCantCast && Waiting.Finished())
             {
                 Log.Debug("尝试打断" + Unit.UnitData.Id + "的" + SkillData.Id);
@@ -734,7 +734,7 @@ public class Skill
 
     protected virtual void Burst()
     {
-        Debug.Log("正在连发");
+        //Debug.Log("正在连发");
         //if (BurstCount == SkillData.BurstCount)
         //{
         //    BurstCount = SkillData.BurstCount;
@@ -750,7 +750,7 @@ public class Skill
         {
             Effect(target);
         }
-        Debug.Log(LastTargets.Count + "个目标");
+        //Debug.Log(LastTargets.Count + "个目标");
         BurstCount--;
         if (BurstCount > 0)
             BurstGap.Set(SkillData.BurstDelay);
@@ -906,6 +906,7 @@ public class Skill
                 {
                     dInfo = GetDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
                     target.Heal(dInfo, !SkillData.DamageWithFrameRate);
+                    OnHeal(target);
                 }
                 else
                 {
@@ -1325,7 +1326,7 @@ public class Skill
 
     protected virtual void OnBeAttack(Unit target)
     {
-        Debug.Log(target.UnitData.Name +"被攻击");
+        //Debug.Log(target.UnitData.Name +"被攻击");
         Battle.TriggerDatas.Push(new TriggerData()
         {
             User = Unit,
@@ -1355,6 +1356,29 @@ public class Skill
         Battle.TriggerDatas.Pop();
     }
 
+    protected virtual void OnBeHeal(Skill source)
+    {
+        Battle.TriggerDatas.Push(new TriggerData()
+        {
+            User = source.Unit,
+            Target = this.Unit,
+            Skill = source,
+        });
+        Unit.Trigger(TriggerEnum.被治疗);
+        Battle.TriggerDatas.Pop();
+    }
+
+    protected virtual void OnHeal(Unit target)
+    {
+        Battle.TriggerDatas.Push(new TriggerData()
+        {
+            User = Unit,
+            Target = target,
+            Skill = this,
+        });
+        target.Trigger(TriggerEnum.治疗);
+        Battle.TriggerDatas.Pop();
+    }
     protected virtual void DoLifeSteal(DamageInfo damageInfo)
     {
         if (SkillData.LifeSteal == 0 || damageInfo.Avoid) return;
@@ -1366,6 +1390,8 @@ public class Skill
             Target = Unit,
             Source = this,
         }, false);
+        OnBeHeal(this);
+        OnHeal(Unit);
     }
 
     protected virtual void OnSkillOpen()
