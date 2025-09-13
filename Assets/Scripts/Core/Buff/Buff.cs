@@ -27,6 +27,12 @@ public class Buff
 
     List<Vector2Int> rounds;
 
+    //入梦砖相关
+    public bool IsCancelable { get; set; } // 这个BUFF是否可被抵挡
+    public bool IsSuppressed { get; set; } // 这个BUFF当前是否被抑制/失效
+    public bool MakesBuffsCancelable { get; set; } // 这个BUFF是否使施加者施加的BUFF变为可抵挡
+    public Unit OriginalCaster { get; set; } // 记录原始施加者
+
     public virtual void Init()
     {
         updateLastTime();
@@ -36,7 +42,7 @@ public class Buff
             LastingEffect.Init(Skill.Unit, Unit, Unit.Position, Unit.Direction);
             LastingEffect.SetLifeTime(float.PositiveInfinity);
         }
-        //Log.Debug($"{Unit.UnitData.Id} 新获得了buff {BuffData.Id}");
+        Log.Debug($"{Unit.UnitData.Id} 新获得了buff {BuffData.Id}");
         if (BuffData.RoundNeed == 1)
         {
             rounds = new List<Vector2Int>();
@@ -65,7 +71,10 @@ public class Buff
 
     public virtual void Apply()
     {
-
+        if (IsSuppressed)
+        {
+            return;
+        }
     }
 
     public virtual void Reset()
@@ -100,6 +109,13 @@ public class Buff
 
     public virtual void Update()
     {
+
+        if (IsSuppressed)
+        {
+            // BUFF被抑制，不执行任何效果
+            return;
+        }
+
         if (Skill.SkillData.BuffRely)//单位离开技能范围，或施法者死亡时，buff自动消失
         {
             if (!Skill.Unit.Alive() || (Skill.SkillData.OpenTime > 0 && Skill.Opening.Finished() || (Skill.SkillData.UseType != SkillUseTypeEnum.被动 && !Skill.GetAttackTarget().Contains(Unit))))

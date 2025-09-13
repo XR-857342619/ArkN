@@ -158,6 +158,7 @@ public class Unit
     public bool CanChangeAnimation = true;
     public float AnimationSpeed = 1;
     //public Dictionary<string, (float, float, float)> progressBarData = new Dictionary<string, (float, float, float)>();
+    private bool isRefreshing = false;
 
     public virtual void Init()
     {
@@ -227,62 +228,74 @@ public class Unit
 
     public virtual void Refresh()
     {
-        float hpDown = MaxHp - Hp;
-        PushPower = 0;
-        SpeedAdd = SpeedRate = 0;
-        HpAdd = HpRate = HpAddFin = HpRateFin = 0;
-        AttackAdd = AttackRate = AttackAddFin = AttackRateFin = 0;
-        MagicDefenceAdd = MagicDefenceRate = MagicDefenceAddFin = MagicDefenceRateFin = 0;
-        DefenceAdd = DefenceRate = DefenceAddFin = DefenceRateFin = 0;
-        AgiAdd = AgiRate = AgiAddFin = AgiRateFin = 0;
-        HpRecoverP = 0;
-        HpRecoverBase = UnitData.HpRecover;
-        HpRecoverAdd = 0;
-        WeightAdd = 0;
-        AttackGapAdd = AttackGapRate = 0;
-        Block = MagBlock = 0;
-        SkillCostAdd = 0;
-        PowerSpeedAdd = 0;
-        CanAttack = true;
-        CanBeHeal = true;
-        ResistAdd = 0;
-        AttackRangeAdd = AttackRangeRate = 0;
-        DamageReceiveRate = MagicDamageReceiveRate = HealReceiveRate = NormalDamageReceiveRate = ElementDamageReceiveRate = 1;
-        StopCountAdd = 0;
-        HpRecoverRate = 0;
-        ElementBreakRecoverRate = 1f;
-        Hatre = UnitData.Hatred;
-        foreach (var buff in Buffs)
+        if (isRefreshing) return; // 防止递归调用
+
+        isRefreshing = true;
+
+        try
         {
-            if (buff.Enable()) buff.Apply();
+            float hpDown = MaxHp - Hp;
+            PushPower = 0;
+            SpeedAdd = SpeedRate = 0;
+            HpAdd = HpRate = HpAddFin = HpRateFin = 0;
+            AttackAdd = AttackRate = AttackAddFin = AttackRateFin = 0;
+            MagicDefenceAdd = MagicDefenceRate = MagicDefenceAddFin = MagicDefenceRateFin = 0;
+            DefenceAdd = DefenceRate = DefenceAddFin = DefenceRateFin = 0;
+            AgiAdd = AgiRate = AgiAddFin = AgiRateFin = 0;
+            HpRecoverP = 0;
+            HpRecoverBase = UnitData.HpRecover;
+            HpRecoverAdd = 0;
+            WeightAdd = 0;
+            AttackGapAdd = AttackGapRate = 0;
+            Block = MagBlock = 0;
+            SkillCostAdd = 0;
+            PowerSpeedAdd = 0;
+            CanAttack = true;
+            CanBeHeal = true;
+            ResistAdd = 0;
+            AttackRangeAdd = AttackRangeRate = 0;
+            DamageReceiveRate = MagicDamageReceiveRate = HealReceiveRate = NormalDamageReceiveRate = ElementDamageReceiveRate = 1;
+            StopCountAdd = 0;
+            HpRecoverRate = 0;
+            ElementBreakRecoverRate = 1f;
+            Hatre = UnitData.Hatred;
+            foreach (var buff in Buffs)
+            {
+                if (buff.Enable()) buff.Apply();
+            }
+            StopCount = UnitData.StopCount + (int)StopCountAdd;
+            Speed = (SpeedBase + SpeedAdd) * (1 + SpeedRate) / 2;
+            if (Speed < SpeedBase * 0.1f) Speed = SpeedBase * 0.1f;
+            MaxHp = ((HpBase + HpAdd) * (1 + HpRate) + HpAddFin) * (1 + HpRateFin);
+            Hp = MaxHp - hpDown;
+            Attack = ((AttackBase + AttackAdd) * (1 + AttackRate) + AttackAddFin) * (1 + AttackRateFin);
+            if (Attack < 0) Attack = 0;
+            Defence = ((DefenceBase + DefenceAdd) * (1 + DefenceRate) + DefenceAddFin) * (1 + DefenceRateFin);
+            if (Defence < 0) Defence = 0;
+            MagicDefence = ((MagicDefenceBase + MagicDefenceAdd) * (1 + MagicDefenceRate) + MagicDefenceAddFin) * (1 + MagicDefenceRateFin);
+            if (MagicDefence < 0) MagicDefence = 0;
+            if (MagicDefence > 100) MagicDefence = 100;
+            HpRecover = (HpRecoverBase + HpRecoverAdd);
+            if (HpRecover > 0) HpRecover = HpRecover * (1 + HpRecoverRate);
+            Agi = ((AgiBase + AgiAdd) * (1 + AgiRate) + AgiAddFin) * (1 + AgiRateFin);
+            if (Agi < 10f) Agi = 10f;
+            Weight = (int)(WeightBase + WeightAdd);
+            AttackGap = (AttackGapBase + AttackGapAdd) * (1 + AttackGapRate);
+            if (AttackGap < 0.1f) AttackGap = 0.1f;
+            SkillCost = SkillCostAdd + 1;
+            PowerSpeed = PowerSpeedAdd + 1;
+            Resist = ResistAdd + 1;
+            AttackRange = (1 + AttackRangeAdd) * (1 + AttackRangeRate);
         }
-        StopCount = UnitData.StopCount + (int)StopCountAdd;
-        Speed = (SpeedBase + SpeedAdd) * (1 + SpeedRate) / 2;
-        if (Speed < SpeedBase * 0.1f) Speed = SpeedBase * 0.1f;
-        MaxHp = ((HpBase + HpAdd) * (1 + HpRate) + HpAddFin) * (1 + HpRateFin);
-        Hp = MaxHp - hpDown;
-        Attack = ((AttackBase + AttackAdd) * (1 + AttackRate) + AttackAddFin) * (1 + AttackRateFin);
-        if (Attack < 0) Attack = 0;
-        Defence = ((DefenceBase + DefenceAdd) * (1 + DefenceRate) + DefenceAddFin) * (1 + DefenceRateFin);
-        if (Defence < 0) Defence = 0;
-        MagicDefence = ((MagicDefenceBase + MagicDefenceAdd) * (1 + MagicDefenceRate) + MagicDefenceAddFin) * (1 + MagicDefenceRateFin);
-        if (MagicDefence < 0) MagicDefence = 0;
-        if (MagicDefence > 100) MagicDefence = 100;
-        HpRecover = (HpRecoverBase + HpRecoverAdd);
-        if (HpRecover > 0) HpRecover = HpRecover * (1 + HpRecoverRate);
-        Agi = ((AgiBase + AgiAdd) * (1 + AgiRate) + AgiAddFin) * (1 + AgiRateFin);
-        if (Agi < 10f) Agi = 10f;
-        Weight = (int)(WeightBase + WeightAdd);
-        AttackGap = (AttackGapBase + AttackGapAdd) * (1 + AttackGapRate);
-        if (AttackGap < 0.1f) AttackGap = 0.1f;
-        SkillCost = SkillCostAdd + 1;
-        PowerSpeed = PowerSpeedAdd + 1;
-        Resist = ResistAdd+1;
-        AttackRange = (1 + AttackRangeAdd) * (1 + AttackRangeRate);
+        finally
+        {
+            isRefreshing = false;
+        }
     }
 
     public void UpdateBuffs()
     {
+        UpdateBuffSuppression();
         updateElement();
         if (!Alive()) return;
         if (Hp > MaxHp) Hp = MaxHp;
@@ -312,6 +325,9 @@ public class Unit
     }
     public virtual void UpdateAction()
     {
+
+        UpdateBuffSuppression();
+
         if (Alive())
         {
             //HP自动回复
@@ -553,34 +569,139 @@ public class Unit
         return skill;
     }
 
-    public Buff AddBuff(int buffId,Skill source,int index)
+    #region 入梦砖
+    public void UpdateBuffSuppression()
     {
-        if (IgnoreBuffs.Contains(buffId)) return null;//免疫对应Buff
+        // 检查单位是否有"BUFF抵挡"效果
+        bool hasBuffDefense = Buffs.Any(b => b.BuffData.CancelsCancelableBuffs && !b.IsSuppressed);
+
+        //Log.Debug($"单位 {this.UnitData.Id} 是否有BUFF抵挡效果: {hasBuffDefense}");
+
+        foreach (var buff in Buffs)
+        {
+            // 检查BUFF是否应该被抑制
+            bool shouldSuppress = hasBuffDefense &&
+                                 buff.IsCancelable &&
+                                 buff.OriginalCaster != null &&
+                                 buff.OriginalCaster.Buffs.Any(b => b.BuffData.MakesBuffsCancelable && !b.IsSuppressed);
+
+            // 记录详细信息
+            if (buff.IsCancelable && buff.OriginalCaster != null)
+            {
+                bool casterHasCancelable = buff.OriginalCaster.Buffs.Any(b => b.BuffData.MakesBuffsCancelable && !b.IsSuppressed);
+                //Log.Debug($"BUFF {buff.Id} 来自单位 {buff.OriginalCaster.UnitData.Id}, 施加者是否有BUFF可抵挡: {casterHasCancelable}");
+            }
+
+            // 更新抑制状态
+            if (buff.IsSuppressed != shouldSuppress)
+            {
+                //Log.Debug($"BUFF {buff.Id} 抑制状态变化: {buff.IsSuppressed} -> {shouldSuppress}");
+
+                buff.IsSuppressed = shouldSuppress;
+
+                // 状态变化时的处理
+                if (shouldSuppress)
+                {
+                    //Log.Debug($"BUFF {buff.Id} 被抑制");
+                    // BUFF刚被抑制，移除其效果
+                    OnBuffSuppressed(buff);
+                }
+                else
+                {
+                    //Log.Debug($"BUFF {buff.Id} 恢复");
+                    // BUFF刚恢复，重新应用效果
+                    OnBuffRestored(buff);
+                }
+            }
+        }
+    }
+
+    // BUFF被抑制时的处理
+    public void OnBuffSuppressed(Buff buff)
+    {
+        // 移除BUFF的效果（如果是持续性效果）
+        // 例如：如果是一个攻击力提升BUFF，需要暂时降低攻击力
+        Refresh(); // 重新计算属性
+    }
+
+    // BUFF恢复时的处理
+    public void OnBuffRestored(Buff buff)
+    {
+        // 恢复BUFF的效果
+        Refresh(); // 重新计算属性
+    }
+
+    // 在每帧更新中调用,此处逻辑在UpdateAction()中,见上文
+
+    #endregion
+
+    public Buff AddBuff(int buffId, Skill source, int index)
+    {
+        if (IgnoreBuffs.Contains(buffId)) return null; // 免疫对应Buff
+
         var config = Database.Instance.Get<BuffData>(buffId);
         if (config.RelyBuff != null && !Buffs.Any(x => x.Id == config.RelyBuff.Value))
             return null;
         //权且加上来源判断，因为现在很多buff共用一个id会产生冲突。
+        //权且加上来源判断，因为现在很多buff共用一个id会产生冲突。
         //如果需要处理buff冲突的情况，再修改这里
-        //判断是否存在buff的升级版
-        var oldBuff = Buffs.FirstOrDefault(x => (x.Id == buffId || config.Upgrade == x.Id) && (config.UnSourceCheck || x.Skill == source));
+        // 检查是否存在buff的升级版
+        var oldBuff = Buffs.FirstOrDefault(x => (x.Id == buffId || config.Upgrade == x.Id) && (config.UnSourceCheck || x.Skill == source));                                     
         if (oldBuff != null)
         {
             oldBuff.Reset();
-            //Refresh();
             return oldBuff;
         }
         else
         {
-            var buff = typeof(Buff).Assembly.CreateInstance(nameof(Buffs) + "." + config.Type) as Buff;
-            buff.Index = index;
-            buff.Id = buffId;
-            buff.Skill = source;
-            buff.Unit = this;
-            Buffs.Add(buff);
-            if (buff is IShield shield) Shields.Add(shield);
-            buff.Init();
-            //Refresh();
-            return buff;
+            // 创建新的buff实例
+            var newBuff = typeof(Buff).Assembly.CreateInstance(nameof(Buffs) + "." + config.Type) as Buff;
+            if (newBuff == null) return null;
+
+            newBuff.Index = index;
+            newBuff.Id = buffId;
+            newBuff.Skill = source;
+            newBuff.Unit = this;
+
+            // 设置BUFF是否可被抵挡
+            if (source?.Unit != null)
+            {
+                // 检查施加者是否有使BUFF变为可抵挡的效果
+                newBuff.IsCancelable = source.Unit.Buffs.Any(b =>
+                    b.BuffData.MakesBuffsCancelable && !b.IsSuppressed);
+
+                // 记录原始施加者
+                newBuff.OriginalCaster = source.Unit;
+            }
+
+            // 立即检查并设置抑制状态
+            bool hasBuffDefense = Buffs.Any(b => b.BuffData.CancelsCancelableBuffs && !b.IsSuppressed);
+            bool shouldSuppress = hasBuffDefense && newBuff.IsCancelable && newBuff.OriginalCaster != null &&
+                                 newBuff.OriginalCaster.Buffs.Any(b =>
+                                     b.BuffData.MakesBuffsCancelable && !b.IsSuppressed);
+
+            newBuff.IsSuppressed = shouldSuppress;
+
+            // 添加到BUFF列表
+            Buffs.Add(newBuff);
+
+            // 如果是护盾类型，添加到护盾列表
+            if (newBuff is IShield shield)
+                Shields.Add(shield);
+
+            // 如果BUFF未被抑制，应用效果
+            if (!shouldSuppress)
+            {
+                newBuff.Init();
+                newBuff.Apply();
+            }
+            else
+            {
+                // 只初始化但不应用效果
+                newBuff.Init();
+            }
+
+            return newBuff;
         }
     }
 

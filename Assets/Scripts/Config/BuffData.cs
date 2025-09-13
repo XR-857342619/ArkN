@@ -15,4 +15,7 @@ public class BuffData : IConfig
       public bool DeadRemain;
       public int? RelyBuff;
       public System.Collections.Generic.Dictionary<string,object> Data;
+      public bool IsCancelable { get; set; } // 这个BUFF是否可被抵挡
+      public bool MakesBuffsCancelable { get; set; } // 这个BUFF是否使施加者施加的BUFF变为可抵挡
+      public bool CancelsCancelableBuffs { get; set; } // 这个BUFF是否抵挡可被抵挡的BUFF
 }

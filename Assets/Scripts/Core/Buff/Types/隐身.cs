@@ -8,6 +8,7 @@ namespace Buffs
 {
     public class 隐身 : Buff
     {
+        
         CountDown rehide = new CountDown();
         float rehideTime;
 
