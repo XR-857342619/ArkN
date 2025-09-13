@@ -121,8 +121,11 @@ public class GameData
             List<string> toRemove = new List<string>();
             foreach (var item in instance.ExcelList)
             {
-                if (!System.IO.Directory.Exists(item))
+                if (!System.IO.File.Exists(item))
+                {
+                    //Debug.Log("删除无效的Excel文件路径：" + item);
                     toRemove.Add(item);
+                }
             }
             instance.ExcelList.RemoveAll(x => toRemove.Contains(x));
             ExcelList = instance.ExcelList;

@@ -14,6 +14,7 @@ namespace MainUI
     {
         GameData gameData => GameData.Instance;
         List<string> ExcelList = GameData.Instance.ExcelList;
+        public GTreeNode rootNode;
         partial void Init()
         {
             m_Map.onClick.Add(() =>
@@ -123,7 +124,7 @@ namespace MainUI
             m_importSpine.onClick.Add(OpenFolderDialog);
             //GTree exceltree = m_ExcelList;
             //GTreeNode rootNode = exceltree.rootNode;
-            TreeViewInit();
+            //TreeViewInit();
             if (TipManager.Instance.initErorrTips.Count > 0)
             {
                 m_InitError.text += "喜报:\n初始化错误\n";
@@ -133,6 +134,11 @@ namespace MainUI
                     m_InitError.text += i + "\n";
                 }
             }
+            m_ExportBtn.onClick.Add(() =>
+            {
+                TreeViewInit();
+                //freshNode();
+            });
         }
 
         protected override void OnUpdate()
@@ -199,7 +205,8 @@ namespace MainUI
 
         public void TreeViewInit()
         {
-            GTreeNode rootNode = m_ExcelList.rootNode;
+            rootNode = m_ExcelList.rootNode;
+            rootNode.RemoveChildren();
             List<string> ExcelFolderPaths = Database.Instance.GetExcelPathList();
             List<string> ExcelFolderNames = new List<string>();
             List<string> ExcelFilePaths = new List<string>();
@@ -251,7 +258,6 @@ namespace MainUI
                 ExcelFileNames.Clear();
                 ExcelFilePaths.Clear();
             }
-            freshNode();
         }
         public void freshNode()
         {

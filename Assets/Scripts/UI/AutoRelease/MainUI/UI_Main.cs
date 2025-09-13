@@ -20,6 +20,7 @@ namespace MainUI
         public GButton m_Map;
         public GButton m_team;
         public GButton m_close;
+        public GButton m_ExportBtn;
         public GButton m_importSpine;
         public GSlider m_bgm;
         public GGroup m_bgmG;
@@ -54,6 +55,7 @@ namespace MainUI
             m_Map = (GButton)GetChildAt(11);
             m_team = (GButton)GetChildAt(12);
             m_close = (GButton)GetChildAt(17);
+            m_ExportBtn = (GButton)GetChildAt(22);
             m_importSpine = (GButton)GetChildAt(23);
             m_bgm = (GSlider)GetChildAt(24);
             m_bgmG = (GGroup)GetChildAt(26);

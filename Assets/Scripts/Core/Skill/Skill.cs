@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Bullets;
 
 public class Skill
 {
@@ -846,7 +847,7 @@ public class Skill
                         //ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
                         //ps.Play();
                     }
-                    dInfo = GetDamageInfo(t, t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage);
+                    dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage)*((bullet != null && bullet is 链式弹道  linkBullet) ? linkBullet.reductionRate : 1));
                     t.Damage(dInfo);
 
                     if (!SkillData.IfHeal)
@@ -1046,11 +1047,11 @@ public class Skill
                 tempTargets.Add(t);
         }
         //仅自己的情况下 优化一下
-        //if (tempTargets.Count == 0 && SkillData.TargetFilter == SkillTargetFilterEnum.仅自己)
-        //{
-        //    tempTargets.Add(Unit);
-        //    return tempTargets;
-        //}
+        if (tempTargets.Count == 0 && SkillData.TargetFilter == SkillTargetFilterEnum.仅自己)
+        {
+            tempTargets.Add(Unit);
+            return tempTargets;
+        }
         if (!SkillData.UseEventTarget && !SkillData.UseEventUser)
         {
             if (AttackPoints == null && !SkillData.AttackAreaWithMain)//根据攻击范围进行索敌
