@@ -921,7 +921,7 @@ public class Unit
                     Debug.LogError("未知伤害类型");
                 opDamageInfo.TotalDamage += damageInfo.FinalDamage;
             }
-            Debug.Log(unit.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
+            //Debug.Log(unit.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
         }
     }
 

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Bullets;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 
 public class Skill
 {
@@ -83,12 +84,12 @@ public class Skill
     public bool IsCantBurst = false;
     public bool IsCantLoop = false;
     public bool IsNormalAttack = false;
-    public int 递归深度 = 1000;
+    //public int 递归深度 = 1000;
     public bool IsBursting = false;
 
     public virtual void Init()
     {
-        //Debug.Log(SkillData.Id + "初始化");
+        Debug.Log(SkillData.Id + "初始化");
         if (SkillData.Modifys != null)
         {
             for (int i = 0; i < SkillData.Modifys.Length; i++)
@@ -345,7 +346,7 @@ public class Skill
 
     public virtual bool Ready()
     {
-        //if (!LoopingStart.Finished()) return false;
+        if (!LoopingStart.Finished()) return false;
         if (Unit.IfStun && !SkillData.IgnoreStun)
             return false;
         if (SkillData.UseType == SkillUseTypeEnum.被动) return false;
@@ -877,7 +878,7 @@ public class Skill
                         //ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
                         //ps.Play();
                     }
-                    dInfo = GetDamageInfo(t, t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage);
+                    dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
                     t.Damage(dInfo);
 
                     if (!SkillData.IfHeal)
@@ -903,7 +904,7 @@ public class Skill
                 }
                 if (SkillData.IfHeal)
                 {
-                    dInfo = GetDamageInfo(target);
+                    dInfo = GetDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
                     target.Heal(dInfo, !SkillData.DamageWithFrameRate);
                 }
                 else
@@ -1023,8 +1024,16 @@ public class Skill
 
     public virtual void FindTarget()
     {
+        //Debug.Log("开始获取目标");
+        if (showRange)
+        {
+            HideUnitAttackArea();
+            //Debug.Log("展示");
+            ShowUnitAttackArea();
+        }
         Targets.Clear();
         Targets.AddRange(GetAttackTarget());
+        //Debug.Log(Targets.First().Position);
     }
 
     protected List<Unit> tempTargets = new List<Unit>();
@@ -1065,6 +1074,8 @@ public class Skill
             }
         }
         orderTargets(tempTargets);
+        //if (tempTargets.Count > 0)
+        //    Debug.Log("获取到目标：" + tempTargets.First().Position);
         return tempTargets;
     }
 
@@ -1469,8 +1480,8 @@ public class Skill
             EffectManager.Instance.ReturnEffect(LoopCastEffect);
             LoopCastEffect = null;
         }
-        if (showRange)
-            HideUnitAttackArea();
+        //if (showRange)
+            //HideUnitAttackArea();
     }
     public void ShowUnitAttackArea()
     {

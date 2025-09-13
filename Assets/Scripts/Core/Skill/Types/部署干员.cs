@@ -15,7 +15,8 @@ namespace Skills
         //public 干员 skilloprator;
         //public Vector2Int pos;
         public DirectionEnum direction = DirectionEnum.Right;
-        public Vector3 pos = new Vector3(float.MaxValue, 0, float.MaxValue);
+        //public Vector3 pos = new Vector3(float.MaxValue, 0, float.MaxValue);
+        public Vector3 pos;
         public string targetDirection = "FixedDirection";
         public string setMod = "Add";
         public string targetPos = "";
@@ -31,11 +32,13 @@ namespace Skills
         }
         public override void Start()
         {
-            base.Start();
+            //base.Start();
+            FindTarget();
+            Debug.Log(Targets.First().Position);
             switch (targetPos)
             {
                 case "useSelfPos":
-                    //Debug.Log("useSlefPos:" + Unit.Position);
+                    Debug.Log("useSlefPos:" + Unit.Position);
                     pos = Unit.Position;
                     break;
                 case "useTargetPos":
@@ -46,13 +49,14 @@ namespace Skills
                         List<Unit> targets = skill.GetAttackTarget();
                         if (targets.Count > 0)
                         {
-                            pos = targets[0].Position;
+                            pos = targets.First().Position;
                         }
                     }
                     else
                     {
                         pos = Unit.Position;
                     }
+                    Debug.Log("useTargetPos:");
                     break;
                 case "useAttackPoint":
                     foreach (var point in AttackPoints)
@@ -60,9 +64,14 @@ namespace Skills
                         if (point != Unit.Position2)
                         {
                             pos.x = point.x;
-                            pos.y = point.y;
+                            pos.z = point.y;
                         }
                     }
+                    Debug.Log("useAttackPoint:");
+                    break;
+                case "useSelfTargetPos":
+                    Debug.Log(Targets.First().Position);
+                    pos = Targets.First().Position;
                     break;
             }
             string unitId = SkillData.Data.GetStr("UnitId");
@@ -86,8 +95,8 @@ namespace Skills
             //    pos = SkillData.AttackPoints[0];
             //else
             //    pos = skilloprator.GridPos;
-            Tile tile = Battle.Map.Tiles[(int)pos.x, (int)pos.z];
             Debug.Log("获取到部署位置:" + pos + " 方向:" + direction);
+            Tile tile = Battle.Map.Tiles[(int)pos.x, (int)pos.z];
             Units.干员 toRemove = null;
             foreach (Unit unit in tile.Units)
             {

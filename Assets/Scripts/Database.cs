@@ -485,10 +485,10 @@ public class Database
         List<string> paths = new List<string>();
         paths = Directory.GetFiles(path).ToList();
         paths.RemoveAll(x => System.IO.Path.GetFileName(x).StartsWith("~$"));
-        foreach (var file in paths)
-        {
-            Debug.Log(file);
-        }
+        //foreach (var file in paths)
+        //{
+        //    Debug.Log(file);
+        //}
         //FileHelper.GetAllFiles(paths, path);
         return paths;
 
