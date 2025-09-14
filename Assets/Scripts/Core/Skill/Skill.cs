@@ -311,6 +311,63 @@ public class Skill
         return true;
     }
 
+    public virtual bool _CanUseTo(Unit target)
+    {
+        if (target == null) return false;
+        if (!SkillData.MidLimit && target.GetType() == typeof(Units.中立单位)) return false;
+        if ((SkillData.IfHeal && !SkillData.DamageWithFrameRate) && ((!target.CanBeHeal && !target.HealOnly.Contains(Unit.Id)) || target.Hp == target.MaxHp) && (target != Unit)) return false;
+        if (target.IfSleep && !SkillData.IgnoreSleep) return false;
+        if (!target.IfSelectable && !SkillData.IgnoreSelectable) return false;
+        if ((SkillData.TargetTeam >> target.Team) % 2 == 0) return false;
+        if (target.UnitData.StopAttackOnly && target != Unit)
+        {
+            if (Unit is Units.干员 u && !u.StopUnits.Contains(target)) return false;
+            if (Unit is Units.敌人 u1 && u1.StopUnit != (target)) return false;
+            if (Unit is Units.中立单位) return false;
+        }
+        switch (SkillData.TargetFilter)
+        {
+            case SkillTargetFilterEnum.仅自己:
+                if (target != Unit) return false;
+                break;
+            case SkillTargetFilterEnum.自己以外:
+                if (target == Unit) return false;
+                break;
+            case SkillTargetFilterEnum.召唤物:
+                if (target != Unit && !(Unit as Units.干员).Children.Contains(target)) return false;
+                break;
+            case SkillTargetFilterEnum.仅召唤:
+                if (!(Unit as Units.干员).Children.Contains(target)) return false;
+                break;
+        }
+        if (SkillData.SelfHpLess != 0 && Unit.Hp / Unit.MaxHp > SkillData.SelfHpLess) return false;
+        if (SkillData.TargetHpLess != 0 && target.Hp / target.MaxHp > SkillData.TargetHpLess) return false;
+        if (SkillData.TargetHpMore != 0 && target.Hp / target.MaxHp < SkillData.TargetHpMore) return false;
+        if (SkillData.UnitLimit != null && !SkillData.UnitLimit.Contains(target.Id)) return false;
+        if (SkillData.ProfessionLimit != UnitTypeEnum.无 && SkillData.ProfessionLimit != target.UnitData.Profession)
+            return false;
+        if (!SkillData.AttackFly && target.Height > 0) return false;
+        if (!target.Alive() && !SkillData.DeadFind) return false;
+        if ((!(SkillData.AntiHide || Unit.Team == target.Team)) && target.IfHide) return false;
+        if (SkillData.TargetDisableBuff != null)
+        {
+            if (SkillData.TargetDisableBuff.Any(x => target.Buffs.Any(y => y.Id == x))) return false;
+        }
+        if (SkillData.TargetEnableBuff != null)
+        {
+            if (SkillData.TargetEnableBuff.Any(x => target.Buffs.All(y => y.Id != x))) return false;
+        }
+        if (SkillData.RareLimit != 0 && target.UnitData.Rare != SkillData.RareLimit) return false;
+        if (SkillData.CostLimit != 0 && target.UnitData.Cost > SkillData.CostLimit) return false;
+        if (SkillData.PosLimit != 0)
+        {
+            if (target.NowGrid == null) return false;
+            if (SkillData.PosLimit == 1 && target.NowGrid.FarAttackGrid) return false;
+            if (SkillData.PosLimit == 2 && !target.NowGrid.FarAttackGrid) return false;
+        }
+        return true;
+    }
+
     public virtual void UpdateCooldown()
     {
         if (Cooldown.Update(SystemConfig.DeltaTime))
