@@ -77,6 +77,7 @@ public class Skill
     Pool<MapTile> SkillRange = new Pool<MapTile>();
 
     //public string FilterExpression;
+    public SkillTargetFilter filter;
 
     public bool IsCantOpen = false;
     public bool IsCantUse = false;
@@ -113,8 +114,9 @@ public class Skill
         showRange = SkillData.Data?.GetBool("ShowRange")?? false;
         showBar = SkillData.Data?.GetStr("ShowBar")?? "";
 
+        filter = new SkillTargetFilter(Unit, Targets);
         //FilterExpression = SkillData.SkillCondition;
-        
+
         canStop = SkillData.CanStop;
         MaxPowerBase = SkillData.MaxPower;
         PowerCount = SkillData.PowerCount;
@@ -715,10 +717,10 @@ public class Skill
         }
 
         if (SkillData.RegetTarget) FindTarget();//对于某些技能，无法攻击到已经离开攻击区域的单位
-        if (SkillData.Id == "重构体2")
-        {
-            Debug.Log("重构体索敌" + Targets.First().UnitData.Name);
-        }
+        //if (SkillData.Id == "重构体2")
+        //{
+        //    Debug.Log("重构体索敌" + Targets.First().UnitData.Name);
+        //}
         if (Targets.Count > 0)
         {
             if (SkillData.AttackPoint)
@@ -1242,14 +1244,6 @@ public class Skill
         Targets.Clear();
         Targets.AddRange(GetAttackTarget());
         //Debug.Log(Targets.First().Position);
-        if (SkillData.SkillCondition != "" && SkillData.SkillCondition != null)
-        {
-            var filter = new SkillTargetFilter(Unit, Targets);
-            tempTargets.Clear();
-            tempTargets = filter.FilterTargets(SkillData.SkillCondition);
-            Targets.Clear();
-            Targets.AddRange(tempTargets);
-        }
     }
 
     protected List<Unit> tempTargets = new List<Unit>();
@@ -1289,6 +1283,16 @@ public class Skill
                 tempTargets.AddRange(Battle.FindAll(attackPoints, SkillData.TargetTeam, !SkillData.DeadFind));
             }
         }
+
+        if (SkillData.SkillCondition != "" && SkillData.SkillCondition != null && Casting.Finished())
+        {
+            filter.SetTargets(tempTargets);
+            //tempTargets.Clear();
+            tempTargets = filter.FilterTargets(SkillData.SkillCondition);
+            //Targets.Clear();
+            //Targets.AddRange(tempTargets);
+        }
+
         orderTargets(tempTargets);
         //if (tempTargets.Count > 0)
         //    Debug.Log("获取到目标：" + tempTargets.First().Position);
