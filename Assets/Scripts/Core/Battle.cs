@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Buffs;
+using Bullets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -451,15 +453,20 @@ public class Battle
         //Debug.Log(result.Id + " "+result.Position+" "+result.TargetPos+" "+result.Target+" "+result.Skill);
         return result;
     }
-    public Bullet CreateBullet(int id, Vector3 startPos, Vector3 targetPos, Vector2 target, Skill skill)
+    public Bullet _CreateBullet(int id, Vector3 startPos, Vector3 targetPos, Unit target, float specialValue)
     {
         var config = Database.Instance.Get<BulletData>(id);
         var result = typeof(Battle).Assembly.CreateInstance(nameof(Bullets) + "." + config.Type) as Bullet;
         result.Id = id;
         result.Position = startPos;
         result.TargetPos = targetPos;
-        result.Target = null;
-        result.Skill = skill;
+        result.Target = target;
+        逻各斯1技能类子弹 logosBullet = result as 逻各斯1技能类子弹;
+        if (logosBullet != null)
+        {
+            logosBullet.LogosBulletAttack = specialValue;
+            Log.Debug($"设置子弹 LogosBulletAttack: {specialValue}");
+        }
         Bullets.Add(result);
         result.Init();
         return result;

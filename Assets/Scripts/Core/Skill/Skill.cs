@@ -1053,6 +1053,146 @@ public class Skill
         }
     }
 
+    public virtual void _Hit(Unit target, Bullet bullet = null, float fixedDamageValue = -1f)
+    {
+        if (SkillData.HitEffect != null)
+        {
+            var ps = EffectManager.Instance.GetEffect(SkillData.HitEffect.Value);
+            if (bullet != null)
+            {
+                ps.Init(Unit, target, bullet.TargetPos, bullet.Direction);
+            }
+            else ps.Init(Unit, target, target.GetHitPoint(), Vector3.zero);
+        }
+        if (IsNormalAttack)
+        {
+            foreach (var skill in Unit.Skills)
+            {
+                if (skill.SkillData.PowerType == PowerRecoverTypeEnum.攻击)
+                {
+                    skill.RecoverPower(1);
+                }
+            }
+        }
+        if (SkillData.DamageRate > 0 || fixedDamageValue >= 0)
+        {
+            OnAttack(target);
+            DamageInfo dInfo = null;
+            if (SkillData.AreaRange != 0)
+            {
+                var targets = Battle.FindAll(target.Position2, SkillData.AreaRange, SkillData.TargetTeam);
+                if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
+                foreach (var t in targets)
+                {
+                    addBuff(t);
+                    if (SkillData.EffectEffect != null)
+                    {
+                        var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
+                        ps.Init(Unit, t, bullet != null ? bullet.Position : Unit.Position, bullet != null ? bullet.Direction : Unit.Direction.ToV3());
+                    }
+
+                    // 使用固定伤害值或计算伤害
+                    float damageValue = fixedDamageValue >= 0 ? fixedDamageValue :
+                        ((t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) *
+                        ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
+
+                    dInfo = GetDamageInfo(t, damageValue);
+                    t.Damage(dInfo);
+
+                    if (!SkillData.IfHeal)
+                    {
+                        if (dInfo.Avoid)
+                        {
+                            OnBeAvoid(t);
+                        }
+                        DoLifeSteal(dInfo);
+                        OnBeAttack(t);
+                    }
+                }
+            }
+            else if (SkillData.AreaPoints != null)
+            {
+                var area = SkillData.AreaPoints.Select(x => x + target.GridPos).ToList();
+                var targets = Battle.FindAll(area, SkillData.TargetTeam);
+                if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
+                foreach (var t in targets)
+                {
+                    addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
+                    addBuff(t);
+                    if (SkillData.EffectEffect != null)
+                    {
+                        var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
+                        ps.Init(Unit, t, bullet != null ? bullet.Position : Unit.Position, bullet != null ? bullet.Direction : Unit.Direction.ToV3());
+                    }
+
+                    // 使用固定伤害值或计算伤害
+                    float damageValue = fixedDamageValue >= 0 ? fixedDamageValue :
+                        ((t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) *
+                        ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
+
+                    dInfo = GetDamageInfo(t, damageValue);
+                    t.Damage(dInfo);
+
+                    if (!SkillData.IfHeal)
+                    {
+                        if (dInfo.Avoid)
+                        {
+                            OnBeAvoid(t);
+                        }
+                        DoLifeSteal(dInfo);
+                        OnBeAttack(t);
+                    }
+                }
+            }
+            else
+            {
+                addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
+                addBuff(target);
+                if (SkillData.EffectEffect != null)
+                {
+                    var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
+                    ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
+                    ps.Play();
+                }
+                if (SkillData.IfHeal)
+                {
+                    dInfo = GetDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
+                    target.Heal(dInfo, !SkillData.DamageWithFrameRate);
+                    OnHeal(target);
+                }
+                else
+                {
+                    // 使用固定伤害值或计算伤害
+                    float damageValue = fixedDamageValue >= 0 ? fixedDamageValue : 1f;
+                    dInfo = GetDamageInfo(target, damageValue);
+                    target.Damage(dInfo);
+                    if (dInfo.Avoid)
+                    {
+                        OnBeAvoid(target);
+                    }
+                    DoLifeSteal(dInfo);
+                }
+                if (!SkillData.IfHeal) OnBeAttack(target);
+            }
+            if (dInfo != null && dInfo.FinalDamage > 0)
+            {
+                Battle.TriggerDatas.Push(new TriggerData()
+                {
+                    User = Unit,
+                    Target = target,
+                });
+                Unit.Trigger(TriggerEnum.击中);
+                Battle.TriggerDatas.Pop();
+            }
+        }
+        else
+        {
+            addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
+            addBuff(target);
+        }
+        removeBuff(target);
+    }
+
     protected virtual void addEleInjure(Unit target, string eleType)
     {
         if (eleType == "" || SkillData.ElementInjure == null || SkillData.ElementInjure.Count == 0)
@@ -1412,6 +1552,19 @@ public class Skill
         Battle.TriggerDatas.Pop();
     }
 
+    public virtual void _OnBeAttack(Unit target)
+    {
+        //Debug.Log(target.UnitData.Name +"被攻击");
+        Battle.TriggerDatas.Push(new TriggerData()
+        {
+            User = Unit,
+            Target = target,
+            Skill = this,
+        });
+        target.Trigger(TriggerEnum.被击);
+        Battle.TriggerDatas.Pop();
+    }
+
     protected virtual void OnBeAvoid(Unit target)
     {
         foreach (var skill in target.Skills)
@@ -1532,6 +1685,92 @@ public class Skill
                 damageModify.Modify(result);
             }
         }
+        return result;
+    }
+
+    public DamageInfo _GetDamageInfo(Unit target, float baseDamage, float damageRate = 1)
+    {
+        var cooldown = SkillData.Cooldown;
+        if (cooldown < SystemConfig.DeltaTime) cooldown = SystemConfig.DeltaTime;
+
+        var result = new DamageInfo()
+        {
+            Target = target,
+            AllCount = tempTargets.Count,
+            Source = this,
+            DamageRate = damageRate * (SkillData.DamageWithFrameRate ? cooldown : 1),
+            DamageType = SkillData.DamageType,
+            MinDamageRate = Unit.UnitData.MinDamageRate,
+        };
+
+        // 设置基础伤害值
+        result.Attack = baseDamage;
+
+        // 应用各种伤害修正
+        foreach (var buff in Unit.Buffs)
+        {
+            if (buff is ISelfDamageModify damageModify)
+            {
+                damageModify.Modify(result);
+            }
+        }
+        foreach (var buff in target.Buffs)
+        {
+            if (buff is IDamageModify damageModify)
+            {
+                damageModify.Modify(result);
+            }
+        }
+        foreach (var modify in Modifies)
+        {
+            if (modify is IDamageModify damageModify)
+            {
+                damageModify.Modify(result);
+            }
+        }
+
+        return result;
+    }
+
+    public DamageInfo _GetLogosDamageInfo(Unit target, float baseDamage, float damageRate = 1)
+    {
+        var cooldown = SkillData.Cooldown;
+        if (cooldown < SystemConfig.DeltaTime) cooldown = SystemConfig.DeltaTime;
+
+        var result = new DamageInfo()
+        {
+            Target = target,
+            AllCount = tempTargets.Count,
+            Source = this,
+            DamageRate = damageRate * (SkillData.DamageWithFrameRate ? cooldown : 1),
+            DamageType = SkillData.DamageType,
+            MinDamageRate = Unit.UnitData.MinDamageRate,
+            Attack = baseDamage // 直接使用传入的基础伤害
+        };
+
+        // 应用各种伤害修正
+        foreach (var buff in Unit.Buffs)
+        {
+            if (buff is ISelfDamageModify damageModify)
+            {
+                damageModify.Modify(result);
+            }
+        }
+        foreach (var buff in target.Buffs)
+        {
+            if (buff is IDamageModify damageModify)
+            {
+                damageModify.Modify(result);
+            }
+        }
+        foreach (var modify in Modifies)
+        {
+            if (modify is IDamageModify damageModify)
+            {
+                damageModify.Modify(result);
+            }
+        }
+
         return result;
     }
 
