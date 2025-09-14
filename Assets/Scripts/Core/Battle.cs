@@ -465,11 +465,16 @@ public class Battle
         逻各斯1技能类子弹 logosBullet = result as 逻各斯1技能类子弹;
         if (logosBullet != null)
         {
-            logosBullet.LogosBulletAttack = specialValue;
-            Log.Debug($"设置子弹 LogosBulletAttack: {specialValue}");
+            // 检查目标是否存在且存活
+            //if (target == null || !target.Alive())
+            //{
+                logosBullet.LogosBulletAttack = specialValue;
+            //}
         }
+        Log.Debug($"LogosBulletAttack damage: {logosBullet.LogosBulletAttack}");
         Bullets.Add(result);
         result.Init();
+        
         return result;
     }
 

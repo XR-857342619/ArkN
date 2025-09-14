@@ -75,13 +75,14 @@ namespace Bullets
                 {
                     // 对目标造成伤害，使用LogosBulletAttack作为伤害值
                     Skill._Hit(Target, this, LogosBulletAttack);
+                    Log.Debug("{ LogosBulletAttack }");
+                    Finish();
                 }
                 else
                 {
                     // 目标已死亡或不存在，可以添加一些视觉效果或日志
                     Finish();
                 }
-
                 return Position;
             }
 
