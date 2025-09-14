@@ -76,6 +76,8 @@ public class Skill
     public bool Destroyed;
     Pool<MapTile> SkillRange = new Pool<MapTile>();
 
+    //public string FilterExpression;
+
     public bool IsCantOpen = false;
     public bool IsCantUse = false;
     //public bool IsCantCast = true;
@@ -110,6 +112,8 @@ public class Skill
         }
         showRange = SkillData.Data?.GetBool("ShowRange")?? false;
         showBar = SkillData.Data?.GetStr("ShowBar")?? "";
+
+        //FilterExpression = SkillData.SkillCondition;
         
         canStop = SkillData.CanStop;
         MaxPowerBase = SkillData.MaxPower;
@@ -1098,6 +1102,14 @@ public class Skill
         Targets.Clear();
         Targets.AddRange(GetAttackTarget());
         //Debug.Log(Targets.First().Position);
+        if (SkillData.SkillCondition != "" && SkillData.SkillCondition != null)
+        {
+            var filter = new SkillTargetFilter(Unit, Targets);
+            tempTargets.Clear();
+            tempTargets = filter.FilterTargets(SkillData.SkillCondition);
+            Targets.Clear();
+            Targets.AddRange(tempTargets);
+        }
     }
 
     protected List<Unit> tempTargets = new List<Unit>();
