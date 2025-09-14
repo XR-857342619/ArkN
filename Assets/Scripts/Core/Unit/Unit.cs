@@ -637,16 +637,14 @@ public class Unit
 
     public Buff AddBuff(int buffId, Skill source, int index)
     {
-        if (IgnoreBuffs.Contains(buffId)) return null; // 免疫对应Buff
+        if (IgnoreBuffs.Contains(buffId)) return null;
 
         var config = Database.Instance.Get<BuffData>(buffId);
         if (config.RelyBuff != null && !Buffs.Any(x => x.Id == config.RelyBuff.Value))
             return null;
-        //权且加上来源判断，因为现在很多buff共用一个id会产生冲突。
-        //权且加上来源判断，因为现在很多buff共用一个id会产生冲突。
-        //如果需要处理buff冲突的情况，再修改这里
+
         // 检查是否存在buff的升级版
-        var oldBuff = Buffs.FirstOrDefault(x => (x.Id == buffId || config.Upgrade == x.Id) && (config.UnSourceCheck || x.Skill == source));                                     
+        var oldBuff = Buffs.FirstOrDefault(x => (x.Id == buffId || config.Upgrade == x.Id) && (config.UnSourceCheck || x.Skill == source));
         if (oldBuff != null)
         {
             oldBuff.Reset();
@@ -689,16 +687,19 @@ public class Unit
             if (newBuff is IShield shield)
                 Shields.Add(shield);
 
+            // 初始化BUFF
+            newBuff.Init();
+
             // 如果BUFF未被抑制，应用效果
             if (!shouldSuppress)
             {
-                newBuff.Init();
                 newBuff.Apply();
             }
-            else
+
+            // 如果这个BUFF是"BUFF抵挡"或"BUFF可抵挡"效果，需要重新检查所有BUFF的抑制状态
+            if (config.CancelsCancelableBuffs || config.MakesBuffsCancelable)
             {
-                // 只初始化但不应用效果
-                newBuff.Init();
+                UpdateBuffSuppression();
             }
 
             return newBuff;

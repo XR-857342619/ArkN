@@ -160,18 +160,23 @@ namespace Units
         public virtual void CheckBlock()
         {
             if (!Alive() || Hp <= 0) return;
-            if (UnitData.Height > 0) return;//飞行单位无法被阻挡
             if (StopUnit != null) return;
-            //虽然不知道为啥，但是判断阻挡时和目标不是相切的,加上一个默认的缓冲值
-            var blockUnits = Battle.FindAll(Position2, UnitData.Radius + StopExCheck, 1).Where(x => x.CanStop(this)).ToList();
-            blockUnits.OrderBy(x => (x.Position2 - Position2).magnitude);
-            if (blockUnits.Count > 0)
+
+            // 查找所有可能阻挡的单位
+            var potentialBlockers = Battle.FindAll(Position2, UnitData.Radius + StopExCheck, 1)
+                .Where(x => x.CanStop(this) && x.UnitData.Height == UnitData.Height) // 添加高度检查
+                .ToList();
+
+            // 按距离排序
+            potentialBlockers.OrderBy(x => (x.Position2 - Position2).magnitude);
+
+            if (potentialBlockers.Count > 0)
             {
-                blockUnits[0].AddStop(this);
+                potentialBlockers[0].AddStop(this);
 
                 Battle.TriggerDatas.Push(new TriggerData()
                 {
-                    User = blockUnits[0],
+                    User = potentialBlockers[0],
                     Target = this,
                 });
                 Trigger(TriggerEnum.阻挡);

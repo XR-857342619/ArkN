@@ -10,7 +10,6 @@ namespace Buffs
 {
     public class 逻各斯1技能类即死 : Buff
     {
-        // Token: 0x06001366 RID: 4966 RVA: 0x00089270 File Offset: 0x00087470
         public override void Init() // 原方法名: rro
         {
             //this.ImmuneIgnore = true;
@@ -65,14 +64,12 @@ namespace Buffs
             this.Finish(); // 原方法名: rse
         }
 
-        // Token: 0x06001367 RID: 4967 RVA: 0x0000C320 File Offset: 0x0000A520
         public override void Apply() // 原方法名: ra3
         {
             base.Apply(); // 原方法名: ra3
             //this.ImmuneIgnore = true;
         }
 
-        // Token: 0x06001368 RID: 4968 RVA: 0x00089428 File Offset: 0x00087628
         public virtual void ExecuteChainReaction() // 原方法名: ehr3
         {
             if (this.Skill.Unit == null)
