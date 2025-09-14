@@ -38,7 +38,7 @@ namespace Skills
                         List<Unit> targets = skill.GetAttackTarget();
                         if (targets.Count > 0)
                         {
-                            pos = targets[0].Position;
+                            pos = targets.First().Position;
                         }
                     }
                     else

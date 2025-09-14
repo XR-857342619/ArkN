@@ -1098,7 +1098,7 @@ public class Skill
                         ((t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) *
                         ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
 
-                    dInfo = _GetLogosDamageInfo(t, damageValue);
+                    dInfo = GetDamageInfo(t, damageValue);
                     t.Damage(dInfo);
 
                     if (!SkillData.IfHeal)

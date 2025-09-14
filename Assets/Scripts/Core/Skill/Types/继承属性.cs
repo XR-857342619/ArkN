@@ -36,12 +36,12 @@ namespace Skills
                         List<Unit> targets = skill.GetAttackTarget();
                         if (targets.Count > 0)
                         {
-                            AttributeSource = targets[0];
+                            AttributeSource = targets.First();
                         }
                     }
                     else
                     {
-                        AttributeSource = Targets[0];
+                        AttributeSource = Targets.First();
                     }
                     break;
                 case "useParentAttribute":
@@ -53,10 +53,10 @@ namespace Skills
                         AttributeSource = Unit;
                     break;
                 case "useSelfTargetAttribute":
-                    AttributeSource = Targets[0];
+                    AttributeSource = Targets.First();
                     break;
                 default:
-                    AttributeSource = Targets[0]?? Unit;
+                    AttributeSource = Targets.First()?? Unit;
                     break;
 
             }
