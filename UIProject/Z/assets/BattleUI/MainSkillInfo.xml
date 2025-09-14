@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="154,154" extention="ProgressBar">
-  <controller name="using" pages="0,,1," selected="0"/>
+  <controller name="using" pages="0,,1," selected="1"/>
   <controller name="canStop" pages="0,,1," selected="0"/>
-  <controller name="isReady" pages="0,,1," selected="1"/>
+  <controller name="isReady" pages="0,,1," selected="0"/>
+  <controller name="isInfinity" pages="0,,1," selected="0"/>
   <displayList>
     <image id="n7_bcc3" name="n7" src="bcc31r8" fileName="其他/missing.png" pkg="kera0i3h" xy="0,0" size="154,154"/>
     <loader id="n5_bcc3" name="icon" xy="0,0" size="154,154" touchable="false" align="center" vAlign="middle" fill="scale"/>
     <graph id="n9_bcc3" name="n9" xy="0,0" size="154,154" alpha="0.4" type="rect" lineSize="0" fillColor="#ff000000">
       <gearDisplay controller="isReady" pages="0"/>
     </graph>
-    <image id="n2_kbte" name="bar" src="kbte49" fileName="bar.png" xy="0,0" alpha="0.5" color="#66ff00" fillMethod="vt" fillOrigin="1">
+    <image id="n2_kbte" name="bar" src="kbte49" fileName="bar.png" xy="0,0" alpha="0.5" color="#ffcc00" fillMethod="vt" fillOrigin="1">
       <gearDisplay controller="isReady" pages="0"/>
       <gearColor controller="using" pages="0,1" values="#66ff00|#ffcc00"/>
     </image>
@@ -30,7 +31,11 @@
     </image>
     <text id="n4_kbte" name="title" xy="92,181" pivot="0.5,0.5" anchor="true" size="10,48" fontSize="35" color="#ffffff" align="center" text="">
       <gearDisplay controller="isReady" pages="0"/>
+      <gearDisplay2 controller="isInfinity" pages="0" condition="0"/>
       <relation target="n12_bcc3" sidePair="left-left%"/>
+    </text>
+    <text id="n14_8c2c" name="IsInfinity" xy="47,155" size="88,48" fontSize="35" color="#ffffff" align="center" vAlign="middle" text="∞/∞">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
     </text>
   </displayList>
   <ProgressBar titleType="valueAndmax"/>

@@ -11,7 +11,6 @@ namespace Bullets
         private string skillId;
         private int maxLinkNum;
         private int linkNum;
-        public float reductionRate;
         private float reductionBase;
         private List<Unit> linkedTargets;
         private bool canBack;
@@ -25,6 +24,7 @@ namespace Bullets
 
         // 属性
         public int LinkNum => linkNum;
+        public float reductionRate;
         public float ReductionRate => reductionRate;
 
         public override void Init()
@@ -72,17 +72,13 @@ namespace Bullets
             CreateTempUnit();
 
             // 如果是直接命中，立即处理命中逻辑
-            if (isDirectHit)
-            {
-                HandleDirectHit();
-            }
 
             isInitialized = true;
         }
 
         private void CreateTempUnit()
         {
-            tempUnit = Battle.CreateTempUnit(Position, (TargetPos - Position).ToV2());
+            tempUnit = Battle.CreateTempUnit(Position, new Vector2(0,1));
             if (tempUnit == null) return;
 
             var skillData = Database.Instance.GetIndex<SkillData>(skillId);
@@ -95,10 +91,14 @@ namespace Bullets
 
         public override void Update()
         {
+            if (isDirectHit)
+            {
+                HandleDirectHit();
+            }
             if (!isInitialized) return;
 
             // 如果是直接命中，已经处理过了，不需要更新
-            if (isDirectHit) return;
+            //if (isDirectHit) return;
 
             tickTime += SystemConfig.DeltaTime;
 

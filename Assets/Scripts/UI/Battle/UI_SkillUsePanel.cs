@@ -69,8 +69,16 @@ namespace BattleUI
                 //Log.Debug(m_mainSkillInfo.m_icon.url);
                 if (!s.Opening.Finished())
                 {
-                    m_mainSkillInfo.max = s.SkillData.OpenTime;
-                    m_mainSkillInfo.value = s.Opening.value;
+                    if (s.SkillData.OpenTime > 3600)
+                    {
+                        m_mainSkillInfo.m_isInfinity.selectedIndex = 1;
+                    }
+                    else
+                    {
+                        m_mainSkillInfo.m_isInfinity.selectedIndex = 0;
+                        m_mainSkillInfo.max = s.SkillData.OpenTime;
+                        m_mainSkillInfo.value = s.Opening.value;
+                    }
                     m_ShowSkillRange.selected = true;
                     skillUseing = true;
                 }
