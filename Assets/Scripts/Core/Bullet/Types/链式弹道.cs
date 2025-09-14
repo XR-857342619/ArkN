@@ -186,7 +186,7 @@ namespace Bullets
                 usedTargets.Add(Target);
                 lastTarget = Target;
             }
-
+            isDirectHit = false;
             // 寻找下一个目标
             FindNextTarget(TargetPos);
         }
