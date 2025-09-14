@@ -448,7 +448,7 @@ public class Battle
         Bullets.Add(result);
         result.Init();
         //Debug.Log("创建子弹");
-        Debug.Log(result.Id + " "+result.Position+" "+result.TargetPos+" "+result.Target+" "+result.Skill);
+        //Debug.Log(result.Id + " "+result.Position+" "+result.TargetPos+" "+result.Target+" "+result.Skill);
         return result;
     }
     public Bullet CreateBullet(int id, Vector3 startPos, Vector3 targetPos, Vector2 target, Skill skill)

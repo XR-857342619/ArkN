@@ -202,6 +202,7 @@ namespace Units
             InputTime = Battle.Tick;
             List<Unit> tileUnits =Battle.Map.Tiles[GridPos.x, GridPos.y].Units;
             tileUnits.Add(this);
+            //Position = new Vector3(GridPos.x, 0, GridPos.y);
             if (this.UnitData.NotUseTile && tileUnits.Count > 1)
             {
                 if (!tileUnits[tileUnits.Count - 2].UnitData.NotUseTile)

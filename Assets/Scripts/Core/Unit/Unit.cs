@@ -856,6 +856,15 @@ public class Unit
         if (ifShowHeal) UnitModel.ShowHeal(heal);
         if (Hp > MaxHp)
             Hp = MaxHp;
+        Battle.TriggerDatas.Push(new TriggerData()
+        {
+            User = heal.GetSourceUnit(),
+            Target = this,
+            //Skill = source,
+        });
+        Trigger(TriggerEnum.被治疗);
+        Battle.TriggerDatas.Pop();
+        Debug.Log(UnitData.Name + " 受到" + heal.GetSourceUnit().UnitData.Name + "的" + heal.FinalDamage + "点治疗");
     }
 
     public void Damage(DamageInfo damageInfo)
@@ -921,7 +930,7 @@ public class Unit
                     Debug.LogError("未知伤害类型");
                 opDamageInfo.TotalDamage += damageInfo.FinalDamage;
             }
-            Debug.Log(unit.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
+            //Debug.Log(unit.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
         }
     }
 

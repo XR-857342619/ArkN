@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Bullets;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 
 public class Skill
 {
@@ -83,7 +84,7 @@ public class Skill
     public bool IsCantBurst = false;
     public bool IsCantLoop = false;
     public bool IsNormalAttack = false;
-    public int 递归深度 = 1000;
+    //public int 递归深度 = 1000;
     public bool IsBursting = false;
 
     public virtual void Init()
@@ -402,7 +403,7 @@ public class Skill
 
     public virtual bool Ready()
     {
-        //if (!LoopingStart.Finished()) return false;
+        if (!LoopingStart.Finished()) return false;
         if (Unit.IfStun && !SkillData.IgnoreStun)
             return false;
         if (SkillData.UseType == SkillUseTypeEnum.被动) return false;
@@ -522,7 +523,7 @@ public class Skill
             u1.Start.Finish();
             u1.StartEnd();
         }
-        Debug.Log("OpenSkill");
+        //Debug.Log("OpenSkill");
         if (SkillData.StopOtherSkill)
         {
             Unit.BreakAllCast();
@@ -662,7 +663,7 @@ public class Skill
                 //Log.Debug(Unit.UnitData.Id + "的" + SkillData.Id + "的打断时机:");
             }
             Casting.Set(duration);
-            Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "AttackStart,pointDelay:" + duration + ",fullDuration" + fullDuration + ",beginDuration" + beginDuration + ",Time:" + Time.time + ",Cooldown:" + Cooldown.value);
+            //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "AttackStart,pointDelay:" + duration + ",fullDuration" + fullDuration + ",beginDuration" + beginDuration + ",Time:" + Time.time + ",Cooldown:" + Cooldown.value);
             if (IsCantCast && Waiting.Finished())
             {
                 Log.Debug("尝试打断" + Unit.UnitData.Id + "的" + SkillData.Id);
@@ -790,7 +791,7 @@ public class Skill
 
     protected virtual void Burst()
     {
-        Debug.Log("正在连发");
+        //Debug.Log("正在连发");
         //if (BurstCount == SkillData.BurstCount)
         //{
         //    BurstCount = SkillData.BurstCount;
@@ -806,7 +807,7 @@ public class Skill
         {
             Effect(target);
         }
-        Debug.Log(LastTargets.Count + "个目标");
+        //Debug.Log(LastTargets.Count + "个目标");
         BurstCount--;
         if (BurstCount > 0)
             BurstGap.Set(SkillData.BurstDelay);
@@ -934,7 +935,7 @@ public class Skill
                         //ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
                         //ps.Play();
                     }
-                    dInfo = GetDamageInfo(t, t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage);
+                    dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
                     t.Damage(dInfo);
 
                     if (!SkillData.IfHeal)
@@ -960,8 +961,9 @@ public class Skill
                 }
                 if (SkillData.IfHeal)
                 {
-                    dInfo = GetDamageInfo(target);
+                    dInfo = GetDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
                     target.Heal(dInfo, !SkillData.DamageWithFrameRate);
+                    OnHeal(target);
                 }
                 else
                 {
@@ -1080,8 +1082,16 @@ public class Skill
 
     public virtual void FindTarget()
     {
+        //Debug.Log("开始获取目标");
+        if (showRange)
+        {
+            HideUnitAttackArea();
+            //Debug.Log("展示");
+            ShowUnitAttackArea();
+        }
         Targets.Clear();
         Targets.AddRange(GetAttackTarget());
+        //Debug.Log(Targets.First().Position);
     }
 
     protected List<Unit> tempTargets = new List<Unit>();
@@ -1122,6 +1132,8 @@ public class Skill
             }
         }
         orderTargets(tempTargets);
+        //if (tempTargets.Count > 0)
+        //    Debug.Log("获取到目标：" + tempTargets.First().Position);
         return tempTargets;
     }
 
@@ -1371,7 +1383,7 @@ public class Skill
 
     protected virtual void OnBeAttack(Unit target)
     {
-        Debug.Log(target.UnitData.Name +"被攻击");
+        //Debug.Log(target.UnitData.Name +"被攻击");
         Battle.TriggerDatas.Push(new TriggerData()
         {
             User = Unit,
@@ -1401,6 +1413,29 @@ public class Skill
         Battle.TriggerDatas.Pop();
     }
 
+    protected virtual void OnBeHeal(Skill source)
+    {
+        Battle.TriggerDatas.Push(new TriggerData()
+        {
+            User = source.Unit,
+            Target = this.Unit,
+            Skill = source,
+        });
+        Unit.Trigger(TriggerEnum.被治疗);
+        Battle.TriggerDatas.Pop();
+    }
+
+    protected virtual void OnHeal(Unit target)
+    {
+        Battle.TriggerDatas.Push(new TriggerData()
+        {
+            User = Unit,
+            Target = target,
+            Skill = this,
+        });
+        target.Trigger(TriggerEnum.治疗);
+        Battle.TriggerDatas.Pop();
+    }
     protected virtual void DoLifeSteal(DamageInfo damageInfo)
     {
         if (SkillData.LifeSteal == 0 || damageInfo.Avoid) return;
@@ -1412,6 +1447,8 @@ public class Skill
             Target = Unit,
             Source = this,
         }, false);
+        OnBeHeal(this);
+        OnHeal(Unit);
     }
 
     protected virtual void OnSkillOpen()

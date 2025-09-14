@@ -40,7 +40,7 @@ namespace Bullets
             tmp = Battle.CreateTempUnit(this.Position, (TargetPos - this.Position).ToV2());
             findTargetSkill = tmp.LearnSkill(Database.Instance.GetIndex<SkillData>(skillId));
             findTargetSkill.Init();
-            Debug.Log(findTargetSkill);
+            //Debug.Log(findTargetSkill);
         }
         public override void Update()
         {
@@ -74,42 +74,62 @@ namespace Bullets
         {
             Vector3 Postion;
             float totalTime = (TargetPos - StartPosition).magnitude / BulletData.Speed;
-            if (time > totalTime)
-            {
-                Position = TargetPos;
-                if (Target == null)
-                    Skill.Hit(TargetPos.ToV2(), this);
-                else if (Target.Alive())
-                    Skill.Hit(Target, this);
-                //if (maxLinkNum)
-                maxLinkNum--;
-                linkNum++;
-                reductionRate = 1 - reductionBase * linkNum;
-                UsedTarget.Add(Target);
-                if (maxLinkNum > 0)
-                {
-                    findTargetSkill.FindTarget();
-                    if (!canBack)
-                    {
-                        Target = findTargetSkill.Targets.Find(x => x.Alive() && !UsedTarget.Contains(x));
-                    }
-                    else
-                    {
-                        var targets = findTargetSkill.Targets;
-                        Target = targets.Find(x => x.Alive() && (targets.Count <= 1 ? true : x != lastTaget));
-                    }
-                }
-                else
-                {
-                    Battle.AllUnits.Remove(tmp);
-                    Finish();
-                }
-            }
             Postion = StartPosition + (TargetPos - StartPosition) * (time / totalTime);
             if (moveHeight > 0)
             {
                 float t = time / totalTime;
                 Postion.y += (-5 * t * t + 5 * t) * moveHeight;
+            }
+
+            if (time > totalTime)
+            {
+                Position = TargetPos;
+                tmp.Position = Position;
+                if (Target == null)
+                {
+                    //Debug.Log("弹道位置" + Position + " 索敌起始位置:" + tmp.Position);
+                    Skill.Hit(TargetPos.ToV2(), this);
+                }
+                else if (Target != null && Target.Alive())
+                {
+                    //Debug.Log("弹道位置" + Position + " 索敌起始位置:" + tmp.Position);
+                    Skill.Hit(Target, this);
+                }
+                //if (maxLinkNum)
+                maxLinkNum--;
+                linkNum++;
+                reductionRate = 1 - reductionBase * linkNum;
+                UsedTarget.Add(Target);
+                findTargetSkill.UpdateAttackPoints();
+                findTargetSkill.FindTarget();
+                if (maxLinkNum > 0 && findTargetSkill.Targets.Count > 0)
+                {
+                    if (!canBack)
+                    {
+                        Target = findTargetSkill.Targets.Find(x => x.Alive() && !UsedTarget.Contains(x));
+                        if (Target != null)
+                        {
+                            TargetPos = GetTargetPos(Target);
+                            StartPosition = Postion;
+                            tickTime = 0;
+                        }
+                    }
+                    else
+                    {
+                        var targets = findTargetSkill.Targets;
+                        Target = targets.Find(x => x.Alive() && (targets.Count <= 1 ? true : x != lastTaget));
+                        TargetPos = GetTargetPos(Target);
+                        StartPosition = Postion;
+                        tickTime = 0;
+                    }
+                }
+                else
+                {
+                    findTargetSkill.HideUnitAttackArea();
+                    findTargetSkill.Finish();
+                    Battle.AllUnits.Remove(tmp);
+                    Finish();
+                }
             }
             return Postion;
         }

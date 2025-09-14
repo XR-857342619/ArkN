@@ -353,7 +353,7 @@ namespace MainUI
                         battleInfo.position = Config.positions[file];
                     else
                     {
-                        Debug.Log(file);
+                        //Debug.Log(file);
                         battleInfo.position = new Vector2((int)(fileIndex * 100) / 1000 * 200 + 238, 185 + (fileIndex * 100) % 1000f);
                         fileIndex++;
                     }

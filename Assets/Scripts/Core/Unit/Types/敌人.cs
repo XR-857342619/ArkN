@@ -520,7 +520,7 @@ namespace Units
                 PathPoints.Insert(NowPathPoint + tmpPathPointList.Count, tmpPoint);
 
                 findNewPath();
-                //Debug.Log("插入临时路径点成功:" + pos + "lasttime:" + time);
+                Debug.Log("插入临时路径点成功:" + pos + "lasttime:" + time);
                 DisplayPath();
                 return true;
             }

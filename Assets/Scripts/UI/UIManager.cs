@@ -20,7 +20,7 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
-        Debug.Log("UIManagerInit");
+        //Debug.Log("UIManagerInit");
         Instance = this;
         DontDestroyOnLoad(gameObject);
         BattleUI.BattleUIBinder.BindAll();
