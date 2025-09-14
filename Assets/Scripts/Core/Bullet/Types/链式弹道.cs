@@ -11,7 +11,7 @@ namespace Bullets
         private string skillId;
         private int maxLinkNum;
         private int linkNum;
-        private float reductionRate;
+        public float reductionRate;
         private float reductionBase;
         private List<Unit> linkedTargets;
         private bool canBack;
