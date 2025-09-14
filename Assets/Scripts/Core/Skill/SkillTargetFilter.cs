@@ -151,6 +151,7 @@ public class SkillTargetFilter
     /// </summary>
     private double EvaluateExpression(string expression)
     {
+        Log.Debug(expression);
         // ÒÆ³ýËùÓÐ¿Õ¸ñ
         expression = expression.Replace(" ", "");
 
