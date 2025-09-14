@@ -574,7 +574,11 @@ public class Skill
     /// </summary>
     public virtual void Start()
     {
-        if (!Useable()) return;
+        if (!Useable())
+        {
+            //Debug.Log(SkillData.Id + "不可用");
+            return;
+        }
         if (Targets.Count == 0)
         {
             FindTarget();
@@ -594,7 +598,6 @@ public class Skill
         {
             return;
         }
-
         //走到这里技能就真的用出来了
         UseCount++;
         if (showRange)
@@ -708,7 +711,10 @@ public class Skill
         }
 
         if (SkillData.RegetTarget) FindTarget();//对于某些技能，无法攻击到已经离开攻击区域的单位
-
+        if (SkillData.Id == "重构体2")
+        {
+            Debug.Log("重构体索敌" + Targets.First().UnitData.Name);
+        }
         if (Targets.Count > 0)
         {
             if (SkillData.AttackPoint)
