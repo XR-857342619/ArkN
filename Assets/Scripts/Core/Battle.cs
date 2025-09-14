@@ -453,7 +453,7 @@ public class Battle
         //Debug.Log(result.Id + " "+result.Position+" "+result.TargetPos+" "+result.Target+" "+result.Skill);
         return result;
     }
-    public Bullet _CreateBullet(int id, Vector3 startPos, Vector3 targetPos, Unit target, float specialValue)
+    public Bullet _CreateBullet(int id, Vector3 startPos, Vector3 targetPos, Unit target, float specialValue, Skill skill)
     {
         var config = Database.Instance.Get<BulletData>(id);
         var result = typeof(Battle).Assembly.CreateInstance(nameof(Bullets) + "." + config.Type) as Bullet;
@@ -461,6 +461,7 @@ public class Battle
         result.Position = startPos;
         result.TargetPos = targetPos;
         result.Target = target;
+        result.Skill = skill;
         逻各斯1技能类子弹 logosBullet = result as 逻各斯1技能类子弹;
         if (logosBullet != null)
         {

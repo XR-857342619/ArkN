@@ -1098,7 +1098,7 @@ public class Skill
                         ((t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) *
                         ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
 
-                    dInfo = GetDamageInfo(t, damageValue);
+                    dInfo = _GetLogosDamageInfo(t, damageValue);
                     t.Damage(dInfo);
 
                     if (!SkillData.IfHeal)
@@ -1132,7 +1132,7 @@ public class Skill
                         ((t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) *
                         ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
 
-                    dInfo = GetDamageInfo(t, damageValue);
+                    dInfo = _GetLogosDamageInfo(t, damageValue);
                     t.Damage(dInfo);
 
                     if (!SkillData.IfHeal)
@@ -1158,7 +1158,7 @@ public class Skill
                 }
                 if (SkillData.IfHeal)
                 {
-                    dInfo = GetDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
+                    dInfo = _GetLogosDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
                     target.Heal(dInfo, !SkillData.DamageWithFrameRate);
                     OnHeal(target);
                 }
@@ -1166,7 +1166,7 @@ public class Skill
                 {
                     // 使用固定伤害值或计算伤害
                     float damageValue = fixedDamageValue >= 0 ? fixedDamageValue : 1f;
-                    dInfo = GetDamageInfo(target, damageValue);
+                    dInfo = _GetLogosDamageInfo(target, damageValue);
                     target.Damage(dInfo);
                     if (dInfo.Avoid)
                     {

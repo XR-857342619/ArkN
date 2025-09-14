@@ -70,11 +70,17 @@ namespace Bullets
             {
                 Position = TargetPos;// 原方法名: rhi
 
-                // 处理命中逻辑
-                
+                // 处理命中逻辑 - 添加目标存活检查
+                if (Target != null && Target.Alive())
+                {
                     // 对目标造成伤害，使用LogosBulletAttack作为伤害值
-                Skill._Hit(Target, this, LogosBulletAttack);
-                
+                    Skill._Hit(Target, this, LogosBulletAttack);
+                }
+                else
+                {
+                    // 目标已死亡或不存在，可以添加一些视觉效果或日志
+                    Finish();
+                }
 
                 return Position;
             }
