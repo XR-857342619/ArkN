@@ -714,6 +714,8 @@ public class Skill
         if (SkillData.PowerUseType == PowerRecoverTypeEnum.攻击)//有动作有伤害的技能视为普攻，用于消耗弹药
         {
             UpdateOpening(1);
+            if (Unit.MainSkill != null && Unit.MainSkill != this && !Unit.MainSkill.Opening.Finished() && Unit.MainSkill.SkillData.PowerUseType == PowerRecoverTypeEnum.攻击)
+                Unit.MainSkill.UpdateOpening(1);
         }
 
         if (SkillData.RegetTarget) FindTarget();//对于某些技能，无法攻击到已经离开攻击区域的单位
