@@ -120,6 +120,8 @@ namespace Skills
                 Log.Debug(Operator.Skills.Count());
                 GameObject go = Operator.UnitModel.gameObject;
                 go.transform.position = new Vector3(pos.x, 0.5f, pos.z);
+                if (Operator.UnitData.MainSkill is not null && Operator.UnitData.MainSkill.Count() == 1)
+                    Operator.MainSkill = Operator.LearnSkill(Operator.UnitData.MainSkill.First(), null);
                 Operator.ChangePos((int)pos.x, (int)pos.z, direction);
                 Operator.JoinMap();
                 Operator.Parent = Battle.AllUnits.Find(x => x.UnitData.Name == name) as Units.干员??null;

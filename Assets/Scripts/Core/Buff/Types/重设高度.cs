@@ -89,6 +89,9 @@ namespace Buffs
         {
             if (isTakingOff || !isLanding)
                 Unit.Height = landingHeight;
+
+            Unit.Position = new Vector3(Unit.Position.x, Unit.Position.y, Unit.Position.z);
+
             Dead = true;
         }
     }
