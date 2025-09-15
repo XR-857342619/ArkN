@@ -1116,5 +1116,50 @@ public class Unit
         //    //});
         //    //AddBuff(Database.Instance.GetIndex<BuffData>("眩晕"), Battle.RuleUnit.Skills[0], 0);
         //}
+        int GetEnemyStopCost(敌人 enemy)
+        {
+            return enemy.StopCost;
+        }
+
+        int GetShieldOrderCount(_IShield shield)
+        {
+            return -shield.OrderCount;
+        }
+
+        int GetBuffPriority(Buff buff)
+        {
+            return -buff.BuffData.OrderCount;
+        }
+        /*
+        int GetHealPriority(IHeal heal)
+        {
+            return -heal.HealOrderCount;
+        }
+
+        int GetSelfHealPriority(ISelfHeal selfHeal)
+        {
+            return -selfHeal.HealOrderCount;
+        }
+
+        int GetSelfAfterDamagePriority(ISelfAfterDamage selfAfterDamage)
+        {
+            return -selfAfterDamage.OrderCount;
+        }
+
+        int GetSelfAfterNonDamagePriority(ISelfAfterWithoutDamage selfAfterWithoutDamage)
+        {
+            return -selfAfterWithoutDamage.OrderCount;
+        }
+
+        int GetElementShieldPriority(IElementShield elementShield)
+        {
+            return -elementShield.ElementAbsorbOrderCount;
+        }
+
+        float GetElementValue(新版元素损伤 elementDamage)
+        {
+            return elementDamage.ElementValue;
+        }
+        */
     }
 }
