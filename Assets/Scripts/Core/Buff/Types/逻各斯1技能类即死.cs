@@ -28,7 +28,7 @@ namespace Buffs
 
             this.targetOriginalHp = this.Unit.Hp;
 
-            this.healPercentage = base.BuffData.Data.GetFloat("Recover", 0f); 
+            this.healPercentage = base.BuffData.Data.GetFloat("Recover", 0f);
 
             if (this.healPercentage > 0f && this.Skill.Unit != null)
             {
@@ -39,7 +39,7 @@ namespace Buffs
 
             if (this.Unit is 敌人)
             {
-                //this.Unit.Hp = -1f;
+                this.Unit.Hp = -1f;
 
                 base.Battle.TriggerDatas.Push(new TriggerData
                 {
@@ -57,18 +57,18 @@ namespace Buffs
                     });
                     base.Battle.TriggerDatas.Pop();
                 }
-                /*
+                
                 if (this.Unit.Hp <= 0f)
                 {
                     this.Unit.Hp = 0f;
                     this.Unit.DoDie(this.Skill.Unit);
                 }
-                */
                 
-                    this.ExecuteChainReaction();
-                
+
+                this.ExecuteChainReaction();
+
             }
-            
+
 
             this.Finish();
         }
@@ -80,7 +80,7 @@ namespace Buffs
 
         public virtual void ExecuteChainReaction()
         {
-            
+
 
             if (this.Skill.Unit == null)
             {
@@ -126,8 +126,8 @@ namespace Buffs
                 }
             }
 
-            
-            if (this.validTargets.Count > 0 )
+
+            if (this.validTargets.Count > 0)
             {
                 int index = base.Battle.Random.Next(0, this.validTargets.Count);
                 Unit selectedTarget = this.validTargets[index];
@@ -140,7 +140,7 @@ namespace Buffs
                 this.targetOriginalHp,
                 this.Skill);
             }
-            }
-        
+        }
+
     }
 }

@@ -1086,7 +1086,8 @@ public class Skill
                 if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
                 foreach (var t in targets)
                 {
-                    addBuff(t);
+                        _addBuff(t);
+
                     if (SkillData.EffectEffect != null)
                     {
                         var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
@@ -1120,7 +1121,7 @@ public class Skill
                 foreach (var t in targets)
                 {
                     addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-                    addBuff(t);
+                    _addBuff(t);
                     if (SkillData.EffectEffect != null)
                     {
                         var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
@@ -1149,7 +1150,7 @@ public class Skill
             else
             {
                 addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-                addBuff(target);
+                _addBuff(target);
                 if (SkillData.EffectEffect != null)
                 {
                     var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
@@ -1190,7 +1191,7 @@ public class Skill
         else
         {
             addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-            addBuff(target);
+            _addBuff(target);
         }
         removeBuff(target);
     }
@@ -1216,6 +1217,31 @@ public class Skill
                 {
                     int buffId = SkillData.Buffs[i];
                     target.AddBuff(buffId, this, i);
+                }
+            }
+        }
+    }
+
+    protected virtual void _addBuff(Unit target)
+    {
+        if (SkillData.Buffs != null)
+        {
+            for (int i = 0; i < SkillData.Buffs.Length; i++)
+            {
+                var buffChance = 0f;
+                if (SkillData.BuffChance != null && SkillData.BuffChance.Length > i) buffChance = SkillData.BuffChance[i];
+                if (buffChance == 0 || Battle.Random.NextDouble() < buffChance)
+                {
+                    int bufftype = SkillData.Buffs[i];
+
+                    // 检查是否为逻各斯1技能类即死buff
+                    BuffData buffData = Database.Instance.Get<BuffData>(bufftype);
+                    if (buffData != null && buffData.Type == "逻各斯1技能类即死")
+                    {
+                        continue; // 跳过这个buff
+                    }
+
+                    target.AddBuff(bufftype, this, i);
                 }
             }
         }

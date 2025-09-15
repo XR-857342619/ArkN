@@ -161,11 +161,23 @@ namespace Units
         {
             if (!Alive() || Hp <= 0) return;
             if (StopUnit != null) return;
+            if (Height > 0 && StopUnit != null && StopUnit.Height == 0)
+            {
+                StopUnit.RemoveStop(this);   // 让阻挡者把我放掉
+                return;                      // 本帧不再查找新阻挡
+            }
 
+            if (StopUnit != null) return;
             // 查找所有可能阻挡的单位
+            /*
             var potentialBlockers = Battle.FindAll(Position2, UnitData.Radius + StopExCheck, 1)
-                .Where(x => x.CanStop(this) && x.UnitData.Height == UnitData.Height) // 添加高度检查
-                .ToList();
+            .Where(x => x.CanStop(this) && x.Height != 0) // 修改为高度不等于0就能阻挡
+            .ToList();
+            */
+            var potentialBlockers = Battle.FindAll(Position2, UnitData.Radius + StopExCheck, 1)
+            .Where(x => x.CanStop(this) && x.Height >= Height) // 添加高度检查
+            .ToList();
+            
 
             // 按距离排序
             potentialBlockers.OrderBy(x => (x.Position2 - Position2).magnitude);

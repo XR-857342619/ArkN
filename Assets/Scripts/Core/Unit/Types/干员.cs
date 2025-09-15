@@ -84,6 +84,10 @@ namespace Units
                     Debug.Log("移除阻挡");
                     RemoveStop(target);
                 }
+                if (Height == 0 && target.Height > 0)   // target 是飞行敌人且当前高度 0
+                {
+                    RemoveStop(target);
+                }
             }
 
             //不在战场也能转放置CD
