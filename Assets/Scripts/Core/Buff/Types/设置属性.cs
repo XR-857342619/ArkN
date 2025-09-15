@@ -9,7 +9,9 @@ namespace Buffs
     public class 设置属性:Buff
     {
         protected string[] names;
+        protected string[] names_d;
         protected float[] values;
+        protected float[] values_d;
         List<object> orgvalues = new List<object>();
         public override void Init()
         {
@@ -17,7 +19,9 @@ namespace Buffs
             var datas = BuffData.Data.GetArray("t");
             var value = BuffData.Data.GetArray("v");
             names = new string[datas.Length];
+            names_d = new string[datas.Length];
             values = new float[datas.Length];
+            values_d = new float[datas.Length];
             for (int i = 0; i < datas.Length; i++)
             {
                 names[i] = Convert.ToString(datas[i]);

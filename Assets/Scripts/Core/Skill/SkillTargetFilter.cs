@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Linq.Dynamic.Core;
 
 public class SkillTargetFilter
 {
