@@ -352,14 +352,7 @@ namespace BattleUI
             else if (!sk.Opening.Finished() && sk.SkillData.CanStop)
             {
                 sk.Opening.Finish();
-                Battle.TriggerDatas.Push(new TriggerData()
-                {
-                    Target = sk.Unit,
-                    Skill = sk,
-                });
-                sk.Unit.Trigger(TriggerEnum.技能结束);
-                Battle.TriggerDatas.Pop();
-                sk.OnOpenEnd();
+                sk.UpdateOpening(0);
             }
         }
 
