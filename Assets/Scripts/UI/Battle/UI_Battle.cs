@@ -352,6 +352,7 @@ namespace BattleUI
             else if (!sk.Opening.Finished() && sk.SkillData.CanStop)
             {
                 sk.Opening.Finish();
+                sk.UpdateOpening(0);
             }
         }
 

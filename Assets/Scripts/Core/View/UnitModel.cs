@@ -24,6 +24,10 @@ public class UnitModel:MonoBehaviour
     {
         return transform.position;
     }
+    public virtual void SetModelPositon(Vector3 position)
+    {
+        transform.position = position;
+    }
 
     public virtual void BreakAnimation()
     {
