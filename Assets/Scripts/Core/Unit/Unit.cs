@@ -106,6 +106,8 @@ public class Unit
     public bool CanStopOther;
     public float Hatre;
 
+    public float RewriteDamage;
+
     public bool IfAlive = true;
 
     public bool IfSleep = false;
@@ -870,6 +872,7 @@ public class Unit
 
     public void Damage(DamageInfo damageInfo)
     {
+        Log.Debug($"{RewriteDamage}");
         float damage = damageInfo.Attack * damageInfo.DamageRate;
         if (damageInfo.DamageType == DamageTypeEnum.Normal) damage *= NormalDamageReceiveRate;
         if (damageInfo.DamageType == DamageTypeEnum.Magic) damage *= MagicDamageReceiveRate;
@@ -893,7 +896,15 @@ public class Unit
             }
             //Debug.Log(damageInfo.FinalDamage);
             //Debug.Log(Hp);
-            Hp -= damageInfo.FinalDamage;
+            if (this.RewriteDamage > 0f && damageInfo.FinalDamage > this.RewriteDamage)
+            {
+                //this.UnitModel.swo(this.RewriteDamage);
+                this.Hp -= this.RewriteDamage;
+            }
+            else
+            {
+                Hp -= damageInfo.FinalDamage;
+            }
             if (Hp <= 0)
             {
                 Battle.TriggerDatas.Push(new TriggerData()
@@ -904,6 +915,8 @@ public class Unit
 
                 Battle.TriggerDatas.Pop();
             }
+            
+
             //Debug.Log(Hp);
             //致命事件过后，如果血量依旧低于0，则判定单位死亡
             if (Hp <= 0)

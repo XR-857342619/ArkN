@@ -8,4 +8,5 @@ using System.Threading.Tasks;
 public interface IShield
 {
     void Absorb(DamageInfo damageInfo);
+
 }

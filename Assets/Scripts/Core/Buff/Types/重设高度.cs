@@ -87,6 +87,7 @@ namespace Buffs
 
         public override void Finish()
         {
+            base.Finish();
             if (isTakingOff || !isLanding)
                 Unit.Height = landingHeight;
 
