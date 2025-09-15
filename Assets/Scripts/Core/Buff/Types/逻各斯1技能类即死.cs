@@ -133,12 +133,12 @@ namespace Buffs
                 Unit selectedTarget = this.validTargets[index];
 
                 Bullet bullet = base.Battle._CreateBullet(
-                Database.Instance.GetIndex<BulletData>("罗1子弹"),
-                new Vector3(this.Unit.Position.x, 0.5f, this.Unit.Position.z),
-                new Vector3(selectedTarget.Position.x, 0.5f, selectedTarget.Position.z),
-                selectedTarget,
-                this.targetOriginalHp,
-                this.Skill);
+                    Database.Instance.GetIndex<BulletData>("罗1子弹"),
+                    new Vector3(this.Unit.Position.x, 0.5f, this.Unit.Position.z),
+                    new Vector3(selectedTarget.Position.x, 0.5f, selectedTarget.Position.z),
+                    selectedTarget,
+                    this.targetOriginalHp,
+                    this.Skill);
             }
         }
 
