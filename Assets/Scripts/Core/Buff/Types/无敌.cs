@@ -11,6 +11,7 @@ namespace Buffs
      */
     public class 无敌 : Buff,IShield
     {
+        public int OrderCode { get { return 100000; } }
         public void Absorb(DamageInfo damageInfo)
         {
             damageInfo.FinalDamage = 0;

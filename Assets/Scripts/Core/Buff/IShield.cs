@@ -9,4 +9,5 @@ public interface IShield
 {
     void Absorb(DamageInfo damageInfo);
 
+    public int OrderCode { get; }
 }

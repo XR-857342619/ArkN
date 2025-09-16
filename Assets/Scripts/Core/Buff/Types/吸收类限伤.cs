@@ -2,25 +2,25 @@
 using UnityEngine;
 using Buffs;
 
-public class 吸收类限伤 : Buff, _IShield
+public class 吸收类限伤 : Buff, IShield
 {
     public int Count;
 
     public override void Init()
     {
         base.Init();
-        this.Count = base.BuffData.Data.GetInt("Count", 0);
-        this.Unit.RewriteDamage = (float)this.Count;
+        Count = BuffData.Data.GetInt("Count", 0);
+        //Unit.RewriteDamage = (float)this.Count;
     }
-    public override void Apply()
-    {
-        base.Apply();
-        if (this.Dead)
-        {
-            return;
-        }
-        this.Unit.RewriteDamage = (float)this.Count;
-    }
+    //public override void Apply()
+    //{
+    //    base.Apply();
+    //    if (this.Dead)
+    //    {
+    //        return;
+    //    }
+    //    this.Unit.RewriteDamage = (float)this.Count;
+    //}
 
     public void Absorb(DamageInfo damageInfo)
     {
@@ -31,7 +31,7 @@ public class 吸收类限伤 : Buff, _IShield
         damageInfo.FinalDamage = (float)this.Count;
     }
 
-    public int OrderCount
+    public int OrderCode
     {
         get
         {
@@ -39,10 +39,10 @@ public class 吸收类限伤 : Buff, _IShield
         }
     }
 
-    public override void Finish()
-    {
-        base.Finish();
-        this.Unit.RewriteDamage = 0f;
-    }
+    //public override void Finish()
+    //{
+    //    base.Finish();
+    //    Unit.RewriteDamage = 0f;
+    //}
 
 }
