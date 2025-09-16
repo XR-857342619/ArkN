@@ -1,24 +1,18 @@
 using UnityEngine;
-using UnityEditor;
 using Spine;
-using Spine.Unity; // 确保包含Spine命名空间
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using FairyGUI;
+using Spine.Unity;
 using System;
+using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 public class SpineImportHelper : MonoBehaviour
 {
-    public Dictionary<string, SkeletonDataAsset> animations = new Dictionary<string, SkeletonDataAsset>();
-    public Material _baseMaterial;
-    //public TextAsset skeletonByte;
-    //public TextAsset atlasText;
-    //public Texture2D[] textures;
-    public string texturePath;
-    //public Material materialPropertySource;
+    // 存储已加载的骨骼数据资源
+    public Dictionary<string, SkeletonDataAsset> loadedSkeletons = new Dictionary<string, SkeletonDataAsset>();
+    private Material _baseMaterial;
 
+    // 单例实例
     private static SpineImportHelper _instance;
     public static SpineImportHelper Instance
     {
@@ -26,85 +20,268 @@ public class SpineImportHelper : MonoBehaviour
         {
             if (_instance == null)
             {
-                GameObject obj = new GameObject("SpineLoader");
-                _instance = obj.AddComponent<SpineImportHelper>();
-                DontDestroyOnLoad(obj);
+                // 查找场景中是否已有实例
+                _instance = FindObjectOfType<SpineImportHelper>();
+
+                if (_instance == null)
+                {
+                    GameObject obj = new GameObject("SpineImportHelper");
+                    _instance = obj.AddComponent<SpineImportHelper>();
+                    DontDestroyOnLoad(obj);
+                }
             }
             return _instance;
         }
     }
 
+    private void Awake()
+    {
+        // 确保单例唯一性
+        if (_instance == null)
+        {
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
+            Init();
+        }
+        else if (_instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    /// <summary>
+    /// 初始化基础材质
+    /// </summary>
     public void Init()
     {
-        //material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Res/Spine/Unit/char_002_amiya/front/char_002_amiya_Materail.mat");
-        // 初始化基础材质，使用Spine的默认Shader
-        _baseMaterial = new Material(Shader.Find("Spine/Skeleton Tint"));
-        //material.SetFloat("_angle", 60);
-        //_baseMaterial.renderQueue = 3000; // 确保渲染顺序
-        //Debug.Log(_baseMaterial.shader.name);
+        if (_baseMaterial == null)
+        {
+            Shader spineShader = Shader.Find("Spine/Skeleton Tint");
+            if (spineShader != null)
+            {
+                _baseMaterial = new Material(spineShader);
+                _baseMaterial.renderQueue = 3000;
+            }
+            else
+            {
+                Debug.LogError("找不到Spine Shader: Spine/Skeleton Tint，请确保Spine资源导入正确");
+            }
+        }
     }
 
-
-    SpineAtlasAsset runtimeAtlasAsset;
-    public SkeletonDataAsset runtimeSkeletonDataAsset;
-    SkeletonAnimation runtimeSkeletonAnimation;
-
-    public void CreateRuntimeAssetsAndGameObject(string texturePath, string atlasTextPath, string skeletonBytePath)
+    /// <summary>
+    /// 加载Spine资源并创建运行时资产
+    /// </summary>
+    /// <param name="key">用于缓存的唯一键</param>
+    /// <param name="texturePath">纹理路径</param>
+    /// <param name="atlasTextPath">图集文本路径</param>
+    /// <param name="skeletonBytePath">骨骼二进制文件路径</param>
+    /// <returns>加载成功的骨骼数据资源，失败则返回null</returns>
+    public SkeletonDataAsset LoadSpineAssets(string key, string texturePath, string atlasTextPath, string skeletonBytePath)
     {
-        // 1. Create the AtlasAsset (needs atlas text asset and textures, and materials/shader);
-        // 2. Create SkeletonDataAsset (needs json or binary asset file, and an AtlasAsset)
-        // 3. Create SkeletonAnimation (needs a valid SkeletonDataAsset)
-        byte[] data;
-        TextAsset atlasText = null;
-        TextAsset skeletonByte = null;
-        Texture2D texture = null;
-        if (File.Exists(texturePath))
+        // 检查是否已加载
+        if (loadedSkeletons.TryGetValue(key, out SkeletonDataAsset existingAsset))
         {
-            data = File.ReadAllBytes(texturePath);
-            texture = new Texture2D(2, 2);
-            texture.LoadImage(data);
-            texture.name = Path.GetFileNameWithoutExtension(texturePath);
-            data = null;
+            return existingAsset;
         }
-        else
+
+        // 检查基础材质是否初始化
+        if (_baseMaterial == null)
         {
-            Debug.LogError("Texture file not found: " + texturePath);
-            return;
+            Init();
+            if (_baseMaterial == null)
+            {
+                Debug.LogError("基础材质初始化失败，无法加载Spine资源");
+                return null;
+            }
         }
-        if (File.Exists(atlasTextPath))
+
+        try
         {
-            data = File.ReadAllBytes(atlasTextPath);
-            //string atlasTextStr = Encoding.UTF8.GetString(data);
-            atlasText = new TextAsset(Encoding.UTF8.GetString(data));
-            data = null;
+            // 加载纹理
+            Texture2D texture = LoadTexture(texturePath);
+            if (texture == null) return null;
+
+            // 加载图集文本
+            TextAsset atlasText = LoadTextAsset(atlasTextPath);
+            if (atlasText == null)
+            {
+                Destroy(texture);
+                return null;
+            }
+
+            // 加载骨骼数据
+            TextAsset skeletonData = LoadBinaryAsset(skeletonBytePath);
+            if (skeletonData == null)
+            {
+                Destroy(texture);
+                Destroy(atlasText);
+                return null;
+            }
+
+            // 创建Spine运行时资源
+            SpineAtlasAsset atlasAsset = SpineAtlasAsset.CreateRuntimeInstance(
+                atlasText, new[] { texture }, _baseMaterial, true);
+
+            SkeletonDataAsset skeletonAsset = SkeletonDataAsset.CreateRuntimeInstance(
+                skeletonData, atlasAsset, true);
+
+            // 预加载骨骼数据
+            try
+            {
+                skeletonAsset.GetSkeletonData(false);
+                loadedSkeletons[key] = skeletonAsset;
+                return skeletonAsset;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"骨骼数据加载失败: {ex.Message}");
+                Destroy(skeletonAsset);
+                Destroy(atlasAsset);
+                return null;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Debug.LogError("Atlas text file not found: " + atlasTextPath);
-            return;
+            Debug.LogError($"加载Spine资源时发生错误: {ex.Message}");
+            return null;
         }
-        if (File.Exists(skeletonBytePath))
+    }
+
+    /// <summary>
+    /// 释放指定键的Spine资源
+    /// </summary>
+    public void UnloadSpineAssets(string key)
+    {
+        if (loadedSkeletons.TryGetValue(key, out SkeletonDataAsset asset))
         {
-            data = File.ReadAllBytes(skeletonBytePath);
-            //System.Reflection.FieldInfo field = typeof(TextAsset).GetField(
-            //    "m_Data",
-            //    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
-            //);
-            //field.SetValue(skeletonByte, data);
-            ////skeletonByte = new TextAsset.CreateInstance(data);
-            skeletonByte = new TextAsset(Encoding.UTF8.GetString(data));
-            skeletonByte.name = Path.GetFileName(skeletonBytePath);
-            data = null;
+            // 释放相关资源
+            if (asset.atlasAssets != null)
+            {
+                foreach (var atlas in asset.atlasAssets)
+                {
+                    Destroy(atlas);
+                }
+            }
+            Destroy(asset);
+            loadedSkeletons.Remove(key);
         }
-        else
+    }
+
+    /// <summary>
+    /// 释放所有加载的Spine资源
+    /// </summary>
+    public void UnloadAllSpineAssets()
+    {
+        foreach (var asset in loadedSkeletons.Values)
         {
-            Debug.LogError("Skeleton binary file not found: " + skeletonBytePath);
-            return;
+            if (asset.atlasAssets != null)
+            {
+                foreach (var atlas in asset.atlasAssets)
+                {
+                    Destroy(atlas);
+                }
+            }
+            Destroy(asset);
         }
-        Texture2D[] textures = new Texture2D[] { texture };
-        runtimeAtlasAsset = SpineAtlasAsset.CreateRuntimeInstance(atlasText, textures, _baseMaterial, true);
-        runtimeSkeletonDataAsset = SkeletonDataAsset.CreateRuntimeInstance(skeletonByte, runtimeAtlasAsset, true);
-        runtimeSkeletonDataAsset.GetSkeletonData(false); // preload.
+        loadedSkeletons.Clear();
+    }
+
+    /// <summary>
+    /// 加载纹理
+    /// </summary>
+    private Texture2D LoadTexture(string path)
+    {
+        if (!File.Exists(path))
+        {
+            Debug.LogError($"纹理文件不存在: {path}");
+            return null;
+        }
+
+        try
+        {
+            byte[] data = File.ReadAllBytes(path);
+            Texture2D texture = new Texture2D(2, 2, TextureFormat.ARGB32, false);
+            if (texture.LoadImage(data))
+            {
+                texture.name = Path.GetFileNameWithoutExtension(path);
+                texture.wrapMode = TextureWrapMode.Clamp;
+                texture.filterMode = FilterMode.Bilinear;
+                return texture;
+            }
+
+            Debug.LogError($"无法加载纹理: {path}");
+            Destroy(texture);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"加载纹理错误 {path}: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// 加载文本资源
+    /// </summary>
+    private TextAsset LoadTextAsset(string path)
+    {
+        if (!File.Exists(path))
+        {
+            Debug.LogError($"文本文件不存在: {path}");
+            return null;
+        }
+
+        try
+        {
+            byte[] data = File.ReadAllBytes(path);
+            string content = Encoding.UTF8.GetString(data);
+            TextAsset textAsset = new TextAsset(content);
+            textAsset.name = Path.GetFileNameWithoutExtension(path);
+            return textAsset;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"加载文本错误 {path}: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// 加载二进制资源
+    /// </summary>
+    private TextAsset LoadBinaryAsset(string path)
+    {
+        if (!File.Exists(path))
+        {
+            Debug.LogError($"二进制文件不存在: {path}");
+            return null;
+        }
+
+        try
+        {
+            byte[] data = File.ReadAllBytes(path);
+            // 使用反射设置二进制数据（Spine二进制文件需要这样处理）
+            TextAsset textAsset = new TextAsset();
+            var field = typeof(TextAsset).GetField("m_Data",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            field?.SetValue(textAsset, data);
+            textAsset.name = Path.GetFileNameWithoutExtension(path);
+            return textAsset;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"加载二进制错误 {path}: {ex.Message}");
+            return null;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        UnloadAllSpineAssets();
+        if (_baseMaterial != null)
+        {
+            Destroy(_baseMaterial);
+        }
     }
 }
-
