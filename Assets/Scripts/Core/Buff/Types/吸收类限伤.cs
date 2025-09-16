@@ -26,11 +26,5 @@ namespace Buffs
             if (damageInfo.FinalDamage >= MinResponseLimit)
                 damageInfo.FinalDamage = MinResponseLimit;
         }
-
-        public override void Finish()
-        {
-            base.Finish();
-            MinResponseLimit = 0f;
-        }
     }
 }

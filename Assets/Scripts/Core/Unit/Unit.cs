@@ -889,6 +889,7 @@ public class Unit
         //Debug.Log(damageInfo.FinalDamage);
         if (!damageInfo.Avoid)
         {
+            
             foreach (var shield in Shields.ToArray())
             {
                 shield.Absorb(damageInfo);
@@ -1102,19 +1103,7 @@ public class Unit
             }
         }
         if (breakedEle != null) EleInjures[breakedEle] = 0;
-        //if (InjurePoint >= 1000)
-        //{
-        //    InjurePoint = 0;
-        //    ElementProtect.Set(10f);
 
-        //    //Damage(new DamageInfo()
-        //    //{
-        //    //    Target = this,
-        //    //    Attack = 1000,
-        //    //    DamageType = DamageTypeEnum.Real,
-        //    //});
-        //    //AddBuff(Database.Instance.GetIndex<BuffData>("眩晕"), Battle.RuleUnit.Skills[0], 0);
-        //}
         int GetEnemyStopCost(敌人 enemy)
         {
             return enemy.StopCost;
