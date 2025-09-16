@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1b3b4b945939a54ea0b23d3396115fb, type: 3}
+  m_Name: trap_200_muulcl_SkeletonData
+  m_EditorClassIdentifier: 
+  atlasAssets:
+  - {fileID: 11400000, guid: a37a99cf760e99c46b4fc1f8022fd08c, type: 2}
+  scale: 0.0026999998
+  skeletonJSON: {fileID: 4900000, guid: 53bea082d5247bc41afc5787f6adce0e, type: 3}
+  isUpgradingBlendModeMaterials: 0
+  blendModeMaterials:
+    requiresBlendModeMaterials: 1
+    applyAdditiveMaterial: 1
+    additiveMaterials:
+    - pageName: trap_200_muulcl.png
+      material: {fileID: 2100000, guid: e246868ce49f16c48b15a6a324f2f1b7, type: 2}
+    multiplyMaterials: []
+    screenMaterials:
+    - pageName: trap_200_muulcl.png
+      material: {fileID: 2100000, guid: 3b42d319f2ac7b442ba5b3d513872465, type: 2}
+  skeletonDataModifiers: []
+  fromAnimation: []
+  toAnimation: []
+  duration: []
+  defaultMix: 0.2
+  controller: {fileID: 0}

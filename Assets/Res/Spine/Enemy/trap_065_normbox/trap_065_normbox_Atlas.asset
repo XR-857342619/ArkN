@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6b194f808b1af6499c93410e504af42, type: 3}
+  m_Name: trap_065_normbox_Atlas
+  m_EditorClassIdentifier: 
+  atlasFile: {fileID: 4900000, guid: 732b38153caa45948b8ae305a141950c, type: 3}
+  materials:
+  - {fileID: 2100000, guid: 58705059d078f6f40b28e9732d854cf8, type: 2}

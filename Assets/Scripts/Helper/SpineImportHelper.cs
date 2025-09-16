@@ -266,7 +266,8 @@ public class SpineImportHelper : MonoBehaviour
             var field = typeof(TextAsset).GetField("m_Data",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             field?.SetValue(textAsset, data);
-            textAsset.name = Path.GetFileNameWithoutExtension(path);
+            textAsset.name = Path.GetFileNameWithoutExtension(path).Replace("skel","json");
+            Log.Debug("name: " + textAsset.name);
             return textAsset;
         }
         catch (Exception ex)

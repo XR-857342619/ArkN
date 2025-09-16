@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6b194f808b1af6499c93410e504af42, type: 3}
+  m_Name: trap_768_godch_Atlas
+  m_EditorClassIdentifier: 
+  atlasFile: {fileID: 4900000, guid: 9f9c734c2e671a246b54873645b114d1, type: 3}
+  materials:
+  - {fileID: 2100000, guid: 872f281055922fb40bd7cd2f7788a529, type: 2}

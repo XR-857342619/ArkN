@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6b194f808b1af6499c93410e504af42, type: 3}
+  m_Name: token_10056_angel2_target_Atlas
+  m_EditorClassIdentifier: 
+  atlasFile: {fileID: 4900000, guid: ca4d7949cd928d44d9703a6fce5c1fc2, type: 3}
+  materials:
+  - {fileID: 2100000, guid: ae589ad11c15a0f42a118e5a0996b565, type: 2}
