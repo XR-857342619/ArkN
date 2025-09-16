@@ -3,7 +3,6 @@ using Spine;
 using Spine.Unity;
 using System;
 using System.IO;
-using System.Text;
 using System.Collections.Generic;
 
 public class SpineImportHelper : MonoBehaviour
@@ -20,9 +19,7 @@ public class SpineImportHelper : MonoBehaviour
         {
             if (_instance == null)
             {
-                // 查找场景中是否已有实例
                 _instance = FindObjectOfType<SpineImportHelper>();
-
                 if (_instance == null)
                 {
                     GameObject obj = new GameObject("SpineImportHelper");
@@ -36,7 +33,6 @@ public class SpineImportHelper : MonoBehaviour
 
     private void Awake()
     {
-        // 确保单例唯一性
         if (_instance == null)
         {
             _instance = this;
@@ -49,9 +45,6 @@ public class SpineImportHelper : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 初始化基础材质
-    /// </summary>
     public void Init()
     {
         if (_baseMaterial == null)
@@ -70,22 +63,15 @@ public class SpineImportHelper : MonoBehaviour
     }
 
     /// <summary>
-    /// 加载Spine资源并创建运行时资产
+    /// 加载Spine资源（适配Unity 2021+的二进制加载方式）
     /// </summary>
-    /// <param name="key">用于缓存的唯一键</param>
-    /// <param name="texturePath">纹理路径</param>
-    /// <param name="atlasTextPath">图集文本路径</param>
-    /// <param name="skeletonBytePath">骨骼二进制文件路径</param>
-    /// <returns>加载成功的骨骼数据资源，失败则返回null</returns>
     public SkeletonDataAsset LoadSpineAssets(string key, string texturePath, string atlasTextPath, string skeletonBytePath)
     {
-        // 检查是否已加载
         if (loadedSkeletons.TryGetValue(key, out SkeletonDataAsset existingAsset))
         {
             return existingAsset;
         }
 
-        // 检查基础材质是否初始化
         if (_baseMaterial == null)
         {
             Init();
@@ -110,32 +96,50 @@ public class SpineImportHelper : MonoBehaviour
                 return null;
             }
 
-            // 加载骨骼数据
-            TextAsset skeletonData = LoadBinaryAsset(skeletonBytePath);
-            if (skeletonData == null)
+            // 加载骨骼二进制数据（Unity 2021+兼容方式）
+            byte[] skeletonBytes = LoadSkeletonBytes(skeletonBytePath);
+            if (skeletonBytes == null)
             {
                 Destroy(texture);
                 Destroy(atlasText);
                 return null;
             }
 
-            // 创建Spine运行时资源
+            // 创建图集资产
             SpineAtlasAsset atlasAsset = SpineAtlasAsset.CreateRuntimeInstance(
                 atlasText, new[] { texture }, _baseMaterial, true);
 
-            SkeletonDataAsset skeletonAsset = SkeletonDataAsset.CreateRuntimeInstance(
-                skeletonData, atlasAsset, true);
-
-            // 预加载骨骼数据
-            try
+            // 关键修复：直接使用字节数组创建SkeletonData，避免使用TextAsset
+            SkeletonData skeletonData = LoadSkeletonDataFromBytes(skeletonBytes, atlasAsset);
+            if (skeletonData == null)
             {
-                skeletonAsset.GetSkeletonData(false);
+                Destroy(atlasAsset);
+                Destroy(texture);
+                Destroy(atlasText);
+                return null;
+            }
+
+            // 创建并配置SkeletonDataAsset
+            SkeletonDataAsset skeletonAsset = ScriptableObject.CreateInstance<SkeletonDataAsset>();
+            skeletonAsset.skeletonJSON = null; // 确保不使用JSON
+            skeletonAsset.atlasAssets = new[] { atlasAsset };
+            skeletonAsset.fromAnimation = new string[0];
+            skeletonAsset.toAnimation = new string[0];
+            skeletonAsset.duration = new float[0];
+
+            // 使用反射设置内部的skeletonData（Spine 3.8兼容）
+            var dataField = typeof(SkeletonDataAsset).GetField("skeletonData",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (dataField != null)
+            {
+                dataField.SetValue(skeletonAsset, skeletonData);
                 loadedSkeletons[key] = skeletonAsset;
+                Debug.Log("设置SkeletonDataAsset的骨骼数据" + skeletonData.Name);
                 return skeletonAsset;
             }
-            catch (Exception ex)
+            else
             {
-                Debug.LogError($"骨骼数据加载失败: {ex.Message}");
+                Debug.LogError("无法设置SkeletonDataAsset的骨骼数据，可能是Spine版本不兼容");
                 Destroy(skeletonAsset);
                 Destroy(atlasAsset);
                 return null;
@@ -149,47 +153,55 @@ public class SpineImportHelper : MonoBehaviour
     }
 
     /// <summary>
-    /// 释放指定键的Spine资源
+    /// 直接加载骨骼二进制字节，不通过TextAsset
     /// </summary>
-    public void UnloadSpineAssets(string key)
+    private byte[] LoadSkeletonBytes(string path)
     {
-        if (loadedSkeletons.TryGetValue(key, out SkeletonDataAsset asset))
+        if (!File.Exists(path))
         {
-            // 释放相关资源
-            if (asset.atlasAssets != null)
-            {
-                foreach (var atlas in asset.atlasAssets)
-                {
-                    Destroy(atlas);
-                }
-            }
-            Destroy(asset);
-            loadedSkeletons.Remove(key);
+            Debug.LogError($"骨骼二进制文件不存在: {path}");
+            return null;
+        }
+
+        try
+        {
+            return File.ReadAllBytes(path);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"加载骨骼二进制文件错误 {path}: {ex.Message}");
+            return null;
         }
     }
 
     /// <summary>
-    /// 释放所有加载的Spine资源
+    /// 从字节数组加载骨骼数据
     /// </summary>
-    public void UnloadAllSpineAssets()
+    private SkeletonData LoadSkeletonDataFromBytes(byte[] data, SpineAtlasAsset atlasAsset)
     {
-        foreach (var asset in loadedSkeletons.Values)
+        try
         {
-            if (asset.atlasAssets != null)
+            // 获取图集数据
+            Atlas atlas = atlasAsset.GetAtlas();
+            if (atlas == null)
             {
-                foreach (var atlas in asset.atlasAssets)
-                {
-                    Destroy(atlas);
-                }
+                Debug.LogError("图集数据获取失败");
+                return null;
             }
-            Destroy(asset);
+
+            // 使用Spine的BinarySkeletonLoader直接加载字节数据
+            SkeletonBinary binaryLoader = new SkeletonBinary(atlas);
+            binaryLoader.Scale = 1f; // 根据需要调整缩放
+            return binaryLoader.ReadSkeletonData(new MemoryStream(data));
         }
-        loadedSkeletons.Clear();
+        catch (Exception ex)
+        {
+            Debug.LogError($"解析骨骼二进制数据失败: {ex.Message}");
+            return null;
+        }
     }
 
-    /// <summary>
-    /// 加载纹理
-    /// </summary>
+    // 其他辅助方法保持不变...
     private Texture2D LoadTexture(string path)
     {
         if (!File.Exists(path))
@@ -221,9 +233,6 @@ public class SpineImportHelper : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 加载文本资源
-    /// </summary>
     private TextAsset LoadTextAsset(string path)
     {
         if (!File.Exists(path))
@@ -235,7 +244,7 @@ public class SpineImportHelper : MonoBehaviour
         try
         {
             byte[] data = File.ReadAllBytes(path);
-            string content = Encoding.UTF8.GetString(data);
+            string content = System.Text.Encoding.UTF8.GetString(data);
             TextAsset textAsset = new TextAsset(content);
             textAsset.name = Path.GetFileNameWithoutExtension(path);
             return textAsset;
@@ -247,34 +256,36 @@ public class SpineImportHelper : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 加载二进制资源
-    /// </summary>
-    private TextAsset LoadBinaryAsset(string path)
+    public void UnloadSpineAssets(string key)
     {
-        if (!File.Exists(path))
+        if (loadedSkeletons.TryGetValue(key, out SkeletonDataAsset asset))
         {
-            Debug.LogError($"二进制文件不存在: {path}");
-            return null;
+            if (asset.atlasAssets != null)
+            {
+                foreach (var atlas in asset.atlasAssets)
+                {
+                    Destroy(atlas);
+                }
+            }
+            Destroy(asset);
+            loadedSkeletons.Remove(key);
         }
+    }
 
-        try
+    public void UnloadAllSpineAssets()
+    {
+        foreach (var asset in loadedSkeletons.Values)
         {
-            byte[] data = File.ReadAllBytes(path);
-            // 使用反射设置二进制数据（Spine二进制文件需要这样处理）
-            TextAsset textAsset = new TextAsset();
-            var field = typeof(TextAsset).GetField("m_Data",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            field?.SetValue(textAsset, data);
-            textAsset.name = Path.GetFileNameWithoutExtension(path).Replace("skel","json");
-            Log.Debug("name: " + textAsset.name);
-            return textAsset;
+            if (asset.atlasAssets != null)
+            {
+                foreach (var atlas in asset.atlasAssets)
+                {
+                    Destroy(atlas);
+                }
+            }
+            Destroy(asset);
         }
-        catch (Exception ex)
-        {
-            Debug.LogError($"加载二进制错误 {path}: {ex.Message}");
-            return null;
-        }
+        loadedSkeletons.Clear();
     }
 
     private void OnDestroy()

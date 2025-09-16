@@ -843,12 +843,14 @@ public class Unit
             Log.Debug(PathHelper.UnitPath + UnitData.Model);
             Debug.Log(UnitData.Model + " not found");
             //GameObject go = ResHelper.Instantiate("Assets/Bundles/Units/char_002_amiya");
-            //go.transform.GetChild(1).skeletonDataAsset = 
+            //go.transform.GetChild(1).skeletonDataAsset = SpineImportHelper.Instance.loadedSkeletons["char_4179_monstr_back"];
         }
+        //go.transform.GetChild(1).GetComponent<SkeletonAnimation>().skeletonDataAsset = SpineImportHelper.Instance.loadedSkeletons["char_4179_monstr_back"];
         //SkeletonAnimation skeletonAnimation = go.transform.GetChild(1).GetComponent<SkeletonAnimation>();
         //skeletonAnimation.skeletonDataAsset = SpineImportHelper.Instance.runtimeSkeletonDataAsset;
         //Log.Debug("尝试替换模型");
         UnitModel = go.GetComponent<UnitModel>();
+        //UnitModel.gameObject.GetComponent<SkeletonAnimation>().SkeletonDataAsset = SpineImportHelper.Instance.loadedSkeletons["char_4179_monstr_back"];
         UnitModel.Init(this);
     }
 
