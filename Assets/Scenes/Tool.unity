@@ -181,28 +181,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 228632115}
-  - component: {fileID: 228632114}
+  - component: {fileID: 228632116}
   m_Layer: 0
   m_Name: "\u722Cprts\u7684spine\u7D20\u6750"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &228632114
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 228632113}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0d94bbd5e3e578468a2c0da17075156, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  TextAsset: {fileID: 4900000, guid: 392fb2a8234ed8546904474f54625dd6, type: 3}
-  Dir: .\Spine\
+  m_IsActive: 0
 --- !u!4 &228632115
 Transform:
   m_ObjectHideFlags: 0
@@ -218,6 +204,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &228632116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 228632113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0d94bbd5e3e578468a2c0da17075156, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TextAsset: {fileID: 4900000, guid: d1f57e777aab11247be488d74665829b, type: 3}
+  Dir: ./Spine/
 --- !u!1 &582840802
 GameObject:
   m_ObjectHideFlags: 0
@@ -449,3 +449,49 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2015475988
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2015475989}
+  - component: {fileID: 2015475990}
+  m_Layer: 0
+  m_Name: "\u722C\u53EC\u5524\u7269spine"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2015475989
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015475988}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.0999272, y: -10.631102, z: 8.241247}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2015475990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015475988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a64eb71620e484f468ead6509ea409a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterDataJson: {fileID: 4900000, guid: 9f370e95a393fef4caf3b71f5d5e159b, type: 3}
+  downloadDir: .\Spine\Enemy

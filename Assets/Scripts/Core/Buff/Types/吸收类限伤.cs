@@ -30,6 +30,7 @@ namespace Buffs
         public override void Finish()
         {
             base.Finish();
+            MinResponseLimit = 0f;
         }
     }
 }

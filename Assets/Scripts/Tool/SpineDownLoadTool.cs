@@ -21,19 +21,35 @@ public class SpineDownLoadTool : MonoBehaviour
     IEnumerator DownloadAll()
     {
         A a = JsonHelper.FromJson<A>(TextAsset.text);
+
+        // 创建一个集合来存储所有需要下载的角色名，避免重复
+        HashSet<string> allCharacters = new HashSet<string>();
+
         foreach (var kv in a.spCharGroups)
         {
-            string path = Dir + kv.Key;
+            // 将键和值数组中的所有元素都添加到集合中
+            allCharacters.Add(kv.Key);
+            foreach (string character in kv.Value)
+            {
+                allCharacters.Add(character);
+            }
+        }
+
+        // 遍历所有唯一的角色名进行下载
+        foreach (string characterName in allCharacters)
+        {
+            string path = Dir + characterName;
             if (Directory.Exists(path))
             {
                 Debug.Log(path + " 已存在");
                 continue;
             }
             float t = Time.time;
-            Debug.Log($"开始爬取{kv.Key}");
-            yield return StartCoroutine(dowloadOne(kv.Key));
-            Debug.Log($"{kv.Key}完成!耗时{Time.time - t}");
+            Debug.Log($"开始爬取{characterName}");
+            yield return StartCoroutine(dowloadOne(characterName));
+            Debug.Log($"{characterName}完成!耗时{Time.time - t}");
         }
+
         Debug.Log($"全部爬取完成！");
     }
 
