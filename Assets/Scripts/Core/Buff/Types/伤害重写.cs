@@ -14,7 +14,7 @@ namespace Buffs
             get { return orderCode; }
         }
 
-        public void Init()
+        public override void Init()
         {
             base.Init();
             MinResponseLimit = BuffData.Data.GetInt("MinResponseLimit", 1);
@@ -26,5 +26,6 @@ namespace Buffs
             if (damageInfo.FinalDamage >= MinResponseLimit)
                 damageInfo.FinalDamage = MinResponseLimit;
         }
+
     }
 }

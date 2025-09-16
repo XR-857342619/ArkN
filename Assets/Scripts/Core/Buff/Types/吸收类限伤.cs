@@ -2,47 +2,34 @@
 using UnityEngine;
 using Buffs;
 
-public class 吸收类限伤 : Buff, IShield
+namespace Buffs
 {
-    public int Count;
-
-    public override void Init()
+    public class 吸收类限伤 : Buff, IShield
     {
-        base.Init();
-        Count = BuffData.Data.GetInt("Count", 0);
-        //Unit.RewriteDamage = (float)this.Count;
-    }
-    //public override void Apply()
-    //{
-    //    base.Apply();
-    //    if (this.Dead)
-    //    {
-    //        return;
-    //    }
-    //    this.Unit.RewriteDamage = (float)this.Count;
-    //}
-
-    public void Absorb(DamageInfo damageInfo)
-    {
-        if ((float)this.Count > damageInfo.FinalDamage)
+        public float MinResponseLimit;
+        public float RewriteDamage;
+        public int orderCode;
+        public int OrderCode
         {
-            return;
+            get { return orderCode; }
         }
-        damageInfo.FinalDamage = (float)this.Count;
-    }
 
-    public int OrderCode
-    {
-        get
+        public override void Init()
         {
-            return base.BuffData.OrderCount;
+            base.Init();
+            MinResponseLimit = BuffData.Data.GetInt("MinResponseLimit", 1);
+            orderCode = BuffData.Data.GetInt("OrderCode", 0);
+            //Unit.RewriteDamage = MinResponseLimit;
+        }
+        public void Absorb(DamageInfo damageInfo)
+        {
+            if (damageInfo.FinalDamage >= MinResponseLimit)
+                damageInfo.FinalDamage = MinResponseLimit;
+        }
+
+        public override void Finish()
+        {
+            base.Finish();
         }
     }
-
-    //public override void Finish()
-    //{
-    //    base.Finish();
-    //    Unit.RewriteDamage = 0f;
-    //}
-
 }
