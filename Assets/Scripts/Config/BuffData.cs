@@ -14,6 +14,5 @@ public class BuffData : IConfig
       public bool Resist;
       public bool DeadRemain;
       public int? RelyBuff;
-      public bool IsCancelable;
       public System.Collections.Generic.Dictionary<string,object> Data;
 }

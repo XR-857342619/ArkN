@@ -87,55 +87,6 @@ public class Database
         return this;
     }
 
-    #region
-    //public T Get<T>(int id) where T : class, IConfig
-    //{
-    //    dic.TryGetValue(typeof(T), out IConfig[] r);
-    //    if (r == null || id < 0 || id >= r.Length)
-    //    {
-    //        Debug.LogWarning($"cant find {typeof(T).Name} ,id {id}");
-    //        return null;
-    //    }
-    //    return r[id] as T;
-    //}
-
-    //public T Get<T>(string id) where T : class, IConfig
-    //{
-    //    dic.TryGetValue(typeof(T), out IConfig[] r);
-    //    Debug.Log(id);
-    //    return r.FirstOrDefault(x => x.Id == id) as T;
-    //}
-
-    //public T Get<T>(Func<T, bool> match) where T : class, IConfig
-    //{
-    //    dic.TryGetValue(typeof(T), out IConfig[] r);
-    //    return r.FirstOrDefault(x => match(x as T)) as T;
-    //}
-
-    //public T[] GetAll<T>() where T : class, IConfig
-    //{
-    //    dic.TryGetValue(typeof(T), out IConfig[] r);
-    //    return r?.Select(x => x as T).ToArray();
-    //}
-
-    //public int GetIndex<T>(T t) where T : class, IConfig
-    //{
-    //    dic.TryGetValue(typeof(T), out IConfig[] r);
-    //    var result = Array.IndexOf(r, t);
-    //    if (result == -1) throw new Exception($"cant find {typeof(T).Name} ,id {t.Id}");
-    //    return result;
-    //}
-
-    //public int GetIndex<T>(string id) where T : class, IConfig
-    //{
-    //    dic.TryGetValue(typeof(T), out IConfig[] r);
-    //    var result = Array.FindIndex(r, x => x.Id == id);
-    //    if (result == -1) throw new Exception($"cant find {typeof(T).Name} ,id {id}");
-    //    return result;
-    //}
-
-    #endregion
-
     public bool TryGet<T>(int id, out T result) where T : class, IConfig
     {
         result = null;
@@ -319,16 +270,6 @@ public class Database
             text = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(PathHelper.DataPath + name + ".txt").text;
         }
         var arr = text.Split('\n');
-        //Debug.Log(PathHelper.AppResPath + "/Data/" + name + ".txt");
-        //var arr = File.ReadLines(PathHelper.AppHotfixResPath + "/Data/" + name + ".txt")
-        //.Where(line => !string.IsNullOrWhiteSpace(line))
-        //.ToArray();
-        //foreach (var s in arr)
-        //{
-        //    //if (s == "" || s == "\n")
-        //        Debug.Log("empty line"+s+"in"+name);
-        //}
-        //var arr = text.Split('\n').Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
         IConfig[] values = new IConfig[arr.Length];
         for (int i = 0; i < arr.Length; i++)
         {

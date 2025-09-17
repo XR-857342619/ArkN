@@ -16,7 +16,7 @@ public class SpineComponentReplacer : MonoBehaviour
         public string skeletonPath;
     }
 
-    [Header("预加载资源列表")]
+    //[Header("预加载资源列表")]
     public List<SpineResource> preloadResources = new List<SpineResource>();
 
     // 预加载完成标记

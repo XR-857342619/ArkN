@@ -297,6 +297,7 @@ public class Unit
 
     public void UpdateBuffs()
     {
+        //UpdateBuffSuppression();
         updateElement();
         if (!Alive()) return;
         if (Hp > MaxHp) Hp = MaxHp;
@@ -326,6 +327,9 @@ public class Unit
     }
     public virtual void UpdateAction()
     {
+
+        //UpdateBuffSuppression();
+
         if (Alive())
         {
             //HP自动回复
@@ -567,6 +571,71 @@ public class Unit
         return skill;
     }
 
+    #region 入梦砖
+    public void UpdateBuffSuppression()
+    {
+        // 检查单位是否有"BUFF抵挡"效果
+        bool hasBuffDefense = Buffs.Any(b => b.BuffData.CancelsCancelableBuffs && !b.IsSuppressed);
+
+        //Log.Debug($"单位 {this.UnitData.Id} 是否有BUFF抵挡效果: {hasBuffDefense}");
+
+        foreach (var buff in Buffs)
+        {
+            // 检查BUFF是否应该被抑制
+            bool shouldSuppress = hasBuffDefense &&
+                                 buff.IsCancelable &&
+                                 buff.OriginalCaster != null &&
+                                 buff.OriginalCaster.Buffs.Any(b => b.BuffData.MakesBuffsCancelable && !b.IsSuppressed);
+
+            // 记录详细信息
+            if (buff.IsCancelable && buff.OriginalCaster != null)
+            {
+                bool casterHasCancelable = buff.OriginalCaster.Buffs.Any(b => b.BuffData.MakesBuffsCancelable && !b.IsSuppressed);
+                //Log.Debug($"BUFF {buff.Id} 来自单位 {buff.OriginalCaster.UnitData.Id}, 施加者是否有BUFF可抵挡: {casterHasCancelable}");
+            }
+
+            // 更新抑制状态
+            if (buff.IsSuppressed != shouldSuppress)
+            {
+                //Log.Debug($"BUFF {buff.Id} 抑制状态变化: {buff.IsSuppressed} -> {shouldSuppress}");
+
+                buff.IsSuppressed = shouldSuppress;
+
+                // 状态变化时的处理
+                if (shouldSuppress)
+                {
+                    //Log.Debug($"BUFF {buff.Id} 被抑制");
+                    // BUFF刚被抑制，移除其效果
+                    OnBuffSuppressed(buff);
+                }
+                else
+                {
+                    //Log.Debug($"BUFF {buff.Id} 恢复");
+                    // BUFF刚恢复，重新应用效果
+                    OnBuffRestored(buff);
+                }
+            }
+        }
+    }
+
+    // BUFF被抑制时的处理
+    public void OnBuffSuppressed(Buff buff)
+    {
+        // 移除BUFF的效果（如果是持续性效果）
+        // 例如：如果是一个攻击力提升BUFF，需要暂时降低攻击力
+        Refresh(); // 重新计算属性
+    }
+
+    // BUFF恢复时的处理
+    public void OnBuffRestored(Buff buff)
+    {
+        // 恢复BUFF的效果
+        Refresh(); // 重新计算属性
+    }
+
+    // 在每帧更新中调用,此处逻辑在UpdateAction()中,见上文
+
+    #endregion
 
     public Buff AddBuff(int buffId, Skill source, int index)
     {
@@ -594,6 +663,25 @@ public class Unit
             newBuff.Skill = source;
             newBuff.Unit = this;
 
+            // 设置BUFF是否可被抵挡
+            if (source?.Unit != null)
+            {
+                // 检查施加者是否有使BUFF变为可抵挡的效果
+                newBuff.IsCancelable = source.Unit.Buffs.Any(b =>
+                    b.BuffData.MakesBuffsCancelable && !b.IsSuppressed);
+
+                // 记录原始施加者
+                newBuff.OriginalCaster = source.Unit;
+            }
+
+            // 立即检查并设置抑制状态
+            bool hasBuffDefense = Buffs.Any(b => b.BuffData.CancelsCancelableBuffs && !b.IsSuppressed);
+            bool shouldSuppress = hasBuffDefense && newBuff.IsCancelable && newBuff.OriginalCaster != null &&
+                                 newBuff.OriginalCaster.Buffs.Any(b =>
+                                     b.BuffData.MakesBuffsCancelable && !b.IsSuppressed);
+
+            newBuff.IsSuppressed = shouldSuppress;
+
             // 添加到BUFF列表
             Buffs.Add(newBuff);
 
@@ -604,6 +692,19 @@ public class Unit
             // 初始化BUFF
             newBuff.Init();
 
+            // 如果BUFF未被抑制，应用效果
+            if (!shouldSuppress)
+            {
+                newBuff.Apply();
+            }
+
+            // 如果这个BUFF是"BUFF抵挡"或"BUFF可抵挡"效果，需要重新检查所有BUFF的抑制状态
+            //if (config.CancelsCancelableBuffs || config.MakesBuffsCancelable)
+            if (config.CancelsCancelableBuffs || config.MakesBuffsCancelable)
+            {
+                //UpdateBuffSuppression();
+            }
+
             return newBuff;
         }
     }
@@ -612,7 +713,6 @@ public class Unit
     {
         Buffs.Remove(buff);
         if (buff is IShield shield) Shields.Remove(shield);
-
         //Refresh();
     }
     #region 推拉相关
@@ -1017,12 +1117,11 @@ public class Unit
         //    return -shield.OrderCount;
         //}
 
-        /*
         int GetBuffPriority(Buff buff)
         {
             return -buff.BuffData.OrderCount;
         }
-        
+        /*
         int GetHealPriority(IHeal heal)
         {
             return -heal.HealOrderCount;
