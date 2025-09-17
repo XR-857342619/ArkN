@@ -25,6 +25,8 @@ public class Buff
     public Buff RelayBuff;
     public bool Dead;
 
+    //public bool MakesBuffsCancelable;
+
     List<Vector2Int> rounds;
 
     //入梦砖相关
