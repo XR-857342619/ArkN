@@ -61,3 +61,7 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+/Assets/Bundles/Units/enemy_11451_killer.prefab
+/Assets/Bundles/Units/enemy_11451_killer.prefab.meta
+/Assets/Res/Spine/Enemy/enemy_11451_killer
+/Assets/Res/Spine/Enemy/enemy_11451_killer.meta
