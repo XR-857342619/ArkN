@@ -28,28 +28,56 @@ public class Buff
     List<Vector2Int> rounds;
 
     //入梦砖相关
-    public bool IsCancelable { get; set; } // 这个BUFF是否可被抵挡
-    public bool IsSuppressed { get; set; } // 这个BUFF当前是否被抑制/失效
+    public bool CancelsCancelableBuffs { get; set; }
     public bool MakesBuffsCancelable { get; set; } // 这个BUFF是否使施加者施加的BUFF变为可抵挡
     public Unit OriginalCaster { get; set; } // 记录原始施加者
+    public bool Suppressed { get; private set; }
 
     public virtual void Init()
     {
+        OriginalCaster = Skill?.Unit;
+
+        // 如果施加者有「BUFF可抵挡制造」效果 → 这个buff就是可抵挡的
+        if (OriginalCaster != null)
+        {
+            BuffData.IsCancelable = OriginalCaster.Buffs.Any(b => b.MakesBuffsCancelable && !b.Dead);
+        }
+        
+        // 自己是不是「BUFF抵挡制造者」
+        if (MakesBuffsCancelable)
+            MakesBuffsCancelable = true;
+
+        // 先检查目标是否能抵挡
+        if (BuffData.IsCancelable && Unit.Buffs.Any(b => b.CancelsCancelableBuffs && !b.Dead))
+        {
+            Suppressed = true; // 进入压制状态，不生效，但持续时间仍在走
+        }
+        else
+        {
+            Apply(); // 直接生效
+            Suppressed = false;
+        }
+
         updateLastTime();
+
+        // 持续特效（显示用）
         if (BuffData.LastingEffect.HasValue)
         {
             LastingEffect = EffectManager.Instance.GetEffect(BuffData.LastingEffect.Value);
             LastingEffect.Init(Skill.Unit, Unit, Unit.Position, Unit.Direction);
             LastingEffect.SetLifeTime(float.PositiveInfinity);
         }
-        //Log.Debug($"{Unit.UnitData.Id} 新获得了buff {BuffData.Id}");
+
+        // 范围需求
         if (BuffData.RoundNeed == 1)
         {
             rounds = new List<Vector2Int>();
             foreach (var v in Round1)
             {
                 var point = v + Unit.GridPos;
-                if (point.x < 0 || point.x >= Battle.Map.Tiles.GetLength(0) || point.y < 0 || point.y >= Battle.Map.Tiles.GetLength(1)) continue;
+                if (point.x < 0 || point.x >= Battle.Map.Tiles.GetLength(0) ||
+                    point.y < 0 || point.y >= Battle.Map.Tiles.GetLength(1))
+                    continue;
                 rounds.Add(point);
             }
         }
@@ -57,7 +85,6 @@ public class Buff
 
     public bool Enable()
     {
-        //if (!Unit.Alive()) return false;
         if (BuffData.StopNeed != 0 && Unit is Units.干员 u && u.StopUnits.Count < BuffData.StopNeed) return false;
         if (BuffData.StopLess != 0 && Unit is Units.干员 u2 && u2.StopUnits.Count >= BuffData.StopLess) return false;
         if (BuffData.StopNeed != 0 && Unit is Units.敌人 u1 && u1.StopUnit == null) return false;
@@ -71,10 +98,7 @@ public class Buff
 
     public virtual void Apply()
     {
-        if (IsSuppressed)
-        {
-            return;
-        }
+
     }
 
     public virtual void Reset()
@@ -109,10 +133,20 @@ public class Buff
 
     public virtual void Update()
     {
-
-        if (IsSuppressed)
+        if (!Enable())
         {
-            // BUFF被抑制，不执行任何效果
+            // Buff 不生效，但仍然需要更新时间
+            if (BuffData.Resist)
+            {
+                Duration.Update(SystemConfig.DeltaTime / Unit.Resist);
+            }
+            else
+                Duration.Update(SystemConfig.DeltaTime);
+
+            if (Duration.Finished())
+            {
+                Finish();
+            }
             return;
         }
 
@@ -156,6 +190,7 @@ public class Buff
             EffectManager.Instance.ReturnEffect(LastingEffect);
             LastingEffect = null;
         }
+
         //Log.Debug($"{Unit.UnitData.Id} 失去了buff {BuffData.Id}");
     }
 }

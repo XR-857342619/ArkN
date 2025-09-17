@@ -1,24 +1,19 @@
 public class BuffData : IConfig 
 {
-    public string Id { get ; set ; }
-    public string Type;
-    public string Name;
-    public int StopLess;
-    public int StopNeed;
-    public int RoundNeed;
-    public bool UnSourceCheck;
-    public bool IfSwitch;
-    public int? LastingEffect;
-    public float LastTime;
-    public int? Upgrade;
-    public bool Resist;
-    public bool DeadRemain;
-    public int? RelyBuff;
-    public int OrderCount;
-
-    public System.Collections.Generic.Dictionary<string,object> Data;
-    public bool IsCancelable { get; set; } // 这个BUFF是否可被抵挡
-    public bool MakesBuffsCancelable { get; set; } // 这个BUFF是否使施加者施加的BUFF变为可抵挡
-    public bool CancelsCancelableBuffs { get; set; } // 这个BUFF是否抵挡可被抵挡的BUFF
-    public bool 强制击杀;
+      public string Id { get ; set ; }
+      public string Type;
+      public string Name;
+      public int StopLess;
+      public int StopNeed;
+      public int RoundNeed;
+      public bool UnSourceCheck;
+      public bool IfSwitch;
+      public int? LastingEffect;
+      public float LastTime;
+      public int? Upgrade;
+      public bool Resist;
+      public bool DeadRemain;
+      public int? RelyBuff;
+      public bool IsCancelable;
+      public System.Collections.Generic.Dictionary<string,object> Data;
 }
