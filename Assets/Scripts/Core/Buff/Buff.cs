@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using UnityEngine;
 
 [System.Serializable]
@@ -31,7 +32,6 @@ public class Buff
     public bool CancelsCancelableBuffs { get; set; }
     public bool MakesBuffsCancelable { get; set; } // 这个BUFF是否使施加者施加的BUFF变为可抵挡
     public Unit OriginalCaster { get; set; } // 记录原始施加者
-    public bool Suppressed { get; private set; }
 
     public virtual void Init()
     {
@@ -50,12 +50,7 @@ public class Buff
         // 先检查目标是否能抵挡
         if (BuffData.IsCancelable && Unit.Buffs.Any(b => b.CancelsCancelableBuffs && !b.Dead))
         {
-            Suppressed = true; // 进入压制状态，不生效，但持续时间仍在走
-        }
-        else
-        {
-            Apply(); // 直接生效
-            Suppressed = false;
+            return; // 进入压制状态，不生效，但持续时间仍在走
         }
 
         updateLastTime();
