@@ -2,7 +2,7 @@
 
 namespace Buffs
 {
-    public class Buff抵抗更新抑制可应用 : Buff
+    public class Buff更新抑制可应用 : Buff
     {
         public override void Init()
         {

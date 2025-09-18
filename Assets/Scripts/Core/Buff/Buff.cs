@@ -1,69 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using UnityEngine;
 
 [System.Serializable]
 public class Buff
 {
     public static List<Vector2Int> Round1 = new List<Vector2Int> { new Vector2Int(0, 0), new Vector2Int(1, 0), new Vector2Int(-1, 0), new Vector2Int(0, 1), new Vector2Int(0, -1) };
+
     public BuffData BuffData => Database.Instance.Get<BuffData>(Id);
     public int Id;
     public int Index;
 
-    [System.NonSerialized]
-    public Unit Unit;
+    [NonSerialized] public Unit Unit;
     public Skill Skill;
     protected Battle Battle => Skill.Unit.Battle;
 
     public CountDown Duration = new CountDown();
-
     public Effect LastingEffect;
-
     public Buff RelayBuff;
     public bool Dead;
 
-    List<Vector2Int> rounds;
+    private List<Vector2Int> rounds;
 
-    //入梦砖相关
+    // 入梦砖相关
     public bool CancelsCancelableBuffs { get; set; }
-    public bool MakesBuffsCancelable { get; set; } // 这个BUFF是否使施加者施加的BUFF变为可抵挡
-    public Unit OriginalCaster { get; set; } // 记录原始施加者
+    public bool MakesBuffsCancelable { get; set; }
+    public Unit OriginalCaster { get; set; }
+    public bool IsSuppressed { get; private set; }
+    private float RemainingTime; // 压制期间记录剩余时间
+    private float SuppressStartTime;
 
     public virtual void Init()
     {
         OriginalCaster = Skill?.Unit;
 
-        // 如果施加者有「BUFF可抵挡制造」效果 → 这个buff就是可抵挡的
-        if (OriginalCaster != null)
+        // 判断是否进入压制状态
+        if (BuffData.IsCancelable && Unit.Buffs.Any(b => b.CancelsCancelableBuffs && !b.Dead)
+            && OriginalCaster.Buffs.Any(b => b.MakesBuffsCancelable && !b.Dead))
         {
-            BuffData.IsCancelable = OriginalCaster.Buffs.Any(b => b.MakesBuffsCancelable && !b.Dead);
-        }
-        
-        // 自己是不是「BUFF抵挡制造者」
-        if (MakesBuffsCancelable)
-            MakesBuffsCancelable = true;
-
-        // 先检查目标是否能抵挡
-        if (BuffData.IsCancelable && Unit.Buffs.Any(b => b.CancelsCancelableBuffs && !b.Dead))
-        {
-            return; // 进入压制状态，不生效，但持续时间仍在走
+            Suppress(); // 压制
+            return;
         }
 
         updateLastTime();
+        InitEffect();
+        InitRounds();
+    }
 
-        // 持续特效（显示用）
+    private void InitEffect()
+    {
         if (BuffData.LastingEffect.HasValue)
         {
             LastingEffect = EffectManager.Instance.GetEffect(BuffData.LastingEffect.Value);
             LastingEffect.Init(Skill.Unit, Unit, Unit.Position, Unit.Direction);
             LastingEffect.SetLifeTime(float.PositiveInfinity);
         }
+    }
 
-        // 范围需求
+    private void InitRounds()
+    {
         if (BuffData.RoundNeed == 1)
         {
             rounds = new List<Vector2Int>();
@@ -93,26 +89,24 @@ public class Buff
 
     public virtual void Apply()
     {
-
+        if (IsSuppressed) return; // 压制状态下不生效
     }
 
     public virtual void Reset()
     {
-        updateLastTime();
-        if (BuffData.Upgrade != null)
+        if (!IsSuppressed)
         {
-            if (LastingEffect != null)
+            updateLastTime();
+            if (BuffData.Upgrade != null)
             {
-                EffectManager.Instance.ReturnEffect(LastingEffect);
-                LastingEffect = null;
+                if (LastingEffect != null)
+                {
+                    EffectManager.Instance.ReturnEffect(LastingEffect);
+                    LastingEffect = null;
+                }
+                Unit.AddBuff(BuffData.Upgrade.Value, Skill, Index);
             }
-            //Finish();
-            //Unit.RemoveBuff(this);
-            Unit.AddBuff(BuffData.Upgrade.Value, this.Skill, Index);
-        }
-        if (BuffData.IfSwitch)
-        {
-            Finish();
+            if (BuffData.IfSwitch) Finish();
         }
     }
 
@@ -120,34 +114,57 @@ public class Buff
     {
         float lastTime = BuffData.LastTime;
         if (Skill.SkillData.BuffLastTime != null)
-        {
             lastTime = Skill.SkillData.BuffLastTime.Value;
-        }
         Duration.Set(lastTime);
+    }
+
+    public void Suppress()
+    {
+        if (IsSuppressed) return;
+        IsSuppressed = true;
+        RemainingTime = Duration.value;
+        SuppressStartTime = Time.time;
+        if (LastingEffect != null)
+        {
+            EffectManager.Instance.ReturnEffect(LastingEffect);
+            LastingEffect = null;
+        }
+    }
+
+    public void UnSuppress()
+    {
+        if (!IsSuppressed) return;
+        IsSuppressed = false;
+        float elapsed = Time.time - SuppressStartTime;
+        RemainingTime = Mathf.Max(0, RemainingTime - elapsed);
+        Duration.Set(RemainingTime);
+        InitEffect();
     }
 
     public virtual void Update()
     {
-        if (!Enable())
+        // 压制期间只更新持续时间
+        if (BuffData.IsCancelable &&
+            Unit.Buffs.Any(b => b.CancelsCancelableBuffs && !b.Dead) &&
+            OriginalCaster.Buffs.Any(b => b.MakesBuffsCancelable && !b.Dead))
         {
-            // Buff 不生效，但仍然需要更新时间
-            if (BuffData.Resist)
+            if (!IsSuppressed)
             {
-                Duration.Update(SystemConfig.DeltaTime / Unit.Resist);
+                Suppress(); // 进入压制状态
             }
-            else
-                Duration.Update(SystemConfig.DeltaTime);
-
-            if (Duration.Finished())
+        }
+        else
+        {
+            if (IsSuppressed)
             {
-                Finish();
+                UnSuppress(); // 解除压制
             }
-            return;
         }
 
-        if (Skill.SkillData.BuffRely)//单位离开技能范围，或施法者死亡时，buff自动消失
+        if (Skill.SkillData.BuffRely)
         {
-            if (!Skill.Unit.Alive() || (Skill.SkillData.OpenTime > 0 && Skill.Opening.Finished() || (Skill.SkillData.UseType != SkillUseTypeEnum.被动 && !Skill.GetAttackTarget().Contains(Unit))))
+            if (!Skill.Unit.Alive() || (Skill.SkillData.OpenTime > 0 && Skill.Opening.Finished())
+                || (Skill.SkillData.UseType != SkillUseTypeEnum.被动 && !Skill.GetAttackTarget().Contains(Unit)))
             {
                 Finish();
             }
@@ -160,20 +177,17 @@ public class Buff
         }
 
         if (BuffData.Resist)
-        {
             Duration.Update(SystemConfig.DeltaTime / Unit.Resist);
-        }
         else
             Duration.Update(SystemConfig.DeltaTime);
-        if (Duration.Finished())
-        {
-            Finish();
-        }
+
+        if (Duration.Finished()) Finish();
+        Apply();
     }
 
-    public virtual void UpdateView()
+    public virtual void UpdateView() 
     {
-
+        
     }
 
     public virtual void Finish()
@@ -185,7 +199,5 @@ public class Buff
             EffectManager.Instance.ReturnEffect(LastingEffect);
             LastingEffect = null;
         }
-
-        //Log.Debug($"{Unit.UnitData.Id} 失去了buff {BuffData.Id}");
     }
 }
