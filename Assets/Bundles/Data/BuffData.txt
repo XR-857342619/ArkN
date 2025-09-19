@@ -273,8 +273,8 @@
 {"Id":"中立单位减速","Type":"数值变化","UnSourceCheck":1,"LastingEffect":22,"LastTime":0.2,"Data":{"t":["SpeedRate"]}}
 {"Id":"即死","Type":"即死"}
 {"Id":"移除眩晕","Type":"精确移除Buff","Data":{"Buffs":["眩晕"]}}
-{"Id":"Buff更新抑制","Type":"Buff更新抑制","LastingEffect":34,"IsCancelable":1}
-{"Id":"Buff更新抑制可应用","Type":"Buff更新抑制可应用","LastingEffect":34,"IsCancelable":1}
+{"Id":"Buff抵挡","Type":"Buff抵挡","LastingEffect":34,"NotCancelable":1}
+{"Id":"Buff可抵挡","Type":"Buff可抵挡","LastingEffect":34,"NotCancelable":1}
 {"Id":"延迟眩晕","Type":"延迟追加Buff","Data":{"Buffs":["眩晕"],"Delay":5}}
 {"Id":"停留添加眩晕","Type":"蕾缪安通缉类停留时间标记","Data":{"Time":3}}
 {"Id":"限伤1","Type":"重写类限伤","LastingEffect":34,"Data":{"Count":3}}

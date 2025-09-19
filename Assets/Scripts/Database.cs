@@ -20,7 +20,6 @@ public class Database
 
     Dictionary<Type, IConfig[]> dic = new Dictionary<Type, IConfig[]>();
     public List<int> globalSkills = new List<int>();
-
     public void Clear()
     {
         dic.Clear();
@@ -44,12 +43,14 @@ public class Database
             AddAsync<ModifyData>("ModifyData"),
             AddAsync<EffectData>("EffectData"),
             //AddAsync<RelicData>("RelicData"),
-            AddAsync<ContractData>("ContractData")
+            AddAsync<ContractData>("ContractData"),
             //AddAsync<EventData>("EventData"),
             //AddAsync<RewardData>("RewardData"),
-            //AddAsync<DungeonLevelData>("DungeonLevelData"),
+            //AddAsync<DungeonLevelData>("DungeonLevelData")
             //AddAsync<SystemData>("SystemData")
+            AddAsync<SpineData>("SpineData")
             );
+            //await SpineResourcePreloader.Instance.PreloadAsync();
         }
         catch (Exception e)
         {
@@ -79,6 +80,8 @@ public class Database
             //Add<RewardData>("RewardData");
             //Add<DungeonLevelData>("DungeonLevelData");
             //Add<SystemData>("SystemData");
+            Add<SpineData>("SpineData");
+            //SpineResourcePreloader.Instance.PreloadSync();
         }
         catch (Exception e)
         {
@@ -312,9 +315,9 @@ public class Database
         {
             //Debug.Log(name + "load from address");
             var operation = Addressables.LoadAssetAsync<TextAsset>(PathHelper.DataPath + name);
-            var txt= operation.WaitForCompletion().text;
             await operation.Task;
-            txt = operation.Result.text;
+            //var txt = operation.WaitForCompletion().text;
+            string txt = operation.Result?.text;
             Addressables.ReleaseInstance(operation);
         }
         if (string.IsNullOrEmpty(text)) return;

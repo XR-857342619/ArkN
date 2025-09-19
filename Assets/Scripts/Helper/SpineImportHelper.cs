@@ -4,6 +4,8 @@ using Spine.Unity;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Reflection;
+using UnityEditor.VersionControl;
 
 public class SpineImportHelper : MonoBehaviour
 {
@@ -54,6 +56,7 @@ public class SpineImportHelper : MonoBehaviour
             {
                 _baseMaterial = new Material(spineShader);
                 _baseMaterial.renderQueue = 3000;
+                _baseMaterial.SetFloat("_angle", 60);
             }
             else
             {
@@ -65,11 +68,11 @@ public class SpineImportHelper : MonoBehaviour
     /// <summary>
     /// 加载Spine资源（适配Unity 2021+的二进制加载方式）
     /// </summary>
-    public SkeletonDataAsset LoadSpineAssets(string key, string texturePath, string atlasTextPath, string skeletonBytePath)
+    public void LoadSpineAssets(string key, string texturePath, string atlasTextPath, string skeletonBytePath)
     {
         if (loadedSkeletons.TryGetValue(key, out SkeletonDataAsset existingAsset))
         {
-            return existingAsset;
+            return;
         }
 
         if (_baseMaterial == null)
@@ -78,7 +81,7 @@ public class SpineImportHelper : MonoBehaviour
             if (_baseMaterial == null)
             {
                 Debug.LogError("基础材质初始化失败，无法加载Spine资源");
-                return null;
+                return;
             }
         }
 
@@ -86,14 +89,14 @@ public class SpineImportHelper : MonoBehaviour
         {
             // 加载纹理
             Texture2D texture = LoadTexture(texturePath);
-            if (texture == null) return null;
+            if (texture == null) return;
 
             // 加载图集文本
             TextAsset atlasText = LoadTextAsset(atlasTextPath);
             if (atlasText == null)
             {
                 Destroy(texture);
-                return null;
+                return;
             }
 
             // 加载骨骼二进制数据（Unity 2021+兼容方式）
@@ -102,7 +105,7 @@ public class SpineImportHelper : MonoBehaviour
             {
                 Destroy(texture);
                 Destroy(atlasText);
-                return null;
+                return;
             }
 
             // 创建图集资产
@@ -116,39 +119,47 @@ public class SpineImportHelper : MonoBehaviour
                 Destroy(atlasAsset);
                 Destroy(texture);
                 Destroy(atlasText);
-                return null;
+                return;
             }
 
             // 创建并配置SkeletonDataAsset
-            SkeletonDataAsset skeletonAsset = ScriptableObject.CreateInstance<SkeletonDataAsset>();
-            skeletonAsset.skeletonJSON = null; // 确保不使用JSON
+            //SkeletonDataAsset skeletonAsset = ScriptableObject.CreateInstance<SkeletonDataAsset>();
+            SkeletonDataAsset skeletonAsset = SkeletonDataAsset.CreateRuntimeInstance(atlasText, atlasAsset, true, 0.003f * 0.9f);
+            skeletonAsset.skeletonJSON = new TextAsset(""); // 确保不使用JSON
+
+            var useBinaryField = typeof(SkeletonDataAsset).GetField("useBinary", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (useBinaryField != null)
+            {
+                useBinaryField.SetValue(skeletonAsset, true); // 告知 Spine 使用二进制数据
+            }
+
             skeletonAsset.atlasAssets = new[] { atlasAsset };
             skeletonAsset.fromAnimation = new string[0];
             skeletonAsset.toAnimation = new string[0];
             skeletonAsset.duration = new float[0];
 
+            skeletonAsset.InitializeWithData(skeletonData);
             // 使用反射设置内部的skeletonData（Spine 3.8兼容）
-            var dataField = typeof(SkeletonDataAsset).GetField("skeletonData",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (dataField != null)
-            {
-                dataField.SetValue(skeletonAsset, skeletonData);
-                loadedSkeletons[key] = skeletonAsset;
-                Debug.Log("设置SkeletonDataAsset的骨骼数据" + skeletonData.Name);
-                return skeletonAsset;
-            }
-            else
-            {
-                Debug.LogError("无法设置SkeletonDataAsset的骨骼数据，可能是Spine版本不兼容");
-                Destroy(skeletonAsset);
-                Destroy(atlasAsset);
-                return null;
-            }
+
+            //var dataField = typeof(SkeletonDataAsset).GetField("skeletonData", BindingFlags.NonPublic | BindingFlags.Instance);
+            //if (dataField != null)
+            //{
+            //    dataField.SetValue(skeletonAsset, skeletonData);
+            //    skeletonAsset.GetSkeletonData(true);
+            loadedSkeletons[key] = skeletonAsset;
+            //}
+            //else
+            //{
+            //    Debug.LogError("无法找到 skeletonData 字段，可能 Spine 版本不兼容（建议检查 Spine 插件版本）");
+            //    Destroy(skeletonAsset);
+            //    return;
+            //}
         }
         catch (Exception ex)
         {
             Debug.LogError($"加载Spine资源时发生错误: {ex.Message}");
-            return null;
+            TipManager.Instance.ShowTip($"加载Spine资源时发生错误: {ex.Message}");
+            return;
         }
     }
 
@@ -160,6 +171,7 @@ public class SpineImportHelper : MonoBehaviour
         if (!File.Exists(path))
         {
             Debug.LogError($"骨骼二进制文件不存在: {path}");
+            TipManager.Instance.ShowTip($"骨骼二进制文件不存在: {path}");
             return null;
         }
 
@@ -170,6 +182,7 @@ public class SpineImportHelper : MonoBehaviour
         catch (Exception ex)
         {
             Debug.LogError($"加载骨骼二进制文件错误 {path}: {ex.Message}");
+            TipManager.Instance.ShowTip($"加载骨骼二进制文件错误 {path}: {ex.Message}");
             return null;
         }
     }
@@ -186,6 +199,7 @@ public class SpineImportHelper : MonoBehaviour
             if (atlas == null)
             {
                 Debug.LogError("图集数据获取失败");
+                TipManager.Instance.ShowTip("图集数据获取失败");
                 return null;
             }
 
@@ -197,6 +211,7 @@ public class SpineImportHelper : MonoBehaviour
         catch (Exception ex)
         {
             Debug.LogError($"解析骨骼二进制数据失败: {ex.Message}");
+            TipManager.Instance.ShowTip($"解析骨骼二进制数据失败: {ex.Message}");
             return null;
         }
     }
@@ -207,6 +222,7 @@ public class SpineImportHelper : MonoBehaviour
         if (!File.Exists(path))
         {
             Debug.LogError($"纹理文件不存在: {path}");
+            TipManager.Instance.ShowTip($"纹理文件不存在: {path}");
             return null;
         }
 
@@ -223,12 +239,14 @@ public class SpineImportHelper : MonoBehaviour
             }
 
             Debug.LogError($"无法加载纹理: {path}");
+            TipManager.Instance.ShowTip($"无法加载纹理: {path}");
             Destroy(texture);
             return null;
         }
         catch (Exception ex)
         {
             Debug.LogError($"加载纹理错误 {path}: {ex.Message}");
+            TipManager.Instance.ShowTip($"加载纹理错误 {path}: {ex.Message}");
             return null;
         }
     }
@@ -238,6 +256,7 @@ public class SpineImportHelper : MonoBehaviour
         if (!File.Exists(path))
         {
             Debug.LogError($"文本文件不存在: {path}");
+            TipManager.Instance.ShowTip($"文本文件不存在: {path}");
             return null;
         }
 
@@ -252,6 +271,7 @@ public class SpineImportHelper : MonoBehaviour
         catch (Exception ex)
         {
             Debug.LogError($"加载文本错误 {path}: {ex.Message}");
+            TipManager.Instance.ShowTip($"加载文本错误 {path}: {ex.Message}");
             return null;
         }
     }
@@ -295,5 +315,77 @@ public class SpineImportHelper : MonoBehaviour
         {
             Destroy(_baseMaterial);
         }
+    }
+
+    public GameObject ReplaceSkeletonComponents(string UnitModle)
+    {
+        SkeletonDataAsset backData;
+        SkeletonDataAsset frontData;
+        bool hasBack = loadedSkeletons.TryGetValue(UnitModle + "_back", out backData);
+        bool hasFront = loadedSkeletons.TryGetValue(UnitModle, out frontData);
+
+        if (backData == null && frontData == null)
+        {
+            Debug.LogError("未找到对应骨骼资源，请检查资源名称是否正确");
+            return null;
+        }
+
+        GameObject targetObject = ResHelper.Instantiate("Assets/Res/Spine/" + (hasBack ? "NewUnit" : "NewEnemy"));
+        // 遍历目标对象的子节点
+        targetObject.transform.localScale = new Vector3(0.0027f, 0.0027f, 0.0027f);
+        //targetObject.transform.position += new Vector3(0, 0, -0.2f);
+        for (int i = 0; i < targetObject.transform.childCount; i++)
+        {
+            Transform child = targetObject.transform.GetChild(i);
+            SkeletonAnimation sa = child.GetComponent<SkeletonAnimation>();
+            
+            if (i == 0)
+                child.transform.localScale = new Vector3(500, 500, 1);
+
+            bool isFrontChild = (i == 1);
+            bool isBackChild = (i == 2);
+            if (!isFrontChild && !isBackChild || isBackChild && !hasBack)
+                continue;
+
+            // 4. 赋值新的 SkeletonDataAsset 并初始化
+            sa.skeletonDataAsset = hasBack && isBackChild ? backData : frontData;
+            SkeletonDataAsset assetToUse = hasBack && isBackChild ? backData : frontData;
+            if (assetToUse == null)
+            {
+                Debug.LogError($"无法为子节点 {child.name} 找到合适的SkeletonDataAsset");
+                continue;
+            }
+
+            sa.skeletonDataAsset = assetToUse;
+
+            try
+            {
+                AnimationStateData tempStateData = new AnimationStateData(assetToUse.GetSkeletonData(true));
+                if (tempStateData == null)
+                {
+                    Debug.LogError($"预加载警告：{UnitModle} 无法生成AnimationStateData");
+                    //return false;
+                }
+                // 验证通过：此时tempStateData有效，但无需保存（使用时再创建）
+                Debug.Log($"预加载成功：{UnitModle} 可生成有效的AnimationStateData");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"预加载失败：生成stateData时异常 → {ex.Message}");
+                //return false;
+            }
+
+            sa.Initialize(true); // 重置状态并初始化新数据
+            sa.skeletonDataAsset.scale = 0.003f * 0.9f;
+
+            Debug.Log($"已替换子节点 {child.name} 的Spine动画资源: {frontData.name}");
+        }
+
+        //if (hasBack)
+        //    targetObject.AddComponent<PlayerUnitModel>();
+        //else
+        //    targetObject.AddComponent<SpineModel>();
+
+        return targetObject;
     }
 }

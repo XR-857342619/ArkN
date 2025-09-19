@@ -12,6 +12,7 @@ public class SpineModel : UnitModel
     protected Renderer Renderer;
     protected MaterialPropertyBlock mpb;
     string[] nowAnimations;
+    public bool isNew = false;
     //public bool hide_model = false;
 
     public Transform Shadow;
@@ -34,7 +35,7 @@ public class SpineModel : UnitModel
         nowAnimations = Unit.UnitData.DefaultAnimation;
         SkeletonAnimation.SkeletonDataAsset.GetAnimationStateData().DefaultMix = 0f;
         updateState();
-        Shadow.localScale = Vector3.one * unit.UnitData.ModelScale;
+        Shadow.localScale = isNew ? new Vector3(380, 330, 380) * unit.UnitData.ModelScale : Vector3.one * unit.UnitData.ModelScale;
     }
 
     public void LateUpdate()
@@ -73,7 +74,7 @@ public class SpineModel : UnitModel
         }
         SkeletonAnimation.transform.localScale = new Vector3(Unit.ScaleX, 1, 1) * Unit.UnitData.ModelScale;
         if (Unit.Height > 0) SkeletonAnimation.transform.localPosition = new Vector3(0, Unit.Height, Unit.Height * 0.45f);//没什么道理的z轴偏移
-        if (Mathf.Abs(Unit.Height - 0) < 0.01f && Unit is Units.干员) SkeletonAnimation.transform.localPosition = new Vector3(0, 0, -0.2f);
+        if (Mathf.Abs(Unit.Height - 0) < 0.01f && Unit is Units.干员) SkeletonAnimation.transform.localPosition = new Vector3(0, 0, isNew ? -72 : -0.2f);
         if (Unit.State == StateEnum.Default)
         {
             return;

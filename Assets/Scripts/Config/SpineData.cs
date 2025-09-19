@@ -6,7 +6,7 @@ public class SpineData : IConfig
       public string FrontAtlasPath;
       public string FrontPngPath;
       public string FrontSkelPath;
-      public string? BackAtlasPath;
-      public string? BackPngPath;
-      public string? BackSkelPath;
+      public string BackAtlasPath;
+      public string BackPngPath;
+      public string BackSkelPath;
 }

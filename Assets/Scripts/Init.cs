@@ -32,12 +32,12 @@ public class Init : MonoBehaviour
         AudioManager.Instance.PlayBackgroundAudio("main");
         //Debug.Log(Database.Instance.Get<UnitData>(0).Id);
         //SpineImportHelper.Instance.Init();
-        SpineImportHelper.Instance.LoadSpineAssets(
-            "char_4179_monstr_back",
-            "D:\\UnityWork\\zhou-master\\Assets\\StreamingAssets\\Spine\\char_4179_monstr\\back\\char_4179_monstr.png",
-            "D:\\UnityWork\\zhou-master\\Assets\\StreamingAssets\\Spine\\char_4179_monstr\\back\\char_4179_monstr.atlas.txt",
-            "D:\\UnityWork\\zhou-master\\Assets\\StreamingAssets\\Spine\\char_4179_monstr\\back\\char_4179_monstr.skel.bytes"
-            );
+        //SpineImportHelper.Instance.LoadSpineAssets(
+        //    "丰川祥子",
+        //    "D:\\UnityWork\\zhou-master\\Assets\\StreamingAssets\\Spine\\丰川祥子\\back\\oblvns.png",
+        //    "D:\\UnityWork\\zhou-master\\Assets\\StreamingAssets\\Spine\\丰川祥子\\back\\oblvns.atlas.txt",
+        //    "D:\\UnityWork\\zhou-master\\Assets\\StreamingAssets\\Spine\\丰川祥子\\back\\oblvns.skel.bytes"
+        //    );
         var battleUI = UIManager.Instance.ChangeView<MainUI.UI_Main>(MainUI.UI_Main.URL);
         //OpenFilePanel();
         //StartBattle(new BattleInput()

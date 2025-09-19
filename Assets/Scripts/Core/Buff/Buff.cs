@@ -54,8 +54,8 @@ public class Buff
         //{
         //    return; // 进入压制状态，不生效，但持续时间仍在走
         //}
-
         updateLastTime();
+        //Log.Debug(Unit.UnitData.Name + "获取了buff: " + BuffData.Id + "持续时间" + Duration.value);
         // 持续特效（显示用）
         if (BuffData.LastingEffect.HasValue)
         {
@@ -80,8 +80,14 @@ public class Buff
         if (Unit.Buffs.Any(x => x is Buffs.Buff抵挡) && SourceUnit.Buffs.Any(x => x is Buffs.Buff可抵挡) && !BuffData.NotCancelable)
         {
             Buffs.Buff抵挡 blockbuff = (Buffs.Buff抵挡)Unit.Buffs.First(x => x is Buffs.Buff抵挡);
+            if (blockbuff.Duration.value  == 0)
+                return;
+            //Log.Debug(Unit.UnitData.Name + "抵挡了" + BuffData.Id);
             if (Duration.value > blockbuff.Duration.value)
+            {
+                //Log.Debug(BuffData.Id + "生效延后" + blockbuff.Duration.value + "秒" + "持续" + (Duration.value - blockbuff.Duration.value) + "秒");
                 blockbuff.AddBuff(new object[] { Id, Skill, Index, Duration.value - blockbuff.Duration.value });
+            }
             Finish();
         }
     }
@@ -110,9 +116,12 @@ public class Buff
         if ((Unit.Buffs.Any(x => x is Buffs.Buff抵挡) && SourceUnit.Buffs.Any(x => x is Buffs.Buff可抵挡)) && !BuffData.NotCancelable)
         {
             Buffs.Buff抵挡 blockbuff = (Buffs.Buff抵挡)Unit.Buffs.First(x => x is Buffs.Buff抵挡);
-            if (Duration.value > blockbuff.Duration.value)
-                blockbuff.AddBuff(new object[] { Id, Skill, Index, Duration.value - blockbuff.Duration.value });
-            Finish();
+            if (blockbuff.Duration.value != 0)
+            {
+                if (Duration.value > blockbuff.Duration.value)
+                    blockbuff.AddBuff(new object[] { Id, Skill, Index, Duration.value - blockbuff.Duration.value });
+                Finish();
+            }
         }
         if (BuffData.Upgrade != null)
         {

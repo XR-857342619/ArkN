@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Linq;
 
 namespace Buffs
 {
@@ -6,7 +7,12 @@ namespace Buffs
     {
         public void Modify(DamageInfo damageInfo)
         {
-            damageInfo.FinalDamage = 0;
+            //Log.Debug("Buff可抵挡伤害重写");
+            if (damageInfo.Target.Buffs.Any(x => x.GetType() == typeof(Buff抵挡)))
+            {
+                damageInfo.Attack = 0;
+                damageInfo.Avoid = true;
+            }
         }
     }
 }

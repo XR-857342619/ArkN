@@ -26,6 +26,7 @@ namespace Buffs
         {
             foreach (var buff in buffs)
             {
+                //Log.Debug(Unit.UnitData.Name + "重新获得了" + buff[1] + "持续" + buff[3] + "秒");
                 Unit.AddBuff((int)buff[0], (Skill)buff[1], (int)buff[2], (float)buff[3]);
             }
             base.Finish();
