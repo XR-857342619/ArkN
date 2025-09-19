@@ -42,7 +42,7 @@ namespace MapBuilderUI
             m_InitCost.text = MapInfo.InitCost.ToString();
             m_BuildCount.text = MapInfo.MaxBuildCount.ToString();
             m_MaxCost.text = MapInfo.MaxCost.ToString();
-            m_NoBuildLimit.selected = !MapInfo.NoBuildLimit;
+            m_NoBuildLimit.selected = MapInfo.NoBuildLimit;
             m_BoxCount.text = MapInfo.BoxCount.ToString();
             for (int i = 0; i < m_Contract.numItems; i++)
             {
