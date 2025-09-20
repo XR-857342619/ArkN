@@ -277,13 +277,13 @@ namespace BattleUI
                 //Log.Debug(head.width);
                 //Log.Debug(this.width);
                 //Log.Debug(units.IndexOf(group));
-                //Log.Debug(this.width - (units.IndexOf(group) * width));
+                //Log.Debug(this.width - ((units.IndexOf(group) + 2) * width));
                 head.xy = new UnityEngine.Vector2(
-//# if UNITY_EDITOR
-                    this.width - ((units.IndexOf(group) + 1)* width),
-//# else
-                    //this.width - ((units.IndexOf(group) - 1) * width),
-//# endif
+# if UNITY_EDITOR
+                    this.width - ((units.IndexOf(group) + 2)* width),
+#else
+                    Screen.width - ((units.IndexOf(group) + 1) * width),
+#endif
                     //Screen.width - (units.IndexOf(group)) * width,
                     group.FirstOrDefault() == selectedUnit ? height - 50f : height);
                 head.onClick.Set(() => clickUnit(group.FirstOrDefault()));

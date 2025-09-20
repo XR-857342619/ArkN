@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEditor.VersionControl;
 
 public class SpineImportHelper : MonoBehaviour
 {
@@ -358,27 +357,10 @@ public class SpineImportHelper : MonoBehaviour
 
             sa.skeletonDataAsset = assetToUse;
 
-            try
-            {
-                AnimationStateData tempStateData = new AnimationStateData(assetToUse.GetSkeletonData(true));
-                if (tempStateData == null)
-                {
-                    Debug.LogError($"预加载警告：{UnitModle} 无法生成AnimationStateData");
-                    //return false;
-                }
-                // 验证通过：此时tempStateData有效，但无需保存（使用时再创建）
-                Debug.Log($"预加载成功：{UnitModle} 可生成有效的AnimationStateData");
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"预加载失败：生成stateData时异常 → {ex.Message}");
-                //return false;
-            }
-
             sa.Initialize(true); // 重置状态并初始化新数据
             sa.skeletonDataAsset.scale = 0.003f * 0.9f;
 
-            Debug.Log($"已替换子节点 {child.name} 的Spine动画资源: {frontData.name}");
+            //Debug.Log($"已替换子节点 {child.name} 的Spine动画资源: {frontData.name}");
         }
 
         //if (hasBack)

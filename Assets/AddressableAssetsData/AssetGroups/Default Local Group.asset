@@ -8893,10 +8893,6 @@ MonoBehaviour:
     m_Address: Assets/Bundles/Data/Map/Main/Exusiai
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: c2c7b1a923518054892ddb068c32296c
-    m_Address: Assets/Bundles/Data/Map/Main/config
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   - m_GUID: 2476da727f6e9d04caac8ebd100df4fe
     m_Address: Assets/Bundles/Units/token_10050_monstr_prosts
     m_ReadOnly: 0

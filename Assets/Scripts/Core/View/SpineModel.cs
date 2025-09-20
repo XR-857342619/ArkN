@@ -107,7 +107,7 @@ public class SpineModel : UnitModel
         {
             if (nowAnimations.Length >= 3 && nowAnimation != nowAnimations[2] && SkeletonAnimation.Skeleton.Data.FindAnimation(nowAnimations[2]) != null)
             {
-                Debug.Log($"{Unit.UnitData.Id}播放切出动画{nowAnimations[2]} ,至{animations[0]}");
+                //Debug.Log($"{Unit.UnitData.Id}播放切出动画{nowAnimations[2]} ,至{animations[0]}");
                 SkeletonAnimation.state.AddAnimation(0, nowAnimations[2], false, 0);
             }
         }

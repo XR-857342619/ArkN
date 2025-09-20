@@ -167,7 +167,7 @@ public class SkillTargetFilter
         // 使用DataTable计算表达式
         var dataTable = new System.Data.DataTable();
         var result = dataTable.Compute(expression, "");
-        Log.Debug(result);
+        //Log.Debug(result);
 
         // 处理布尔结果
         if (result is bool boolResult)

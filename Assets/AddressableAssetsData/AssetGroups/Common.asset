@@ -22,7 +22,7 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: 522f03282fd79be47b306e2ef4b593fd
-    m_Address: Assets/Plugins/Spine/Runtime/spine-unity/Shaders/Spine-Skeleton-Tint.shader
+    m_Address: Assets/Plugins/Spine/Runtime/spine-unity/Shaders/Spine-Skeleton-Tint
     m_ReadOnly: 0
     m_SerializedLabels: []
   m_ReadOnly: 0

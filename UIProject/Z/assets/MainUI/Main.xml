@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080">
   <controller name="settingC" exported="true" pages="0,,1," selected="1"/>
-  <controller name="subSetting" exported="true" pages="0,,1,,2,,3," selected="2"/>
+  <controller name="subSetting" exported="true" pages="0,,1,,2,,3," selected="0"/>
   <displayList>
     <image id="n25_r5qv" name="n25" src="r5qvr53" fileName="场景_视野.png" xy="0,0" size="1920,1080" aspect="true">
       <relation target="" sidePair="width-width,height-height,center-center,middle-middle"/>
@@ -62,7 +62,7 @@
     <text id="n34_a7vb" name="n34" xy="420,38" size="182,76" group="n19_10uur" fontSize="50" autoSize="none" text="设置">
       <relation target="n31_a7vb" sidePair="left-right%"/>
     </text>
-    <component id="n42_a7vb" name="n42" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,200" size="275,83" group="n44_a7vb">
+    <component id="n42_a7vb" name="n42" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,200" size="275,83" group="n44_a7vb" grayed="true">
       <gearLook controller="subSetting" pages="0,1,2" values="1,0,1,1|1,0,0,1|1,0,0,1" default="1,0,1,1"/>
       <relation target="" sidePair="left-left%"/>
       <relation target="n29_a7vb" sidePair="top-top%"/>
@@ -83,8 +83,8 @@
       <relation target="n15_10uur" sidePair="right-right%"/>
       <Button title="导表设置" titleFontSize="50" selectedTitle="导表设置" controller="subSetting" page="2"/>
     </component>
-    <component id="n105_pf8n" name="importSpine" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,509" size="275,83" group="n44_a7vb">
-      <gearLook controller="subSetting" pages="0,2" values="1,0,0,1|1,0,0,1" default="1,0,1,1"/>
+    <component id="n105_pf8n" name="importSpine" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,509" size="275,83" group="n44_a7vb" visible="false" alpha="0" touchable="false" grayed="true">
+      <gearLook controller="subSetting" pages="0,2,3" values="0,0,1,0|1,0,0,1|1,0,1,0" default="1,0,1,1"/>
       <relation target="n42_a7vb" sidePair="top-top%"/>
       <relation target="" sidePair="left-left%"/>
       <relation target="n15_10uur" sidePair="right-right%"/>
