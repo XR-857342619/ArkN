@@ -74,7 +74,7 @@ namespace Bullets
                 if (Target != null && Target.Alive())
                 {
                     // 对目标造成伤害，使用LogosBulletAttack作为伤害值
-                    Skill._Hit(Target, this, LogosBulletAttack);
+                    Skill.Hit(Target, LogosBulletAttack, this, true);
                     Log.Debug("{ LogosBulletAttack }");
                     Finish();
                 }

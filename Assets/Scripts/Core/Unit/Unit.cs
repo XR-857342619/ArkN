@@ -236,7 +236,7 @@ public class Unit
 
         try
         {
-            float hpDown = MaxHp - Hp;
+            float hpRate = Hp/MaxHp;
             PushPower = 0;
             SpeedAdd = SpeedRate = 0;
             HpAdd = HpRate = HpAddFin = HpRateFin = 0;
@@ -269,7 +269,7 @@ public class Unit
             Speed = (SpeedBase + SpeedAdd) * (1 + SpeedRate) / 2;
             if (Speed < SpeedBase * 0.1f) Speed = SpeedBase * 0.1f;
             MaxHp = ((HpBase + HpAdd) * (1 + HpRate) + HpAddFin) * (1 + HpRateFin);
-            Hp = MaxHp - hpDown;
+            Hp = MaxHp * hpRate;
             Attack = ((AttackBase + AttackAdd) * (1 + AttackRate) + AttackAddFin) * (1 + AttackRateFin);
             if (Attack < 0) Attack = 0;
             Defence = ((DefenceBase + DefenceAdd) * (1 + DefenceRate) + DefenceAddFin) * (1 + DefenceRateFin);
@@ -921,14 +921,22 @@ public class Unit
                 //Debug.Log(oprator.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
                 OpDamageInfo opDamageInfo = BattleManager.Instance.OpDamageInfos.Find(x => x.UnitId == oprator.UnitData.Id);
                 if (damageInfo.DamageType == DamageTypeEnum.Normal)
+                {
                     opDamageInfo.NomalDamage += damageInfo.FinalDamage;
+                    opDamageInfo.TotalDamage += damageInfo.FinalDamage;
+                }
                 else if (damageInfo.DamageType == DamageTypeEnum.Magic)
+                {
                     opDamageInfo.MagicDamage += damageInfo.FinalDamage;
+                    opDamageInfo.TotalDamage += damageInfo.FinalDamage;
+                }
                 else if (damageInfo.DamageType == DamageTypeEnum.Real || damageInfo.DamageType == DamageTypeEnum.Element)
+                {
                     opDamageInfo.RealDamage += damageInfo.FinalDamage;
+                    opDamageInfo.TotalDamage += damageInfo.FinalDamage;
+                }
                 else
-                    Debug.LogError("未知伤害类型");
-                opDamageInfo.TotalDamage += damageInfo.FinalDamage;
+                    Debug.LogError("未知伤害类型,不计入统计");
             }
             //Debug.Log(unit.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
         }

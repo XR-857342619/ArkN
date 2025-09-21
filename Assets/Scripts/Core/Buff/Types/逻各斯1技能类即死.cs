@@ -13,7 +13,7 @@ namespace Buffs
         private bool forceKill;
         private float healPercentage;
         private float targetOriginalHp;
-        private Skill chainSkill = new Skill();
+        //private Skill chainSkill = new Skill();
         private List<Unit> validTargets = new List<Unit>();
         public override void Init()
         {
@@ -132,7 +132,7 @@ namespace Buffs
                 int index = base.Battle.Random.Next(0, this.validTargets.Count);
                 Unit selectedTarget = this.validTargets[index];
 
-                Bullet bullet = base.Battle._CreateBullet(
+                Bullet bullet = base.Battle.CreateBullet(
                     Database.Instance.GetIndex<BulletData>("罗1子弹"),
                     new Vector3(this.Unit.Position.x, 0.5f, this.Unit.Position.z),
                     new Vector3(selectedTarget.Position.x, 0.5f, selectedTarget.Position.z),

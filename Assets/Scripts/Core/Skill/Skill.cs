@@ -313,64 +313,6 @@ public class Skill
         }
         return true;
     }
-
-    public virtual bool _CanUseTo(Unit target)
-    {
-        if (target == null) return false;
-        if (!SkillData.MidLimit && target.GetType() == typeof(Units.中立单位)) return false;
-        if ((SkillData.IfHeal && !SkillData.DamageWithFrameRate) && ((!target.CanBeHeal && !target.HealOnly.Contains(Unit.Id)) || target.Hp == target.MaxHp) && (target != Unit)) return false;
-        if (target.IfSleep && !SkillData.IgnoreSleep) return false;
-        if (!target.IfSelectable && !SkillData.IgnoreSelectable) return false;
-        if ((SkillData.TargetTeam >> target.Team) % 2 == 0) return false;
-        if (target.UnitData.StopAttackOnly && target != Unit)
-        {
-            if (Unit is Units.干员 u && !u.StopUnits.Contains(target)) return false;
-            if (Unit is Units.敌人 u1 && u1.StopUnit != (target)) return false;
-            if (Unit is Units.中立单位) return false;
-        }
-        switch (SkillData.TargetFilter)
-        {
-            case SkillTargetFilterEnum.仅自己:
-                if (target != Unit) return false;
-                break;
-            case SkillTargetFilterEnum.自己以外:
-                if (target == Unit) return false;
-                break;
-            case SkillTargetFilterEnum.召唤物:
-                if (target != Unit && !(Unit as Units.干员).Children.Contains(target)) return false;
-                break;
-            case SkillTargetFilterEnum.仅召唤:
-                if (!(Unit as Units.干员).Children.Contains(target)) return false;
-                break;
-        }
-        if (SkillData.SelfHpLess != 0 && Unit.Hp / Unit.MaxHp > SkillData.SelfHpLess) return false;
-        if (SkillData.TargetHpLess != 0 && target.Hp / target.MaxHp > SkillData.TargetHpLess) return false;
-        if (SkillData.TargetHpMore != 0 && target.Hp / target.MaxHp < SkillData.TargetHpMore) return false;
-        if (SkillData.UnitLimit != null && !SkillData.UnitLimit.Contains(target.Id)) return false;
-        if (SkillData.ProfessionLimit != UnitTypeEnum.无 && SkillData.ProfessionLimit != target.UnitData.Profession)
-            return false;
-        if (!SkillData.AttackFly && target.Height > 0) return false;
-        if (!target.Alive() && !SkillData.DeadFind) return false;
-        if ((!(SkillData.AntiHide || Unit.Team == target.Team)) && target.IfHide) return false;
-        if (SkillData.TargetDisableBuff != null)
-        {
-            if (SkillData.TargetDisableBuff.Any(x => target.Buffs.Any(y => y.Id == x))) return false;
-        }
-        if (SkillData.TargetEnableBuff != null)
-        {
-            if (SkillData.TargetEnableBuff.Any(x => target.Buffs.All(y => y.Id != x))) return false;
-        }
-        if (SkillData.RareLimit != 0 && target.UnitData.Rare != SkillData.RareLimit) return false;
-        if (SkillData.CostLimit != 0 && target.UnitData.Cost > SkillData.CostLimit) return false;
-        if (SkillData.PosLimit != 0)
-        {
-            if (target.NowGrid == null) return false;
-            if (SkillData.PosLimit == 1 && target.NowGrid.FarAttackGrid) return false;
-            if (SkillData.PosLimit == 2 && !target.NowGrid.FarAttackGrid) return false;
-        }
-        return true;
-    }
-
     public virtual void UpdateCooldown()
     {
         if (Cooldown.Update(SystemConfig.DeltaTime))
@@ -1055,7 +997,7 @@ public class Skill
         }
     }
 
-    public virtual void _Hit(Unit target, Bullet bullet = null, float fixedDamageValue = -1f)
+    public virtual void Hit(Unit target, float fixedDamageValue, Bullet bullet = null, bool ignorBuff = false)
     {
         if (SkillData.HitEffect != null)
         {
@@ -1086,8 +1028,8 @@ public class Skill
                 if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
                 foreach (var t in targets)
                 {
-                        _addBuff(t);
-
+                    if (!ignorBuff)
+                        addBuff(t);
                     if (SkillData.EffectEffect != null)
                     {
                         var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
@@ -1121,7 +1063,8 @@ public class Skill
                 foreach (var t in targets)
                 {
                     addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-                    _addBuff(t);
+                    if (!ignorBuff)
+                        addBuff(t);
                     if (SkillData.EffectEffect != null)
                     {
                         var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
@@ -1150,7 +1093,8 @@ public class Skill
             else
             {
                 addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-                _addBuff(target);
+                if (!ignorBuff)
+                    addBuff(target);
                 if (SkillData.EffectEffect != null)
                 {
                     var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
@@ -1191,7 +1135,8 @@ public class Skill
         else
         {
             addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-            _addBuff(target);
+            if (!ignorBuff)
+                addBuff(target);
         }
         removeBuff(target);
     }
@@ -1221,32 +1166,6 @@ public class Skill
             }
         }
     }
-
-    protected virtual void _addBuff(Unit target)
-    {
-        if (SkillData.Buffs != null)
-        {
-            for (int i = 0; i < SkillData.Buffs.Length; i++)
-            {
-                var buffChance = 0f;
-                if (SkillData.BuffChance != null && SkillData.BuffChance.Length > i) buffChance = SkillData.BuffChance[i];
-                if (buffChance == 0 || Battle.Random.NextDouble() < buffChance)
-                {
-                    int bufftype = SkillData.Buffs[i];
-
-                    // 检查是否为逻各斯1技能类即死buff
-                    BuffData buffData = Database.Instance.Get<BuffData>(bufftype);
-                    if (buffData != null && buffData.Type == "逻各斯1技能类即死")
-                    {
-                        continue; // 跳过这个buff
-                    }
-
-                    target.AddBuff(bufftype, this, i);
-                }
-            }
-        }
-    }
-
     protected virtual void removeBuff(Unit target)
     {
         if (SkillData.BuffRemoves != null)
@@ -1273,15 +1192,19 @@ public class Skill
     }
 
     protected List<Unit> tempTargets = new List<Unit>();
+    protected List<Unit> tempTargetsFromEvent = new List<Unit>();
+    protected List<Unit> tempTargetsFromAttackRange = new List<Unit>();
     public List<Unit> GetAttackTarget()
     {
         tempTargets.Clear();
+        tempTargetsFromEvent.Clear();
+        tempTargetsFromAttackRange.Clear();
         if (SkillData.UseEventUser && Battle.TriggerDatas.Count > 0)
         {
             //正在事件当中，技能去取事件目标
             var t = Battle.TriggerDatas.Peek().User;
             if (t != null && CanUseTo(t))
-                tempTargets.Add(t);
+                tempTargetsFromEvent    .Add(t);
         }
         if (SkillData.UseEventTarget && Battle.TriggerDatas.Count > 0)
         {
@@ -1289,7 +1212,7 @@ public class Skill
             //Debug.Log("正在事件"+ Battle.TriggerDatas.Peek().ToString() +"当中");
             var t = Battle.TriggerDatas.Peek().Target;
             if (t != null && CanUseTo(t))
-                tempTargets.Add(t);
+                tempTargetsFromEvent.Add(t);
         }
         //仅自己的情况下 优化一下
         if (tempTargets.Count == 0 && SkillData.TargetFilter == SkillTargetFilterEnum.仅自己)
@@ -1297,18 +1220,20 @@ public class Skill
             tempTargets.Add(Unit);
             return tempTargets;
         }
-        if (!SkillData.UseEventTarget && !SkillData.UseEventUser)
+        //if (!SkillData.UseEventTarget && !SkillData.UseEventUser)
+        //{
+        if (AttackPoints == null && !SkillData.AttackAreaWithMain)//根据攻击范围进行索敌
         {
-            if (AttackPoints == null && !SkillData.AttackAreaWithMain)//根据攻击范围进行索敌
-            {
-                tempTargets.AddRange(Battle.FindAll(Unit.Position2, SkillData.AttackRange * Unit.AttackRange, SkillData.TargetTeam, !SkillData.DeadFind));
-            }
-            else
-            {
-                var attackPoints = SkillData.AttackAreaWithMain ? Unit.GetNowAttackSkill().AttackPoints : AttackPoints;
-                tempTargets.AddRange(Battle.FindAll(attackPoints, SkillData.TargetTeam, !SkillData.DeadFind));
-            }
+            tempTargetsFromAttackRange.AddRange(Battle.FindAll(Unit.Position2, SkillData.AttackRange * Unit.AttackRange, SkillData.TargetTeam, !SkillData.DeadFind));
         }
+        else
+        {
+            var attackPoints = SkillData.AttackAreaWithMain ? Unit.GetNowAttackSkill().AttackPoints : AttackPoints;
+            tempTargetsFromAttackRange.AddRange(Battle.FindAll(attackPoints, SkillData.TargetTeam, !SkillData.DeadFind));
+        }
+        
+        if (tempTargetsFromEvent.Count > 0 && tempTargetsFromAttackRange.Count > 0)
+            tempTargets.AddRange(tempTargetsFromEvent.Where(x => tempTargetsFromAttackRange.Contains(x)));
 
         if (SkillData.SkillCondition != "" && SkillData.SkillCondition != null && Casting.Finished())
         {
@@ -1667,7 +1592,7 @@ public class Skill
         Battle.TriggerDatas.Pop();
     }
 
-    protected DamageInfo GetDamageInfo(Unit target, float damageRate = 1)
+    protected DamageInfo GetDamageInfo(Unit target, float damageRate = 1, bool fixedDamage = false)
     {
         var cooldown = SkillData.Cooldown;
         if (cooldown < SystemConfig.DeltaTime) cooldown = SystemConfig.DeltaTime;
@@ -1718,7 +1643,11 @@ public class Skill
         return result;
     }
 
-    public DamageInfo _GetDamageInfo(Unit target, float baseDamage, float damageRate = 1)
+    //<summary>
+    //待优化
+    //</summary>
+# region
+    public DamageInfo _GetLogosDamageInfo(Unit target, float fixedDamage, float damageRate = 1)
     {
         var cooldown = SkillData.Cooldown;
         if (cooldown < SystemConfig.DeltaTime) cooldown = SystemConfig.DeltaTime;
@@ -1731,51 +1660,7 @@ public class Skill
             DamageRate = damageRate * (SkillData.DamageWithFrameRate ? cooldown : 1),
             DamageType = SkillData.DamageType,
             MinDamageRate = Unit.UnitData.MinDamageRate,
-        };
-
-        // 设置基础伤害值
-        result.Attack = baseDamage;
-
-        // 应用各种伤害修正
-        foreach (var buff in Unit.Buffs)
-        {
-            if (buff is ISelfDamageModify damageModify)
-            {
-                damageModify.Modify(result);
-            }
-        }
-        foreach (var buff in target.Buffs)
-        {
-            if (buff is IDamageModify damageModify)
-            {
-                damageModify.Modify(result);
-            }
-        }
-        foreach (var modify in Modifies)
-        {
-            if (modify is IDamageModify damageModify)
-            {
-                damageModify.Modify(result);
-            }
-        }
-
-        return result;
-    }
-
-    public DamageInfo _GetLogosDamageInfo(Unit target, float baseDamage, float damageRate = 1)
-    {
-        var cooldown = SkillData.Cooldown;
-        if (cooldown < SystemConfig.DeltaTime) cooldown = SystemConfig.DeltaTime;
-
-        var result = new DamageInfo()
-        {
-            Target = target,
-            AllCount = tempTargets.Count,
-            Source = this,
-            DamageRate = damageRate * (SkillData.DamageWithFrameRate ? cooldown : 1),
-            DamageType = SkillData.DamageType,
-            MinDamageRate = Unit.UnitData.MinDamageRate,
-            Attack = baseDamage // 直接使用传入的基础伤害
+            Attack = fixedDamage // 直接使用传入的基础伤害
         };
 
         // 应用各种伤害修正
@@ -1803,6 +1688,7 @@ public class Skill
 
         return result;
     }
+#endregion
 
     public void DoUpgrade(int skillId)
     {
