@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080" opaque="false">
-  <controller name="state" pages="0,,1,,5,,2,,3,,4,,6," selected="6">
+  <controller name="state" pages="0,,1,,5,,2,,3,,4,,6," selected="0">
     <remark page="0" value="创建地图"/>
     <remark page="1" value="主页"/>
     <remark page="2" value="主页_地块模式"/>
@@ -9,14 +9,14 @@
     <remark page="5" value="装置配置"/>
     <remark page="6" value="选择地板"/>
   </controller>
-  <controller name="sure2" pages="0,,1," selected="1"/>
+  <controller name="sure2" pages="0,,1," selected="0"/>
   <displayList>
     <graph id="n20_jh39" name="n20" xy="0,0" size="1920,1080" type="rect" lineSize="0" fillColor="#ff666666">
       <gearDisplay controller="state" pages="0"/>
     </graph>
     <component id="n4_ei15" name="StartPage" src="ei151" fileName="MapInfo.xml" xy="0,3">
       <gearDisplay controller="state" pages="0"/>
-      <relation target="" sidePair="width-width%,height-height%"/>
+      <relation target="" sidePair="width-width%,height-height%,center-center%,middle-middle%"/>
     </component>
     <component id="n0_ei15" name="DoPath" src="ei156" fileName="btn.xml" xy="27,15">
       <gearDisplay controller="state" pages="1,5"/>
@@ -59,7 +59,7 @@
     </component>
     <component id="n19_ei15" name="PathPage" src="ei158" fileName="PathPage.xml" xy="0,0">
       <gearDisplay controller="state" pages="2"/>
-      <relation target="" sidePair="center-center%,middle-middle%"/>
+      <relation target="" sidePair="width-width%,height-height%,center-center%,middle-middle%"/>
     </component>
     <component id="n21_jh39" name="exit" src="ei156" fileName="btn.xml" xy="27,997">
       <gearDisplay controller="state" pages="0,1,5"/>

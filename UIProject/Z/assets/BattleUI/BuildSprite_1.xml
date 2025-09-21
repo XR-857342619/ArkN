@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="182,188" extention="Label">
+  <controller name="typeControl" pages="9,,0,,1,,2,,3,,4,,5,,6,,7," selected="8">
+    <remark page="1" value="先锋"/>
+    <remark page="2" value="近卫"/>
+    <remark page="3" value="狙击"/>
+    <remark page="4" value="重装"/>
+    <remark page="5" value="术士"/>
+    <remark page="6" value="妨碍"/>
+    <remark page="7" value="医疗"/>
+    <remark page="8" value="特种"/>
+  </controller>
+  <controller name="cooldown" pages="0,,1," selected="0"/>
+  <controller name="canUse" pages="0,,1," selected="1"/>
+  <displayList>
+    <image id="n1_z9w3" name="n1" src="hwogsx" fileName="sprite_charactercard_underframe.png" xy="0,-7" size="182,197" alpha="0.5" color="#fcfcfc">
+      <relation target="" sidePair="width-width%,height-height%,center-center%,middle-middle%"/>
+    </image>
+    <component id="n2_z9w3" name="headIcon" src="kbte3o" fileName="Head.xml" xy="0,1" size="181,185">
+      <relation target="" sidePair="center-center%,middle-middle%"/>
+    </component>
+    <image id="n3_z9w3" name="n3" src="hwogsw" fileName="sprite_charactercard_choesn.png" xy="-9,-8">
+      <relation target="" sidePair="center-center%,middle-middle%"/>
+    </image>
+    <image id="n4_z9w3" name="n4" src="hwogsy" fileName="sprite_rarity_6.png" xy="-1,144" size="185,47">
+      <relation target="" sidePair="center-center%,bottom-top%"/>
+    </image>
+    <image id="n5_z9w3" name="n5" src="hwogss" fileName="sprite_respawn_back.png" xy="0,1" size="182,188">
+      <gearDisplay controller="cooldown" pages="1"/>
+      <relation target="" sidePair="center-center%,middle-middle%"/>
+    </image>
+    <text id="n6_z9w3" name="resetTime" xy="90,100" pivot="0.5,0.5" anchor="true" size="55,36" fontSize="26" color="#ffffff" align="center" text="36.5">
+      <gearDisplay controller="cooldown" pages="1"/>
+      <relation target="" sidePair="center-center%,middle-middle%"/>
+    </text>
+    <graph id="n7_z9w3" name="n7" xy="46,-1" size="90,46" type="rect" lineSize="0" fillColor="#7f000000">
+      <relation target="" sidePair="center-center%,top-top"/>
+    </graph>
+    <component id="n8_z9w3" name="bar" src="kbte3p" fileName="circleBar.xml" xy="41,53">
+      <gearDisplay controller="cooldown" pages="1"/>
+      <relation target="" sidePair="center-center%,middle-middle%"/>
+      <ProgressBar max="100"/>
+    </component>
+    <text id="n9_z9w3" name="cost" xy="102,4" size="33,36" fontSize="26" color="#ffffff" text="19">
+      <relation target="n7_z9w3" sidePair="right-right%"/>
+    </text>
+    <loader id="n10_z9w3" name="n10" xy="46,-1" size="50,50" url="ui://k4mja8t1kbtea" align="center" vAlign="middle" fill="scale">
+      <gearIcon controller="typeControl" pages="9,0,2,3,4,5,6,7" values="|ui://k4mja8t1kbte8|ui://k4mja8t1kbte9|ui://k4mja8t1kbte4|ui://k4mja8t1kbte6|ui://k4mja8t1kbte3|ui://k4mja8t1kbte7|ui://k4mja8t1kbtea" default="ui://k4mja8t1kbte5"/>
+      <relation target="n7_z9w3" sidePair="left-left%"/>
+    </loader>
+    <text id="n11_z9w3" name="count" xy="150,148" pivot="1,0" size="32,36" fontSize="26" color="#ffffff" align="right" vars="true" text="x{n=1}">
+      <relation target="" sidePair="right-right%,bottom-bottom%"/>
+    </text>
+    <graph id="n12_z9w3" name="n12" xy="0,2" size="182,187" type="rect" lineSize="0" fillColor="#7f000000">
+      <gearDisplay controller="canUse" pages="0"/>
+      <relation target="" sidePair="center-center%,middle-middle%,rightext-right%,topext-top%,bottomext-bottom%,leftext-left%"/>
+    </graph>
+  </displayList>
+</component>

@@ -3,7 +3,7 @@
   <controller name="selectEnemy" pages="0,,1," selected="0"/>
   <controller name="Hide" pages="0,,1," selected="0"/>
   <controller name="Preview" pages="0,,1," selected="0"/>
-  <controller name="PreviewBtn" pages="0,,1," selected="0"/>
+  <controller name="PreviewBtn" pages="0,,1," selected="1"/>
   <displayList>
     <graph id="n19_dy0m" name="n19" xy="8,73" size="1200,852" alpha="0.6" type="rect" fillColor="#ffcccccc">
       <gearDisplay controller="Hide" pages="0"/>
@@ -53,32 +53,35 @@
     </component>
     <group id="n17_dy0m" name="n17" xy="0,0" size="1920,1080" advanced="true">
       <gearDisplay controller="selectEnemy" pages="1"/>
+      <relation target="" sidePair="width-width%,height-height%,center-center%,middle-middle%"/>
     </group>
     <component id="n20_dy0m" name="Hide" src="ei156" fileName="btn.xml" xy="513,10">
       <Button title="隐藏面板"/>
     </component>
-    <component id="n28_u7wg" name="progressBar" src="u7wgr6f" fileName="Slider1.xml" xy="210,934" size="1499,30" group="n38_u7wg" touchable="false">
+    <component id="n28_u7wg" name="progressBar" src="u7wgr6f" fileName="Slider1.xml" xy="210,933" size="1499,30" group="n38_u7wg" touchable="false">
       <gearDisplay controller="Preview" pages="1"/>
+      <relation target="" sidePair="center-center%"/>
       <Slider value="50" max="100"/>
     </component>
-    <component id="n35_u7wg" name="playBtn" src="u7wgr6m" fileName="Play.xml" xy="959,1022" pivot="0.5,0.5" anchor="true" group="n38_u7wg" controller="button,1">
+    <component id="n35_u7wg" name="playBtn" src="u7wgr6m" fileName="Play.xml" xy="959,1021" pivot="0.5,0.5" anchor="true" size="75,75" group="n38_u7wg" controller="button,1">
       <gearDisplay controller="Preview" pages="1"/>
+      <relation target="" sidePair="center-center%"/>
       <Button checked="true"/>
     </component>
-    <component id="n41_fji9" name="playSpeed" src="fji9r6s" fileName="Slider2.xml" xy="685,1007" size="160,30" group="n38_u7wg">
+    <component id="n41_fji9" name="playSpeed" src="fji9r6s" fileName="Slider2.xml" xy="685,1006" size="160,30" group="n38_u7wg">
       <gearDisplay controller="Preview" pages="1"/>
+      <relation target="" sidePair="center-center%"/>
       <Slider value="8" max="16" min="1"/>
     </component>
-    <component id="n40_axio" name="perview" src="axior6o" fileName="btn_1.xml" xy="1754,10" group="n38_u7wg">
+    <component id="n40_axio" name="perview" src="axior6o" fileName="btn_1.xml" xy="1754,9" size="156,50" group="n38_u7wg">
       <gearDisplay controller="PreviewBtn" pages="1"/>
       <relation target="" sidePair="right-right%"/>
       <Button title="预览出怪" controller="Preview" page="1"/>
     </component>
-    <component id="n42_fji9" name="loopBtn01" src="fji9r6x" fileName="loopBtn01.xml" xy="1059,984" group="n38_u7wg" controller="mode,0">
+    <component id="n42_fji9" name="loopBtn01" src="fji9r6x" fileName="loopBtn01.xml" xy="1059,983" size="75,75" group="n38_u7wg" controller="mode,0">
       <gearDisplay controller="Preview" pages="1"/>
+      <relation target="" sidePair="center-center%"/>
     </component>
-    <group id="n38_u7wg" name="play" xy="210,10" size="1700,1049" advanced="true">
-      <relation target="" sidePair="center-center%,bottom-bottom%"/>
-    </group>
+    <group id="n38_u7wg" name="play" xy="210,9" size="1700,1049" advanced="true"/>
   </displayList>
 </component>

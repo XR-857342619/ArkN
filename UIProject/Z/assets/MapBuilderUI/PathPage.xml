@@ -1,23 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080">
   <controller name="select" pages="0,,1," selected="0"/>
+  <controller name="ShowPathList" pages="0,,1," selected="1"/>
+  <controller name="ShowPathInfo" pages="0,,1," selected="0"/>
   <displayList>
-    <list id="n16_ei15" name="Paths" xy="23,97" size="335,815" overflow="scroll" scrollBarFlags="512" lineGap="5" defaultItem="ui://wof4wytzei157">
+    <graph id="n32_z9w3" name="n32" xy="-399,79" size="400,925" alpha="0.25" type="rect" corner="15">
+      <gearXY controller="ShowPathList" pages="1" values="-400,80,-0.208,0.074" default="0,80,0,0.074" tween="true" positionsInPercent="true"/>
+      <gearDisplay2 controller="select" pages="0" condition="0"/>
+      <relation target="" sidePair="left-left"/>
+    </graph>
+    <list id="n16_ei15" name="Paths" xy="-374,102" size="335,891" overflow="scroll" scrollBarFlags="512" lineGap="5" defaultItem="ui://wof4wytzei157">
       <gearDisplay controller="select" pages="0"/>
+      <gearXY controller="ShowPathList" pages="0,1" values="-374,102|-374,102"/>
+      <relation target="n32_z9w3" sidePair="center-center%,middle-middle%"/>
       <item/>
       <item/>
       <item/>
     </list>
     <component id="n17_ei15" name="AddPath" src="ei156" fileName="btn.xml" xy="21,14">
       <gearDisplay controller="select" pages="0"/>
+      <relation target="" sidePair="left-left%"/>
       <Button title="新增路线"/>
     </component>
     <component id="n18_ei15" name="DeletePath" src="ei156" fileName="btn.xml" xy="189,14">
       <gearDisplay controller="select" pages="0"/>
+      <relation target="" sidePair="left-left%"/>
       <Button title="删除路线"/>
     </component>
-    <list id="n25_jh39" name="PathPoints" xy="1065,92" size="835,521" overflow="scroll" scrollBarFlags="512" lineGap="5" defaultItem="ui://wof4wytzjh399">
+    <graph id="n36_z9w3" name="n36" xy="1043,81" size="877,913" alpha="0.25" type="rect" corner="15">
+      <gearDisplay controller="ShowPathInfo" pages="0"/>
+      <gearSize controller="ShowPathInfo" pages="1" values="877,41,1,1" default="877,913,1,1" tween="true"/>
+      <gearDisplay2 controller="select" pages="0" condition="0"/>
+      <relation target="" sidePair="right-right%"/>
+    </graph>
+    <list id="n25_jh39" name="PathPoints" xy="1063,101" size="835,871" overflow="scroll" scrollBarFlags="512" lineGap="5" defaultItem="ui://wof4wytzjh399">
       <gearDisplay controller="select" pages="0"/>
+      <gearXY controller="ShowPathInfo" pages="1" values="1924,102,1.002,0.094" default="1064,102,0.554,0.094" tween="true" positionsInPercent="true"/>
+      <gearSize controller="ShowPathInfo" pages="1" values="835,35,1,1" default="835,871,1,1" tween="true"/>
       <relation target="" sidePair="right-right%"/>
       <item/>
       <item/>
@@ -39,12 +58,37 @@
     </text>
     <component id="n30_uusj" name="CopyPath" src="ei156" fileName="btn.xml" xy="357,14">
       <gearDisplay controller="select" pages="0"/>
+      <relation target="" sidePair="left-left%"/>
       <Button title="复制路线"/>
     </component>
     <component id="n31_uusj" name="InsertPoint" src="ei156" fileName="btn.xml" xy="1567,16">
       <gearDisplay controller="select" pages="0"/>
       <relation target="" sidePair="right-right%"/>
       <Button title="插入路点"/>
+    </component>
+    <component id="n34_z9w3" name="PathListBtn_0" src="ei156" fileName="btn.xml" xy="526,14" size="156,50">
+      <gearDisplay controller="select" pages="0"/>
+      <gearDisplay2 controller="ShowPathList" pages="1" condition="0"/>
+      <relation target="" sidePair="left-left%"/>
+      <Button title="展开" controller="ShowPathList" page="0"/>
+    </component>
+    <component id="n35_z9w3" name="PathListBtn_1" src="ei156" fileName="btn.xml" xy="526,14" size="156,50">
+      <gearDisplay controller="select" pages="0"/>
+      <gearDisplay2 controller="ShowPathList" pages="0" condition="0"/>
+      <relation target="" sidePair="left-left%"/>
+      <Button title="收起" controller="ShowPathList" page="1"/>
+    </component>
+    <component id="n38_z9w3" name="PathInfoBtn_0" src="ei156" fileName="btn.xml" xy="1229,16">
+      <gearDisplay controller="select" pages="0"/>
+      <gearDisplay2 controller="ShowPathInfo" pages="1" condition="0"/>
+      <relation target="" sidePair="right-right%"/>
+      <Button title="展开" controller="ShowPathInfo" page="0"/>
+    </component>
+    <component id="n39_z9w3" name="PathInfoBtn_1" src="ei156" fileName="btn.xml" xy="1229,16">
+      <gearDisplay controller="select" pages="0"/>
+      <gearDisplay2 controller="ShowPathInfo" pages="0" condition="0"/>
+      <relation target="" sidePair="right-right%"/>
+      <Button title="收起" controller="ShowPathInfo" page="1"/>
     </component>
   </displayList>
 </component>

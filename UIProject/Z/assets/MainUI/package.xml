@@ -6,7 +6,7 @@
     <image id="kbte2" name="star_full.png" path="/"/>
     <image id="kbte3" name="SUPPORT.png" path="/profession/" exported="true"/>
     <image id="kbte4" name="TANK.png" path="/profession/" exported="true"/>
-    <image id="kbte5" name="WARRIOR.png" path="/参考/" exported="true"/>
+    <image id="kbte5" name="WARRIOR.png" path="/profession/" exported="true"/>
     <image id="kbte6" name="CASTER.png" path="/profession/" exported="true"/>
     <image id="kbte7" name="MEDIC.png" path="/profession/" exported="true"/>
     <image id="kbte8" name="PIONEER.png" path="/profession/" exported="true"/>

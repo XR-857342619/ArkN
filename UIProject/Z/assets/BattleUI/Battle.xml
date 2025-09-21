@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080" opaque="false">
-  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="7">
+  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="0">
     <remark page="0" value="正常"/>
     <remark page="1" value="放置单位"/>
     <remark page="2" value="放置单位_选择位置"/>
@@ -38,7 +38,7 @@
       <relation target="" sidePair="left-left,top-top,bottom-bottom"/>
     </component>
     <component id="n15_f146" name="Builds" src="f1463m" fileName="Container.xml" xy="0,0" group="n42_kbte">
-      <relation target="" sidePair="right-right"/>
+      <relation target="" sidePair="left-right%,top-top%"/>
     </component>
     <component id="n40_kbte" name="SkillUsePanel" src="kbte47" fileName="SkillUsePanel.xml" xy="948,484" group="n42_kbte">
       <gearDisplay controller="state" pages="10"/>
