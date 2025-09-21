@@ -2,8 +2,8 @@
 <component size="1920,1080">
   <controller name="selectEnemy" pages="0,,1," selected="0"/>
   <controller name="Hide" pages="0,,1," selected="0"/>
-  <controller name="Preview" pages="0,,1," selected="1"/>
-  <controller name="PreviewBtn" pages="0,,1," selected="1"/>
+  <controller name="Preview" pages="0,,1," selected="0"/>
+  <controller name="PreviewBtn" pages="0,,1," selected="0"/>
   <displayList>
     <graph id="n19_dy0m" name="n19" xy="8,73" size="1200,852" alpha="0.6" type="rect" fillColor="#ffcccccc">
       <gearDisplay controller="Hide" pages="0"/>
@@ -71,11 +71,14 @@
     </component>
     <component id="n40_axio" name="perview" src="axior6o" fileName="btn_1.xml" xy="1754,10" group="n38_u7wg">
       <gearDisplay controller="PreviewBtn" pages="1"/>
-      <Button checked="true" title="预览出怪" controller="Preview" page="1"/>
+      <relation target="" sidePair="right-right%"/>
+      <Button title="预览出怪" controller="Preview" page="1"/>
     </component>
     <component id="n42_fji9" name="loopBtn01" src="fji9r6x" fileName="loopBtn01.xml" xy="1059,984" group="n38_u7wg" controller="mode,0">
       <gearDisplay controller="Preview" pages="1"/>
     </component>
-    <group id="n38_u7wg" name="play" xy="210,10" size="1700,1049"/>
+    <group id="n38_u7wg" name="play" xy="210,10" size="1700,1049" advanced="true">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </group>
   </displayList>
 </component>

@@ -47,7 +47,9 @@
       <relation target="" sidePair="center-center%,bottom-bottom%"/>
     </text>
     <group id="n76_hnil" name="nest" xy="1142,905" size="204,120" group="n81_hnil"/>
-    <group id="n81_hnil" name="craetsetting" xy="573,829" size="773,201" group="n83_hnil"/>
+    <group id="n81_hnil" name="craetsetting" xy="573,829" size="773,201" group="n83_hnil" advanced="true">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </group>
     <text id="n46_jh39" name="n46" xy="108,231" size="94,42" group="n80_hnil" fontSize="30" text="文件名">
       <relation target="" sidePair="middle-middle%,left-left%"/>
     </text>
@@ -146,7 +148,9 @@
       <relation target="" sidePair="middle-middle%,left-left%"/>
     </text>
     <group id="n93_pkao" name="mappackage" xy="108,155" size="417,50" group="n82_hnil"/>
-    <group id="n82_hnil" name="basicsetting" xy="63,155" size="462,698" group="n83_hnil"/>
+    <group id="n82_hnil" name="basicsetting" xy="63,155" size="462,698" group="n83_hnil" advanced="true">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </group>
     <group id="n83_hnil" name="mapsetting" xy="63,155" size="1283,875"/>
     <text id="n58_ic0q" name="n58" xy="260,75" size="154,42" group="n79_hnil" fontSize="30" text="选则地图包">
       <relation target="" sidePair="left-left%,top-top%"/>
@@ -175,26 +179,30 @@
     <group id="n79_hnil" name="importmap" xy="79,71" size="919,50"/>
     <graph id="n87_hnil" name="n87" xy="0,0" size="1920,1080" group="n75_hnil" alpha="0.75" type="rect" fillColor="#ff999999">
       <gearDisplay controller="editcontract" pages="1"/>
+      <relation target="" sidePair="width-width%,height-height%"/>
     </graph>
-    <graph id="n36_ei15" name="n36" xy="919,154" size="901,630" group="n75_hnil" alpha="0.5" type="rect" corner="20">
-      <gearXY controller="editcontract" pages="0,1" values="919,154|129,146" tween="true"/>
+    <graph id="n36_ei15" name="n36" xy="915,154" size="901,630" group="n75_hnil" alpha="0.5" type="rect" corner="20">
+      <gearXY controller="editcontract" pages="0,1" values="915,154|130,146" tween="true"/>
       <gearSize controller="editcontract" pages="0,1" values="901,630,1,1|1660,811,1,1" tween="true"/>
-      <relation target="" sidePair=""/>
     </graph>
-    <graph id="n27_ei15" name="n27" xy="1195,71" size="349,50" group="n75_hnil" type="rect" corner="20">
-      <gearXY controller="editcontract" pages="0,1" values="1195,71|785,71" tween="true"/>
+    <graph id="n27_ei15" name="n27" xy="1191,71" size="349,50" group="n75_hnil" type="rect" corner="20">
+      <gearXY controller="editcontract" pages="0,1" values="1191,71|1191,71"/>
+      <relation target="n36_ei15" sidePair="center-center%,bottom-top%"/>
     </graph>
-    <text id="n28_ei15" name="n28" xy="1236,75" size="274,42" group="n75_hnil" fontSize="30" text="编辑本地图合约信息">
-      <gearXY controller="editcontract" pages="0,1" values="1236,75|823,75" tween="true"/>
+    <text id="n28_ei15" name="n28" xy="1232,75" size="274,42" group="n75_hnil" fontSize="30" text="编辑本地图合约信息">
+      <gearXY controller="editcontract" pages="0,1" values="1232,75|1232,75"/>
+      <relation target="n27_ei15" sidePair="center-center%,middle-middle%"/>
     </text>
     <component id="n85_hnil" name="n85" src="hnilq" fileName="contractBtn.xml" xy="1570,71" group="n75_hnil">
-      <gearXY controller="editcontract" pages="0,1" values="1570,71|1162,71" tween="true"/>
-      <gearLook controller="editcontract" pages="1" values="0,0,0,1" default="1,0,0,1" tween="true"/>
+      <gearXY controller="editcontract" pages="0,1" values="1570,71|1570,71"/>
+      <gearLook controller="editcontract" pages="1" values="0,0,0,1" default="1,0,0,1"/>
+      <relation target="n27_ei15" sidePair="middle-middle%,left-right%"/>
       <Button title="展开" controller="editcontract" page="1"/>
     </component>
-    <list id="n37_ei15" name="Contract" xy="938,172" size="863,597" group="n75_hnil" layout="flow_hz" overflow="scroll" defaultItem="ui://wof4wytzei155">
-      <gearXY controller="editcontract" pages="0,1" values="938,172|142,200" tween="true"/>
+    <list id="n37_ei15" name="Contract" xy="934,171" size="863,597" group="n75_hnil" layout="flow_hz" overflow="scroll" defaultItem="ui://wof4wytzei155">
+      <gearXY controller="editcontract" pages="0,1" values="934,171|934,171"/>
       <gearSize controller="editcontract" pages="0,1" values="863,597,1,1|1635,737,1,1" tween="true"/>
+      <relation target="n36_ei15" sidePair="center-center%,middle-middle%"/>
       <item/>
       <item/>
       <item/>
@@ -204,9 +212,10 @@
       <item/>
       <item/>
     </list>
-    <component id="n86_hnil" name="n86" src="hnilq" fileName="contractBtn.xml" xy="1570,71" group="n75_hnil" alpha="0" touchable="false">
-      <gearXY controller="editcontract" pages="0,1" values="1570,71|1162,71" tween="true"/>
+    <component id="n86_hnil" name="n86" src="hnilq" fileName="contractBtn.xml" xy="1566,71" group="n75_hnil" alpha="0" touchable="false">
+      <gearXY controller="editcontract" pages="0,1" values="1566,71|1566,71"/>
       <gearLook controller="editcontract" pages="0,1" values="0,0,0,0|1,0,0,1"/>
+      <relation target="n27_ei15" sidePair="middle-middle%,left-right%"/>
       <Button title="收起" controller="editcontract" page="0"/>
     </component>
     <group id="n75_hnil" name="contract" xy="0,0" size="1920,1080"/>

@@ -96,14 +96,14 @@ public class Database
 
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
-            TipManager.Instance.SendMessage("No data loaded for type " + typeof(T).Name);
+            TipManager.Instance.ShowTip("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return false;
         }
 
         if (id < 0 || id >= configs.Length)
         {
-            TipManager.Instance.SendMessage($"Invalid id {id} for type {typeof(T).Name}. Valid range: 0-{configs.Length - 1}");
+            TipManager.Instance.ShowTip($"Invalid id {id} for type {typeof(T).Name}. Valid range: 0-{configs.Length - 1}");
             Debug.LogWarning($"Invalid id {id} for type {typeof(T).Name}. Valid range: 0-{configs.Length - 1}");
             return false;
         }
@@ -249,8 +249,9 @@ public class Database
         {
             return index;
         }
-
-        throw new Exception($"Can't find {typeof(T).Name} with id {config?.Id}");
+        TipManager.Instance.ShowTip($"Can't find {typeof(T).Name} with id {config?.Id}");
+        //throw new Exception($"Can't find {typeof(T).Name} with id {config?.Id}");
+        return -1;
     }
 
     public int GetIndex<T>(string id) where T : class, IConfig
@@ -259,8 +260,9 @@ public class Database
         {
             return index;
         }
-
-        throw new Exception($"Can't find {typeof(T).Name} with id {id}");
+        TipManager.Instance.ShowTip($"Can't find {typeof(T).Name} with id {id}");
+        //throw new Exception($"Can't find {typeof(T).Name} with id {id}");
+        return -1;
     }
 
     private void Add<T>(string name) where T : IConfig

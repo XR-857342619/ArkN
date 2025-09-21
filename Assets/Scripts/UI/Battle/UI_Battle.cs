@@ -351,8 +351,9 @@ namespace BattleUI
             }
             else if (!sk.Opening.Finished() && sk.SkillData.CanStop)
             {
+                //Debug.Log("停止技能");
+                sk.UpdateOpening(float.MaxValue);
                 sk.Opening.Finish();
-                sk.UpdateOpening(0);
             }
         }
 

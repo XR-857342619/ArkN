@@ -101,10 +101,6 @@ public class Skill
                 Modifies.Add(ModifyManager.Instance.Get(SkillData.Modifys[i], this));
             }
         }
-        else
-        {
-
-        }
 
         if (SkillData.AttackPoints != null)
         {
@@ -401,6 +397,7 @@ public class Skill
                 Target = Unit,
                 Skill = this,
             });
+            //Debug.Log("技能结束");
             Unit.Trigger(TriggerEnum.技能结束);
             Battle.TriggerDatas.Pop();
             OnOpenEnd();
@@ -714,7 +711,8 @@ public class Skill
         if (SkillData.PowerUseType == PowerRecoverTypeEnum.攻击)//有动作有伤害的技能视为普攻，用于消耗弹药
         {
             UpdateOpening(1);
-            if (Unit.MainSkill != null && Unit.MainSkill != this && !Unit.MainSkill.Opening.Finished() && Unit.MainSkill.SkillData.PowerUseType == PowerRecoverTypeEnum.攻击)
+            //if (Unit.MainSkill != null && Unit.MainSkill != this && !Unit.MainSkill.Opening.Finished() && Unit.MainSkill.SkillData.PowerUseType == PowerRecoverTypeEnum.无)
+            if (Unit.MainSkill != null && Unit.MainSkill != this && !Unit.MainSkill.Opening.Finished())
                 Unit.MainSkill.UpdateOpening(1);
         }
 
@@ -1857,43 +1855,52 @@ public class Skill
     }
     public void ShowUnitAttackArea()
     {
-        //Debug.LogWarning("ShowAttackArea");
-        foreach (var tile in AttackPoints)
+        if (AttackPoints.Count > 0)
         {
-            var grid = Battle.Map.Tiles[tile.x, tile.y];
-            //Debug.Log(tile.x + " " + tile.y);
-            //grid.MapGrid.go.transform.localPosition = new Vector3(0, 0.5f, 0);
-            if (grid == null || grid.MapGrid == null) continue;
+            //Debug.LogWarning("ShowAttackArea");
+            foreach (var tile in AttackPoints)
+            {
+                var grid = Battle.Map.Tiles[tile.x, tile.y];
+                //Debug.Log(tile.x + " " + tile.y);
+                //grid.MapGrid.go.transform.localPosition = new Vector3(0, 0.5f, 0);
+                if (grid == null || grid.MapGrid == null) continue;
+                var tileAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "ShowRange");
+                GameObject go = UnityEngine.Object.Instantiate(tileAsset);
+                go.transform.SetParent(grid.MapGrid.transform);
+                go.transform.localPosition = new Vector3(0, grid.FarAttackGrid ? -0.25f : 0.15f, 0);
+                ShowRange showRange =go.GetComponent<ShowRange>();
+                showRange.targetObject = grid.MapGrid.gameObject;
+                showRange.unitUniqueIndex = Battle.AllUnits.IndexOf(Unit);
+                showRange.useGridPos = Unit is not Units.敌人;
+                showRange.unitGridPos = tile;
+                showRange.unitWorldPos = new Vector2(Unit.Position.x%1 + tile.x, Unit.Position.z%1 + tile.y);
+                showRange.colorHex = SkillData.Data.GetStr("Color", "#6385FF");
+                showRange.alpha = SkillData.Data.GetFloat("Alpha", 1.0f);
+                //showRange.rangeRadius = SkillData.AttackRange;
+                showRange.polygonRange = AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();
+                showRange.Init();
+                //go.IfHeal(ifHeal);
+
+                tiles.Add(go);
+            }
+        }
+        if (SkillData.AttackRange > 0)
+        {
             var tileAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "ShowRange");
             GameObject go = UnityEngine.Object.Instantiate(tileAsset);
-            go.transform.SetParent(grid.MapGrid.go.transform);
-            Vector3 pos = new Vector3();
-            if (grid.MapGrid.FarAttackGrid)
-            {
-                if (grid.MapGrid.CanBuildUnit)
-                {
-                    pos = new Vector3(0, 0, 0.0102f);
-                }
-                else
-                {
-                    pos = new Vector3(0, 1.1f, 0);
-                }
-            }
-            else
-            {
-                if (grid.MapGrid.CanBuildUnit)
-                {
-                    pos = new Vector3(0, 0.5f, 0);
-                }
-                else
-                {
-                    pos = new Vector3(0, 1, 0);
-                }
-            }
-            go.transform.localPosition = pos;
-            //go.IfHeal(ifHeal);
-
-            tiles.Add(go);
+            go.transform.SetParent(Unit.NowGrid.MapGrid.transform);
+            go.transform.localPosition = new Vector3(0, Battle.Map.Tiles[Unit.NowGrid.X, Unit.NowGrid.Y].FarAttackGrid ? -0.25f : 0.15f, 0);
+            ShowRange showRange = go.GetComponent<ShowRange>();
+            showRange.targetObject = Battle.Map.Tiles[Unit.NowGrid.X, Unit.NowGrid.Y].MapGrid.gameObject;
+            showRange.unitUniqueIndex = Battle.AllUnits.IndexOf(Unit);
+            showRange.useGridPos = Unit is not Units.敌人;
+            showRange.unitGridPos = Unit.GridPos;
+            showRange.unitWorldPos = new Vector2(Unit.Position.x, Unit.Position.z);
+            showRange.colorHex = SkillData.Data.GetStr("Color", "#6385FF");
+            showRange.alpha = SkillData.Data.GetFloat("Alpha", 1.0f);
+            showRange.rangeRadius = SkillData.AttackRange;
+            //showRange.polygonRange = AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();    
+            showRange.Init();
         }
     }
     public void HideUnitAttackArea()

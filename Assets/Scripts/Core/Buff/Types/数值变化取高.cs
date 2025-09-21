@@ -23,7 +23,7 @@ namespace Buffs
                 var targetValue = GetValue(i);
                 if (baseValue < targetValue)
                     field.SetValue(Unit, targetValue);
-                UnityEngine.Debug.Log($"{Unit.UnitData.Id}的{names[i]}变成{field.GetValue(Unit)}");
+                //UnityEngine.Debug.Log($"{Unit.UnitData.Id}的{names[i]}变成{field.GetValue(Unit)}");
             }
         }
     }

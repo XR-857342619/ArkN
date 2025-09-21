@@ -68,6 +68,8 @@ public class ResHelper
 #if UNITY_EDITOR
         return;
 #endif
+        Log.Debug("Prepare " + unitId);
+        if (unitId == -1) unitId = 256;
         if (units.Contains(unitId)) return;
         units.Add(unitId);
         UnitData unitData = Database.Instance.Get<UnitData>(unitId);

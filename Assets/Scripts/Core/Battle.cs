@@ -304,6 +304,7 @@ public class Battle
         else
         {
             var enemy = CreateEnemy(wave.WaveData);
+            if (enemy == null) return;
             TriggerDatas.Push(new TriggerData()
             {
                 Target = enemy,
@@ -417,6 +418,11 @@ public class Battle
     public Units.敌人 CreateEnemy(WaveInfo waveConfig)
     {
         var config = Database.Instance.Get<UnitData>(waveConfig.sUnitId);
+        if (config == null)
+        {
+            config = Database.Instance.Get<UnitData>("enemy_1106_byokai");
+            waveConfig.sUnitId = "enemy_1106_byokai";
+        }
         var unit = typeof(Battle).Assembly.CreateInstance(nameof(Units) + "." + config.Type) as Units.敌人;
         unit.Id = Database.Instance.GetIndex<UnitData>(waveConfig.sUnitId);
         unit.WaveData = waveConfig;

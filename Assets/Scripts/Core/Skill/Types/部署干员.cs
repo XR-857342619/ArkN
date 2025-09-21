@@ -17,16 +17,18 @@ namespace Skills
         public DirectionEnum direction = DirectionEnum.Right;
         //public Vector3 pos = new Vector3(float.MaxValue, 0, float.MaxValue);
         public Vector3 pos;
-        public string targetDirection = "FixedDirection";
-        public string setMod = "Add";
-        public string targetPos = "";
-        public string name = "";
+        public string targetDirection;
+        public string setMod;
+        public string targetPos;
+        public string name;
+        public int mainSkillId;
         public override void Init()
         {
             base.Init();
-            targetPos = SkillData.Data.GetStr("TargetPos");
-            targetDirection = SkillData.Data.GetStr("UseMod");
-            setMod = SkillData.Data.GetStr("SetMod");
+            mainSkillId = SkillData.Data.GetInt("MainSkillIndex", 0);
+            targetPos = SkillData.Data.GetStr("TargetPos", "");
+            targetDirection = SkillData.Data.GetStr("UseMod", "FixedDirection");
+            setMod = SkillData.Data.GetStr("SetMod", "Add");
             if (targetDirection == "FixedDirection")
                 Enum.TryParse(SkillData.Data.GetStr("Direction"), out direction);
         }
@@ -86,7 +88,7 @@ namespace Skills
             }
             if (targetDirection == "UserDirection")
             {
-                name = SkillData.Data.GetStr("UserName");
+                name = SkillData.Data.GetStr("UserName", "");
                 if (Battle.AllUnits.Find(x => x.UnitData.Name == name) is Units.干员 skilloprator)
                     direction = skilloprator.Direction_E;
             }
@@ -120,8 +122,8 @@ namespace Skills
                 Log.Debug(Operator.Skills.Count());
                 GameObject go = Operator.UnitModel.gameObject;
                 go.transform.position = new Vector3(pos.x, 0.5f, pos.z);
-                if (Operator.UnitData.MainSkill is not null && Operator.UnitData.MainSkill.Count() == 1)
-                    Operator.MainSkill = Operator.LearnSkill(Operator.UnitData.MainSkill.First(), null);
+                if (Operator.UnitData.MainSkill is not null && Operator.UnitData.MainSkill.Count() >= 0)
+                    Operator.MainSkill = Operator.LearnSkill(Operator.UnitData.MainSkill[mainSkillId], null);
                 Operator.ChangePos((int)pos.x, (int)pos.z, direction);
                 Operator.JoinMap();
                 Operator.Parent = Battle.AllUnits.Find(x => x.UnitData.Name == name) as Units.干员??null;

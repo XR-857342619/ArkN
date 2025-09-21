@@ -26,6 +26,7 @@ namespace MapBuilderUI
         public GSlider m_playSpeed;
         public GButton m_perview;
         public UI_loopBtn01 m_loopBtn01;
+        public GGroup m_play;
         public const string URL = "ui://wof4wytzq2unc";
 
         public static UI_WavePage CreateInstance()
@@ -56,6 +57,7 @@ namespace MapBuilderUI
             m_playSpeed = (GSlider)GetChildAt(20);
             m_perview = (GButton)GetChildAt(21);
             m_loopBtn01 = (UI_loopBtn01)GetChildAt(22);
+            m_play = (GGroup)GetChildAt(23);
             Init();
         }
         partial void Init();

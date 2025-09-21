@@ -41,8 +41,11 @@ namespace Units
         public override void Init()
         {
             base.Init();
-            if (UnitData.MainSkill != null && MainSkillId >= 0)
-                MainSkill = LearnSkill(UnitData.MainSkill[MainSkillId], null);
+            if (UnitData.MainSkill != null)
+                if (MainSkillId >= 0)
+                    MainSkill = LearnSkill(UnitData.MainSkill[MainSkillId], null);
+                else
+                    MainSkill = LearnSkill(UnitData.MainSkill[0], null);
         }
 
         protected override void baseAttributeInit()
@@ -366,10 +369,12 @@ namespace Units
             return StopUnits.Count > 0;
         }
 
-        public void GainChild(int id)
+        public void GainChild(int id, int mianSkillId = 0)
         {
             var unit= Battle.CreatePlayerUnit(id);
             Children.Add(unit);
+            unit.MainSkillId = mianSkillId;
+            unit.Init();
             unit.Parent = this;
             unit.UnitModel?.gameObject.SetActive(false);
             BattleUI.UI_Battle.Instance.UpdateUnitsLayout();

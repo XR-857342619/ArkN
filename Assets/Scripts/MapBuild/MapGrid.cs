@@ -44,6 +44,7 @@ public class MapGrid : MonoBehaviour, IPointerClickHandler
     private void Start()
     {
         _color = Renderer.material.color == null ? Color.white : Renderer.material.color;
+        //_color = Color.white;
     }
 
     public void AutoBuild()
@@ -60,12 +61,12 @@ public class MapGrid : MonoBehaviour, IPointerClickHandler
         else
         {
             if (FarAttackGrid)
-                go = ResHelper.Instantiate("tiles_canntset");
+                go = ResHelper.Instantiate("tiles_canntset_high");
             else
-                go = ResHelper.Instantiate("tiles_canntset");
+                go = ResHelper.Instantiate("tiles_canntset_ground");
         }
         go.transform.SetParent(transform);
-        go.transform.localPosition = new Vector3(0, -(go.GetComponent<BoxCollider>().center.y + go.GetComponent<BoxCollider>().size.y / 2) * go.transform.localScale.y, 0);
+        go.transform.localPosition = new Vector3(0, -(go.GetComponent<BoxCollider>().center.y + go.GetComponent<BoxCollider>().size.y / 2) * go.transform.localScale.y + go.transform.localPosition.y, 0);
         BoxCollider = GetComponent<BoxCollider>();
         Renderer = GetComponentInChildren<Renderer>();
     }

@@ -256,7 +256,7 @@ public class Unit
             CanBeHeal = true;
             ResistAdd = 0;
             AttackRangeAdd = AttackRangeRate = 0;
-            DamageReceiveRate = MagicDamageReceiveRate = HealReceiveRate = NormalDamageReceiveRate = ElementDamageReceiveRate = 1;
+            DamageReceiveRate = MagicDamageReceiveRate = HealReceiveRate = NormalDamageReceiveRate = ElementDamageReceiveRate = 0;
             StopCountAdd = 0;
             HpRecoverRate = 0;
             ElementBreakRecoverRate = 1f;
@@ -859,13 +859,13 @@ public class Unit
     public void Damage(DamageInfo damageInfo)
     {
         float damage = damageInfo.Attack * damageInfo.DamageRate;
-        if (damageInfo.DamageType == DamageTypeEnum.Normal) damage *= NormalDamageReceiveRate;
-        if (damageInfo.DamageType == DamageTypeEnum.Magic) damage *= MagicDamageReceiveRate;
-        if (damageInfo.DamageType == DamageTypeEnum.Element) damage *= ElementDamageReceiveRate;
+        if (damageInfo.DamageType == DamageTypeEnum.Normal) damage *= (1+NormalDamageReceiveRate);
+        if (damageInfo.DamageType == DamageTypeEnum.Magic) damage *= (1+MagicDamageReceiveRate);
+        if (damageInfo.DamageType == DamageTypeEnum.Element) damage *= (1+ElementDamageReceiveRate);
         damage = damageWithDefence(damage, damageInfo.DamageType,damageInfo.DefIgnore, damageInfo.DefIgnoreRate,damageInfo.MinDamageRate);
-        //Debug.Log("伤害" + damage);
-        damageInfo.FinalDamage = damage * DamageReceiveRate;
-        //Debug.Log("结算易伤伤害" + damageInfo.FinalDamage);
+        Debug.Log("伤害" + damage);
+        damageInfo.FinalDamage = damage * (1+DamageReceiveRate);
+        Debug.Log("结算易伤伤害" + damageInfo.FinalDamage);
         float damageEx = damageInfo.Attack;
         damageEx = damageWithDefence(damageEx, damageInfo.DamageType, 0, 0, damageInfo.MinDamageRate);
         if (damage > damageEx * 1.5f) UnitModel.ShowCrit(damageInfo);

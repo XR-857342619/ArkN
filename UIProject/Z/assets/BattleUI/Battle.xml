@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080" opaque="false">
-  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="0">
+  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="7">
     <remark page="0" value="正常"/>
     <remark page="1" value="放置单位"/>
     <remark page="2" value="放置单位_选择位置"/>
@@ -31,9 +31,11 @@
     <component id="n54_n3en" name="DamageInfo" src="f1463m" fileName="Container.xml" xy="0,0" group="n42_kbte"/>
     <component id="n41_kbte" name="SkillUseBack" src="f1463m" fileName="Container.xml" xy="0,0" size="1920,1080" group="n42_kbte">
       <gearDisplay controller="state" pages="10"/>
+      <relation target="" sidePair="width-width%,height-height%"/>
     </component>
     <component id="n25_kbte" name="left" src="kbte3s" fileName="BattleLeft.xml" xy="-1,0" size="683,1080" group="n42_kbte">
       <gearDisplay controller="state" pages="1,8,10"/>
+      <relation target="" sidePair="left-left,top-top,bottom-bottom"/>
     </component>
     <component id="n15_f146" name="Builds" src="f1463m" fileName="Container.xml" xy="0,0" group="n42_kbte">
       <relation target="" sidePair="right-right"/>
@@ -41,7 +43,9 @@
     <component id="n40_kbte" name="SkillUsePanel" src="kbte47" fileName="SkillUsePanel.xml" xy="948,484" group="n42_kbte">
       <gearDisplay controller="state" pages="10"/>
     </component>
-    <component id="n61_gbwm" name="Setting" src="gbwm4w" fileName="Setting.xml" xy="25,19" group="n42_kbte"/>
+    <component id="n61_gbwm" name="Setting" src="gbwm4w" fileName="Setting.xml" xy="25,19" group="n42_kbte">
+      <relation target="" sidePair="left-left%,top-top%"/>
+    </component>
     <image id="n59_t5h9" name="n59" src="t5h94t" fileName="部署费用.png" xy="1613,747" group="n55_tku9"/>
     <text id="n22_kbte" name="number" xy="1863,825" size="21,42" group="n55_tku9" fontSize="30" color="#ffffff" text="8"/>
     <text id="n24_kbte" name="cost" xy="1860,783" pivot="0.5,0.5" anchor="true" size="49,54" group="n55_tku9" fontSize="40" color="#ffffff" align="center" text="30"/>
@@ -65,14 +69,18 @@
     <group id="n42_kbte" name="normalGroup" xy="-1,0" size="1921,1080" advanced="true">
       <gearDisplay controller="state" pages="0,1,8,9,10,12,13"/>
     </group>
-    <graph id="n105_t03z" name="background" xy="0,0" size="1920,1080" group="n93_fji9" alpha="0" type="rect" lineSize="0"/>
+    <graph id="n105_t03z" name="background" xy="0,0" size="1920,1080" group="n93_fji9" alpha="0" type="rect" lineSize="0">
+      <relation target="" sidePair="width-width%,height-height%"/>
+    </graph>
     <graph id="n106_t03z" name="bg" xy="50,100" size="1820,880" group="n93_fji9" alpha="0.8" type="rect" corner="30">
       <relation target="" sidePair="width-width,height-height,center-center%,middle-middle%"/>
     </graph>
     <text id="n107_t03z" name="n107" xy="110,294" size="142,42" group="n93_fji9" fontSize="30" text="无限COST"/>
     <text id="n108_t03z" name="n108" xy="110,150" size="124,42" group="n93_fji9" fontSize="30" text="游戏流速"/>
     <text id="n109_t03z" name="n109" xy="110,366" size="184,42" group="n93_fji9" fontSize="30" text="无限目标生命"/>
-    <text id="n110_t03z" name="n110" xy="727,150" size="124,42" group="n93_fji9" fontSize="30" text="伤害统计"/>
+    <text id="n110_t03z" name="n110" xy="727,150" size="124,42" group="n93_fji9" fontSize="30" text="伤害统计">
+      <relation target="n116_t03z" sidePair="left-left%"/>
+    </text>
     <component id="n111_t03z" name="gameSpeed" src="fji95i" fileName="Slider2.xml" xy="360,156" size="280,30" group="n93_fji9">
       <Slider value="4" max="8" min="1"/>
     </component>

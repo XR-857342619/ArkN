@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080" opaque="false">
-  <controller name="state" pages="0,,1,,5,,2,,3,,4,,6," selected="2">
+  <controller name="state" pages="0,,1,,5,,2,,3,,4,,6," selected="6">
     <remark page="0" value="创建地图"/>
     <remark page="1" value="主页"/>
     <remark page="2" value="主页_地块模式"/>
@@ -9,13 +9,14 @@
     <remark page="5" value="装置配置"/>
     <remark page="6" value="选择地板"/>
   </controller>
-  <controller name="sure2" pages="0,,1," selected="0"/>
+  <controller name="sure2" pages="0,,1," selected="1"/>
   <displayList>
     <graph id="n20_jh39" name="n20" xy="0,0" size="1920,1080" type="rect" lineSize="0" fillColor="#ff666666">
       <gearDisplay controller="state" pages="0"/>
     </graph>
     <component id="n4_ei15" name="StartPage" src="ei151" fileName="MapInfo.xml" xy="0,3">
       <gearDisplay controller="state" pages="0"/>
+      <relation target="" sidePair="width-width%,height-height%"/>
     </component>
     <component id="n0_ei15" name="DoPath" src="ei156" fileName="btn.xml" xy="27,15">
       <gearDisplay controller="state" pages="1,5"/>
@@ -31,28 +32,34 @@
     </component>
     <component id="n27_dy0m" name="MidPage" src="dy0mh" fileName="MidPage.xml" xy="0,0">
       <gearDisplay controller="state" pages="4"/>
+      <relation target="" sidePair="center-center%,middle-middle%"/>
     </component>
     <component id="n26_dy0m" name="WavePage" src="q2unc" fileName="WavePage.xml" xy="0,0">
       <gearDisplay controller="state" pages="3"/>
     </component>
     <component id="n6_ei15" name="upgrid" src="ei156" fileName="btn.xml" xy="1573,15">
       <gearDisplay controller="state" pages="5"/>
+      <relation target="" sidePair="right-right%"/>
       <Button title="抬高地块"/>
     </component>
     <component id="n7_ei15" name="downgrid" src="ei156" fileName="btn.xml" xy="1736,15">
       <gearDisplay controller="state" pages="5"/>
+      <relation target="" sidePair="right-right%"/>
       <Button title="降低地块"/>
     </component>
     <component id="n8_ei15" name="moveable" src="ei156" fileName="btn.xml" xy="1573,89">
       <gearDisplay controller="state" pages="5"/>
+      <relation target="" sidePair="right-right%"/>
       <Button title="置为可放置"/>
     </component>
     <component id="n9_ei15" name="unmoveable" src="ei156" fileName="btn.xml" xy="1736,89">
       <gearDisplay controller="state" pages="5"/>
+      <relation target="" sidePair="right-right%"/>
       <Button title="置不可放置"/>
     </component>
     <component id="n19_ei15" name="PathPage" src="ei158" fileName="PathPage.xml" xy="0,0">
       <gearDisplay controller="state" pages="2"/>
+      <relation target="" sidePair="center-center%,middle-middle%"/>
     </component>
     <component id="n21_jh39" name="exit" src="ei156" fileName="btn.xml" xy="27,997">
       <gearDisplay controller="state" pages="0,1,5"/>
@@ -68,6 +75,7 @@
     </component>
     <text id="n28_nwqz" name="n28" xy="808,18" size="304,42" fontSize="30" text="点击地块执行对应操作">
       <gearDisplay controller="state" pages="6"/>
+      <relation target="" sidePair="center-center%"/>
     </text>
     <graph id="n30_nwqz" name="n30" xy="1763,169" size="126,54" group="n39_nwqz" type="rect"/>
     <text id="n29_nwqz" name="X" xy="1770,175" size="107,42" group="n39_nwqz" fontSize="30" autoSize="none" text="3.15" input="true" keyboardType="2"/>
@@ -81,6 +89,7 @@
     <text id="n38_nwqz" name="n38" xy="1588,175" size="124,42" group="n39_nwqz" fontSize="30" text="相机位置"/>
     <group id="n39_nwqz" name="n39" xy="1588,169" size="301,166" advanced="true">
       <gearDisplay controller="state" pages="5"/>
+      <relation target="" sidePair="right-right%"/>
     </group>
     <text id="n40_uusj" name="n40" xy="914,429" size="204,66" alpha="0" fontSize="50" color="#ffffff" strokeColor="#000000" strokeSize="3" text="保存成功"/>
     <graph id="n42_ic0q" name="n42" xy="0,0" size="1920,1080" group="n49_ic0q" type="rect" lineSize="0" fillColor="#00ffffff"/>
@@ -96,6 +105,7 @@
     </component>
     <group id="n49_ic0q" name="n49" xy="0,0" size="1920,1080" advanced="true">
       <gearDisplay controller="sure2" pages="1"/>
+      <relation target="" sidePair="center-center%,middle-middle%"/>
     </group>
   </displayList>
   <transition name="saveSuccess">
