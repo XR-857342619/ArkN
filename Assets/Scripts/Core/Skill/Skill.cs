@@ -820,7 +820,6 @@ public class Skill
     /// <param name="target"></param>
     public virtual void Hit(Unit target, Bullet bullet = null)
     {
-        Debug.Log("hit1");
         if (SkillData.HitEffect != null)
         {
             var ps = EffectManager.Instance.GetEffect(SkillData.HitEffect.Value);
@@ -917,7 +916,6 @@ public class Skill
                 if (SkillData.IfHeal)
                 {
                     dInfo = GetDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
-                    Debug.Log("heal"+dInfo.Attack+" "+dInfo.DamageRate);
                     target.Heal(dInfo, !SkillData.DamageWithFrameRate);
                     OnHeal(target);
                 }
@@ -955,7 +953,6 @@ public class Skill
 
     public virtual void Hit(Vector2 pos, Bullet bullet = null)
     {
-        Debug.Log("hit2");
         if (SkillData.HitEffect != null)
         {
             var ps = EffectManager.Instance.GetEffect(SkillData.HitEffect.Value);
@@ -1002,7 +999,6 @@ public class Skill
 
     public virtual void Hit(Unit target, float fixedDamageValue, Bullet bullet = null, bool ignorBuff = false)
     {
-        Debug.Log("hit3");
         if (SkillData.HitEffect != null)
         {
             var ps = EffectManager.Instance.GetEffect(SkillData.HitEffect.Value);

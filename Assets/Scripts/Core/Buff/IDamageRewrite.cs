@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public interface IShield
+public interface IDamageRewrite
 {
-    void Absorb(DamageInfo damageInfo);
+    void DamageRewrite(DamageInfo damageInfo);
 
     public int OrderCode { get; }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Buffs
 {
-    public class 屏障 : Buff, IShield
+    public class 屏障 : Buff, IDamageRewrite
     {
         public DamageTypeEnum Type;
         public float Count;
@@ -46,7 +46,7 @@ namespace Buffs
             if (Count == 0) Finish();
         }
 
-        public void Absorb(DamageInfo damageInfo)
+        public void DamageRewrite(DamageInfo damageInfo)
         {
             if (Type == DamageTypeEnum.Real || Type == damageInfo.DamageType)
             {

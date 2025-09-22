@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Buffs
 {
-    public class 锁血 : Buff, IShield
+    public class 锁血 : Buff, IDamageRewrite
     {
         public float triggerRate;
         public float triggerPoint;
@@ -68,7 +68,7 @@ namespace Buffs
             isTriggered = false;
             targetHp = 0;
         }
-        public void Absorb(DamageInfo damageInfo)
+        public void DamageRewrite(DamageInfo damageInfo)
         {
             if (isTriggered)
             {

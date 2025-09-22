@@ -9,10 +9,10 @@ namespace Buffs
     /*
      无敌：无法被选中+不会受到伤害
      */
-    public class 无敌 : Buff,IShield
+    public class 无敌 : Buff,IDamageRewrite
     {
         public int OrderCode { get { return 100000; } }
-        public void Absorb(DamageInfo damageInfo)
+        public void DamageRewrite(DamageInfo damageInfo)
         {
             damageInfo.FinalDamage = 0;
         }

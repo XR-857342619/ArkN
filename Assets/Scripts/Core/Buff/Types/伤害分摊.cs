@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Buffs
 {
-    public class 伤害分摊 : Buff, IShield
+    public class 伤害分摊 : Buff, IDamageRewrite
     {
         public float shareRate;
         public DamageTypeEnum damageType;
@@ -31,7 +31,7 @@ namespace Buffs
             group = BuffData.Data.GetStr("Group", "");
         }
             //Unit.RewriteDamage = MinResponseLimit;
-        public void Absorb(DamageInfo damageInfo)
+        public void DamageRewrite(DamageInfo damageInfo)
         {
             if(!isMainUnit) return;
             if (onlyFatal && Unit.Hp - damageInfo.FinalDamage > 0) return;

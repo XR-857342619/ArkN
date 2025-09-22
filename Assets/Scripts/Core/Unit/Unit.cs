@@ -43,7 +43,7 @@ public class Unit
     public Skill MainSkill;
 
     public List<Buff> Buffs = new List<Buff>();
-    public List<IShield> Shields = new List<IShield>();
+    public List<IDamageRewrite> Shields = new List<IDamageRewrite>();
     public List<int> IgnoreBuffs = new List<int>();
 
     public float MaxHp;
@@ -668,7 +668,7 @@ public class Unit
             Buffs.Add(newBuff);
 
             // 如果是护盾类型，添加到护盾列表
-            if (newBuff is IShield shield)
+            if (newBuff is IDamageRewrite shield)
                 Shields.Add(shield);
 
             // 初始化BUFF
@@ -681,7 +681,7 @@ public class Unit
     public void RemoveBuff(Buff buff)
     {
         Buffs.Remove(buff);
-        if (buff is IShield shield) Shields.Remove(shield);
+        if (buff is IDamageRewrite shield) Shields.Remove(shield);
         //Refresh();
     }
     #region 推拉相关
@@ -853,7 +853,7 @@ public class Unit
         });
         Trigger(TriggerEnum.被治疗);
         Battle.TriggerDatas.Pop();
-        Debug.Log(UnitData.Name + " 受到" + heal.GetSourceUnit().UnitData.Name + "的" + heal.FinalDamage + "点治疗");
+        //Debug.Log(UnitData.Name + " 受到" + heal.GetSourceUnit().UnitData.Name + "的" + heal.FinalDamage + "点治疗");
     }
 
     public void Damage(DamageInfo damageInfo)
@@ -863,9 +863,9 @@ public class Unit
         if (damageInfo.DamageType == DamageTypeEnum.Magic) damage *= (1+MagicDamageReceiveRate);
         if (damageInfo.DamageType == DamageTypeEnum.Element) damage *= (1+ElementDamageReceiveRate);
         damage = damageWithDefence(damage, damageInfo.DamageType,damageInfo.DefIgnore, damageInfo.DefIgnoreRate,damageInfo.MinDamageRate);
-        Debug.Log("伤害" + damage);
+        //Debug.Log("伤害" + damage);
         damageInfo.FinalDamage = damage * (1+DamageReceiveRate);
-        Debug.Log("结算易伤伤害" + damageInfo.FinalDamage);
+        //Debug.Log("结算易伤伤害" + damageInfo.FinalDamage);
         float damageEx = damageInfo.Attack;
         damageEx = damageWithDefence(damageEx, damageInfo.DamageType, 0, 0, damageInfo.MinDamageRate);
         if (damage > damageEx * 1.5f) UnitModel.ShowCrit(damageInfo);
@@ -878,7 +878,7 @@ public class Unit
             
             foreach (var shield in Shields.ToArray())
             {
-                shield.Absorb(damageInfo);
+                shield.DamageRewrite(damageInfo);
             }
             //Debug.Log(damageInfo.FinalDamage);
             //Debug.Log(Hp);
@@ -911,7 +911,7 @@ public class Unit
                 DoDie(damageInfo);
             }
             Unit unit = damageInfo.GetSourceUnit();
-            if (unit is Units.干员)
+            if (unit is Units.干员 && damageInfo.GetSourceUnit() != damageInfo.Target)
             {
                 干员 oprator = unit as 干员;
                 while (oprator.Parent != null)

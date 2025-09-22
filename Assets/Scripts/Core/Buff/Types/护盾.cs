@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Buffs
 {
-    public class 护盾 : Buff, IShield
+    public class 护盾 : Buff, IDamageRewrite
     {
         public int Count;
         public int orderCode;
@@ -22,7 +22,7 @@ namespace Buffs
             orderCode = BuffData.Data.GetInt("OrderCode",1000);
         }
 
-        public void Absorb(DamageInfo damageInfo)
+        public void DamageRewrite(DamageInfo damageInfo)
         {
             if (damageInfo.FinalDamage > 0)
             {

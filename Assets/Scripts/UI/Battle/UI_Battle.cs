@@ -170,6 +170,7 @@ namespace BattleUI
             selectedUnit = units.Last();
             this.units = units;
             m_state.selectedIndex = 4;
+            Debug.Log("sate:4");
             m_left.SetUnit(units.Last());
             BattleCamera.Instance.ShowUnitInfo(units.Last());
         }
@@ -179,6 +180,7 @@ namespace BattleUI
             selectedUnit = unit;
             this.units = new List<Unit>() { unit };
             m_state.selectedIndex = 4;
+            Debug.Log("sate:4");
             m_left.SetUnit(unit);
             BattleCamera.Instance.ShowUnitInfo(unit);
         }
@@ -188,6 +190,7 @@ namespace BattleUI
             if (m_state.selectedIndex == 4)
             {
                 m_state.selectedIndex = 0;
+                Debug.Log("sate:0");
             }
         }
 
@@ -210,6 +213,7 @@ namespace BattleUI
                 damageInfo.Dispose();
             }
             m_state.selectedIndex = 5;
+            Debug.Log("sate:5");
             BattleCamera.Instance.Blur = true;
             if (Battle.PlayerUnits.Count > 0)
             {
@@ -273,14 +277,17 @@ namespace BattleUI
             //    width = (int)this.width/units.Count()+1;
             //莫名其妙会吞一个单位
             UI_BuildSprite tmp = UIPool.GetObject(UI_BuildSprite.URL) as UI_BuildSprite;
-            tmp.GetController("isTmp").selectedIndex = 1;  
+            tmp.GetController("isTmp").selectedIndex = 1;
+            tmp.touchable = false;
             m_UnitList.AddChild(tmp);
             
             foreach (var group in units)
             {
-                Debug.Log(group.FirstOrDefault().UnitData.Name);
+                //Debug.Log(group.FirstOrDefault().UnitData.Name);
                 var head = UIPool.GetObject(UI_BuildSprite.URL) as UI_BuildSprite;
                 //head.width = width;
+                head.GetController("isTmp").selectedIndex = 0;
+                head.touchable = true;
                 head.SetUnit(group.FirstOrDefault());
                 
                 m_UnitList.AddChild(head);
@@ -313,7 +320,7 @@ namespace BattleUI
                     head.m_count.visible = false;
                 }
             }
-            Debug.Log(m_UnitList.numChildren);
+            //Debug.Log(m_UnitList.numChildren);
         }
 
         void clickUnit(Units.干员 unit)
@@ -324,12 +331,14 @@ namespace BattleUI
                 selectedUnit = null;
                 BattleCamera.Instance.CancelBuild();
                 m_state.selectedIndex = 0;
+                Debug.Log("sate:0");
             }
             else
             {
                 BattleCamera.Instance.CancelBuild();
                 selectedUnit = unit;
                 m_state.selectedIndex = 1;
+                Debug.Log("sate:1");
                 inSelectUnit();
             }
         }
@@ -342,6 +351,7 @@ namespace BattleUI
             if (unit != selectedUnit) clickUnit(unit);
             //if (m_state.selectedIndex != 1 && unit != selectedUnit) return;//拽错了也不许出来
             m_state.selectedIndex = 2;
+            Debug.Log("sate:2");
             BattleCamera.Instance.BuildUnit = SelectPlayerUnit;
             BattleCamera.Instance.StartBuild();
         }
@@ -353,6 +363,7 @@ namespace BattleUI
         {
             SelectPlayerUnit.LeaveMap(true);
             m_state.selectedIndex = 0;
+            Debug.Log("sate:0");
         }
 
 
@@ -363,6 +374,7 @@ namespace BattleUI
             {
                 sk.DoOpen();
                 m_state.selectedIndex = 0;
+                Debug.Log("sate:0");
             }
             else if (!sk.Opening.Finished() && sk.SkillData.CanStop)
             {
@@ -441,6 +453,7 @@ namespace BattleUI
         {
             TimeHelper.Instance.SetPause(false);
             m_state.selectedIndex = 0;
+            Debug.Log("sate:0");
         }
 
         void doGiveUp()

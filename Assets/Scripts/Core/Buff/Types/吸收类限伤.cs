@@ -4,7 +4,7 @@ using Buffs;
 
 namespace Buffs
 {
-    public class 吸收类限伤 : Buff, IShield
+    public class 吸收类限伤 : Buff, IDamageRewrite
     {
         public float MinResponseLimit;
         public float RewriteDamage;
@@ -21,7 +21,7 @@ namespace Buffs
             orderCode = BuffData.Data.GetInt("OrderCode", 0);
             //Unit.RewriteDamage = MinResponseLimit;
         }
-        public void Absorb(DamageInfo damageInfo)
+        public void DamageRewrite(DamageInfo damageInfo)
         {
             if (damageInfo.FinalDamage >= MinResponseLimit)
                 damageInfo.FinalDamage = MinResponseLimit;
