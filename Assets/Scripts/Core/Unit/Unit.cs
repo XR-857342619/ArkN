@@ -840,7 +840,7 @@ public class Unit
 
     public void Heal(DamageInfo heal,bool ifShowHeal)
     {
-        heal.FinalDamage = heal.Attack * heal.DamageRate * HealReceiveRate;
+        heal.FinalDamage = heal.Attack * heal.DamageRate * (1 + HealReceiveRate);
         Hp += heal.FinalDamage;
         if (ifShowHeal) UnitModel.ShowHeal(heal);
         if (Hp > MaxHp)

@@ -820,10 +820,11 @@ public class Skill
     /// <param name="target"></param>
     public virtual void Hit(Unit target, Bullet bullet = null)
     {
+        Debug.Log("hit1");
         if (SkillData.HitEffect != null)
         {
             var ps = EffectManager.Instance.GetEffect(SkillData.HitEffect.Value);
-            //ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.HitEffect.Value).BindPoint);
+            ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.HitEffect.Value).BindPoint);
             if (bullet != null)
             {
                 ps.Init(Unit, target, bullet.TargetPos, bullet.Direction);
@@ -856,7 +857,7 @@ public class Skill
                     {
                         var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
                         ps.Init(Unit, t, bullet != null ? bullet.Position : Unit.Position, bullet != null ? bullet.Direction : Unit.Direction.ToV3());
-                        //ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
+                        ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
                         //ps.Play();
                     }
                     dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage)*((bullet != null && bullet is 链式弹道  linkBullet) ? linkBullet.reductionRate : 1));
@@ -886,7 +887,7 @@ public class Skill
                     {
                         var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
                         ps.Init(Unit, t, bullet != null ? bullet.Position : Unit.Position, bullet != null ? bullet.Direction : Unit.Direction.ToV3());
-                        //ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
+                        ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
                         //ps.Play();
                     }
                     dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
@@ -916,6 +917,7 @@ public class Skill
                 if (SkillData.IfHeal)
                 {
                     dInfo = GetDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
+                    Debug.Log("heal"+dInfo.Attack+" "+dInfo.DamageRate);
                     target.Heal(dInfo, !SkillData.DamageWithFrameRate);
                     OnHeal(target);
                 }
@@ -953,6 +955,7 @@ public class Skill
 
     public virtual void Hit(Vector2 pos, Bullet bullet = null)
     {
+        Debug.Log("hit2");
         if (SkillData.HitEffect != null)
         {
             var ps = EffectManager.Instance.GetEffect(SkillData.HitEffect.Value);
@@ -999,6 +1002,7 @@ public class Skill
 
     public virtual void Hit(Unit target, float fixedDamageValue, Bullet bullet = null, bool ignorBuff = false)
     {
+        Debug.Log("hit3");
         if (SkillData.HitEffect != null)
         {
             var ps = EffectManager.Instance.GetEffect(SkillData.HitEffect.Value);
@@ -1596,7 +1600,8 @@ public class Skill
         Battle.TriggerDatas.Pop();
     }
 
-    protected DamageInfo GetDamageInfo(Unit target, float damageRate = 1, bool fixedDamage = false)
+    //protected DamageInfo GetDamageInfo(Unit target, float damageRate = 1, bool fixedDamage = false)
+    protected DamageInfo GetDamageInfo(Unit target, float damageRate = 1)
     {
         var cooldown = SkillData.Cooldown;
         if (cooldown < SystemConfig.DeltaTime) cooldown = SystemConfig.DeltaTime;
