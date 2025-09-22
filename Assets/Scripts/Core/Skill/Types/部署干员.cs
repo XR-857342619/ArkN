@@ -36,7 +36,7 @@ namespace Skills
         {
             //base.Start();
             FindTarget();
-            Debug.Log(Targets.First().Position);
+            Debug.Log(Targets?.First()?.Position);
             switch (targetPos)
             {
                 case "useSelfPos":

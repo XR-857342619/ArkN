@@ -10,11 +10,13 @@ namespace BattleUI
         public Controller m_typeControl;
         public Controller m_cooldown;
         public Controller m_canUse;
+        public Controller m_isTmp;
         public UI_Head m_headIcon;
         public GTextField m_resetTime;
         public GProgressBar m_bar;
         public GTextField m_cost;
         public GTextField m_count;
+        public GGroup m_total;
         public const string URL = "ui://vp312gabf1463l";
 
         public static UI_BuildSprite CreateInstance()
@@ -29,11 +31,13 @@ namespace BattleUI
             m_typeControl = GetControllerAt(0);
             m_cooldown = GetControllerAt(1);
             m_canUse = GetControllerAt(2);
+            m_isTmp = GetControllerAt(3);
             m_headIcon = (UI_Head)GetChildAt(1);
             m_resetTime = (GTextField)GetChildAt(5);
             m_bar = (GProgressBar)GetChildAt(7);
             m_cost = (GTextField)GetChildAt(8);
             m_count = (GTextField)GetChildAt(10);
+            m_total = (GGroup)GetChildAt(12);
             Init();
         }
         partial void Init();

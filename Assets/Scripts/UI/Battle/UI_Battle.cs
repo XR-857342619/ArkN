@@ -255,37 +255,51 @@ namespace BattleUI
 
         public void UpdateUnitsLayout()
         {
-            for (int i = 0; i < m_Builds.numChildren; i++)
+            for (int i = 0; i < m_UnitList.numChildren; i++)
             {
-                var head = m_Builds.GetChildAt(i) as UI_BuildSprite;
+                var head = m_UnitList.GetChildAt(i) as UI_BuildSprite;
                 head.Unit = null;
                 UIPool.ReturnObject(head);
             }
-            m_Builds.RemoveChildren();
+            //m_Builds.RemoveChildren();
+
+            m_UnitList.RemoveChildren();
+
             var units = Battle.PlayerUnits.Where(x => x.InputTime == -1).GroupBy(x => x.Id).ToList();
-            units.Sort((x, y) => y.FirstOrDefault().UnitData.Cost - x.FirstOrDefault().UnitData.Cost);
-            int width = 182;
+            units.Sort((x, y) => -(y.FirstOrDefault().UnitData.Cost - x.FirstOrDefault().UnitData.Cost));
+            //int width = 182;
             //Debug.Log(this.width+"--"+Screen.width);
-            if (units.Count() * width > this.width)
-                width = (int)this.width/units.Count()+1;
+            //if (units.Count() * width > this.width)
+            //    width = (int)this.width/units.Count()+1;
+            //莫名其妙会吞一个单位
+            UI_BuildSprite tmp = UIPool.GetObject(UI_BuildSprite.URL) as UI_BuildSprite;
+            tmp.GetController("isTmp").selectedIndex = 1;  
+            m_UnitList.AddChild(tmp);
+            
             foreach (var group in units)
             {
+                Debug.Log(group.FirstOrDefault().UnitData.Name);
                 var head = UIPool.GetObject(UI_BuildSprite.URL) as UI_BuildSprite;
                 //head.width = width;
                 head.SetUnit(group.FirstOrDefault());
-                m_Builds.AddChild(head);
+                
+                m_UnitList.AddChild(head);
+                //m_Builds.AddChild(head);
+
                 //Log.Debug(head.width);
                 //Log.Debug(this.width);
                 //Log.Debug(units.IndexOf(group));
                 //Log.Debug(this.width - ((units.IndexOf(group) + 2) * width));
-                head.xy = new UnityEngine.Vector2(
-# if UNITY_EDITOR
-                    this.width - ((units.IndexOf(group) + 2)* width),
-#else
-                    Screen.width - ((units.IndexOf(group) + 1) * width),
-#endif
-                    //Screen.width - (units.IndexOf(group)) * width,
-                    group.FirstOrDefault() == selectedUnit ? height - 50f : height);
+
+//                head.xy = new UnityEngine.Vector2(
+//# if UNITY_EDITOR
+//                    this.width - ((units.IndexOf(group) + 2)* width),
+//#else
+//                    Screen.width - ((units.IndexOf(group) + 1) * width),
+//#endif
+//                    //Screen.width - (units.IndexOf(group)) * width,
+//                    group.FirstOrDefault() == selectedUnit ? height - 50f : height);
+
                 head.onClick.Set(() => clickUnit(group.FirstOrDefault()));
                 head.draggable = true;
                 head.onDragStart.Set(dragUnit);
@@ -299,6 +313,7 @@ namespace BattleUI
                     head.m_count.visible = false;
                 }
             }
+            Debug.Log(m_UnitList.numChildren);
         }
 
         void clickUnit(Units.干员 unit)

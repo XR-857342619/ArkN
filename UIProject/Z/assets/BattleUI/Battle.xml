@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080" opaque="false">
-  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="0">
+  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="4">
     <remark page="0" value="正常"/>
     <remark page="1" value="放置单位"/>
     <remark page="2" value="放置单位_选择位置"/>
@@ -69,6 +69,14 @@
     <group id="n42_kbte" name="normalGroup" xy="-1,0" size="1921,1080" advanced="true">
       <gearDisplay controller="state" pages="0,1,8,9,10,12,13"/>
     </group>
+    <list id="n128_edar" name="UnitList" xy="1,886" size="2097,566" alpha="0.25" layout="flow_hz" overflow="scroll" scroll="horizontal" scrollBarFlags="128" lineItemCount="20" defaultItem="ui://vp312gabf1463l" align="right" vAlign="middle" renderOrder="arch">
+      <gearXY controller="state" pages="0,1,8,9" values="1,880,0.001,0.815|1,880,0.001,0.815|1,880,0.001,0.815|1,1080,0.001,1" default="1,886,0.001,0.82" tween="true" duration="0.05" positionsInPercent="true"/>
+      <gearLook controller="state" pages="1,10,11,12,13" values="0.75,0,0,1|0.25,0,0,1|0,0,0,1|0.25,0,0,1|0.25,0,0,1" default="1,0,0,1" tween="true" duration="0.05"/>
+      <relation target="" sidePair="width-width%,height-height%,bottom-bottom%"/>
+      <item/>
+      <item/>
+      <item/>
+    </list>
     <graph id="n105_t03z" name="background" xy="0,0" size="1920,1080" group="n93_fji9" alpha="0" type="rect" lineSize="0">
       <relation target="" sidePair="width-width%,height-height%"/>
     </graph>

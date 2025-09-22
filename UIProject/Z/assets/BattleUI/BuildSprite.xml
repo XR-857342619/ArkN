@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component size="182,188" restrictSize="-39,0,0,0" pivot="1,1" anchor="true">
+<component size="182,188" pivot="1,1" anchor="true">
   <controller name="typeControl" pages="9,,0,,1,,2,,3,,4,,5,,6,,7," selected="0">
     <remark page="1" value="先锋"/>
     <remark page="2" value="近卫"/>
@@ -12,48 +12,52 @@
   </controller>
   <controller name="cooldown" pages="0,,1," selected="0"/>
   <controller name="canUse" pages="0,,1," selected="0"/>
+  <controller name="isTmp" pages="0,,1," selected="0"/>
   <displayList>
-    <image id="n29_hwog" name="n29" src="hwogsx" fileName="sprite_charactercard_underframe.png" xy="0,-8" size="182,197" alpha="0.5" color="#fcfcfc">
+    <image id="n29_hwog" name="n29" src="hwogsx" fileName="sprite_charactercard_underframe.png" xy="0,-8" size="182,197" group="n32_e6t2" alpha="0.5" color="#fcfcfc">
       <relation target="" sidePair="width-width%,height-height%,center-center%,middle-middle%"/>
     </image>
-    <component id="n18_kbte" name="headIcon" src="kbte3o" fileName="Head.xml" xy="0,0" size="181,185">
+    <component id="n18_kbte" name="headIcon" src="kbte3o" fileName="Head.xml" xy="0,0" size="181,185" group="n32_e6t2">
       <relation target="" sidePair="center-center%,middle-middle%"/>
     </component>
-    <image id="n28_hwog" name="n28" src="hwogsw" fileName="sprite_charactercard_choesn.png" xy="-9,-9">
+    <image id="n28_hwog" name="n28" src="hwogsw" fileName="sprite_charactercard_choesn.png" xy="-9,-9" group="n32_e6t2">
       <relation target="" sidePair="center-center%,middle-middle%"/>
     </image>
-    <image id="n30_hwog" name="n30" src="hwogsy" fileName="sprite_rarity_6.png" xy="-1,143" size="185,47">
+    <image id="n30_hwog" name="n30" src="hwogsy" fileName="sprite_rarity_6.png" xy="-1,143" size="185,47" group="n32_e6t2">
       <relation target="" sidePair="center-center%,bottom-top%"/>
     </image>
-    <image id="n27_hwog" name="n27" src="hwogss" fileName="sprite_respawn_back.png" xy="0,0" size="182,188">
+    <image id="n27_hwog" name="n27" src="hwogss" fileName="sprite_respawn_back.png" xy="0,0" size="182,188" group="n32_e6t2">
       <gearDisplay controller="cooldown" pages="1"/>
       <relation target="" sidePair="center-center%,middle-middle%"/>
     </image>
-    <text id="n21_kbte" name="resetTime" xy="90,99" pivot="0.5,0.5" anchor="true" size="55,36" fontSize="26" color="#ffffff" align="center" text="36.5">
+    <text id="n21_kbte" name="resetTime" xy="90,99" pivot="0.5,0.5" anchor="true" size="55,36" group="n32_e6t2" fontSize="26" color="#ffffff" align="center" text="36.5">
       <gearDisplay controller="cooldown" pages="1"/>
       <relation target="" sidePair="center-center%,middle-middle%"/>
     </text>
-    <graph id="n16_kbte" name="n16" xy="46,-2" size="90,46" type="rect" lineSize="0" fillColor="#7f000000">
+    <graph id="n16_kbte" name="n16" xy="46,-2" size="90,46" group="n32_e6t2" type="rect" lineSize="0" fillColor="#7f000000">
       <relation target="" sidePair="center-center%,top-top"/>
     </graph>
-    <component id="n19_kbte" name="bar" src="kbte3p" fileName="circleBar.xml" xy="41,52">
+    <component id="n19_kbte" name="bar" src="kbte3p" fileName="circleBar.xml" xy="41,52" group="n32_e6t2">
       <gearDisplay controller="cooldown" pages="1"/>
       <relation target="" sidePair="center-center%,middle-middle%"/>
       <ProgressBar max="100"/>
     </component>
-    <text id="n17_kbte" name="cost" xy="102,3" size="33,36" fontSize="26" color="#ffffff" text="19">
+    <text id="n17_kbte" name="cost" xy="102,3" size="33,36" group="n32_e6t2" fontSize="26" color="#ffffff" text="19">
       <relation target="n16_kbte" sidePair="right-right%"/>
     </text>
-    <loader id="n24_kbte" name="n24" xy="46,-2" size="50,50" url="ui://k4mja8t1kbte5" align="center" vAlign="middle" fill="scale">
+    <loader id="n24_kbte" name="n24" xy="46,-2" size="50,50" group="n32_e6t2" url="ui://k4mja8t1kbte5" align="center" vAlign="middle" fill="scale">
       <gearIcon controller="typeControl" pages="0,2,3,4,5,6,7" values="ui://k4mja8t1kbte8|ui://k4mja8t1kbte9|ui://k4mja8t1kbte4|ui://k4mja8t1kbte6|ui://k4mja8t1kbte3|ui://k4mja8t1kbte7|ui://k4mja8t1kbtea" default="ui://k4mja8t1kbte5"/>
       <relation target="n16_kbte" sidePair="left-left%"/>
     </loader>
-    <text id="n26_t5h9" name="count" xy="150,147" pivot="1,0" size="32,36" fontSize="26" color="#ffffff" align="right" vars="true" text="x{n=1}">
+    <text id="n26_t5h9" name="count" xy="150,147" pivot="1,0" size="32,36" group="n32_e6t2" fontSize="26" color="#ffffff" align="right" vars="true" text="x{n=1}">
       <relation target="" sidePair="right-right%,bottom-bottom%"/>
     </text>
-    <graph id="n31_hwog" name="n31" xy="0,1" size="182,187" type="rect" lineSize="0" fillColor="#7f000000">
+    <graph id="n31_hwog" name="n31" xy="0,1" size="182,187" group="n32_e6t2" type="rect" lineSize="0" fillColor="#7f000000">
       <gearDisplay controller="canUse" pages="1"/>
       <relation target="" sidePair="center-center%,middle-middle%,rightext-right%,topext-top%,bottomext-bottom%,leftext-left%"/>
     </graph>
+    <group id="n32_e6t2" name="total" xy="-9,-9" size="200,207" advanced="true">
+      <gearDisplay controller="isTmp" pages="0"/>
+    </group>
   </displayList>
 </component>

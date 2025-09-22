@@ -1231,10 +1231,14 @@ public class Skill
             var attackPoints = SkillData.AttackAreaWithMain ? Unit.GetNowAttackSkill().AttackPoints : AttackPoints;
             tempTargetsFromAttackRange.AddRange(Battle.FindAll(attackPoints, SkillData.TargetTeam, !SkillData.DeadFind));
         }
-        
-        if (tempTargetsFromEvent.Count > 0 && tempTargetsFromAttackRange.Count > 0)
-            tempTargets.AddRange(tempTargetsFromEvent.Where(x => tempTargetsFromAttackRange.Contains(x)));
 
+        if (tempTargetsFromEvent.Count > 0 && tempTargetsFromAttackRange.Count > 0)
+            tempTargets.AddRange(tempTargetsFromAttackRange.FindAll(x => tempTargetsFromEvent.Contains(x)));
+        else
+        {
+            tempTargets.AddRange(tempTargetsFromEvent);
+            tempTargets.AddRange(tempTargetsFromAttackRange);
+        }
         if (SkillData.SkillCondition != "" && SkillData.SkillCondition != null && Casting.Finished())
         {
             filter.SetTargets(tempTargets);
