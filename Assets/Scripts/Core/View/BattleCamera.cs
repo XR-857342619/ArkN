@@ -119,14 +119,14 @@ public class BattleCamera : MonoBehaviour
                 if (canBuild)
                 {
                     BattleUI.UI_Battle.Instance.m_state.selectedIndex = 3;
-                    Debug.Log("state.selectedIndex = 3");
+                    //Debug.Log("state.selectedIndex = 3");
                     //FocusUnit = BuildUnit
                 }
                 else
                 {
                     CancelBuild();
                     BattleUI.UI_Battle.Instance.m_state.selectedIndex = 1;
-                    Debug.Log("state.selectedIndex = 1");
+                    //Debug.Log("state.selectedIndex = 1");
                 }
             }
         }

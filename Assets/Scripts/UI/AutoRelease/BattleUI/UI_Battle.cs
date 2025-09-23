@@ -10,6 +10,7 @@ namespace BattleUI
         public Controller m_state;
         public Controller m_win;
         public Controller m_isPreview;
+        public Controller m_showUnitList;
         public GTextField m_enemy;
         public GTextField m_hp;
         public GComponent m_Units;
@@ -69,6 +70,7 @@ namespace BattleUI
             m_state = GetControllerAt(0);
             m_win = GetControllerAt(1);
             m_isPreview = GetControllerAt(2);
+            m_showUnitList = GetControllerAt(3);
             m_enemy = (GTextField)GetChildAt(1);
             m_hp = (GTextField)GetChildAt(2);
             m_Units = (GComponent)GetChildAt(3);

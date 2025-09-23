@@ -50,7 +50,7 @@ public class BattleManager : MonoBehaviour
             int frame = Mathf.FloorToInt(ExcuteTime / SystemConfig.DeltaTime);
             for (int i = 0; i < frame - Battle.Tick; i++)
             {
-                              Battle.Update();
+                Battle.Update();
             }
         }
     }

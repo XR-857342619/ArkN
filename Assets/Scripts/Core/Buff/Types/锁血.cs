@@ -12,8 +12,9 @@ namespace Buffs
         public float triggerPoint;
         public bool canRecover;
         bool isTriggered;
-        float targetHp;
+        //float targetHp;
         int orderCode;
+        float finalTriggerThreshold;
         public int OrderCode
         {
             get { return orderCode; }
@@ -27,38 +28,30 @@ namespace Buffs
             canRecover = BuffData.Data.GetBool("CanRecover");
             orderCode = BuffData.Data.GetInt("OrderCode",0);
         }
-        public override void Reset()
-        {
-            base.Reset();
-            //Init();
-            isTriggered = false;
-            targetHp = 0;
-        }
         public override void Update()
         {
             if (triggerRate == 0 && triggerPoint == 0) return;
             base.Update();
+            float percentThreshold = Unit.MaxHp > 0 ? Unit.MaxHp * triggerRate : 0;
+            finalTriggerThreshold = Mathf.Max(percentThreshold, triggerPoint);
             if (!isTriggered)
             {
-                float percentThreshold = Unit.MaxHp > 0 ? Unit.MaxHp * triggerRate : 0;
-                float finalTriggerThreshold = Mathf.Max(percentThreshold, triggerPoint); // 取更严格的阈值
-
                 if (Unit.Hp < finalTriggerThreshold)
                 {
                     isTriggered = true;
-                    targetHp = finalTriggerThreshold;
-                    Unit.Hp = targetHp;
+                    //targetHp = finalTriggerThreshold;
+                    Unit.Hp = finalTriggerThreshold;
                 }
             }
             if (isTriggered)
             {
-                if (Unit.Hp > targetHp)
+                if (Unit.Hp > finalTriggerThreshold)
                 {
                     if (!canRecover)
-                        Unit.Hp = targetHp;
+                        Unit.Hp = finalTriggerThreshold;
                 }
                 else
-                    Unit.Hp = targetHp;
+                    Unit.Hp = finalTriggerThreshold;
             }
         }
         //Unit.RewriteDamage = MinResponseLimit;
@@ -66,21 +59,23 @@ namespace Buffs
         {
             base.Finish();
             isTriggered = false;
-            targetHp = 0;
+            finalTriggerThreshold = 0;
         }
         public void DamageRewrite(DamageInfo damageInfo)
         {
-            if (isTriggered)
+            float remainingHp = Unit.Hp - damageInfo.FinalDamage;
+            Debug.Log("锁血剩余Hp：" + remainingHp);
+            if (remainingHp <= finalTriggerThreshold)
             {
-                // 计算“当前Hp - 伤害”后的剩余Hp
-                float remainingHp = Unit.Hp - damageInfo.FinalDamage;
-                // 若剩余Hp低于targetHp，仅承受“当前Hp - targetHp”的伤害（确保Hp不低于targetHp）
-                if (remainingHp < targetHp)
-                {
-                    damageInfo.FinalDamage = Unit.Hp - targetHp;
-                }
-                // 若剩余Hp >= targetHp，伤害正常生效（由Update逻辑处理是否允许超过targetHp）
+                Unit.Hp = finalTriggerThreshold;
+                damageInfo.FinalDamage = 0;
+                isTriggered = true;
             }
+            else if (isTriggered)
+            {
+                damageInfo.FinalDamage = Unit.Hp - finalTriggerThreshold;
+            }
+            Debug.Log("当前伤害" + damageInfo.FinalDamage);
         }
     }
 }

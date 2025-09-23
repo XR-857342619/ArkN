@@ -101,6 +101,10 @@
     <image id="hwogsx" name="sprite_charactercard_underframe.png" path="/"/>
     <image id="hwogsy" name="sprite_rarity_6.png" path="/"/>
     <component id="fva0sz" name="DiyBar.xml" path="/"/>
+    <component id="fklpt0" name="switchBtn.xml" path="/"/>
+    <image id="fklpsf" name="fear_full_not_bg.png" path="/"/>
+    <image id="fklpt1" name="fear_full_not_cache.png" path="/"/>
+    <image id="fklpt2" name="fear_full_not_icon.png" path="/"/>
   </resources>
   <publish name="" genCode="true"/>
 </packageDescription>

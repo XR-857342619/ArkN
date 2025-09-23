@@ -2,7 +2,7 @@
 <component size="119,158" pivot="0.5,0.82" anchor="true">
   <controller name="readyControl" pages="0,,1,,2," selected="0"/>
   <controller name="skillCount" pages="0,,1," selected="0"/>
-  <controller name="unitType" pages="0,,1,,2,,3,,10,,11," selected="5">
+  <controller name="unitType" pages="0,,1,,2,,3,,10,,11," selected="0">
     <remark page="0" value="干员"/>
     <remark page="1" value="敌人"/>
     <remark page="2" value="装置"/>
@@ -40,7 +40,17 @@
       <gearXY controller="unitType" pages="10" values="35,15" default="35,65"/>
       <ProgressBar value="50" max="100"/>
     </component>
-    <list id="n45_hwog" name="progressList" xy="119,1" size="50,158" overflow="scroll" align="center" vAlign="bottom"/>
+    <list id="n45_hwog" name="progressList" xy="119,-3" size="50,158" layout="pagination" selectionMode="none" scroll="both" lineItemCount="1" lineItemCount2="6" defaultItem="ui://vp312gabhwogsk" autoItemSize="true" align="center" renderOrder="arch" scrollItemToViewOnClick="false">
+      <relation target="" sidePair="middle-middle%,left-right%"/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+      <item/>
+    </list>
     <component id="n48_hwog" name="bigHp" src="hwogsq" fileName="ProgressBar_boss.xml" xy="-312,2">
       <gearDisplay controller="unitType" pages="10"/>
       <ProgressBar value="50" max="100"/>

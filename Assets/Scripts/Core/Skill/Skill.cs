@@ -1180,12 +1180,12 @@ public class Skill
     public virtual void FindTarget()
     {
         //Debug.Log("开始获取目标");
-        if (showRange)
-        {
-            HideUnitAttackArea();
-            //Debug.Log("展示");
-            ShowUnitAttackArea();
-        }
+        //if (showRange)
+        //{
+        //    HideUnitAttackArea();
+        //    //Debug.Log("展示");
+        //    ShowUnitAttackArea();
+        //}
         Targets.Clear();
         Targets.AddRange(GetAttackTarget());
         //Debug.Log(Targets.First().Position);
@@ -1485,6 +1485,8 @@ public class Skill
         {
             Unit.AttackingAction.Finish();
         }
+        if (showRange)
+            HideUnitAttackArea();
     }
 
     protected virtual void OnAttack(Unit target)
@@ -1792,6 +1794,7 @@ public class Skill
             showRange.rangeRadius = SkillData.AttackRange;
             //showRange.polygonRange = AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();    
             showRange.Init();
+            tiles.Add(go);
         }
     }
     public void HideUnitAttackArea()

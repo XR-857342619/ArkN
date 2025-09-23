@@ -33,6 +33,7 @@ namespace Buffs
             //Unit.RewriteDamage = MinResponseLimit;
         public void DamageRewrite(DamageInfo damageInfo)
         {
+            Log.Debug(damageInfo.FinalDamage);
             if(!isMainUnit) return;
             if (onlyFatal && Unit.Hp - damageInfo.FinalDamage > 0) return;
             List<Unit> shareList = Battle.AllUnits
@@ -45,24 +46,26 @@ namespace Buffs
                 if (mainList.Count > 0)
                 {
                     shareList.RemoveAll(x => mainList.Contains(x));
-                    if (shareList.Count == 0) return; // 避免除零
-                    float totalShareDamage = onlyFatal ? (damageInfo.FinalDamage - Unit.Hp) * shareRate : damageInfo.FinalDamage * shareRate;  // 先算出要分摊的总伤害
-                    damageInfo.FinalDamage -= totalShareDamage;  // 原伤害减去分摊部分
+                    if (shareList.Count == 0) return;
+                    float totalShareDamage = onlyFatal ? (damageInfo.FinalDamage - Unit.Hp) * shareRate : damageInfo.FinalDamage * shareRate;
+                    damageInfo.FinalDamage -= totalShareDamage;
+                    Log.Debug("分摊后伤害：" + damageInfo.FinalDamage);
                     float damage = totalShareDamage / shareList.Count;
+                    Log.Debug("分摊后单人伤害：" + damage);
                     foreach (Unit unit in shareList)
                     {
                         unit.Damage(new DamageInfo()
                         {
                             DamageRate = 1,
                             DamageType = DamageTypeEnum.general,
-                            Attack = damage // 直接使用传入的基础伤害
+                            Attack = damage
                         });
                         //unit.Hp -= damage;
                     }
                 }
                 else
                 {
-                    if (shareList.Count <= 1) return;  // 避免除零
+                    if (shareList.Count <= 1) return;
                     float totalShareDamage = onlyFatal ? (damageInfo.FinalDamage - Unit.Hp) * shareRate : damageInfo.FinalDamage * shareRate;
                     float damage = totalShareDamage / (shareList.Count - 1);
                     damageInfo.FinalDamage *= (1 - shareRate);
@@ -73,7 +76,7 @@ namespace Buffs
                         {
                             DamageRate = 1,
                             DamageType = DamageTypeEnum.general,
-                            Attack = damage // 直接使用传入的基础伤害
+                            Attack = damage
                         });
                         //unit.Hp -= damage;
                     }

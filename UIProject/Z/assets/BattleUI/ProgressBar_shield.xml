@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="50,41" extention="ProgressBar">
+  <controller name="barType" exported="true" pages="0,,1,,2,,3,,4," selected="1"/>
   <displayList>
-    <image id="n1_hwog" name="bar" src="hwogsf" fileName="strife_ui_boss_shield_progress.png" xy="0,0" size="50,41" fillMethod="radial360" fillClockwise="false"/>
+    <image id="n1_hwog" name="bar" src="hwogsf" fileName="strife_ui_boss_shield_progress.png" xy="0,0" size="50,41" fillMethod="radial360" fillClockwise="false">
+      <gearDisplay controller="barType" pages="1"/>
+      <relation target="" sidePair="center-center%,middle-middle%"/>
+    </image>
+    <image id="n3_fklp" name="n3" src="fklpsf" fileName="fear_full_not_bg.png" xy="4,0" group="n6_fklp"/>
+    <image id="n5_fklp" name="bar_1" src="fklpt2" fileName="fear_full_not_icon.png" xy="2,5" group="n6_fklp" fillMethod="hz"/>
+    <image id="n4_fklp" name="bar_v" src="fklpt1" fileName="fear_full_not_cache.png" xy="8,4" group="n6_fklp" fillMethod="vt" fillOrigin="1"/>
+    <group id="n6_fklp" name="fear" xy="2,0" size="45,42" advanced="true">
+      <gearDisplay controller="barType" pages="0"/>
+    </group>
+    <text id="n2_fklp" name="title" xy="17,23" size="15,16" fontSize="10" align="center" vAlign="middle" strokeColor="#ffffff" text="00">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </text>
   </displayList>
-  <ProgressBar/>
+  <ProgressBar titleType="valueAndmax"/>
 </component>

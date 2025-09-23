@@ -882,15 +882,9 @@ public class Unit
             }
             //Debug.Log(damageInfo.FinalDamage);
             //Debug.Log(Hp);
-            if (this.RewriteDamage > 0f && damageInfo.FinalDamage > this.RewriteDamage)
-            {
-                //this.UnitModel.swo(this.RewriteDamage);
-                this.Hp -= this.RewriteDamage;
-            }
-            else
-            {
+            
             Hp -= damageInfo.FinalDamage;
-            }
+            
             if (Hp <= 0)
             {
                 Battle.TriggerDatas.Push(new TriggerData()
