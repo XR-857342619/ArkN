@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="120,30" extention="ProgressBar">
   <displayList>
+    <graph id="n1_hwog" name="bar" xy="0,10" size="120,12" type="rect" fillColor="#ffcc3300"/>
+    <image id="n2_hwog" name="n2" src="hwogsl" fileName="sprite_enemy_boss_hp_hit_effect.png" xy="0,0" size="120,30">
+      <relation target="" sidePair="width-width%,height-height%,center-center%,middle-middle%"/>
+    </image>
     <image id="n0_hwog" name="n0" src="hwogsn" fileName="sprite_enemy_boss_avatar_bg.png" xy="0,0" size="120,30">
       <relation target="" sidePair="width-width,height-height"/>
     </image>
-    <graph id="n1_hwog" name="bar" xy="0,10" size="120,12" type="rect" fillColor="#ffcc3300"/>
-    <image id="n2_hwog" name="n2" src="hwogsl" fileName="sprite_enemy_boss_hp_hit_effect.png" xy="0,0" size="120,30"/>
-    <image id="n3_hwog" name="n3" src="hwogsm" fileName="sprite_enemy_boss_hud_large.png" xy="30,-11"/>
+    <image id="n3_hwog" name="n3" src="hwogsm" fileName="sprite_enemy_boss_hud_large.png" xy="30,-16">
+      <relation target="" sidePair="center-center%,middle-middle%"/>
+    </image>
     <text id="n4_hwog" name="title" xy="55,-21" size="10,29" fontSize="20" color="#ffffff" align="center" vAlign="middle" strokeColor="#000000" singleLine="true" autoClearText="true" text="">
       <relation target="" sidePair="center-center%"/>
     </text>

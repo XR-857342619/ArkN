@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="50,50" extention="ProgressBar">
+  <controller name="elementType" exported="true" pages="0,,1,,2,,3," selected="0"/>
+  <displayList>
+    <image id="n13_vbbf" name="n13" src="vbbftj" fileName="slider_ep_fill_back_enemy.png" xy="16,16" group="n15_vbbf"/>
+    <image id="n5_vbbf" name="n5" src="vbbftd" fileName="sprite_ep_dark_icon.png" xy="17,18" group="n15_vbbf">
+      <gearDisplay controller="elementType" pages="0"/>
+    </image>
+    <image id="n6_vbbf" name="n6" src="vbbfte" fileName="sprite_ep_fire_icon.png" xy="18,18" group="n15_vbbf">
+      <gearDisplay controller="elementType" pages="1"/>
+    </image>
+    <image id="n8_vbbf" name="n8" src="vbbft8" fileName="sprite_ep_icon.png" xy="18,18" group="n15_vbbf">
+      <gearDisplay controller="elementType" pages="2"/>
+    </image>
+    <image id="n9_vbbf" name="n9" src="vbbft9" fileName="sprite_ep_water_icon.png" xy="17,18" group="n15_vbbf">
+      <gearDisplay controller="elementType" pages="3"/>
+    </image>
+    <image id="n10_vbbf" name="n10" src="vbbftg" fileName="slider_ep_back.png" xy="-2,-2" group="n15_vbbf"/>
+    <image id="n11_vbbf" name="bar" src="vbbfth" fileName="slider_ep_fill.png" xy="11,11" group="n15_vbbf" fillMethod="radial360" fillClockwise="false"/>
+    <group id="n15_vbbf" name="n15" xy="-2,-2" size="54,54" advanced="true">
+      <relation target="" sidePair="center-center%,middle-middle%"/>
+    </group>
+    <text id="n14_vbbf" name="title" xy="17,36" size="15,16" fontSize="10" align="center" vAlign="middle" strokeColor="#ffffff" text="00">
+      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+    </text>
+  </displayList>
+  <ProgressBar titleType="valueAndmax"/>
+</component>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="50,50" extention="ProgressBar">
+  <displayList>
+    <image id="n2_vbbf" name="n2" src="fklpsf" fileName="fear_full_not_bg.png" xy="4,4"/>
+    <image id="n4_vbbf" name="n0" src="fklpt1" fileName="fear_full_not_cache.png" xy="8,8" fillMethod="vt" fillOrigin="1"/>
+    <image id="n3_vbbf" name="bar" src="fklpt2" fileName="fear_full_not_icon.png" xy="2,9" fillMethod="hz"/>
+    <image id="n5_p78x" name="bar_v" src="p78xtm" fileName="fear_full_not_fill.png" xy="8,8" fillMethod="vt" fillOrigin="1" fillAmount="97"/>
+  </displayList>
+  <ProgressBar/>
+</component>

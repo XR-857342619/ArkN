@@ -170,7 +170,7 @@ namespace BattleUI
             selectedUnit = units.Last();
             this.units = units;
             m_state.selectedIndex = 4;
-            Debug.Log("sate:4");
+            //Debug.Log("sate:4");
             m_left.SetUnit(units.Last());
             BattleCamera.Instance.ShowUnitInfo(units.Last());
         }
@@ -180,7 +180,7 @@ namespace BattleUI
             selectedUnit = unit;
             this.units = new List<Unit>() { unit };
             m_state.selectedIndex = 4;
-            Debug.Log("sate:4");
+            //Debug.Log("sate:4");
             m_left.SetUnit(unit);
             BattleCamera.Instance.ShowUnitInfo(unit);
         }
@@ -190,7 +190,7 @@ namespace BattleUI
             if (m_state.selectedIndex == 4)
             {
                 m_state.selectedIndex = 0;
-                Debug.Log("sate:0");
+                //Debug.Log("sate:0");
             }
         }
 
@@ -331,14 +331,14 @@ namespace BattleUI
                 selectedUnit = null;
                 BattleCamera.Instance.CancelBuild();
                 m_state.selectedIndex = 0;
-                Debug.Log("sate:0");
+                //Debug.Log("sate:0");
             }
             else
             {
                 BattleCamera.Instance.CancelBuild();
                 selectedUnit = unit;
                 m_state.selectedIndex = 1;
-                Debug.Log("sate:1");
+                //Debug.Log("sate:1");
                 inSelectUnit();
             }
         }

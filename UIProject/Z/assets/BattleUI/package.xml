@@ -105,6 +105,28 @@
     <image id="fklpsf" name="fear_full_not_bg.png" path="/"/>
     <image id="fklpt1" name="fear_full_not_cache.png" path="/"/>
     <image id="fklpt2" name="fear_full_not_icon.png" path="/"/>
+    <component id="vbbft3" name="ProgressBar_fear.xml" path="/"/>
+    <component id="vbbft4" name="ProgressBar_moon.xml" path="/"/>
+    <image id="vbbft5" name="moon_bottom.png" path="/"/>
+    <image id="vbbft6" name="moon_top.png" path="/"/>
+    <component id="vbbft7" name="ProgressBar_ep.xml" path="/"/>
+    <image id="vbbft8" name="sprite_ep_icon.png" path="/"/>
+    <image id="vbbft9" name="sprite_ep_water_icon.png" path="/"/>
+    <image id="vbbfta" name="sprite_ep_break_hint.png" path="/"/>
+    <image id="vbbftb" name="sprite_ep_break_spread.png" path="/"/>
+    <image id="vbbftc" name="sprite_ep_color.png" path="/"/>
+    <image id="vbbftd" name="sprite_ep_dark_icon.png" path="/"/>
+    <image id="vbbfte" name="sprite_ep_fire_icon.png" path="/"/>
+    <image id="vbbftf" name="sprite_ep_hit_spread.png" path="/"/>
+    <image id="vbbftg" name="slider_ep_back.png" path="/"/>
+    <image id="vbbfth" name="slider_ep_fill.png" path="/"/>
+    <image id="vbbftj" name="slider_ep_fill_back_enemy.png" path="/"/>
+    <image id="vbbftl" name="sprite_auto.png" path="/"/>
+    <image id="p78xtm" name="fear_full_not_fill.png" path="/"/>
+    <component id="p78xtn" name="ProgressSet.xml" path="/"/>
+    <component id="p78xto" name="ProgressBar_hunter.xml" path="/"/>
+    <image id="p78xtp" name="sprite_hunter_bullet.png" path="/"/>
+    <image id="p78xtq" name="equip_normal_icon.png" path="/"/>
   </resources>
   <publish name="" genCode="true"/>
 </packageDescription>

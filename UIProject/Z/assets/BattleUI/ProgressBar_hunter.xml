@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="50,50" extention="ProgressBar">
+  <displayList>
+    <image id="n2_p78x" name="n2" src="p78xtp" fileName="sprite_hunter_bullet.png" xy="12,0" size="25,50" aspect="true"/>
+    <image id="n4_p78x" name="bar_v" src="p78xtq" fileName="equip_normal_icon.png" xy="13,2" size="23,46" color="#aaaaaa" fillMethod="vt" fillOrigin="1"/>
+    <text id="n5_p78x" name="title" xy="16,15" size="18,19" fontSize="12" color="#ffffff" align="center" vAlign="middle" strokeColor="#000000" text="00">
+      <relation target="" sidePair="center-center%,middle-middle%"/>
+    </text>
+  </displayList>
+  <ProgressBar titleType="value"/>
+</component>

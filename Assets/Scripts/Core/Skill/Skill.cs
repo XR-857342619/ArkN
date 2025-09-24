@@ -547,7 +547,7 @@ public class Skill
         UseCount++;
         if (showRange)
             ShowUnitAttackArea();
-        //Log.Debug(SkillData.Id + "开始使用");
+        Log.Debug(SkillData.Id + "开始使用");
         //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "使用次数:" + UseCount);
         if (SkillData.ReadyType == SkillReadyEnum.充能释放)
         {

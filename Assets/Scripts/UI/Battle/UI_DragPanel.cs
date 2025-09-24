@@ -86,7 +86,7 @@ namespace BattleUI
                 Parent.selectedUnit = null;
                 //BattleCamera.Instance.FocusUnit = null;
                 Parent.m_state.selectedIndex = 0;
-                Debug.Log("state: 0");
+                //Debug.Log("state: 0");
                 Parent.UpdateUnitsLayout();
                 BattleCamera.Instance.HideUnitAttackArea();
             }
@@ -96,7 +96,7 @@ namespace BattleUI
             Parent.selectedUnit.UnitModel.gameObject.SetActive(false);
             Parent.selectedUnit = null;
             Parent.m_state.selectedIndex = 0;
-            Debug.Log("state: 0");
+            //Debug.Log("state: 0");s
             BattleCamera.Instance.HideUnitAttackArea();
             Parent.UpdateUnitsLayout();
         }

@@ -8921,6 +8921,10 @@ MonoBehaviour:
     m_Address: tiles_canntset_high
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 5e6559226e6b20a4198661b2fdb84d43
+    m_Address: Assets/Bundles/Other/ShowDirection
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 242fd0e985ecef14caef48a8cdb9ed24, type: 2}
   m_SchemaSet:

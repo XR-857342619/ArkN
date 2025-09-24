@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="50,50">
+  <controller name="BarType" pages="0,,1,,2,,3,,4,,5,,6,,7,,8," selected="4"/>
+  <displayList>
+    <component id="n0_p78x" name="n0" src="hwogsk" fileName="ProgressBar_shield.xml" xy="0,0">
+      <gearDisplay controller="BarType" pages="0"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n1_p78x" name="n1" src="vbbft4" fileName="ProgressBar_moon.xml" xy="0,0">
+      <gearDisplay controller="BarType" pages="1"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n2_p78x" name="n2" src="vbbft3" fileName="ProgressBar_fear.xml" xy="0,0">
+      <gearDisplay controller="BarType" pages="2"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n3_p78x" name="n3" src="vbbft7" fileName="ProgressBar_ep.xml" xy="0,0">
+      <gearDisplay controller="BarType" pages="3"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n4_p78x" name="n4" src="hwogsr" fileName="ProgressBar_boss_small.xml" xy="0,10" pivot="0.5,0.5" size="50,30">
+      <gearDisplay controller="BarType" pages="4"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n5_p78x" name="n5" src="h4sa43" fileName="SK0.xml" xy="0,21" pivot="0.5,0.5" size="50,8">
+      <gearDisplay controller="BarType" pages="5"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n6_p78x" name="n6" src="h4sa45" fileName="Hp2.xml" xy="0,21" pivot="0.5,0.5" size="50,8">
+      <gearDisplay controller="BarType" pages="6"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n7_p78x" name="n7" src="h4sa42" fileName="Hp1.xml" xy="0,21" pivot="0.5,0.5" size="50,8">
+      <gearDisplay controller="BarType" pages="7"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n8_p78x" name="n8" src="p78xto" fileName="ProgressBar_hunter.xml" xy="0,0">
+      <gearDisplay controller="BarType" pages="8"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+  </displayList>
+</component>

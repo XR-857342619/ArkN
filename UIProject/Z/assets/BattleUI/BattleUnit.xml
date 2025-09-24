@@ -22,13 +22,14 @@
     <image id="n37_h4sa" name="n37" src="iexc5e" fileName="sprite_skill_ready.png" xy="34,-46" size="53,53" aspect="true">
       <gearDisplay controller="readyControl" pages="1"/>
     </image>
-    <image id="n44_z2ev" name="n44" src="hy1b60" fileName="sprite_skill_stop$2.png" xy="60,-19" pivot="0.5,0.5" anchor="true" size="47,47">
+    <image id="n44_z2ev" name="n44" src="hy1b60" fileName="sprite_skill_stop$2.png" xy="60,-19" pivot="0.5,0.5" anchor="true" size="60,60">
       <gearDisplay controller="readyControl" pages="2"/>
     </image>
-    <graph id="n39_h4sa" name="n39" xy="35,-56" size="45,45" type="eclipse" lineColor="#ffffcc00" fillColor="#ffffffcc">
+    <image id="n53_vbbf" name="n53" src="vbbftl" fileName="sprite_auto.png" xy="31,-49" pivot="0.5,0.5" size="58,58" color="#ffff00">
       <gearDisplay controller="skillCount" pages="1"/>
-    </graph>
-    <text id="n40_h4sa" name="skillCount" xy="47,-54" size="21,42" fontSize="30" color="#ff9900" text="2">
+      <relation target="" sidePair="center-center%,bottom-top%"/>
+    </image>
+    <text id="n40_h4sa" name="skillCount" xy="49,-41" size="21,42" fontSize="30" color="#ffff00" text="2">
       <gearDisplay controller="skillCount" pages="1"/>
     </text>
     <component id="n41_h4sa" name="eHp" src="h4sa45" fileName="Hp2.xml" xy="2,146" controller="ShowDetail,0">
@@ -40,10 +41,8 @@
       <gearXY controller="unitType" pages="10" values="35,15" default="35,65"/>
       <ProgressBar value="50" max="100"/>
     </component>
-    <list id="n45_hwog" name="progressList" xy="119,-3" size="50,158" layout="pagination" selectionMode="none" scroll="both" lineItemCount="1" lineItemCount2="6" defaultItem="ui://vp312gabhwogsk" autoItemSize="true" align="center" renderOrder="arch" scrollItemToViewOnClick="false">
+    <list id="n45_hwog" name="progressList" xy="93,-3" size="50,129" layout="flow_vt" selectionMode="none" scroll="both" lineGap="10" colGap="-15" lineItemCount="6" defaultItem="ui://vp312gabp78xtn" autoItemSize="true" align="center" renderOrder="arch" autoClearItems="true" scrollItemToViewOnClick="false">
       <relation target="" sidePair="middle-middle%,left-right%"/>
-      <item/>
-      <item/>
       <item/>
       <item/>
       <item/>

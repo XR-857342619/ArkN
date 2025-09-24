@@ -77,8 +77,7 @@ namespace Buffs
         {
             base.Update();
 
-            float remainingTime = totalDuration - (Time.time - startTime);
-            if (!isTakingOff && !isLanding && remainingTime < 1f)
+            if (!isTakingOff && !isLanding && Duration.value <= startTime)
             {
                 isLanding = true;
                 velocity = 0f;
@@ -90,9 +89,6 @@ namespace Buffs
             base.Finish();
             if (isTakingOff || !isLanding)
                 Unit.Height = landingHeight;
-
-            Unit.Position = new Vector3(Unit.Position.x, Unit.Position.y, Unit.Position.z);
-
             Dead = true;
         }
     }

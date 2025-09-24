@@ -38,6 +38,8 @@ namespace Units
         public 干员 Parent;
         public List<干员> Children = new List<干员>();
 
+        public GameObject selfDirection;
+
         public override void Init()
         {
             base.Init();
@@ -209,6 +211,11 @@ namespace Units
             InputTime = Battle.Tick;
             List<Unit> tileUnits =Battle.Map.Tiles[GridPos.x, GridPos.y].Units;
             tileUnits.Add(this);
+            var dircectAssetAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "ShowDirection");
+            selfDirection = UnityEngine.Object.Instantiate(dircectAssetAsset);  
+            selfDirection.transform.GetChild(1).localEulerAngles = new Vector3(0, Vector2.SignedAngle(Direction, Vector2.right), 0);
+            selfDirection.transform.position = new Vector3(GridPos.x, Battle.Map.Tiles[GridPos.x, GridPos.y].FarAttackGrid ? 0.25f : 0, GridPos.y);
+            selfDirection.transform.SetParent(Battle.Map.Tiles[GridPos.x, GridPos.y].MapGrid.transform);
             //Position = new Vector3(GridPos.x, 0, GridPos.y);
             if (this.UnitData.NotUseTile && tileUnits.Count > 1)
             {
@@ -269,6 +276,7 @@ namespace Units
         public override void Finish(bool leaveEvent = true)
         {
             base.Finish(leaveEvent);
+            UnityEngine.Object.Destroy(selfDirection);
             IfAlive = false;
             UnitModel.gameObject.SetActive(false);
             BattleUI.UI_Battle.Instance.ReturnUIUnit(this);
