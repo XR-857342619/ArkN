@@ -118,6 +118,16 @@ public class Skill
         PowerCount = SkillData.PowerCount;
         Reset();
         IsNormalAttack = SkillData.UseType == SkillUseTypeEnum.自动 && SkillData.MaxPower == 0 && SkillData.ModelAnimation != null && SkillData.DamageRate > 0;//4个条件判断技能是否为普攻，判断条件存疑
+
+        // 新增：预编译技能条件表达式（关键修改）
+        if (!string.IsNullOrEmpty(SkillData.SkillCondition))
+        {
+            // 传入空列表触发编译（实际执行时不依赖列表数据）
+            var tempEvaluator = new ExpressionEvaluator(Unit, new List<Unit>());
+            // 调用Filter触发编译，此时仅会执行到GetCompiledPredicate并缓存
+            tempEvaluator.Filter(SkillData.SkillCondition);
+        }
+
         //Waiting.Finish();
         //Debug.Log(SkillData.Id + "初始化完成");
     }
@@ -1241,11 +1251,8 @@ public class Skill
         }
         if (SkillData.SkillCondition != "" && SkillData.SkillCondition != null && Casting.Finished())
         {
-            filter.SetTargets(tempTargets);
-            //tempTargets.Clear();
-            tempTargets = filter.FilterTargets(SkillData.SkillCondition);
-            //Targets.Clear();
-            //Targets.AddRange(tempTargets);
+            var evaluator = new ExpressionEvaluator(Unit, tempTargets);
+            tempTargets = evaluator.Filter(SkillData.SkillCondition);
         }
 
         orderTargets(tempTargets);
