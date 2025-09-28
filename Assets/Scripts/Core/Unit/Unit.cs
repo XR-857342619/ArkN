@@ -134,6 +134,7 @@ public class Unit
     public float InjurePoint;
     public Dictionary<string, float> EleInjures = new Dictionary<string, float>();
     public CountDown ElementProtect = new CountDown();
+    public float ElementProtectMax = 0.1f;
 
     public CountDown LifeTime;
     /// <summary>
@@ -515,11 +516,11 @@ public class Unit
             }
             if (skill.SkillData.Trigger == triggerEnum)
             {
-                if (skill.SkillData.Trigger != TriggerEnum.元素爆发)
+                if (skill.SkillData.Trigger != TriggerEnum.元素爆发 || skill.SkillData.Trigger != TriggerEnum.自身元素爆发)
                     skill.Start();
                 else
                 {
-                    if (skill.SkillData.Data?.GetStr("ElementType") == Battle.TriggerDatas?.Peek().Skill.SkillData.Data?.GetStr("ElementType"))
+                    if (skill.SkillData.Data?.GetStr("ElementType") == Battle.TriggerDatas?.Peek().Skill.SkillData.Data?.GetStr("ElementType") && IfAlive)
                         skill.Start();
                 }
             }
@@ -1071,9 +1072,10 @@ public class Unit
                         if (skill.CanUseTo(this))
                         {
                             breakSkill = skill;
+                            if (ElementProtect.Finished() || skill.SkillData.Cooldown * ElementBreakRecoverRate > ElementProtectMax)
                             ElementProtect.Set(skill.SkillData.Cooldown * ElementBreakRecoverRate);
-                            //skill.Cast();
-                            //Log.Debug("元素爆发:" + skill.SkillData.Id);
+                            ElementProtectMax = skill.SkillData.Cooldown * ElementBreakRecoverRate;
+                            //Log.Debug(ElementProtectMax);
                         }
                     }
                     //skill.Targets.Remove(this);
@@ -1086,7 +1088,8 @@ public class Unit
                 });
                 //Log.Debug("事件:元素爆发");
                 if (this.IfAlive)
-                    this.Trigger(TriggerEnum.元素爆发);
+                    this.Trigger(TriggerEnum.自身元素爆发);
+                Battle.Trigger(TriggerEnum.元素爆发);
                 Battle.TriggerDatas.Pop();
             }
         }

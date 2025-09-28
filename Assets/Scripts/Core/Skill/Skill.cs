@@ -90,6 +90,8 @@ public class Skill
     //public int 递归深度 = 1000;
     public bool IsBursting = false;
 
+    public ExpressionEvaluator tempEvaluator;
+
     public virtual void Init()
     {
         //Debug.Log(SkillData.Id + "初始化");
@@ -123,7 +125,7 @@ public class Skill
         if (!string.IsNullOrEmpty(SkillData.SkillCondition))
         {
             // 传入空列表触发编译（实际执行时不依赖列表数据）
-            var tempEvaluator = new ExpressionEvaluator(Unit, new List<Unit>());
+            tempEvaluator = new ExpressionEvaluator(Unit, new List<Unit>());
             // 调用Filter触发编译，此时仅会执行到GetCompiledPredicate并缓存
             tempEvaluator.Filter(SkillData.SkillCondition);
         }
@@ -1414,7 +1416,7 @@ public class Skill
             case AttackTargetOrderEnum.无抵抗优先:
                 throw new Exception();
             case AttackTargetOrderEnum.元素损伤升序:
-                result = x.InjurePoint;
+                result = x.ElementProtect.Finished() ?  1000 : x.InjurePoint;
                 break;
         }
         return result + x.Hatred();

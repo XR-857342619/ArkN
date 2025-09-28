@@ -161,7 +161,7 @@ namespace Units
         {
             if (!Alive() || Hp <= 0) return;
             if (StopUnit != null) return;
-            if (Height > 0 && StopUnit != null && StopUnit.Height == 0)
+            if (StopUnit != null && StopUnit.Height != Height)
             {
                 StopUnit.RemoveStop(this);   // 让阻挡者把我放掉
                 return;                      // 本帧不再查找新阻挡
@@ -529,12 +529,15 @@ namespace Units
                 {
                     int index = tmpPathPointList.IndexOf(tmp.First());
                     tmpPathPointLastList[index].value += time;
+                    PathWaiting.Finish();
+
                     Debug.Log("更新临时路径点成功:" + pos + "lasttime:" + time);
                     return true;
                 }
                 tmpPathPointList.Add(tmpPoint);
                 tmpPathPointLastList.Add(new CountDown(time));
                 PathPoints.Insert(NowPathPoint + tmpPathPointList.Count, tmpPoint);
+                PathWaiting.Finish();
 
                 findNewPath();
                 Debug.Log("插入临时路径点成功:" + pos + "lasttime:" + time);

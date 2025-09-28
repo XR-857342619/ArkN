@@ -17,8 +17,6 @@ public class UnitModel:MonoBehaviour
 
     public virtual Vector3 GetModelPositon()
     {
-        if (Unit is not Units.敌人)
-            return Unit.Battle.Map.Tiles[Unit.GridPos.x, Unit.GridPos.y].MapGrid.transform.position;
         return transform.position;
     }
 

@@ -32,7 +32,7 @@ namespace Buffs
             base.Init();
 
             /*---------- 读取配置 ----------*/
-            startHeight = BuffData.Data.GetFloat("Start", 0f); // ←关键改动
+            startHeight = BuffData.Data.GetFloat("Start", 0f);
             takeOffHeight = BuffData.Data.GetFloat("Fly", 1f);
             landingHeight = BuffData.Data.GetFloat("Land", 0f);
             smoothTime = BuffData.Data.GetFloat("Time", 0.1f);
@@ -45,6 +45,7 @@ namespace Buffs
 
             isTakingOff = true;
             isLanding = false;
+            //velocity = (takeOffHeight - landingHeight) / smoothTime;
             velocity = 0f;
         }
 
@@ -55,18 +56,22 @@ namespace Buffs
             if (isTakingOff)
             {
                 Unit.Height = Mathf.SmoothDamp(Unit.Height, takeOffHeight, ref velocity, smoothTime);
+                Log.Debug(Unit.Height);
                 if (Mathf.Abs(Unit.Height - takeOffHeight) < 0.01f)
                 {
                     Unit.Height = takeOffHeight;
+                    
                     isTakingOff = false;
                 }
             }
             else if (isLanding)
             {
                 Unit.Height = Mathf.SmoothDamp(Unit.Height, landingHeight, ref velocity, smoothTime);
+                Log.Debug(Unit.Height);
                 if (Mathf.Abs(Unit.Height - landingHeight) < 0.01f)
                 {
                     Unit.Height = landingHeight;
+                    
                     isLanding = false;
                     Dead = true;
                 }
@@ -77,17 +82,19 @@ namespace Buffs
         {
             base.Update();
 
-            if (!isTakingOff && !isLanding && Duration.value <= startTime)
+            if (!isTakingOff && !isLanding && Duration.value <= smoothTime)
             {
                 isLanding = true;
                 velocity = 0f;
+                //velocity = (takeOffHeight - landingHeight) / smoothTime;
+                Apply();
             }
         }
 
         public override void Finish()
         {
             base.Finish();
-            if (isTakingOff || !isLanding)
+            //if (isTakingOff || !isLanding)
                 Unit.Height = landingHeight;
             Dead = true;
         }

@@ -213,7 +213,7 @@ namespace BattleUI
                 damageInfo.Dispose();
             }
             m_state.selectedIndex = 5;
-            Debug.Log("sate:5");
+            //Debug.Log("sate:5");
             BattleCamera.Instance.Blur = true;
             if (Battle.PlayerUnits.Count > 0)
             {

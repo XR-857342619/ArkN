@@ -180,7 +180,10 @@ public class Buff
 
         if (BuffData.Resist)
         {
-            Duration.Update(SystemConfig.DeltaTime / Unit.Resist);
+            if (Unit.Resist == 0)
+                Duration.Finish();
+            else
+                Duration.Update(SystemConfig.DeltaTime / Unit.Resist);
         }
         else
             Duration.Update(SystemConfig.DeltaTime);

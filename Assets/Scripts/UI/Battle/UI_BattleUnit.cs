@@ -49,8 +49,8 @@ namespace BattleUI
             if (!Unit.ElementProtect.Finished())
             {
                 m_elementBar.m_Recover.selectedIndex = 2;
-                m_elementBar.max = 10;
-                m_elementBar.value = 10 - Unit.ElementProtect.value;
+                m_elementBar.max = Unit.ElementProtectMax;
+                m_elementBar.value = Unit.ElementProtectMax - Unit.ElementProtect.value;
             }
             else
             {

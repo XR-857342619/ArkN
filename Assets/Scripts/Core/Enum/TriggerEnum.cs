@@ -28,5 +28,6 @@ public enum TriggerEnum
     撤退,
     弹道命中,
     元素爆发,
+    自身元素爆发,
     到达路径终点,
 }
