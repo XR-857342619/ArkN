@@ -56,7 +56,7 @@ namespace Buffs
             if (isTakingOff)
             {
                 Unit.Height = Mathf.SmoothDamp(Unit.Height, takeOffHeight, ref velocity, smoothTime);
-                Log.Debug(Unit.Height);
+                //Log.Debug(Unit.Height);
                 if (Mathf.Abs(Unit.Height - takeOffHeight) < 0.01f)
                 {
                     Unit.Height = takeOffHeight;
@@ -67,7 +67,7 @@ namespace Buffs
             else if (isLanding)
             {
                 Unit.Height = Mathf.SmoothDamp(Unit.Height, landingHeight, ref velocity, smoothTime);
-                Log.Debug(Unit.Height);
+                //Log.Debug(Unit.Height);
                 if (Mathf.Abs(Unit.Height - landingHeight) < 0.01f)
                 {
                     Unit.Height = landingHeight;

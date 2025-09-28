@@ -146,9 +146,8 @@ namespace Units
             //Recover.Update(SystemConfig.DeltaTime);
 
             CheckBlock();
-            if (
-                //ScaleX==TargetScaleX &&
-                (State == StateEnum.Move || State == StateEnum.Idle))
+            //ScaleX==TargetScaleX &&
+            if (State == StateEnum.Move || State == StateEnum.Idle)
             {
                 UpdateMove();
             }

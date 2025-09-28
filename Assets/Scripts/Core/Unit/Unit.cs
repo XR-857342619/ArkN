@@ -1033,6 +1033,7 @@ public class Unit
 
     public bool CanStop(Units.敌人 target)
     {
+        if (Height != target.Height) return false;
         if (Team != 0) return false;
         if (!Alive()) return false;
         if (!CanStopOther) return false;
