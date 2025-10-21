@@ -31,6 +31,10 @@ public class CountDown
     {
         this.value = value;
     }
+    public void Add(float value)
+    {
+        this.value += value;
+    }
     public void Finish()
     {
         value = 0;

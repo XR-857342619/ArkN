@@ -12,12 +12,14 @@ public class PlayerUnitModel : SpineModel
     public bool Forward = true;
     //public bool hide_player_model = false;
     //public bool hide_shadow = false;
+    private Color _originalColor2;
 
     public override void Init(Unit unit)
     {
         SkeletonAnimation2.AnimationName = "Default";
         SkeletonAnimation2.gameObject.SetActive(false);
         gameObject.SetActive(false);
+        _originalColor2 = SkeletonAnimation2.skeleton.GetColor();
         base.Init(unit);
     }
 
@@ -54,6 +56,21 @@ public class PlayerUnitModel : SpineModel
     //    SkeletonAnimation.gameObject.SetActive(true);
     //    SkeletonAnimation2.gameObject.SetActive(false);
     //}
+    public override void SetColor(Color color)
+    {
+        //mpb.SetColor("_Color", color);
+        //Renderer.SetPropertyBlock(mpb);
+        base.SetColor(color);
+        SkeletonAnimation2.skeleton.SetColor(color);
+    }
+
+    public override void ResetColor()
+    {
+        //mpb.SetColor("_Color", _originalColor);
+        //Renderer.SetPropertyBlock(mpb);
+        base.ResetColor();
+        SkeletonAnimation2.skeleton.SetColor(_originalColor2);
+    }
     void changeForward()
     {
         Forward = !Forward;

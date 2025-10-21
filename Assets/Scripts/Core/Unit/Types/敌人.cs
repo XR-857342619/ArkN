@@ -425,6 +425,8 @@ namespace Units
             {
                 StopUnit.RemoveStop(this);
             }
+            beAttacked.Finished();
+            UnitModel?.ResetColor();
             UnitModel?.SetColor(Color.black);
             //Battle.EnemyCount--;
             base.DoDie(source);

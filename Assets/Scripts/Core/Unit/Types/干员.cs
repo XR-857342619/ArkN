@@ -48,6 +48,9 @@ namespace Units
                     MainSkill = LearnSkill(UnitData.MainSkill[MainSkillId], null);
                 else
                     MainSkill = LearnSkill(UnitData.MainSkill[0], null);
+
+            //if (MainSkill == null) Log.Debug("MainSkill is null");
+            //Log.Debug($"PowerType actual type: {MainSkill?.SkillData?.PowerType.GetType().Name}");
         }
 
         protected override void baseAttributeInit()

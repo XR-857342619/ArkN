@@ -50,6 +50,17 @@ public class UnitModel:MonoBehaviour
     {
 
     }
+
+    public virtual void ResetColor()
+    {
+
+    }
+
+    public virtual bool isOriginalColor()
+    {
+        return false;
+    }
+
     public void ShowCrit(DamageInfo damage)
     {
         BattleUI.UI_Battle.Instance.ShowDamageText(damage, 0, transform.position.WorldToUI());

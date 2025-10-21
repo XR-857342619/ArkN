@@ -1520,7 +1520,13 @@ public class Skill
         });
         target.Trigger(TriggerEnum.被击);
         Battle.TriggerDatas.Pop();
-        target.UnitModel?.SetColor(Color.red);
+        //target.beAttacked.Add(1f);
+        //if (beAttacked.Update(SystemConfig.DeltaTime) && UnitModel.isOriginalColor())
+        target.beAttacked.Add(0.15f);
+        target.UnitModel.SetColor(Color.red);
+        //else if (beAttacked.Finished() && !UnitModel.isOriginalColor())
+        //    //else
+        //    UnitModel.ResetColor();
     }
 
     public virtual void _OnBeAttack(Unit target)

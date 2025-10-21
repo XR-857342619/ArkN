@@ -10,7 +10,10 @@ public class SpineModel : UnitModel
 {
     public SkeletonAnimation SkeletonAnimation;
     protected Renderer Renderer;
+    //private SkeletonRenderer skeletonRenderer;
     protected MaterialPropertyBlock mpb;
+    private Color _originalColor;
+    //private float originalR, originalG, originalB, originalA;
     string[] nowAnimations;
     public bool isNew = false;
     //public bool hide_model = false;
@@ -20,6 +23,7 @@ public class SpineModel : UnitModel
     {
         mpb = new MaterialPropertyBlock();
         Renderer = SkeletonAnimation.GetComponent<Renderer>();
+        //skeletonRenderer = SkeletonAnimation.GetComponent<SkeletonRenderer>();
         Renderer.GetPropertyBlock(mpb);
         Shadow = transform.GetChild(0);
     }
@@ -36,6 +40,17 @@ public class SpineModel : UnitModel
         SkeletonAnimation.SkeletonDataAsset.GetAnimationStateData().DefaultMix = 0f;
         updateState();
         Shadow.localScale = isNew ? new Vector3(380, 330, 380) * unit.UnitData.ModelScale : Vector3.one * unit.UnitData.ModelScale;
+        //_originalColor = mpb.GetColor("_Color");
+        if (SkeletonAnimation.Skeleton == null)
+        {
+            Debug.LogError("未找到SkeletonRenderer组件！", this);
+            return; // 提前退出，避免后续错误
+        }
+        _originalColor = SkeletonAnimation.skeleton.GetColor();
+        //originalG = skeletonRenderer.skeleton.G;
+        //originalB = skeletonRenderer.skeleton.B;
+        //originalA = skeletonRenderer.skeleton.A;
+        Debug.Log(_originalColor);
     }
 
     public void LateUpdate()
@@ -195,14 +210,28 @@ public class SpineModel : UnitModel
 
     public override void SetColor(Color color)
     {
-        mpb.SetColor("_Color", color);
-        Renderer.SetPropertyBlock(mpb);
+        //mpb.SetColor("_Color", color);
+        //Renderer.SetPropertyBlock(mpb);
+        SkeletonAnimation.skeleton.SetColor(color);
+        //Debug.Log("SetColor:" + color);
     }
 
+    public override void ResetColor()
+    {
+        //mpb.SetColor("_Color", _originalColor);
+        //Renderer.SetPropertyBlock(mpb);
+        SkeletonAnimation.skeleton.SetColor(_originalColor);
+        //Debug.Log("ResetColor:" + _originalColor);
+    }
+
+    public override bool isOriginalColor()
+    {
+        return SkeletonAnimation.skeleton.GetColor() == _originalColor;
+    }
     public Color GetColor(Color color)
     {
-        Renderer.GetPropertyBlock(mpb);
-        return mpb.GetColor("_Color");
+        //Renderer.GetPropertyBlock(mpb);
+        return SkeletonAnimation.skeleton.GetColor();
     }
     public override void hideShadow()
     {

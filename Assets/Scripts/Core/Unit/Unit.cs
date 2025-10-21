@@ -22,15 +22,17 @@ public class Unit
     public UnitModel UnitModel;
     public BattleUI.UI_BattleUnit uiUnit;
 
+    public CountDown beAttacked = new(0.0f);
+
     public Vector3 Position;
 
     public float Height;
     
-    public Vector2 Position2 => new Vector2(Position.x, Position.z);
+    public Vector2 Position2 => new(Position.x, Position.z);
 
-    public Vector2Int GridPos => new Vector2Int(Mathf.RoundToInt(Position.x), Mathf.RoundToInt(Position.z));
+    public Vector2Int GridPos => new(Mathf.RoundToInt(Position.x), Mathf.RoundToInt(Position.z));
 
-    public Vector2 Direction = new Vector2(1, 0);
+    public Vector2 Direction = new(1, 0);
 
     public Tile NowGrid => Battle.Map.Tiles[Mathf.RoundToInt(Position.x), Mathf.RoundToInt(Position.z)];
 
@@ -38,13 +40,13 @@ public class Unit
     public float Hp;
     //public float HpDp, HpDt, HpFp, HpFt;
 
-    public List<Skill> Skills = new List<Skill>();
-    public List<Skill> ElementOutBreak = new List<Skill>();
+    public List<Skill> Skills = new();
+    public List<Skill> ElementOutBreak = new();
     public Skill MainSkill;
 
-    public List<Buff> Buffs = new List<Buff>();
-    public List<IDamageRewrite> Shields = new List<IDamageRewrite>();
-    public List<int> IgnoreBuffs = new List<int>();
+    public List<Buff> Buffs = new();
+    public List<IDamageRewrite> Shields = new();
+    public List<int> IgnoreBuffs = new();
 
     public float MaxHp;
     public float HpBase, HpAdd, HpRate, HpAddFin, HpRateFin;
@@ -113,7 +115,7 @@ public class Unit
     public bool IfSleep = false;
     public bool IfSelectable = true;//能否被技能指定为目标
     public bool CanBeHeal = false;
-    public List<int> HealOnly = new List<int>();//绝食状态下，依旧可被这些单位治疗
+    public List<int> HealOnly = new();//绝食状态下，依旧可被这些单位治疗
 
     //public int IsCantCastCount = 0;
     //public bool IsCantCast = false;
@@ -122,31 +124,31 @@ public class Unit
 
     public float PushPower;
 
-    public CountDown Start = new CountDown();//入场
+    public CountDown Start = new();//入场
     /// <summary>
     /// 攻击动画
     /// </summary>
-    public CountDown AttackingAction = new CountDown();
+    public CountDown AttackingAction = new();
 
     public Skill FirstSkill;
     public Skill AttackingSkill;
 
     public float InjurePoint;
-    public Dictionary<string, float> EleInjures = new Dictionary<string, float>();
-    public CountDown ElementProtect = new CountDown();
+    public Dictionary<string, float> EleInjures = new();
+    public CountDown ElementProtect = new();
     public float ElementProtectMax = 0.1f;
 
     public CountDown LifeTime;
     /// <summary>
     /// 死亡动画
     /// </summary>
-    public CountDown Dying = new CountDown();
+    public CountDown Dying = new();
     /// <summary>
     /// 硬直
     /// </summary>
     //public CountDown Recover = new CountDown();
 
-    public List<Units.敌人> StopUnits = new List<Units.敌人>();
+    public List<Units.敌人> StopUnits = new();
 
     public bool IfStun;
 
@@ -289,6 +291,7 @@ public class Unit
             PowerSpeed = PowerSpeedAdd + 1;
             Resist = ResistAdd;
             AttackRange = (1 + AttackRangeAdd) * (1 + AttackRangeRate);
+            //UnitModel.ResetColor();
         }
         finally
         {
@@ -338,6 +341,8 @@ public class Unit
             Hp += HpRecoverP * MaxHp * SystemConfig.DeltaTime;
             if (Hp > MaxHp) Hp = MaxHp;
             if (Hp < 0) DoDie(null);
+            if (!UnitModel.isOriginalColor() && beAttacked.Update(SystemConfig.DeltaTime))
+                UnitModel.ResetColor();
         }
     }
 
@@ -686,12 +691,12 @@ public class Unit
         //Refresh();
     }
     #region 推拉相关
-    public List<IPushBuff> PushBuffs = new List<IPushBuff>();
+    public List<IPushBuff> PushBuffs = new();
 
     /// <summary>
     /// 失衡硬直
     /// </summary>
-    public CountDown Unbalancing = new CountDown();
+    public CountDown Unbalancing = new();
 
     public bool Unbalance => unbalance || !Unbalancing.Finished();
 
@@ -859,6 +864,7 @@ public class Unit
 
     public void Damage(DamageInfo damageInfo)
     {
+        //beAttacked.Add(0.5f);
         float damage = damageInfo.Attack * damageInfo.DamageRate;
         if (damageInfo.DamageType == DamageTypeEnum.Normal) damage *= (1+NormalDamageReceiveRate);
         if (damageInfo.DamageType == DamageTypeEnum.Magic) damage *= (1+MagicDamageReceiveRate);
@@ -935,6 +941,8 @@ public class Unit
             }
             //Debug.Log(unit.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
         }
+        //if (!UnitModel.isOriginalColor())
+        //    UnitModel.ResetColor();
     }
 
     float damageWithDefence(float damage,DamageTypeEnum damageType,float defIgnore, float defIgnoreRate,float minDamageRate)
