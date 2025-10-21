@@ -669,7 +669,16 @@ public class Skill
             if (Unit.MainSkill != null && Unit.MainSkill != this && !Unit.MainSkill.Opening.Finished())
                 Unit.MainSkill.UpdateOpening(1);
         }
-
+        if (IsNormalAttack)
+        {
+            foreach (var skill in Unit.Skills)
+            {
+                if (skill.SkillData.PowerType == PowerRecoverTypeEnum.攻击)
+                {
+                    skill.RecoverPower(1);
+                }
+            }
+        }
         if (SkillData.RegetTarget) FindTarget();//对于某些技能，无法攻击到已经离开攻击区域的单位
         //if (SkillData.Id == "重构体2")
         //{
@@ -842,16 +851,6 @@ public class Skill
             }
             else ps.Init(Unit, target, target.GetHitPoint(), Vector3.zero); //ps.transform.rotation = Quaternion.identity;
             //ps.Play();
-        }
-        if (IsNormalAttack)
-        {
-            foreach (var skill in Unit.Skills)
-            {
-                if (skill.SkillData.PowerType == PowerRecoverTypeEnum.攻击)
-                {
-                    skill.RecoverPower(1);
-                }
-            }
         }
         if (SkillData.DamageRate > 0)
         {
