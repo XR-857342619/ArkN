@@ -74,6 +74,10 @@ namespace DIY
                 unitInfos = ExcelHelper.GetUnitList(excelPath);
                 lastRow = unitInfos.Values.Last() + 1;
                 searchItem();
+                foreach (var i in unitInfos.Keys)
+                {
+                    unitIndexs[i.Item1] = unitInfos[i];
+                }
             });
             m_unitNameInput.onChanged.Add(searchItem);
             //Debug.Log(attributeDic.Keys.ToList()[0]);
@@ -164,6 +168,7 @@ namespace DIY
                 m_tip.text = $"{m_tip.text}\n{folder}下没有Excel文件";
             m_excels.items = names.ToArray();
             excelPath = UnityEngine.Application.streamingAssetsPath + "/Excel/" + folder + "/" + names[0];
+            Debug.Log(excelPath);
             unitInfos.Clear();
             unitInfos = ExcelHelper.GetUnitList(excelPath);
             lastRow = unitInfos.Values.Last() + 1;
@@ -208,6 +213,7 @@ namespace DIY
         {
             var rows = unitInfos.Keys;
             int j = 0;
+            m_icons.RemoveChildrenToPool();
             foreach (var i in rows)
             {
                 string iconName = i.Item3 ?? "";

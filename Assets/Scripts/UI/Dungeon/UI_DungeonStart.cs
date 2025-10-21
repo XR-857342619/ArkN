@@ -22,6 +22,7 @@ namespace DungeonUI
             {
                 var item = m_ChooseWindow.m_Units.AddItemFromPool() as UI_StartUnit;
                 item.icon = Database.Instance.Get<UnitData>(cardData.units[0]).HeadIcon.ToHeadIcon();
+                //IconHelper.SetTexture(item, Database.Instance.Get<UnitData>(cardData.units[0]).HeadIcon, IconType.HeadIcon);
                 item.data = cardData;
                 item.onClick.Add(() =>
                 {

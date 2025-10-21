@@ -16,7 +16,7 @@ namespace Skills
         public Vector3 pointB;    // 第二个点
         public Vector3 linePoint; // 直线经过的点
         public Vector2 lineDirection; // 直线方向（xz平面）
-        public DamageTypeEnum damageType;
+        public DamageTypeEnum damageType = DamageTypeEnum.general;
         public bool ignoreDamageTypeLimit;
 
         public override void Init()

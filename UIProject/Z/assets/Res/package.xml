@@ -1136,6 +1136,8 @@
     <image id="hy1bsg" name="attack_range_stand.png" path="/其他/" exported="true"/>
     <image id="h2g91r9" name="half_necras.png" path="/半身立绘/" exported="true"/>
     <image id="h2g91ra" name="half_yu.png" path="/半身立绘/" exported="true"/>
+    <image id="z5qs1rb" name="icon_shimeng.png" path="/头像/" exported="true"/>
+    <image id="z5qs1rc" name="token_10030_mlyss_wtrman.png" path="/头像/" exported="true"/>
   </resources>
   <publish name=""/>
 </packageDescription>

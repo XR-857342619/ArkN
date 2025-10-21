@@ -146,7 +146,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: def33e165d0c7a1428fdcfeb719c9963, type: 2}
+  - {fileID: 2100000, guid: c4c3278784e114048aabb4fad3940a0b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -253,6 +253,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SkeletonAnimation: {fileID: 7526407819032217996}
+  isNew: 0
   Shadow: {fileID: 0}
   SkeletonAnimation2: {fileID: 8532556178054124038}
   Forward: 1
@@ -318,7 +319,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: df559fb7493576442ac0bd46dd5b5fdb, type: 2}
+  - {fileID: 2100000, guid: d123bca8218f2d0428284194174247b2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

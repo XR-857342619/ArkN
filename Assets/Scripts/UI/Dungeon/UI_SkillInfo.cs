@@ -15,7 +15,8 @@ namespace DungeonUI
             SkillData skillConfig = Database.Instance.Get<SkillData>(skillId);
             m_name.text = skillConfig.Name;
             m_desc.text = skillConfig.Desc;
-            m_icon.icon = skillConfig.Icon.ToSkillIcon();
+            //m_icon.icon = skillConfig.Icon.ToSkillIcon();
+            IconHelper.SetTexture(m_icon, skillConfig.Icon, IconType.SkillIcon);
         }
     }
 }

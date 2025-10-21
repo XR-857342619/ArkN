@@ -21,7 +21,8 @@ namespace DungeonUI
             {
                 RelicData relicData = Database.Instance.Get<RelicData>(reward.Data);
                 m_Name.text = relicData.Name;
-                m_icon.icon = relicData.Icon.ToRelicIcon();
+                //m_icon.icon = relicData.Icon.ToRelicIcon();
+                IconHelper.SetTexture(m_icon, relicData.Icon, IconType.RelicIcon);
             }
         }
     }

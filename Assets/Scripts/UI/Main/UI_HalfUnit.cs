@@ -22,7 +22,8 @@ namespace MainUI
             //}
             //else
             //    Debug.Log("main skill null");
-            m_skillIcon.icon = card.UnitData.MainSkill == null ? "" : Database.Instance.Get<SkillData>(card.UnitData.MainSkill[skillIndex]).Icon.ToSkillIcon();
+            //m_skillIcon.icon = card.UnitData.MainSkill == null ? "" : Database.Instance.Get<SkillData>(card.UnitData.MainSkill[skillIndex]).Icon.ToSkillIcon();
+            IconHelper.SetTexture(m_skillIcon, card.UnitData.MainSkill == null ? "" : Database.Instance.Get<SkillData>(card.UnitData.MainSkill[skillIndex]).Icon, IconType.SkillIcon);
             m_star.selectedIndex = card.UnitData.Rare;
             m_ugrade.selectedIndex = card.UnitData.Upgrade;
             //m_stars.RemoveChildrenToPool();

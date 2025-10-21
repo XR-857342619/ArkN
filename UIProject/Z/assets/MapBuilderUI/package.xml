@@ -7,7 +7,7 @@
     <component id="ei153" name="ComboBox1_popup.xml" path="/"/>
     <component id="ei154" name="ComboBox1.xml" path="/" exported="true"/>
     <component id="ei155" name="ContractIcon.xml" path="/"/>
-    <component id="ei156" name="btn.xml" path="/"/>
+    <component id="ei156" name="btn.xml" path="/" exported="true"/>
     <component id="ei157" name="PathInfo.xml" path="/"/>
     <component id="ei158" name="PathPage.xml" path="/"/>
     <component id="jh399" name="PathPoint.xml" path="/"/>
@@ -35,7 +35,7 @@
     <image id="u7wgr6l" name="播放.png" path="/"/>
     <component id="u7wgr6m" name="Play.xml" path="/"/>
     <component id="u7wgr6n" name="arrow.xml" path="/"/>
-    <component id="axior6o" name="btn_1.xml" path="/"/>
+    <component id="axior6o" name="btn_1.xml" path="/" exported="true"/>
     <component id="l5brr6p" name="ComboBox2_item.xml" path="/"/>
     <image id="l5brr6r" name="框.png" path="/"/>
     <component id="fji9r6s" name="Slider2.xml" path="/"/>

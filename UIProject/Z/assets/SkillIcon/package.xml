@@ -541,6 +541,10 @@
     <image id="nf8zsc" name="skill_icon_skchr_gyuki_2.png" path="/" exported="true"/>
     <image id="nf8zsd" name="skill_icon_skchr_horn_3.png" path="/" exported="true"/>
     <image id="nf8zse" name="skill_icon_skchr_aglina_1.png" path="/" exported="true"/>
+    <image id="z5qssf" name="skill_icon_skchr_shimeng_3.png" path="/" exported="true"/>
+    <image id="z5qssg" name="skill_icon_skchr_shimeng_1.png" path="/" exported="true"/>
+    <image id="z5qssh" name="skill_icon_skchr_shimeng_2.png" path="/" exported="true"/>
+    <image id="z5qssi" name="skill_icon_sktok_mlyss_wtrman.png" path="/" exported="true"/>
   </resources>
   <publish name=""/>
 </packageDescription>

@@ -19,7 +19,8 @@ namespace DungeonUI
         public void Refresh()
         {
             m_Name.text = UnitData.Name;
-            m_Head.icon = UnitData.HeadIcon.ToHeadIcon();
+            //m_Head.icon = UnitData.HeadIcon.ToHeadIcon();
+            IconHelper.SetTexture(m_Head, UnitData.HeadIcon, IconType.HeadIcon);
             m_level.text = UnitData.Level.ToString();
             m_upgrade.selectedIndex = UnitData.Upgrade;
             m_Cost.text = HopeHelper.GetCost(DungeonManager.Instance.Dungeon, Id, out bool ifUpgrade).ToString();

@@ -23,24 +23,16 @@ public class GameData
         if (!string.IsNullOrEmpty(str))
         {
             //Debug.Log(str);
-            try
-            {
+            //try
+            //{
                 instance = JsonHelper.FromJson<GameData>(str);
-                foreach (var t in instance.Teams)
-                {
-                    var a = t.Cards.ToArray();
-                    t.Cards.Clear();
-                    foreach (var c in a)
-                    {
-                        t.Cards.Add(instance.Cards.LastOrDefault(x => x.UnitId == c.UnitId));
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"读取存档失败，错误信息:\n{e}");
-                TipManager.Instance.initErorrTips.Add("读取存档失败:"+e.Message);
-            }
+                LoadTeamDataFromSave();
+            //}
+            //catch (Exception e)
+            //{
+            //    Debug.LogError($"读取存档失败，错误信息:\n{e}");
+            //    TipManager.Instance.initErorrTips.Add("读取存档失败:"+e.Message);
+            //}
         }
 
         List<int> ids = new List<int>();
@@ -48,7 +40,7 @@ public class GameData
         {
             try
             {
-                if (ids.Contains(instance.Cards[i].Id))
+                if (ids.Contains(instance.Cards[i].Id) || instance.Cards[i].Id == -1)
                 {
                     instance.Cards.RemoveAt(i);
                 }
@@ -58,7 +50,7 @@ public class GameData
             catch (Exception e)
             {
                 Debug.LogError(e);
-                TipManager.Instance.initErorrTips.Add("读取Card数据失败:" + e.Message);
+                TipManager.Instance.initErorrTips.Add("读取存档编队数据失败:" + e.Message);
                 //TipManager.Instance.ShowTip("读取Card数据失败:" + e.Message);
             }
         }
@@ -67,46 +59,24 @@ public class GameData
         //Debug.Log(tmp[91]);
         //Debug.Log(tmp.Length);
         //int times = 0;
-        foreach (var unitConfig in Database.Instance.GetAll<CardData>())
-        {
-            //Debug.Log(unitConfig.Id);
-            //Debug.Log(times);
-            //times++;
-            try
-            {
-                if (unitConfig == null) continue;
-                if (instance.Cards.Any(x => unitConfig.units.Contains(x.Id))) continue;
-                var unitdata = Database.Instance.Get<UnitData>(unitConfig.units.Last());
-                Card card = new Card()
-                {
-                    UnitId = unitdata.Id,
-                    Level = unitdata.Level,
-                    Upgrade = unitdata.Upgrade,
-                };
-                if (card.UnitData.MainSkill != null) card.DefaultUsingSkill = card.UnitData.MainSkill.Length - 1;
-                instance.Cards.Add(card);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-                TipManager.Instance.initErorrTips.Add("读取CardData数据失败:" + e.Message);
-            }
-        }
+        
+        LoadCardDataFromExcel();
+
         if (instance.Teams[0] == null)
         {
-            for (int i = 0; i < Instance.Teams.Length; i++)
-            {
-                instance.Teams[i] = new Team();
-                //foreach (var unitId in Database.Instance.GetAll<SystemData>()[0].StartUnits)
-                //{
-                //var card = Cards.Find(x => x.Id == unitId);
-                //instance.Teams[i].Cards.Add(card);
-                //if (card.UnitData.MainSkill == null)
-                //instance.Teams[i].UnitSkill.Add(0);
-                //else
-                //instance.Teams[i].UnitSkill.Add(card.UnitData.MainSkill.Length - 1);
+            //for (int i = 0; i < Instance.Teams.Length; i++)
+            //{
+            //    //instance.Teams[i] = new Team();
+            //    //foreach (var unitId in Database.Instance.GetAll<SystemData>()[0].StartUnits)
+            //    //{
+            //    //    var card = Cards.Find(x => x.Id == unitId);
+            //    //    instance.Teams[i].Cards.Add(card);
+            //    //    if (card.UnitData.MainSkill == null)
+            //    //        instance.Teams[i].UnitSkill.Add(0);
+            //    //    else
+            //    //        instance.Teams[i].UnitSkill.Add(card.UnitData.MainSkill.Length - 1);
+            //    //}
             //}
-            }
             //MainPageUnitId = Cards[0].UnitId;
             Name = "玩家名字";
             SaveHelper.SaveData();
@@ -135,5 +105,71 @@ public class GameData
             //    Debug.Log(item);
             //}
         }
+    }
+    private void LoadTeamDataFromSave()
+    {
+        if (instance.Teams is null) return;
+        foreach (var t in instance.Teams)
+        {
+            if (t is null || t.Cards is null || t.Cards.Count == 0) continue;
+
+            var a = t.Cards.ToArray();
+            t.Cards.Clear();
+            foreach (var c in a)
+            {
+                if (c == null)
+                {
+                    Debug.LogWarning("编队数据中存在 null 元素，已跳过");
+                    TipManager.Instance.ShowTip("编队数据中存在 null 元素，已跳过");
+                    continue;
+                }
+                //t.Cards.Add(instance.Cards.LastOrDefault(x => x.UnitId == c.UnitId));
+                var matchedCard = instance.Cards.LastOrDefault(x => x?.UnitId == c.UnitId);
+                if (matchedCard == null)
+                {
+                    Debug.LogWarning($"未找到 UnitId 为 {c.UnitId} 的单位，已跳过");
+                    TipManager.Instance.ShowTip("干员列表变动, " + c.UnitId + "已移除");
+                    continue;
+                }
+
+                t.Cards.Add(matchedCard);
+            }
+        }
+    }
+    private void LoadCardDataFromExcel()
+    {
+        //Debug.Log("开始读取卡牌数据");
+        foreach (var unitConfig in Database.Instance.GetAll<CardData>())
+        {
+            //Debug.Log(unitConfig.Id);
+            //Debug.Log(times);
+            //times++;
+            try
+            {
+                if (unitConfig == null) continue;
+                if (instance.Cards.Any(x => unitConfig.units.Contains(x.Id))) continue;
+                var unitdata = Database.Instance.Get<UnitData>(unitConfig.units.Last());
+                Card card = new Card()
+                {
+                    UnitId = unitdata.Id,
+                    Level = unitdata.Level,
+                    Upgrade = unitdata.Upgrade,
+                };
+                if (card.UnitData.MainSkill != null) card.DefaultUsingSkill = card.UnitData.MainSkill.Length - 1;
+                instance.Cards.Add(card);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                TipManager.Instance.initErorrTips.Add("读取Excel编队数据失败:" + e.Message);
+            }
+        }
+    }
+    public void RefreshCardData()
+    {
+        instance.Cards.Clear();
+        LoadCardDataFromExcel();
+        LoadTeamDataFromSave();
+        SaveHelper.SaveData();
     }
 }

@@ -31,6 +31,7 @@ namespace BattleUI
             UIObjectFactory.SetPackageItemExtension(UI_FastSpeed.URL, typeof(UI_FastSpeed));
             UIObjectFactory.SetPackageItemExtension(UI_Pause.URL, typeof(UI_Pause));
             UIObjectFactory.SetPackageItemExtension(UI_DragPanel.URL, typeof(UI_DragPanel));
+            UIObjectFactory.SetPackageItemExtension(UI_BuffInfo.URL, typeof(UI_BuffInfo));
             UIObjectFactory.SetPackageItemExtension(UI_ProgressBar_ep.URL, typeof(UI_ProgressBar_ep));
             UIObjectFactory.SetPackageItemExtension(UI_Pic.URL, typeof(UI_Pic));
         }

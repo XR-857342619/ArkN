@@ -12,7 +12,8 @@ namespace MainUI
         {
             SkillData skillData = Database.Instance.Get<SkillData>(id);
             m_level.selectedIndex = skillData.Upgrade;
-            m_icon.icon = skillData.Icon.ToSkillIcon();
+            //m_icon.icon = skillData.Icon.ToSkillIcon();
+            IconHelper.SetTexture(m_icon, skillData.Icon, IconType.SkillIcon);
             if (skillData.StartPower == 0)
             {
                 m_start.selectedIndex = 0;

@@ -60,7 +60,8 @@ namespace DungeonUI
                 {
                     var contractData = Database.Instance.Get<ContractData>(id);
                     var uiContract = m_Contracts.AddItemFromPool() as UI_BattleContract;
-                    uiContract.m_icon.icon = contractData.Icon.ToContractIcon();
+                    //uiContract.m_icon.icon = contractData.Icon.ToContractIcon();
+                    IconHelper.SetTexture(uiContract.m_icon, contractData.Icon, IconType.ContractIcon);
                     uiContract.m_TagName.text = contractData.Name;
                 }
             contracts.Clear();

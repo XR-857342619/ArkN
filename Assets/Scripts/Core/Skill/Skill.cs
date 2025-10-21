@@ -559,7 +559,7 @@ public class Skill
         UseCount++;
         if (showRange)
             ShowUnitAttackArea();
-        Log.Debug(SkillData.Id + "开始使用");
+        //Log.Debug(SkillData.Id + "开始使用");
         //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "使用次数:" + UseCount);
         if (SkillData.ReadyType == SkillReadyEnum.充能释放)
         {
@@ -1520,6 +1520,7 @@ public class Skill
         });
         target.Trigger(TriggerEnum.被击);
         Battle.TriggerDatas.Pop();
+        target.UnitModel?.SetColor(Color.red);
     }
 
     public virtual void _OnBeAttack(Unit target)

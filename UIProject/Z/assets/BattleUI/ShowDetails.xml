@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="50,50" opaque="false" extention="Button">
+  <controller name="button" pages="0,up,1,down" selected="1"/>
+  <displayList>
+    <graph id="n1_tg9g" name="n1" xy="0,0" pivot="0.5,0.5" size="50,50" rotation="180" touchable="false" type="regular_polygon" lineSize="0" fillColor="#fffafafa" sides="3">
+      <gearLook controller="button" pages="1" values="1,180,0,0" default="1,90,0,0" tween="true"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+  </displayList>
+  <Button mode="Check"/>
+</component>

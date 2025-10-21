@@ -65,7 +65,8 @@ namespace BattleUI
                 m_mainSkillInfo.m_using.selectedIndex = s.Opening.Finished() ? 0 : 1;
                 m_mainSkillInfo.m_canStop.selectedIndex = s.SkillData.CanStop ? 1 : 0;
                 m_mainSkillInfo.m_isReady.selectedIndex = m_mainSkillInfo.max == m_mainSkillInfo.value ? 1 : 0;
-                m_mainSkillInfo.m_icon.url = s.SkillData.Icon.ToSkillIcon();
+                //m_mainSkillInfo.m_icon.url = s.SkillData.Icon.ToSkillIcon();
+                IconHelper.SetTexture(m_mainSkillInfo.m_icon, s.SkillData.Icon, IconType.SkillIcon);
                 //Log.Debug(m_mainSkillInfo.m_icon.url);
                 if (!s.Opening.Finished())
                 {
@@ -108,22 +109,26 @@ namespace BattleUI
             {
                 m_LastOp.visible = false;
                 m_NextOp.visible = true;
-                m_headIconNext.url = IconHelper.ToHeadIcon(tileUnits[tileUnits.IndexOf(Unit) + 1].UnitData.HeadIcon);
+                //m_headIconNext.url = IconHelper.ToHeadIcon(tileUnits[tileUnits.IndexOf(Unit) + 1].UnitData.HeadIcon);
+                IconHelper.SetTexture(m_headIconNext, tileUnits[tileUnits.IndexOf(Unit) + 1].UnitData.HeadIcon, IconType.HeadIcon);
                 //Debug.Log("headIconNext:" + m_headIconNext.icon);
             }
             else if (tileUnits.Count > 1 && Unit == tileUnits.Last())
             {
                 m_LastOp.visible = true;
                 m_NextOp.visible = false;
-                m_headIconLast.url = IconHelper.ToHeadIcon(tileUnits[tileUnits.IndexOf(Unit) - 1].UnitData.HeadIcon);
+                //m_headIconLast.url = IconHelper.ToHeadIcon(tileUnits[tileUnits.IndexOf(Unit) - 1].UnitData.HeadIcon);
+                IconHelper.SetTexture(m_headIconLast, tileUnits[tileUnits.IndexOf(Unit) - 1].UnitData.HeadIcon, IconType.HeadIcon);
                 //Debug.Log("headIconLast:" + m_headIconLast.icon);
             }
             else
             {
                 m_LastOp.visible = true;
                 m_NextOp.visible = true;
-                m_headIconLast.url = IconHelper.ToHeadIcon(tileUnits[tileUnits.IndexOf(Unit) - 1].UnitData.HeadIcon);
-                m_headIconNext.url = IconHelper.ToHeadIcon(tileUnits[tileUnits.IndexOf(Unit) + 1].UnitData.HeadIcon);
+                //m_headIconLast.url = IconHelper.ToHeadIcon(tileUnits[tileUnits.IndexOf(Unit) - 1].UnitData.HeadIcon);
+                //m_headIconNext.url = IconHelper.ToHeadIcon(tileUnits[tileUnits.IndexOf(Unit) + 1].UnitData.HeadIcon);
+                IconHelper.SetTexture(m_headIconLast, tileUnits[tileUnits.IndexOf(Unit) - 1].UnitData.HeadIcon, IconType.HeadIcon);
+                IconHelper.SetTexture(m_headIconNext, tileUnits[tileUnits.IndexOf(Unit) + 1].UnitData.HeadIcon, IconType.HeadIcon);
                 //Debug.Log("headIconLast:" + m_headIconLast.icon + " headIconNext:" + m_headIconNext.icon);
             }
         }

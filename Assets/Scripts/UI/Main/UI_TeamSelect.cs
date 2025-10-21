@@ -132,7 +132,7 @@ namespace MainUI
             if (index != -1)//-1表示新增卡
             {
                 NowTeam.Add(card);
-                NowSkill.Add(card.DefaultUsingSkill);
+                NowSkill.Add(card?.DefaultUsingSkill?? 0);
             }
             Flush(true);
             if (card == null)

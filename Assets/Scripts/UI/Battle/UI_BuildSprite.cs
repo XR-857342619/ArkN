@@ -16,8 +16,16 @@ namespace BattleUI
             m_typeControl.selectedIndex = (int)unit.UnitData.Profession;
             m_cost.text = unit.GetCost().ToString();
             m_bar.max = unit.ResetTime;
+            IconHelper.SetTexture(m_headIcon.m_headIcon, Unit.UnitData.HeadIcon, IconType.HeadIcon);
         }
-
+        //partial void Init()
+        //{
+        //    //base.Init();
+        //    Debug.Log(Unit?.UnitData?.HeadIcon);
+        //    if (Unit is null || Unit.UnitData is null || Unit.UnitData.HeadIcon is null) return;
+        //    IconHelper.SetTexture(m_headIcon.m_headIcon, Unit.UnitData.HeadIcon, IconType.HeadIcon);
+        //    Debug.Log("SetTexture");
+        //}
         protected override void OnUpdate()
         {
             base.OnUpdate();
@@ -27,7 +35,7 @@ namespace BattleUI
             m_bar.value = Unit.Reseting.value;
             m_resetTime.text = Unit.Reseting.value.ToString("F1");
             m_canUse.selectedIndex = Unit.Useable() ? 0 : 1;
-            m_headIcon.m_headIcon.icon = Unit.UnitData.HeadIcon.ToHeadIcon();
+            //m_headIcon.m_headIcon.icon = Unit.UnitData.HeadIcon.ToHeadIcon();
         }
     }
 }

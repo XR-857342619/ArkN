@@ -37,6 +37,7 @@ public class BattleManager : MonoBehaviour
     public bool IsNoCD = false;
     public bool IsNoLimitBuild = false;
     public bool IsInfUnitCount = false;
+    public bool IsShowDetails = false;
 
     public List<OpDamageInfo> OpDamageInfos = new List<OpDamageInfo>();
 

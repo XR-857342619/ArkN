@@ -1,5 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
+using System.Linq;
+using System.Collections.Generic;
+using FairyGUI;
 
 namespace BattleUI
 {
@@ -7,6 +11,10 @@ namespace BattleUI
     {
         GameData gameData => GameData.Instance;
         public Unit Unit;
+        //public float ScrollSpeed = 1.0f;
+        //public float ScrollY = 0;
+        public CountDown refreshCD = new CountDown(0.5f);
+        public int BuffInfoIndex = 0;
         partial void Init()
         {
             touchable = false;
@@ -27,9 +35,13 @@ namespace BattleUI
 
         protected override void OnUpdate()
         {
+            m_isPreview.selectedIndex = BattleManager.Instance.IsShowDetails ? 1 : 0;
+            m_showBuffInfo.selectedIndex = ((Unit is Units.干员 || Unit is Units.敌人) && Unit.Buffs.Count > 0) ? 1 : 0;
             if (Unit != null)
             {
                 Flush();
+                if (m_isPreview.selectedIndex == 1)
+                    ShowBuffInfo(Unit);
             }
             base.OnUpdate();
         }
@@ -162,5 +174,59 @@ namespace BattleUI
             }
             //Log.Debug(Unit.UnitData.Name + ":" + Unit.Hp);
         }
+        public void ShowBuffInfo(Unit unit)
+        {
+            if (refreshCD.Update(SystemConfig.DeltaTime))
+            {
+                BuffInfoIndex++;
+                BuffInfoIndex %= 5;
+                refreshCD.Set(2.5f);
+            }
+            //else
+            //    return;
+            List<Buff> buffs = unit.Buffs;
+            m_infoList.RemoveChildrenToPool();
+            var title = m_infoList.AddItemFromPool() as UI_BuffInfo;
+            title.m_name.text = "名称";
+            title.m_type.text = "类型";
+            title.m_dataInfo.text = "数据";
+            title.m_last.text = "持续时间";
+            ScrollPane scrollPane = m_infoList.scrollPane;
+            for (int i = 0; i < buffs.Count && i < 5; i++)
+            {
+                int index = i > 5 ? (BuffInfoIndex + i) % 5 : i;
+                var item = m_infoList.AddItemFromPool() as UI_BuffInfo;
+                item.m_name.text = buffs[index].BuffData.Id;
+                item.m_type.text = buffs[index].BuffData.Type;
+                //item.m_dataInfo.text = buff.BuffData.Data;
+                var data = buffs[index].BuffData.Data is not null ? string.Join("; ", buffs[index].BuffData.Data.Select(kv => $"{kv.Key}:{kv.Value}")) : "无";
+                item.m_dataInfo.text = data.Replace("\n", "");
+                //Debug.Log(item.m_dataInfo.text);
+                Debug.Log(item.m_name.text);
+                item.m_last.text = buffs[index].Duration.value.ToString("F2");
+            }
+            //float maxScrolly = scrollPane.viewHeight - scrollPane.contentHeight;
+            //if (ScrollY + ScrollSpeed > maxScrolly)
+            //{
+            //    //scrollPane.posY = maxScrolly;
+            //    ScrollY = maxScrolly;
+            //    ScrollSpeed = -ScrollSpeed;
+            //}
+            //else if (ScrollY + ScrollSpeed < 0)
+            //{
+            //    //scrollPane.posY = 0;
+            //    ScrollY = 0;
+            //    ScrollSpeed = -ScrollSpeed;
+            //}
+            //else
+            //{
+            //    //scrollPane.posY = ScrollY + ScrollSpeed;
+            //    scrollPane.SetPosY(ScrollY + ScrollSpeed, false);
+            //    ScrollY += ScrollSpeed;
+            //}
+            //Debug.Log(maxScrolly);
+            //Debug.Log(scrollPane.posY + "=" + ScrollY + " + " + ScrollSpeed);
+        }
+        // 辅助方法：将值转换为字符串（处理数组/集合）
     }
 }

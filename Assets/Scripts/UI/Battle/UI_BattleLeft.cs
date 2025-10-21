@@ -91,7 +91,8 @@ namespace BattleUI
                     {                     
                         m_SkillName.text = mainSkill.SkillData.Name;
 
-                        m_skillIcon.icon = mainSkill.SkillData.Icon.ToSkillIcon();
+                        //m_skillIcon.icon = mainSkill.SkillData.Icon.ToSkillIcon();
+                        IconHelper.SetTexture(m_skillIcon, mainSkill.SkillData.Icon, IconType.SkillIcon);
                         (m_Recover as MainUI.UI_Recover).m_recover.selectedIndex = (int)mainSkill.SkillData.PowerType;
                         (m_UseType as MainUI.UI_UseType).m_useType.selectedIndex = (int)mainSkill.SkillData.UseType;
                         m_lastTime.text = mainSkill.SkillData.OpenTime > 1000 ? "∞" : mainSkill.SkillData.OpenTime.ToString();

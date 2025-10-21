@@ -398,7 +398,11 @@ namespace Units
                 {
                     u.StopUnit = this;
                     StopUnits.Add(u);
-                    var pos = Position2 + (u.Position2 - Position2).normalized * (u.UnitData.Radius + UnitData.Radius);
+                    Vector2 pos;
+                    if (u.Position2 - Position2 == Vector2.zero)
+                        pos = Position2 + (u.Position2 - Position2).normalized * (u.UnitData.Radius + UnitData.Radius);
+                    else
+                        pos = Vector2.zero;
                     u.Position = new Vector3(pos.x, Position.y, pos.y);
                 }
             }

@@ -41,12 +41,12 @@ namespace MainUI
                 //    DungeonManager.Instance.PrepareDungeon();
                 UIManager.Instance.ChangeView<DIY.UI_Main>(DIY.UI_Main.URL);
             });
-            onRightClick.Add(async () =>
-            {
-                var ui = UIManager.Instance.ChangeView<DungeonUI.UI_Dialogue>(DungeonUI.UI_Dialogue.URL);
-                await ui.StartDialogue("初始事件");
-                UIManager.Instance.ChangeView<GComponent>(URL);
-            });
+            //onRightClick.Add(async () =>
+            //{
+            //    var ui = UIManager.Instance.ChangeView<DungeonUI.UI_Dialogue>(DungeonUI.UI_Dialogue.URL);
+            //    await ui.StartDialogue("初始事件");
+            //    UIManager.Instance.ChangeView<GComponent>(URL);
+            //});
             m_Name.onFocusOut.Add(() =>
             {
                 if (GameData.Instance.Name != m_Name.text)
@@ -55,6 +55,10 @@ namespace MainUI
                     SaveHelper.SaveData();
                 }
             });
+            //m_refresh.onClick.Add(() =>
+            //{
+            //    //Database.Instance.
+            //});
             m_close.onClick.Add(() =>
             {
                 SaveHelper.SaveData();
@@ -90,6 +94,7 @@ namespace MainUI
                     ExcelHelper.Export(ExcelList);
                     Database.Instance.Clear();
                     await Database.Instance.Init();
+                    GameData.Instance.RefreshCardData();
                     TipManager.Instance.ShowTip("导表结束");
                 }
                 else

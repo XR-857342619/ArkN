@@ -37,7 +37,8 @@ namespace DungeonUI
                 {
                     var skilldata = Database.Instance.Get<SkillData>(DungeonCard.UnitData.MainSkill[i]);
                     var teamSkill = m_Skills.AddItemFromPool() as UI_TeamSkill;
-                    teamSkill.m_icon.icon = skilldata.Icon.ToSkillIcon();
+                    //teamSkill.m_icon.icon = skilldata.Icon.ToSkillIcon();
+                    IconHelper.SetTexture(teamSkill.m_icon, skilldata.Icon, IconType.SkillIcon);
                     teamSkill.m_select.selectedIndex = DungeonCard.UsingSkill == i ? 0 : 1;
                 }
                 m_Name.text = DungeonCard.UnitData.Name;

@@ -207,6 +207,10 @@
     <component id="ip2qr6r" name="PackageEditor.xml" path="/Map/"/>
     <component id="ip2qr6t" name="comfirmBtn.xml" path="/Map/"/>
     <component id="tmdwr6u" name="PackageEditor(1).xml" path="/Map/"/>
+    <image id="sczhr6v" name="refresh_bg.png" path="/"/>
+    <image id="sczhr6w" name="refresh_ic.png" path="/"/>
+    <image id="sczhr6x" name="refresh_text.png" path="/"/>
+    <component id="sczhr6y" name="refreshBtn.xml" path="/"/>
   </resources>
   <publish name="" genCode="true"/>
 </packageDescription>

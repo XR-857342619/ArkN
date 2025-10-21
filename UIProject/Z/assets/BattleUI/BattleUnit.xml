@@ -10,6 +10,8 @@
     <remark page="4" value="大型敌人"/>
     <remark page="5" value="boss"/>
   </controller>
+  <controller name="showBuffInfo" pages="0,,1," selected="1"/>
+  <controller name="isPreview" pages="0,,1," selected="1"/>
   <displayList>
     <component id="n31_h4sa" name="hp" src="h4sa42" fileName="Hp1.xml" xy="2,142">
       <gearDisplay controller="unitType" pages="0"/>
@@ -58,5 +60,18 @@
       <gearDisplay controller="unitType" pages="11"/>
       <ProgressBar value="50" max="100"/>
     </component>
+    <component id="n62_tg9g" name="showDetails" src="tg9gtt" fileName="ShowDetails.xml" xy="0,2" size="25,25" aspect="true">
+      <gearDisplay controller="isPreview" pages="1"/>
+      <Button controller="showBuffInfo" page="1"/>
+    </component>
+    <graph id="n56_tg9g" name="bg" xy="-380,-164" pivot="0.5,0.5" size="380,375" group="n60_tg9g" alpha="0.25" type="rect" lineSize="0" corner="5"/>
+    <list id="n55_tg9g" name="infoList" xy="-372,-153" pivot="0.5,0.5" size="365,361" group="n60_tg9g" overflow="scroll" scrollBarFlags="1024" defaultItem="ui://vp312gabtg9gts" align="center">
+      <item/>
+    </list>
+    <text id="n59_tg9g" name="title" xy="-227,-182" pivot="0.5,0.5" size="74,34" group="n60_tg9g" fontSize="24" color="#ffffff" align="center" vAlign="middle" autoSize="none" strokeColor="#000000" text="Buffs"/>
+    <group id="n60_tg9g" name="BuffInfos" xy="-380,-182" size="380,393" advanced="true">
+      <gearDisplay controller="showBuffInfo" pages="1"/>
+      <gearDisplay2 controller="isPreview" pages="1" condition="0"/>
+    </group>
   </displayList>
 </component>

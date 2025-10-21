@@ -20,6 +20,8 @@ namespace MainUI
         public GTextField m_attack;
         public GTextField m_def;
         public GTextField m_magdefence;
+        public GTextField m_R;
+        public GGroup m_CircularRange;
         public const string URL = "ui://k4mja8t1k6t713";
 
         public static UI_LeftUnitInfo CreateInstance()
@@ -44,6 +46,8 @@ namespace MainUI
             m_attack = (GTextField)GetChildAt(25);
             m_def = (GTextField)GetChildAt(26);
             m_magdefence = (GTextField)GetChildAt(27);
+            m_R = (GTextField)GetChildAt(30);
+            m_CircularRange = (GGroup)GetChildAt(32);
             Init();
         }
         partial void Init();

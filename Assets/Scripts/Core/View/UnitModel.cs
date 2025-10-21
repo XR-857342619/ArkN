@@ -61,7 +61,7 @@ public class UnitModel:MonoBehaviour
     }
     public void ShowMiss()
     {
-        BattleUI.UI_Battle.Instance.ShowDamageText("", 2, transform.position.WorldToUI());
+        BattleUI.UI_Battle.Instance.ShowDamageText("Miss", 2, transform.position.WorldToUI());
     }
     public void ShowPower(float count)
     {

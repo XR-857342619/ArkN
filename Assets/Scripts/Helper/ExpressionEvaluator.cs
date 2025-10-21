@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Linq.Dynamic.Core;
 using System.Linq.Dynamic.Core.Parser;
 using System.Linq;
+using System.Linq.Dynamic.Core.CustomTypeProviders;
 
 public class ExpressionEvaluator
 {
@@ -26,7 +27,7 @@ public class ExpressionEvaluator
     {
         if (string.IsNullOrEmpty(expression))
             return new List<Unit>();
-        //Log.Debug(expression);
+        Log.Debug(expression);
         try
         {
             // 无论目标列表是否为空，先获取编译后的委托（触发缓存逻辑）
@@ -44,7 +45,7 @@ public class ExpressionEvaluator
                 if (target == null) continue;
                 if ((bool)predicate.DynamicInvoke(_unit, target))
                 {
-                    //Log.Debug("true");
+                    Log.Debug("true");
                     results.Add(target);
                 }
             }
@@ -71,6 +72,28 @@ public class ExpressionEvaluator
 
         // 预处理表达式（替换关键字、修正语法）
         var processedExpr = PreprocessExpression(expression);
+
+        // 实例化自定义类型提供器
+        var customTypeProvider = new CustomDynamicLinqTypeProvider();
+        // 向IList<Type>中添加所需类型（无需强制转换）
+        customTypeProvider.AdditionalTypes.Add(typeof(string[]));
+        customTypeProvider.AdditionalTypes.Add(typeof(System.Linq.Enumerable));
+        customTypeProvider.AdditionalTypes.Add(typeof(PowerRecoverTypeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(SkillReadyEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(SkillUseTypeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(TriggerEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(SkillTargetFilterEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(UnitTypeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(AttackTargetOrderEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(AttackTargetOrder2Enum));
+        customTypeProvider.AdditionalTypes.Add(typeof(DamageTypeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(AttackModeEnum));
+
+        // 配置解析器以支持string[]的Contains方法
+        var parsingConfig = new ParsingConfig
+        {
+            CustomTypeProvider = customTypeProvider
+        };
 
         Log.Debug(parameters);
 

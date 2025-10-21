@@ -1017,11 +1017,25 @@ public class Unit
     }
     public void AddStop(Units.敌人 target)
     {
+        if (target == null)
+            throw new ArgumentNullException(nameof(target));
+
         StopUnits.Add(target);
         target.StopUnit = this;
-        if (target.Position != Position && (target.Position - Position).magnitude < UnitData.Radius + target.UnitData.Radius)
+
+        var direction = target.Position - Position;
+        float requiredDistance = UnitData.Radius + target.UnitData.Radius;
+
+        // 检查是否需要调整位置（距离过近且方向向量有效）
+        if (direction.sqrMagnitude < requiredDistance * requiredDistance &&
+            direction.sqrMagnitude > 0.0001f)
         {
-            target.Position = Position + (target.Position - Position).normalized * (UnitData.Radius + target.UnitData.Radius);
+            target.Position = Position + direction.normalized * requiredDistance;
+        }
+        else if (direction.sqrMagnitude <= 0.0001f)
+        {
+            // 处理位置完全重叠的情况，例如沿默认方向偏移
+            target.Position = Position + Vector3.forward * requiredDistance;
         }
     }
 

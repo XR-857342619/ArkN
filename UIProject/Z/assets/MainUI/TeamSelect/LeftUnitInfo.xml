@@ -11,7 +11,7 @@
     <image id="n46_voep" name="n46" src="voep3v" fileName="TeamSelect/详情界面_技能栏.png" xy="0,442" group="n40_k6t7"/>
     <text id="n3_k6t7" name="name" xy="26,112" size="184,79" group="n40_k6t7" fontSize="60" text="阿米娅"/>
     <text id="n4_k6t7" name="n4" xy="35,216" size="32,35" group="n40_k6t7" fontSize="25" text="Lv"/>
-    <text id="n5_k6t7" name="lv" xy="106,187" size="72,79" group="n40_k6t7" fontSize="60" text="90"/>
+    <text id="n5_k6t7" name="lv" xy="106,187" size="73,79" group="n40_k6t7" fontSize="60" text="90"/>
     <graph id="n10_k6t7" name="n10" xy="21,286" size="221,138" group="n40_k6t7" type="rect" lineSize="0" fillColor="#ff999999"/>
     <text id="n15_k6t7" name="n15" xy="89,287" size="84,29" group="n40_k6t7" fontSize="20" color="#ffffff" text="攻击范围"/>
     <component id="n14_k6t7" name="attackArea" src="kbte11" fileName="Container.xml" xy="131,367" size="0,0" group="n40_k6t7"/>
@@ -20,14 +20,14 @@
       <item/>
       <item/>
     </list>
-    <text id="n21_k6t7" name="n21" xy="318,208" size="67,30" group="n40_k6t7" fontSize="21" text="再部署"/>
-    <text id="n22_k6t7" name="n22" xy="318,235" size="88,30" group="n40_k6t7" fontSize="21" text="部署费用"/>
-    <text id="n23_k6t7" name="n23" xy="318,263" size="67,30" group="n40_k6t7" fontSize="21" text="阻挡数"/>
-    <text id="n24_k6t7" name="n24" xy="318,291" size="88,30" group="n40_k6t7" fontSize="21" text="攻击速度"/>
-    <text id="n25_k6t7" name="n25" xy="318,319" size="88,30" group="n40_k6t7" fontSize="21" text="生命上限"/>
-    <text id="n26_k6t7" name="n26" xy="318,347" size="46,30" group="n40_k6t7" fontSize="21" text="攻击"/>
-    <text id="n27_k6t7" name="n27" xy="318,375" size="46,30" group="n40_k6t7" fontSize="21" text="防御"/>
-    <text id="n28_k6t7" name="n28" xy="318,404" size="88,30" group="n40_k6t7" fontSize="21" text="法术抗性"/>
+    <text id="n21_k6t7" name="n21" xy="318,208" size="66,30" group="n40_k6t7" fontSize="21" text="再部署"/>
+    <text id="n22_k6t7" name="n22" xy="318,235" size="86,30" group="n40_k6t7" fontSize="21" text="部署费用"/>
+    <text id="n23_k6t7" name="n23" xy="318,263" size="66,30" group="n40_k6t7" fontSize="21" text="阻挡数"/>
+    <text id="n24_k6t7" name="n24" xy="318,291" size="86,30" group="n40_k6t7" fontSize="21" text="攻击速度"/>
+    <text id="n25_k6t7" name="n25" xy="318,319" size="86,30" group="n40_k6t7" fontSize="21" text="生命上限"/>
+    <text id="n26_k6t7" name="n26" xy="318,347" size="45,30" group="n40_k6t7" fontSize="21" text="攻击"/>
+    <text id="n27_k6t7" name="n27" xy="318,375" size="45,30" group="n40_k6t7" fontSize="21" text="防御"/>
+    <text id="n28_k6t7" name="n28" xy="318,404" size="86,30" group="n40_k6t7" fontSize="21" text="法术抗性"/>
     <text id="n29_k6t7" name="reset" xy="532,208" pivot="1,0" anchor="true" size="40,30" group="n40_k6t7" fontSize="21" align="right" text="111"/>
     <text id="n30_k6t7" name="cost" xy="532,235" pivot="1,0" anchor="true" size="40,30" group="n40_k6t7" fontSize="21" align="right" text="111"/>
     <text id="n31_k6t7" name="stop" xy="532,261" pivot="1,0" anchor="true" size="40,30" group="n40_k6t7" fontSize="21" align="right" text="111"/>
@@ -36,6 +36,11 @@
     <text id="n34_k6t7" name="attack" xy="532,345" pivot="1,0" anchor="true" size="40,30" group="n40_k6t7" fontSize="21" align="right" text="111"/>
     <text id="n35_k6t7" name="def" xy="532,372" pivot="1,0" anchor="true" size="40,30" group="n40_k6t7" fontSize="21" align="right" text="111"/>
     <text id="n36_k6t7" name="magdefence" xy="532,401" pivot="1,0" anchor="true" size="40,30" group="n40_k6t7" fontSize="21" align="right" autoSize="none" text="111"/>
+    <graph id="n49_sczh" name="n49" xy="81,319" size="100,100" group="n55_sczh" alpha="0.75" type="rect" lineSize="2" lineColor="#ffff6633" fillColor="#ffff9966" corner="50"/>
+    <image id="n53_sczh" name="n53" src="hy1bsg" fileName="其他/attack_range_stand.png" pkg="kera0i3h" xy="123,361" pivot="0.5,0.5" group="n55_sczh"/>
+    <text id="n56_sczh" name="R" xy="90,379" size="83,32" group="n55_sczh" fontSize="20" align="center" vAlign="middle" autoSize="none" text="R=0"/>
+    <graph id="n54_sczh" name="n54" xy="131,368" size="50,3" group="n55_sczh" type="rect" lineSize="3"/>
+    <group id="n55_sczh" name="CircularRange" xy="81,319" size="100,100" group="n40_k6t7" visible="false" advanced="true"/>
     <group id="n40_k6t7" name="n40" xy="0,112" size="627,965" advanced="true">
       <gearDisplay controller="empty" pages="0"/>
     </group>

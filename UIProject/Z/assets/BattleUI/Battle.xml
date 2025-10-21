@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080" opaque="false">
-  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="0">
+  <controller name="state" pages="0,,1,,8,,9,,10,,11,,12,,13," selected="7">
     <remark page="0" value="正常"/>
     <remark page="1" value="放置单位"/>
     <remark page="2" value="放置单位_选择位置"/>
@@ -14,7 +14,7 @@
     <action type="play_transition" fromPage="" toPage="11" transition="t3"/>
   </controller>
   <controller name="win" pages="0,,1," selected="0"/>
-  <controller name="isPreview" pages="0,,1," selected="0"/>
+  <controller name="isPreview" pages="0,,1," selected="1"/>
   <controller name="showUnitList" pages="0,,1," selected="0"/>
   <displayList>
     <image id="n57_t5h9" name="n57" src="t5h94r" fileName="任务目标_一般.png" xy="681,26" group="n42_kbte">
@@ -34,7 +34,7 @@
       <gearDisplay controller="state" pages="10"/>
       <relation target="" sidePair="width-width%,height-height%"/>
     </component>
-    <component id="n25_kbte" name="left" src="kbte3s" fileName="BattleLeft.xml" xy="-683,0" size="683,1080" group="n42_kbte" alpha="0.75">
+    <component id="n25_kbte" name="left" src="kbte3s" fileName="BattleLeft.xml" xy="-683,0" size="683,1080" group="n42_kbte">
       <gearDisplay controller="state" pages="1,8,10"/>
       <gearXY controller="state" pages="1,8,10" values="0,0,0,0|-683,0,-0.356,0|0,0,0,0" default="-683,0,-0.356,0" duration="0.1" positionsInPercent="true"/>
       <gearLook controller="state" pages="0,1,8,9" values="0.75,0,0,1|0.75,0,0,1|0.75,0,0,1|0.75,0,0,1" default="1,0,0,1"/>
@@ -72,7 +72,7 @@
     <group id="n42_kbte" name="normalGroup" xy="-683,0" size="2603,1080" advanced="true">
       <gearDisplay controller="state" pages="0,1,8,9,10,12,13"/>
     </group>
-    <list id="n128_edar" name="UnitList" xy="-6,884" size="2097,566" layout="flow_hz" overflow="scroll" scroll="horizontal" scrollBarFlags="128" lineItemCount="20" defaultItem="ui://vp312gabf1463l" align="right" vAlign="middle" renderOrder="arch">
+    <list id="n128_edar" name="UnitList" xy="1,885" size="2097,566" alpha="0.25" layout="flow_hz" overflow="scroll" scroll="horizontal" scrollBarFlags="128" lineItemCount="20" defaultItem="ui://vp312gabf1463l" align="right" vAlign="middle" renderOrder="arch">
       <gearDisplay controller="showUnitList" pages="0"/>
       <gearXY controller="state" pages="0,1,8,9,10" values="-6,884,-0.003,0.819|-6,884,-0.003,0.819|-6,990,-0.003,0.917|-6,884,-0.003,0.819|-6,884,-0.003,0.819" default="1,886,0.001,0.82" tween="true" duration="0.05" positionsInPercent="true"/>
       <gearLook controller="state" pages="1,8,9,10,11,12,13" values="0.75,0,0,1|0.5,0,0,1|0.25,0,0,1|0.25,0,0,1|0,0,0,1|0.25,0,0,1|0.25,0,0,1" default="1,0,0,1" tween="true" duration="0.05"/>
@@ -126,6 +126,8 @@
       <relation target="n106_t03z" sidePair="right-right%"/>
       <Button controller="state" page="0"/>
     </component>
+    <text id="n132_tg9g" name="n132" xy="110,657" size="184,42" group="n93_fji9" fontSize="30" text="显示详细信息"/>
+    <component id="n133_tg9g" name="isShowDetails" src="fji95k" fileName="Sbtn.xml" xy="360,650" group="n93_fji9"/>
     <group id="n93_fji9" name="previewGroup" xy="0,0" size="1920,1080" advanced="true">
       <gearDisplay controller="state" pages="13"/>
     </group>
@@ -197,7 +199,7 @@
     <component id="n131_fklp" name="n131" src="fklpt0" fileName="switchBtn.xml" xy="1882,885" size="38,196">
       <gearDisplay controller="state" pages="0,1,8,9,10"/>
       <relation target="" sidePair="right-right%,bottom-bottom%"/>
-      <Button checked="true" title="&lt;" titleFontSize="50" controller="showUnitList" page="1"/>
+      <Button title="&lt;" titleFontSize="50" controller="showUnitList" page="1"/>
     </component>
   </displayList>
   <transition name="win1"/>

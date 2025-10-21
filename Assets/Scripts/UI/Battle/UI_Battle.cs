@@ -71,6 +71,7 @@ namespace BattleUI
             m_isInfUnitCount.selected = BattleManager.Instance.IsInfUnitCount;
             m_isNoCD.selected = BattleManager.Instance.IsNoCD;
             m_isNoLimitBuild.selected = BattleManager.Instance.IsNoLimitBuild;
+            m_isShowDetails.selected = BattleManager.Instance.IsShowDetails;
 
             m_gameSpeed.onChanged.Add(() =>
             {
@@ -107,6 +108,10 @@ namespace BattleUI
             m_isNoLimitBuild.onChanged.Add(() =>
             {
                 BattleManager.Instance.IsNoLimitBuild = m_isNoLimitBuild.selected;
+            });
+            m_isShowDetails.onChanged.Add(() =>
+            {
+                BattleManager.Instance.IsShowDetails = m_isShowDetails.selected;
             });
             //BattleManager.Instance.OpDamageInfos.Clear();
 

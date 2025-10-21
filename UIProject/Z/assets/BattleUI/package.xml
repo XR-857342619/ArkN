@@ -127,6 +127,8 @@
     <component id="p78xto" name="ProgressBar_hunter.xml" path="/"/>
     <image id="p78xtp" name="sprite_hunter_bullet.png" path="/"/>
     <image id="p78xtq" name="equip_normal_icon.png" path="/"/>
+    <component id="tg9gts" name="BuffInfo.xml" path="/"/>
+    <component id="tg9gtt" name="ShowDetails.xml" path="/"/>
   </resources>
   <publish name="" genCode="true"/>
 </packageDescription>
