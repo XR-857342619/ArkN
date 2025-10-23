@@ -17,11 +17,6 @@ namespace Units
         public CountDown Reseting = new CountDown();
 
         /// <summary>
-        /// 干员是第几帧进入场地的,-1表示未放置
-        /// </summary>
-        public int InputTime = -1;
-
-        /// <summary>
         /// 再部署时间
         /// </summary>
         public float ResetTime;
@@ -34,9 +29,6 @@ namespace Units
 
         public float Cost;
         public float CostBase, CostAdd;
-
-        public 干员 Parent;
-        public List<干员> Children = new List<干员>();
 
         public GameObject selfDirection;
 
@@ -298,7 +290,7 @@ namespace Units
                 if (Parent != null) Parent.Children.Remove(this);
             }
 
-            if (Parent != null && Parent.InputTime < 0)
+            if (Parent != null && (Parent as 干员).InputTime < 0)
             {
                 Battle.AllUnits.Remove(this);
                 Battle.PlayerUnits.Remove(this);
@@ -309,7 +301,7 @@ namespace Units
                 if ((unit as 干员).InputTime < 0)
                 {
                     Battle.AllUnits.Remove(unit);
-                    Battle.PlayerUnits.Remove(unit);
+                    Battle.PlayerUnits.Remove(unit as 干员);
                 }
                 if (!unit.UnitData.NotReturn)
                     (unit as 干员).LeaveMap();
@@ -378,17 +370,6 @@ namespace Units
         public override bool IfStoped()
         {
             return StopUnits.Count > 0;
-        }
-
-        public void GainChild(int id, int mianSkillId = 0)
-        {
-            var unit= Battle.CreatePlayerUnit(id);
-            Children.Add(unit);
-            unit.MainSkillId = mianSkillId;
-            unit.Init();
-            unit.Parent = this;
-            unit.UnitModel?.gameObject.SetActive(false);
-            BattleUI.UI_Battle.Instance.UpdateUnitsLayout();
         }
 
         void CheckBlock()

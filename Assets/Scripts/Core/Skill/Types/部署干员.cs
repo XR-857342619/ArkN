@@ -81,6 +81,7 @@ namespace Skills
             if (battleOp is not null)
             {
                 Operator = battleOp as 干员;
+                Operator.NowGrid.Units.Remove(Operator);
             }
             else
             {
@@ -120,19 +121,21 @@ namespace Skills
             {
                 Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);
                 Log.Debug(Operator.Skills.Count());
-                GameObject go = Operator.UnitModel.gameObject;
-                go.transform.position = new Vector3(pos.x, 0.5f, pos.z);
+                //GameObject go = Operator.UnitModel.gameObject;
+                //go.transform.position = new Vector3(pos.x, 0.5f, pos.z);
                 if (Operator.UnitData.MainSkill is not null && Operator.UnitData.MainSkill.Count() >= 0)
                     Operator.MainSkill = Operator.LearnSkill(Operator.UnitData.MainSkill[mainSkillId], null);
                 Operator.ChangePos((int)pos.x, (int)pos.z, direction);
                 Operator.JoinMap();
                 Operator.Parent = Battle.AllUnits.Find(x => x.UnitData.Name == name) as Units.干员??null;
-                tile.Units.Add(Operator);
+                //tile.Units.Add(Operator);
             }
             else
             {
                 if (toRemove is not null)
                     tile.Units.Add(toRemove);
+                if (battleOp is not null)
+                    Operator.NowGrid.Units.Add(Operator);
                 Log.Debug("无法部署干员:" + Operator.UnitData.Name + "于" + pos);
                 return;
             }

@@ -13,6 +13,7 @@ namespace MainUI
     partial class UI_Main : IGameUIView
     {
         GameData gameData => GameData.Instance;
+        //List<string> ExcelList => GameData.Instance.ExcelList;
         List<string> ExcelList = GameData.Instance.ExcelList;
         public GTreeNode rootNode;
         partial void Init()

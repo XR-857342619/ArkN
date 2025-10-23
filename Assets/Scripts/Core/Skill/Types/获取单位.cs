@@ -31,11 +31,11 @@ namespace Skills
 
         public override void Cast()
         {
-            NowCount = (Unit as Units.干员).Children.Where(x => x.InputTime < 0 && x.UnitData.Id == SkillData.Data.GetStr("UnitId")).Count();
+            NowCount = Unit.Children.Where(x => (x as Units.干员).InputTime < 0 && x.UnitData.Id == SkillData.Data.GetStr("UnitId")).Count();
             if (MaxCount != 0 && NowCount >= MaxCount) return;
             for (int i = 0; i < Count; i++)
             {
-                (Unit as Units.干员).GainChild(ChildId, MainSkillId);
+                Unit.GainChild(ChildId, MainSkillId);
                 //Debug.Log(ChildId);
             }
             base.Cast();
@@ -43,7 +43,7 @@ namespace Skills
 
         public override void DoOpen()
         {
-            NowCount = (Unit as Units.干员).Children.Where(x => x.InputTime < 0 && x.UnitData.Id == SkillData.Data.GetStr("UnitId")).Count();
+            NowCount = (Unit as Units.干员).Children.Where(x => (x as Units.干员).InputTime < 0 && x.UnitData.Id == SkillData.Data.GetStr("UnitId")).Count();
             if (MaxCount != 0 && NowCount >= MaxCount) return;
             base.DoOpen();
         }

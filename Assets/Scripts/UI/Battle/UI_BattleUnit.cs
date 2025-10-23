@@ -202,7 +202,7 @@ namespace BattleUI
                 var data = buffs[index].BuffData.Data is not null ? string.Join("; ", buffs[index].BuffData.Data.Select(kv => $"{kv.Key}:{kv.Value}")) : "无";
                 item.m_dataInfo.text = data.Replace("\n", "");
                 //Debug.Log(item.m_dataInfo.text);
-                Debug.Log(item.m_name.text);
+                //Debug.Log(item.m_name.text);
                 item.m_last.text = buffs[index].Duration.value.ToString("F2");
             }
             //float maxScrolly = scrollPane.viewHeight - scrollPane.contentHeight;

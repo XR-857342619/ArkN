@@ -11,7 +11,7 @@ namespace Skills
         public override void Update()
         {
             var children = (Unit as Units.干员).Children;
-            if (children.Count > 0 && children[0].InputTime < 0)
+            if (children.Count > 0 && (children[0] as Units.干员).InputTime < 0)
             {
                 if (!Opening.Finished())
                 {

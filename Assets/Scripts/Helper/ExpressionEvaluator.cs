@@ -111,18 +111,6 @@ public class ExpressionEvaluator
         return _expressionCache[expression];
     }
 
-    // 表达式预处理
-    private string PreprocessExpression(string expression)
-    {
-        // 替换逻辑运算符别名并清理空格
-        return expression.Replace("and", "&&")
-                        .Replace("or", "||")
-                        .Replace("not", "!")
-                        //.Replace("=", "==")
-                        .Replace("  ", " ")
-                        .Trim();
-    }
-
     /// <summary>
     /// 计算包含Unit和Target参数的数学表达式
     /// </summary>
@@ -146,7 +134,7 @@ public class ExpressionEvaluator
             var parameters = new[] { unitParam, targetParam };
 
             // 预处理表达式（保持与现有逻辑一致的替换规则）
-            var processedExpr = PreprocessMathExpression(expression);
+            var processedExpr = PreprocessExpression(expression);
 
             // 解析数学表达式（返回类型自动推断）
             var lambda = DynamicExpressionParser.ParseLambda(
@@ -167,18 +155,41 @@ public class ExpressionEvaluator
         }
     }
 
-    /// <summary>
-    /// 数学表达式专用预处理（避免替换数学符号）
-    /// </summary>
-    private string PreprocessMathExpression(string expression)
+    // 表达式预处理
+    private string PreprocessExpression(string expression)
     {
-        // 只处理逻辑关键词替换，保留数学运算符（不替换=号，避免影响赋值语义）
+        // 替换逻辑运算符别名并清理空格
         return expression.Replace("and", "&&")
                         .Replace("or", "||")
                         .Replace("not", "!")
+                        //.Replace("=", "==")
                         .Replace("  ", " ")
                         .Trim();
     }
+
+    /// <summary>
+    /// 执行属性赋值表达式
+    /// </summary>
+    /// <param name="buff">施加的Buff</param>
+    
+    /// <param name="expression">赋值表达式</param>
+    public void ExecutePropertyAssignment(Buff buff, string expression)
+    {
+        var executor = new ExpressionExecutor(buff);
+        executor.ExecuteAssignment(expression);
+    }
+
+    /// <summary>
+    /// 批量执行多个赋值表达式
+    /// </summary>
+    public void ExecuteAssignments(Buff buff, IEnumerable<string> expressions)
+    {
+        foreach (var expr in expressions)
+        {
+            ExecutePropertyAssignment(buff, expr);
+        }
+    }
+
     // 清理缓存（用于热重载等场景）
     public static void ClearCache()
     {

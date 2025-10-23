@@ -50,6 +50,7 @@ namespace Units
         public override void Init()
         {
             base.Init();
+            InputTime = Battle.Tick;
             StopCost = 1;
             if (UnitData.StopCount != 0) StopCost = UnitData.StopCount;
             PathPoints.AddRange(Battle.MapData.PathInfos.Find(x => x.Name == WaveData.Path).Path); //PathManager.Instance.GetPath(WaveData.Path);

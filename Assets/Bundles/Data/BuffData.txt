@@ -84,7 +84,7 @@
 {"Id":"通用闪避","Type":"闪避","LastingEffect":3,"LastTime":3,"Data":{"Chance":-1,"AvoidType":"general"}}
 {"Id":"触发闪避","Type":"普通buff","LastingEffect":320}
 {"Id":"斑点加攻","Type":"数值变化","LastingEffect":23,"LastTime":5,"Data":{"t":["AttackRate"]}}
-{"Id":"斑点闪避","Type":"闪避","LastingEffect":55,"LastTime":3,"Data":{"Chance":0.3,"AvoidType":"Normal"}}
+{"Id":"斑点闪避","Type":"闪避","LastingEffect":55,"LastTime":3,"Data":{"Chance":0.25,"AvoidType":"Normal"}}
 {"Id":"泡普卡加攻","Type":"数值变化","LastingEffect":21,"LastTime":5,"Data":{"t":["AttackRate"]}}
 {"Id":"炎溶攻速提升","Type":"数值变化","LastingEffect":21,"LastTime":5,"Data":{"t":["AgiAdd"]}}
 {"Id":"米格鲁防御提升","Type":"数值变化","LastingEffect":22,"LastTime":0.01,"Data":{"t":["DefenceRate"]}}
@@ -277,7 +277,7 @@
 {"Id":"Buff可抵挡","Type":"Buff可抵挡","LastingEffect":34,"NotCancelable":1}
 {"Id":"延迟眩晕","Type":"延迟追加Buff","Data":{"Buffs":["眩晕"],"Delay":5}}
 {"Id":"停留添加眩晕","Type":"蕾缪安通缉类停留时间标记","Data":{"Time":3}}
-{"Id":"限伤1","Type":"重写类限伤","LastingEffect":34,"Data":{"Count":3}}
+{"Id":"限伤1","Type":"重写类限伤","Data":{"Count":3}}
 {"Id":"罗即死","Type":"逻各斯1技能类即死"}
 {"Id":"迅使被动","Type":"数值变化","StopLess":2,"StopNeed":2,"LastTime":0.01,"DeadRemain":1,"Data":{"t":["DefenceRate"]}}
 {"Id":"迅使防御提升","Type":"数值变化","LastingEffect":23,"LastTime":0.01,"Data":{"t":["DefenceRate"]}}

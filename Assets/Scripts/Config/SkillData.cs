@@ -42,6 +42,8 @@ public class SkillData : IConfig
       public AttackTargetOrderEnum AttackOrder;
       public AttackTargetOrder2Enum AttackOrder2;
       public string OrderTag;
+      public string OrderBuff;
+      public string OrderExpression;
       public UnityEngine.Vector2Int[] AttackPoints;
       public bool AttackPoint;
       public float AttackRange;

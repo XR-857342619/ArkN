@@ -7,6 +7,7 @@ using UnityEngine;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Bullets;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+using static UnityEngine.GraphicsBuffer;
 
 public class Skill
 {
@@ -109,7 +110,8 @@ public class Skill
             AttackPoints = new List<Vector2Int>();
             UpdateAttackPoints();
         }
-        showRange = SkillData.Data?.GetBool("ShowRange")?? false;
+        showRange = SkillData.Data.GetBool("ShowRange");
+        //Debug.Log(SkillData.Id + showRange);
         showBar = SkillData.Data?.GetStr("ShowBar")?? "";
 
         filter = new SkillTargetFilter(Unit, Targets);
@@ -206,7 +208,7 @@ public class Skill
 
         if (!Casting.Finished()) //抬手期间，如果无有效目标，则取消抬手
         {
-            if ((!SkillData.RegetTarget && !SkillData.NoTargetAlsoUse) && Targets.All(x => !CanUseTo(x)))
+            if ((!SkillData.RegetTarget && !SkillData.NoTargetAlsoUse) && Targets.All(x => !CanUseTo(x) && x.UnitData.Name != SkillData.Data.GetStr("ExTarget")))
             {
                 Log.Debug($"{Unit.UnitData.Id}的{SkillData.Name}全部目标不合法,强制打断抬手动作{Time.time}");
                 BreakCast();
@@ -557,6 +559,7 @@ public class Skill
         }
         //走到这里技能就真的用出来了
         UseCount++;
+        
         if (showRange)
             ShowUnitAttackArea();
         //Log.Debug(SkillData.Id + "开始使用");
@@ -796,7 +799,7 @@ public class Skill
     /// <param name="target"></param>
     public virtual void Effect(Unit target)
     {
-        if (!CanUseTo(target)) return;
+        if (!CanUseTo(target) && target.UnitData.Name != SkillData.Data.GetStr("ExTarget")) return;
         if (SkillData.GatherEffect != null && Targets.Count > 0)
         {
             var ps = EffectManager.Instance.GetEffect(SkillData.GatherEffect.Value);
@@ -1191,12 +1194,12 @@ public class Skill
     public virtual void FindTarget()
     {
         //Debug.Log("开始获取目标");
-        //if (showRange)
-        //{
-        //    HideUnitAttackArea();
-        //    //Debug.Log("展示");
-        //    ShowUnitAttackArea();
-        //}
+        if (showRange)
+        {
+            HideUnitAttackArea();
+            //Debug.Log("展示");
+            ShowUnitAttackArea();
+        }
         Targets.Clear();
         Targets.AddRange(GetAttackTarget());
         //Debug.Log(Targets.First().Position);
@@ -1205,7 +1208,7 @@ public class Skill
     protected List<Unit> tempTargets = new List<Unit>();
     protected List<Unit> tempTargetsFromEvent = new List<Unit>();
     protected List<Unit> tempTargetsFromAttackRange = new List<Unit>();
-    public List<Unit> GetAttackTarget()
+    public virtual List<Unit> GetAttackTarget()
     {
         tempTargets.Clear();
         tempTargetsFromEvent.Clear();
@@ -1215,7 +1218,7 @@ public class Skill
             //正在事件当中，技能去取事件目标
             var t = Battle.TriggerDatas.Peek().User;
             if (t != null && CanUseTo(t))
-                tempTargetsFromEvent    .Add(t);
+                tempTargetsFromEvent.Add(t);
         }
         if (SkillData.UseEventTarget && Battle.TriggerDatas.Count > 0)
         {
@@ -1264,19 +1267,23 @@ public class Skill
 
     protected void orderTargets(List<Unit> targets)
     {
+        //List<>
         targets.RemoveAll(x => !CanUseTo(x));
         if (targets.Count > 0)
         {
             //首先计算出所有目标的仇恨优先级，然后再选出攻击个数的实际目标
             SortTarget(targets);
+            targets.AddRange(Battle.AllUnits.Where(x => x.UnitData?.Name == SkillData.Data?.GetStr("ExTarget") && (SkillData.DeadFind ? true : x.IfAlive)));
             FilterTarget(targets);
         }
+        else
+            targets.AddRange(Battle.AllUnits.Where(x => x.UnitData?.Name == SkillData.Data?.GetStr("ExTarget") && (SkillData.DeadFind ? true : x.IfAlive)));
     }
 
     protected virtual void SortTarget(List<Unit> targets)
     {
         targets.RemoveAll(OrderFilter);
-        var l = targets.OrderBy(GetSortOrder1).ThenBy(GetSortOrder2).ToList();
+        var l = targets.OrderBy(GetSortOrder1).ThenBy(GetSortOrder2).ThenBy(GetSortOrder3).ToList();
         targets.Clear();
         targets.AddRange(l);
     }
@@ -1419,6 +1426,22 @@ public class Skill
                 break;
         }
         return result + x.Hatred();
+    }
+
+    protected virtual float GetSortOrder3(Unit x)
+    {
+        float orderByExpression = 0;
+        if (SkillData.OrderExpression is not null)
+            orderByExpression = (float) tempEvaluator.EvaluateExpressionWithParameters(SkillData.OrderExpression);
+
+        float orderByTag = 0;
+        if (SkillData.OrderTag is not null)
+            orderByTag = x.UnitData.Tags.Contains(SkillData.OrderTag) ? -1000 : 0;
+
+        float orderByBuff = 0;
+        if (SkillData.OrderBuff is not null)
+            orderByBuff = x.Buffs.Any(x => x.BuffData.Id == SkillData.OrderBuff) ? -1000 : 0;
+        return orderByExpression + orderByTag + orderByBuff;
     }
 
     protected virtual void FilterTarget(List<Unit> targets)
@@ -1763,6 +1786,7 @@ public class Skill
     }
     public void ShowUnitAttackArea()
     {
+        //Log.Debug("ShowUnitAttackArea");
         if (AttackPoints.Count > 0)
         {
             //Debug.LogWarning("ShowAttackArea");

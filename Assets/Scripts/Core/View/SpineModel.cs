@@ -50,7 +50,7 @@ public class SpineModel : UnitModel
         //originalG = skeletonRenderer.skeleton.G;
         //originalB = skeletonRenderer.skeleton.B;
         //originalA = skeletonRenderer.skeleton.A;
-        Debug.Log(_originalColor);
+        //Debug.Log(_originalColor);
     }
 
     public void LateUpdate()

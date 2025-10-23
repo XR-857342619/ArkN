@@ -412,32 +412,40 @@ public class ExcelHelper
         }
     }
     public static Dictionary<(string name, string type, string icon), int> GetUnitList(string path)
-    {   try
+    {
+        int sourceRowIndex = 5;
+        try
         {
+            //Debug.Log("开始读取单位列表" + path);
             Dictionary<(string, string, string), int> unitList = new Dictionary<(string name, string type, string icon), int>();
             using ExcelPackage package = new ExcelPackage(new FileInfo(path));
             ExcelWorksheet worksheet = package.Workbook.Worksheets["UnitData"];
-            for (int i = 5; i <= worksheet.Dimension.Rows; i++)
+            for (; sourceRowIndex <= worksheet.Dimension.Rows; sourceRowIndex++)
             {
-                if (worksheet.Cells[i, 1].Value?.ToString().StartsWith("#") == true || worksheet.Cells[i, 1].Value == null)
+                if (worksheet.Cells[sourceRowIndex, 1].Value?.ToString().StartsWith("#") == true || worksheet.Cells[sourceRowIndex, 1].Value == null)
                 {
                     continue;
                 }
                 else
                 {
+                    //Debug.Log(worksheet.Cells[i, 1].Value.ToString());
+                    //Debug.Log(worksheet.Cells[i, 33].Value.ToString());
+                    //Debug.Log(worksheet.Cells[i, 2].Value.ToString());
+                    //Debug.Log(worksheet.Cells[i, 56].Value.ToString());
                     (string, string, string) unitInfo = (
-                        worksheet.Cells[i, 33].Value.ToString() + "/" + worksheet.Cells[i, 1].Value.ToString(),
-                        worksheet.Cells[i, 2].Value.ToString(),
-                        worksheet.Cells[i, 56].Value?.ToString()?? ""
+                        worksheet.Cells[sourceRowIndex, 33].Value.ToString() + "/" + worksheet.Cells[sourceRowIndex, 1].Value.ToString(),
+                        worksheet.Cells[sourceRowIndex, 2].Value.ToString(),
+                        worksheet.Cells[sourceRowIndex, 56].Value?.ToString()?? ""
                         );
-                    unitList[unitInfo] = i;
+                    unitList[unitInfo] = sourceRowIndex;
                 }
             }
             return unitList;
         }
         catch (Exception e)
         {
-            Debug.LogError(e);
+            Debug.LogError(e.Message);
+            TipManager.Instance.ShowTip("读取单位列表失败:" + e.Message + "\n于" + path + " UnitData第" + sourceRowIndex + "行");
             return new Dictionary<(string name, string type, string icon), int>();
         }
     }

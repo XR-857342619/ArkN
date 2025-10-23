@@ -13,7 +13,7 @@ namespace Skills
             base.Effect(target);
             foreach (var c in (Unit as Units.干员).Children)
             {
-                if (c.InputTime >= 0)
+                if ((c as Units.干员).InputTime >= 0)
                     c.DoDie(this);
             }
         }
@@ -23,7 +23,7 @@ namespace Skills
             AttackPoints.Clear();
             foreach (var c in (Unit as Units.干员).Children)
             {
-                if (c.InputTime >= 0)
+                if ((c as Units.干员).InputTime >= 0)
                     foreach (var p in SkillData.AttackPoints)
                     {
                         var point = c.PointWithDirection(p);

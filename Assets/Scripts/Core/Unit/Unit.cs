@@ -26,6 +26,11 @@ public class Unit
 
     public Vector3 Position;
 
+    /// <summary>
+    /// 单位是第几帧进入场地的,-1表示未放置
+    /// </summary>
+    public int InputTime = -1;
+
     public float Height;
     
     public Vector2 Position2 => new(Position.x, Position.z);
@@ -39,6 +44,8 @@ public class Unit
     public StateEnum State = StateEnum.Default;
     public float Hp;
     //public float HpDp, HpDt, HpFp, HpFt;
+    public Unit Parent;
+    public List<Unit> Children = new List<Unit>();
 
     public List<Skill> Skills = new();
     public List<Skill> ElementOutBreak = new();
@@ -917,7 +924,7 @@ public class Unit
                 干员 oprator = unit as 干员;
                 while (oprator.Parent != null)
                 {
-                    oprator = oprator.Parent;
+                    oprator = oprator.Parent as 干员;
                 }
                 //Debug.Log(oprator.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
                 OpDamageInfo opDamageInfo = BattleManager.Instance.OpDamageInfos.Find(x => x.UnitId == oprator.UnitData.Id);
@@ -1096,7 +1103,7 @@ public class Unit
                         {
                             breakSkill = skill;
                             if (ElementProtect.Finished() || skill.SkillData.Cooldown * ElementBreakRecoverRate > ElementProtectMax)
-                            ElementProtect.Set(skill.SkillData.Cooldown * ElementBreakRecoverRate);
+                                ElementProtect.Set(skill.SkillData.Cooldown * ElementBreakRecoverRate);
                             ElementProtectMax = skill.SkillData.Cooldown * ElementBreakRecoverRate;
                             //Log.Debug(ElementProtectMax);
                         }
@@ -1117,51 +1124,62 @@ public class Unit
             }
         }
         if (breakedEle != null) EleInjures[breakedEle] = 0;
-
-        //int GetEnemyStopCost(敌人 enemy)
-        //{
-        //    return enemy.StopCost;
-        //}
-
-        //int GetShieldOrderCount(_IShield shield)
-        //{
-        //    return -shield.OrderCount;
-        //}
-
-        //int GetBuffPriority(Buff buff)
-        //{
-        //    return -buff.BuffData.OrderCount;
-        //}
-        /*
-        int GetHealPriority(IHeal heal)
-        {
-            return -heal.HealOrderCount;
-        }
-
-        int GetSelfHealPriority(ISelfHeal selfHeal)
-        {
-            return -selfHeal.HealOrderCount;
-        }
-
-        int GetSelfAfterDamagePriority(ISelfAfterDamage selfAfterDamage)
-        {
-            return -selfAfterDamage.OrderCount;
-        }
-
-        int GetSelfAfterNonDamagePriority(ISelfAfterWithoutDamage selfAfterWithoutDamage)
-        {
-            return -selfAfterWithoutDamage.OrderCount;
-        }
-
-        int GetElementShieldPriority(IElementShield elementShield)
-        {
-            return -elementShield.ElementAbsorbOrderCount;
-        }
-
-        float GetElementValue(新版元素损伤 elementDamage)
-        {
-            return elementDamage.ElementValue;
-        }
-        */
     }
+
+    public void GainChild(int id, int mianSkillId = 0)
+    {
+        var unit = Battle.CreatePlayerUnit(id);
+        Children.Add(unit);
+        unit.MainSkillId = mianSkillId;
+        unit.Init();
+        unit.Parent = this;
+        unit.UnitModel?.gameObject.SetActive(false);
+        BattleUI.UI_Battle.Instance.UpdateUnitsLayout();
+    }
+
+    //int GetEnemyStopCost(敌人 enemy)
+    //{
+    //    return enemy.StopCost;
+    //}
+
+    //int GetShieldOrderCount(_IShield shield)
+    //{
+    //    return -shield.OrderCount;
+    //}
+
+    //int GetBuffPriority(Buff buff)
+    //{
+    //    return -buff.BuffData.OrderCount;
+    //}
+    /*
+    int GetHealPriority(IHeal heal)
+    {
+        return -heal.HealOrderCount;
+    }
+
+    int GetSelfHealPriority(ISelfHeal selfHeal)
+    {
+        return -selfHeal.HealOrderCount;
+    }
+
+    int GetSelfAfterDamagePriority(ISelfAfterDamage selfAfterDamage)
+    {
+        return -selfAfterDamage.OrderCount;
+    }
+
+    int GetSelfAfterNonDamagePriority(ISelfAfterWithoutDamage selfAfterWithoutDamage)
+    {
+        return -selfAfterWithoutDamage.OrderCount;
+    }
+
+    int GetElementShieldPriority(IElementShield elementShield)
+    {
+        return -elementShield.ElementAbsorbOrderCount;
+    }
+
+    float GetElementValue(新版元素损伤 elementDamage)
+    {
+        return elementDamage.ElementValue;
+    }
+    */
 }

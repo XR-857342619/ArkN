@@ -70,7 +70,11 @@ namespace DIY
             });
             m_excels.onChanged.Add(() =>
             {
+#if UNITY_EDITOR
+                excelPath = PathHelper.ExcelResPath + "/Excel/" + folder + "/" + m_excels.items[m_excels.selectedIndex];
+#else
                 excelPath = UnityEngine.Application.streamingAssetsPath + "/Excel/" + folder + "/" + m_excels.items[m_excels.selectedIndex];
+#endif
                 unitInfos = ExcelHelper.GetUnitList(excelPath);
                 lastRow = unitInfos.Values.Last() + 1;
                 searchItem();
@@ -167,8 +171,13 @@ namespace DIY
             if (names.Count == 0)
                 m_tip.text = $"{m_tip.text}\n{folder}下没有Excel文件";
             m_excels.items = names.ToArray();
+            //excelPath = UnityEngine.Application.streamingAssetsPath + "/Excel/" + folder + "/" + names[0];
+#if UNITY_EDITOR
+                excelPath = PathHelper.ExcelResPath + "/Excel/" + folder + "/" + names[0];
+#else
             excelPath = UnityEngine.Application.streamingAssetsPath + "/Excel/" + folder + "/" + names[0];
-            Debug.Log(excelPath);
+#endif
+            //Debug.Log(excelPath);
             unitInfos.Clear();
             unitInfos = ExcelHelper.GetUnitList(excelPath);
             lastRow = unitInfos.Values.Last() + 1;
