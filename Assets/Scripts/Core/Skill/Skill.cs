@@ -865,7 +865,12 @@ public class Skill
                 if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
                 foreach (var t in targets)
                 {
+                    foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
+                    {
+                        m.Modify(t);
+                    }
                     addBuff(t);
+                    addEleInjure(t, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
                     if (SkillData.EffectEffect != null)
                     {
                         var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
@@ -896,6 +901,10 @@ public class Skill
                 {
                     addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
                     addBuff(t);
+                    foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
+                    {
+                        m.Modify(t);
+                    }
                     if (SkillData.EffectEffect != null)
                     {
                         var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
@@ -921,6 +930,10 @@ public class Skill
             {
                 addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
                 addBuff(target);
+                foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
+                {
+                    m.Modify(target);
+                }
                 if (SkillData.EffectEffect != null)
                 {
                     var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
@@ -961,6 +974,10 @@ public class Skill
             addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0]?? "");
             //Debug.Log(target.UnitData.Name + "受到" + SkillData.ElementInjure.Keys.ToArray()[0] + "伤害");
             addBuff(target);
+            foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
+            {
+                m.Modify(target);
+            }
         }
         removeBuff(target);
     }
@@ -986,7 +1003,12 @@ public class Skill
                 var targets = Battle.FindAll(pos, SkillData.AreaRange, SkillData.TargetTeam);
                 foreach (var t in targets)
                 {
+                    addEleInjure(t, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
                     addBuff(t);
+                    foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
+                    {
+                        m.Modify(t);
+                    }
                     if (SkillData.EffectEffect != null)
                     {
                         var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
@@ -1042,8 +1064,12 @@ public class Skill
                 if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
                 foreach (var t in targets)
                 {
-                    if (!ignorBuff)
-                        addBuff(t);
+                    addEleInjure(t, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
+                    addBuff(t);
+                    foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
+                    {
+                        m.Modify(t);
+                    }
                     if (SkillData.EffectEffect != null)
                     {
                         var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
@@ -1077,8 +1103,11 @@ public class Skill
                 foreach (var t in targets)
                 {
                     addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-                    if (!ignorBuff)
-                        addBuff(t);
+                    addBuff(t);
+                    foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
+                    {
+                        m.Modify(t);
+                    }
                     if (SkillData.EffectEffect != null)
                     {
                         var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
@@ -1107,8 +1136,11 @@ public class Skill
             else
             {
                 addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-                if (!ignorBuff)
-                    addBuff(target);
+                addBuff(target);
+                foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
+                {
+                    m.Modify(t);
+                }
                 if (SkillData.EffectEffect != null)
                 {
                     var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);

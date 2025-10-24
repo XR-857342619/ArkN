@@ -37,3 +37,13 @@ public interface ITargetModify
 {
     int Modify(int count);
 }
+
+public interface ISkillModify
+{
+    void Modify(Skill skill);
+}
+
+public interface IUnitModify
+{
+    void Modify(Unit unit);
+}
