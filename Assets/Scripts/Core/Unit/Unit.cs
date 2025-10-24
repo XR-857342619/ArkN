@@ -921,13 +921,14 @@ public class Unit
             Unit unit = damageInfo.GetSourceUnit();
             if (unit is Units.干员 && damageInfo.GetSourceUnit() != damageInfo.Target)
             {
-                干员 oprator = unit as 干员;
-                while (oprator.Parent != null)
+                //干员 oprator = unit as 干员;
+                while (unit.Parent != null)
                 {
-                    oprator = oprator.Parent as 干员;
+                    unit = unit.Parent as 干员;
+                    Log.Debug(unit.UnitData.Name);
                 }
                 //Debug.Log(oprator.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
-                OpDamageInfo opDamageInfo = BattleManager.Instance.OpDamageInfos.Find(x => x.UnitId == oprator.UnitData.Id);
+                OpDamageInfo opDamageInfo = BattleManager.Instance.OpDamageInfos.Find(x => x.UnitId == unit.UnitData.Id);
                 if (damageInfo.DamageType == DamageTypeEnum.Normal)
                 {
                     opDamageInfo.NomalDamage += damageInfo.FinalDamage;

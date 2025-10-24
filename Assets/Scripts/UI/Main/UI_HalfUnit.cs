@@ -15,6 +15,7 @@ namespace MainUI
             this.Card = card;
             m_typeControl.selectedIndex = (int)card.UnitData.Profession;
             m_halfPic.icon = "ui://Res/" + card.UnitData.HalfIcon;
+            if (card.UnitData.MainSkill is not null && (skillIndex >= card.UnitData.MainSkill.Length || skillIndex < 0)) skillIndex = 0;
             //if (card.UnitData.MainSkill != null)
             //{
             //    Debug.Log(card.UnitData.MainSkill[skillIndex]);

@@ -14,7 +14,7 @@ namespace Skills
         public 干员 Operator;
         //public 干员 skilloprator;
         //public Vector2Int pos;
-        public DirectionEnum direction = DirectionEnum.Right;
+        public DirectionEnum direction;
         //public Vector3 pos = new Vector3(float.MaxValue, 0, float.MaxValue);
         public Vector3 pos;
         public string targetDirection;
@@ -25,12 +25,13 @@ namespace Skills
         public override void Init()
         {
             base.Init();
-            mainSkillId = SkillData.Data.GetInt("MainSkillIndex", 0);
-            targetPos = SkillData.Data.GetStr("TargetPos", "");
-            targetDirection = SkillData.Data.GetStr("UseMod", "FixedDirection");
-            setMod = SkillData.Data.GetStr("SetMod", "Add");
-            if (targetDirection == "FixedDirection")
-                Enum.TryParse(SkillData.Data.GetStr("Direction"), out direction);
+            mainSkillId = SkillData.Data.GetInt("召唤物主技能索引", 0);
+            targetPos = SkillData.Data.GetStr("召唤位置", "");
+            targetDirection = SkillData.Data.GetStr("召唤物方向", "固定方向");
+            setMod = SkillData.Data.GetStr("部署模式", "追加");
+            if (targetDirection == "固定方向")
+                if (!Enum.TryParse(SkillData.Data.GetStr("方向"), out direction))
+                    direction = DirectionEnum.Right;
         }
         public override void Start()
         {
@@ -39,11 +40,11 @@ namespace Skills
             Debug.Log(Targets?.First()?.Position);
             switch (targetPos)
             {
-                case "useSelfPos":
-                    Debug.Log("useSlefPos:" + Unit.Position);
+                case "使用自身位置":
+                    Debug.Log("useSelfPos:" + Unit.Position);
                     pos = Unit.Position;
                     break;
-                case "useTargetPos":
+                case "使用附加技能索敌位置":
                     if (SkillData.Skills.Count() > 0)
                     {
                         var skill = Unit.LearnSkill(SkillData.Skills[0]);
@@ -60,7 +61,7 @@ namespace Skills
                     }
                     Debug.Log("useTargetPos:");
                     break;
-                case "useAttackPoint":
+                case "使用干员攻击范围位置":
                     foreach (var point in AttackPoints)
                     {
                         if (point != Unit.Position2)
@@ -71,12 +72,12 @@ namespace Skills
                     }
                     Debug.Log("useAttackPoint:");
                     break;
-                case "useSelfTargetPos":
+                case "使用本技能索敌位置":
                     Debug.Log(Targets.First().Position);
                     pos = Targets.First().Position;
                     break;
             }
-            string unitId = SkillData.Data.GetStr("UnitId");
+            string unitId = SkillData.Data.GetStr("召唤物ID");
             Unit battleOp = Battle.AllUnits.Find(x => x.UnitData.Id == unitId);
             if (battleOp is not null)
             {
@@ -86,10 +87,12 @@ namespace Skills
             else
             {
                 Operator = Battle.CreatePlayerUnit(Database.Instance.GetIndex<UnitData>(unitId)) as 干员;
+                Operator.Parent = Unit;
+                Unit.Children.Add(Operator);
             }
-            if (targetDirection == "UserDirection")
+            if (targetDirection == "使用指定单位方向")
             {
-                name = SkillData.Data.GetStr("UserName", "");
+                name = SkillData.Data.GetStr("指定单位名称", "");
                 if (Battle.AllUnits.Find(x => x.UnitData.Name == name) is Units.干员 skilloprator)
                     direction = skilloprator.Direction_E;
             }
@@ -105,7 +108,7 @@ namespace Skills
             {
                 if (unit is Units.干员 oprator)
                 {
-                    if (!oprator.UnitData.NotUseTile && setMod == "Replace" && !Operator.UnitData.NotUseTile)
+                    if (!oprator.UnitData.NotUseTile && setMod == "替换" && !Operator.UnitData.NotUseTile)
                     {
                         toRemove = oprator;
                         //tile.Units.Remove(oprator);
