@@ -1139,7 +1139,7 @@ public class Skill
                 addBuff(target);
                 foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
                 {
-                    m.Modify(t);
+                    m.Modify(target);
                 }
                 if (SkillData.EffectEffect != null)
                 {

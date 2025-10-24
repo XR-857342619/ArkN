@@ -14,6 +14,7 @@ namespace Modifys
         public bool ignoreOpening;
         public override void Init()
         {
+            base.Init();
             skillName = ModifyData.Data.GetStr("目标技能");
             spCount = ModifyData.Data.GetInt("技力");
             withTip = ModifyData.Data.GetBool("提示");
@@ -21,6 +22,7 @@ namespace Modifys
         }
         public void Modify(Unit unit)
         {
+            Log.Debug(unit + "is modifing");
             if (ModifyData.Buff is null) return;
             if (!unit.Buffs.Any(x => x.Id == ModifyData.Buff.Value)) return;
 
