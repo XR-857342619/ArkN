@@ -52,6 +52,7 @@ public class Tile
 
     public bool CanSet(Unit unit, bool notUseTile)
     {
+        if (Units.Any(x => x.UnitData.Id == unit.UnitData.Id)) return true;
         if (BattleManager.Instance.IsNoLimitBuild) return true;
         else
         {

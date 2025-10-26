@@ -22,13 +22,13 @@ namespace Modifys
         }
         public void Modify(Unit unit)
         {
-            Log.Debug(unit + "is modifing");
+            //Log.Debug(unit.UnitData.Name + "is modifing");
             if (ModifyData.Buff is null) return;
             if (!unit.Buffs.Any(x => x.Id == ModifyData.Buff.Value)) return;
 
             Skill targetSkill = unit.Skills.Single(x => x.SkillData.Id == skillName);
             if (targetSkill is null) return;
-            
+            //Log.Debug("回复技力");
             targetSkill.RecoverPower(spCount, withTip, ignoreOpening);
         }
     }

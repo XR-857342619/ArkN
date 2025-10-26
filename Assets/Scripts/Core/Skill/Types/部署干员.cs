@@ -37,7 +37,7 @@ namespace Skills
         {
             //base.Start();
             FindTarget();
-            Debug.Log(Targets?.First()?.Position);
+            //Debug.Log(Targets?.First()?.Position);
             switch (targetPos)
             {
                 case "使用自身位置":
@@ -79,7 +79,7 @@ namespace Skills
             }
             string unitId = SkillData.Data.GetStr("召唤物ID");
             Unit battleOp = Battle.AllUnits.Find(x => x.UnitData.Id == unitId);
-            if (battleOp is not null)
+            if (battleOp is not null &&　setMod == "位移")
             {
                 Operator = battleOp as 干员;
                 Operator.NowGrid.Units.Remove(Operator);
@@ -123,7 +123,7 @@ namespace Skills
             if (tile.CanSet(Operator, Operator.UnitData.NotUseTile))
             {
                 Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);
-                Log.Debug(Operator.Skills.Count());
+                //Log.Debug(Operator.Skills.Count());
                 //GameObject go = Operator.UnitModel.gameObject;
                 //go.transform.position = new Vector3(pos.x, 0.5f, pos.z);
                 if (Operator.UnitData.MainSkill is not null && Operator.UnitData.MainSkill.Count() >= 0)

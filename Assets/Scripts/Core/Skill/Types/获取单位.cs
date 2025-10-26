@@ -21,10 +21,12 @@ namespace Skills
             ChildId = Database.Instance.GetIndex<UnitData>(SkillData.Data.GetStr("UnitId"));
             MaxCount = SkillData.Data.GetInt("MaxCount");
             MainSkillId = SkillData.Data.GetInt("MainSkillIndex",0);
+            NowCount = 0;
         }
 
         public override bool Useable()
         {
+            Log.Debug("获取单位" + (MaxCount != 0 && NowCount >= MaxCount));
             if (MaxCount != 0 && NowCount >= MaxCount) return false;
             return base.Useable();
         }
@@ -33,6 +35,7 @@ namespace Skills
         {
             NowCount = Unit.Children.Where(x => (x as Units.干员).InputTime < 0 && x.UnitData.Id == SkillData.Data.GetStr("UnitId")).Count();
             if (MaxCount != 0 && NowCount >= MaxCount) return;
+            Count = Mathf.Min(Count, MaxCount - NowCount);
             for (int i = 0; i < Count; i++)
             {
                 Unit.GainChild(ChildId, MainSkillId);

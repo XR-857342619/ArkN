@@ -208,7 +208,7 @@ public class Unit
         Hp = MaxHp;
     }
 
-    protected virtual void baseAttributeInit()
+    public virtual void baseAttributeInit()
     {
         SpeedBase = UnitData.Speed;
         HpBase = UnitData.Hp + UnitData.HpEx;
@@ -925,7 +925,7 @@ public class Unit
                 while (unit.Parent != null)
                 {
                     unit = unit.Parent as 干员;
-                    Log.Debug(unit.UnitData.Name);
+                    //Log.Debug(unit.UnitData.Name);
                 }
                 //Debug.Log(oprator.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
                 OpDamageInfo opDamageInfo = BattleManager.Instance.OpDamageInfos.Find(x => x.UnitId == unit.UnitData.Id);

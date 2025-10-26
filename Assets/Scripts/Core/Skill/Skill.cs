@@ -540,6 +540,7 @@ public class Skill
         }
         if (Targets.Count == 0)
         {
+            //if (Unit is Units.干员) Log.Debug(SkillData.Id + "开始索敌");
             FindTarget();
         }
         if (Targets.Count > 0)
@@ -813,7 +814,7 @@ public class Skill
         {
             //创建一个子弹
             var startPoint = Unit.UnitModel.GetPoint(SkillData.ShootPoint);
-            //Debug.Log($"攻击{target.Config.Name}:{target.Hp} 起点：{startPoint}");
+            //Debug.Log($"攻击{target.UnitData.Name}:{target.Hp} 起点：{startPoint}");
             Battle.CreateBullet(SkillData.Bullet.Value, startPoint, Vector3.zero, target, this);
         }
     }
@@ -844,345 +845,102 @@ public class Skill
     /// <param name="target"></param>
     public virtual void Hit(Unit target, Bullet bullet = null)
     {
-        int hitCount = 0;
         if (SkillData.HitEffect != null)
-        {
             showHitEffect(target);
-        }
+
         if (SkillData.DamageRate > 0)
         {
             OnAttack(target);
-            doDamage(target);
+            doDamage(target, bullet);
         }
         else
-        {
-            addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0]?? "");
-            //Debug.Log(target.UnitData.Name + "受到" + SkillData.ElementInjure.Keys.ToArray()[0] + "伤害");
-            addBuff(target);
-            foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
-            {
-                m.Modify(target);
-            }
-        }
+            addSkillEffect(target);
+        
         removeBuff(target);
     }
 
     public virtual void Hit(Vector2 pos, Bullet bullet = null)
     {
-        int hitCount = 0;
         if (SkillData.HitEffect != null)
-        {
             showHitEffect(null);
-        }
         if (SkillData.DamageRate > 0)
-        {
             doDamage(pos);
-        }
     }
-
-    public virtual void Hit(Unit target, float fixedDamageValue, Bullet bullet = null, bool ignorBuff = false)
+    protected virtual void doDamage(Unit target, Bullet bullet = null, float fixedDamageValue = -1)
     {
-        int hitCount = 0;
-        if (SkillData.HitEffect != null)
-        {
-            var ps = EffectManager.Instance.GetEffect(SkillData.HitEffect.Value);
-            if (bullet != null)
-            {
-                ps.Init(Unit, target, bullet.TargetPos, bullet.Direction);
-            }
-            else ps.Init(Unit, target, target.GetHitPoint(), Vector3.zero);
-        }
-        if (IsNormalAttack)
-        {
-            foreach (var skill in Unit.Skills)
-            {
-                if (skill.SkillData.PowerType == PowerRecoverTypeEnum.攻击)
-                {
-                    skill.RecoverPower(1);
-                }
-            }
-        }
-        if (SkillData.DamageRate > 0 || fixedDamageValue >= 0)
-        {
-            OnAttack(target);
-            DamageInfo dInfo = null;
-            if (SkillData.AreaRange != 0)
-            {
-                var targets = Battle.FindAll(target.Position2, SkillData.AreaRange, SkillData.TargetTeam);
-                if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
-                foreach (var t in targets)
-                {
-                    addEleInjure(t, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-                    addBuff(t);
-                    foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
-                    {
-                        m.Modify(t);
-                    }
-                    if (SkillData.EffectEffect != null)
-                    {
-                        var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
-                        ps.Init(Unit, t, bullet != null ? bullet.Position : Unit.Position, bullet != null ? bullet.Direction : Unit.Direction.ToV3());
-                    }
-
-                    // 使用固定伤害值或计算伤害
-                    float damageValue = fixedDamageValue >= 0 ? fixedDamageValue :
-                        ((t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) *
-                        ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
-
-                    dInfo = GetDamageInfo(t, damageValue);
-                    t.Damage(dInfo);
-
-                    if (!SkillData.IfHeal)
-                    {
-                        if (dInfo.Avoid)
-                        {
-                            OnBeAvoid(t);
-                        }
-                        else hitCount++;
-                        DoLifeSteal(dInfo);
-                        OnBeAttack(t);
-
-                    }
-                }
-            }
-            else if (SkillData.AreaPoints != null)
-            {
-                var area = SkillData.AreaPoints.Select(x => x + target.GridPos).ToList();
-                var targets = Battle.FindAll(area, SkillData.TargetTeam);
-                if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
-                foreach (var t in targets)
-                {
-                    addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-                    addBuff(t);
-                    foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
-                    {
-                        m.Modify(t);
-                    }
-                    if (SkillData.EffectEffect != null)
-                    {
-                        var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
-                        ps.Init(Unit, t, bullet != null ? bullet.Position : Unit.Position, bullet != null ? bullet.Direction : Unit.Direction.ToV3());
-                    }
-
-                    // 使用固定伤害值或计算伤害
-                    float damageValue = fixedDamageValue >= 0 ? fixedDamageValue :
-                        ((t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) *
-                        ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
-
-                    dInfo = _GetLogosDamageInfo(t, damageValue);
-                    t.Damage(dInfo);
-
-                    if (!SkillData.IfHeal)
-                    {
-                        if (dInfo.Avoid)
-                        {
-                            OnBeAvoid(t);
-                        }
-                        else hitCount++;
-                        DoLifeSteal(dInfo);
-                        OnBeAttack(t);
-                    }
-                }
-            }
-            else
-            {
-                addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-                addBuff(target);
-                foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
-                {
-                    m.Modify(target);
-                }
-                if (SkillData.EffectEffect != null)
-                {
-                    var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
-                    ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
-                    ps.Play();
-                }
-                if (SkillData.IfHeal)
-                {
-                    dInfo = _GetLogosDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
-                    target.Heal(dInfo, !SkillData.DamageWithFrameRate);
-                    OnHeal(target);
-                }
-                else
-                {
-                    // 使用固定伤害值或计算伤害
-                    float damageValue = fixedDamageValue >= 0 ? fixedDamageValue : 1f;
-                    dInfo = _GetLogosDamageInfo(target, damageValue);
-                    target.Damage(dInfo);
-                    if (dInfo.Avoid)
-                    {
-                        OnBeAvoid(target);
-                    }
-                    DoLifeSteal(dInfo);
-                }
-                if (!SkillData.IfHeal) OnBeAttack(target);
-            }
-            if (dInfo != null && dInfo.FinalDamage > 0)
-            {
-                Battle.TriggerDatas.Push(new TriggerData()
-                {
-                    User = Unit,
-                    Target = target,
-                });
-                Unit.Trigger(TriggerEnum.击中);
-                Battle.TriggerDatas.Pop();
-            }
-        }
-        else
-        {
-            addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-            if (!ignorBuff)
-                addBuff(target);
-        }
-        removeBuff(target);
-    }
-    protected virtual void showHitEffect(Unit target)
-    {
-        var ps = EffectManager.Instance.GetEffect(SkillData.HitEffect.Value);
-        ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.HitEffect.Value).BindPoint);
-        if (bullet != null)
-            ps.Init(Unit, target, bullet.TargetPos, bullet.Direction);
-        else
-            ps.Init(Unit, target, target.GetHitPoint(), Vector3.zero); //ps.transform.rotation = Quaternion.identity;
-    }
-    protected virtual void showEffectEffect(Unit target, Unit t)
-    {
-        var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
-        ps.Init(Unit, t, bullet != null ? bullet.Position : Unit.Position, bullet != null ? bullet.Direction : Unit.Direction.ToV3());
-        if (target is null) return;
-        ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
-        //ps.Play();
-    }
-    protected virtual void showEffectEffect(Unit target)
-    {
-        var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
-        ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
-        ps.Play();
-    }
-    protected virtual void doDamage(Unit target)
-    {
-        int hitCount = 0;
+        //Log.Debug("doDamage" + target.UnitData.Name);
         DamageInfo dInfo = null;
         if (SkillData.AreaRange != 0)
         {
             var targets = Battle.FindAll(target.Position2, SkillData.AreaRange, SkillData.TargetTeam);
-            AttackFromArea(targets, target, hitCount, dInfo);
+            targets.UnionWith(Battle.FindAll(target.Position2, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
+            AttackFromArea(targets, target, ref dInfo, bullet);
         }
         else if (SkillData.AreaPoints != null)
         {
             var area = SkillData.AreaPoints.Select(x => x + target.GridPos).ToList();
             var targets = Battle.FindAll(area, SkillData.TargetTeam);
-            AttackFromAreaPoints(targets, target, hitCount, dInfo);
+            targets.UnionWith(Battle.FindAll(target.Position2, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
+            AttackFromAreaPoints(targets, target, ref dInfo, bullet);
         }
         else
-        {
-            Attack(target, out hitCount, out dInfo);
-        }
-        
-        if (dInfo is null || dInfo.FinalDamage <= 0)
-            return;
-
-        Battle.TriggerDatas.Push(new TriggerData()
-        {
-            User = Unit,
-            Target = target,
-        });
-        for (int i = 0; i < hitCount; i++)
-            Unit.Trigger(TriggerEnum.击中);
-        Battle.TriggerDatas.Pop();
+            Attack(target, ref dInfo, bullet);
     }
-    protected virtual void doDamage(Vector2 pos)
+    protected virtual void doDamage(Vector2 pos, Bullet bullet = null)
     {
-        int hitCount = 0;
         DamageInfo dInfo = null;
         if (SkillData.AreaRange != 0)
         {
-            var targets = Battle.FindAll(target.Position2, SkillData.AreaRange, SkillData.TargetTeam);
-            AttackFromArea(targets, null, hitCount, dInfo);
+            var targets = Battle.FindAll(pos, SkillData.AreaRange, SkillData.TargetTeam);
+            targets.UnionWith(Battle.FindAll(pos, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
+            AttackFromArea(targets, null, ref dInfo, bullet);
         }
         else if (SkillData.AreaPoints != null)
         {
-            var area = SkillData.AreaPoints.Select(x => x + target.GridPos).ToList();
-            var targets = Battle.FindAll(area, SkillData.TargetTeam);
-            AttackFromAreaPoints(targets, null, hitCount, dInfo);
+            var area = SkillData.AreaPoints.Select(x => x + pos).ToList();
+            HashSet<Unit> targets = new HashSet<Unit>();
+            foreach (var p in area)
+            {
+                targets.UnionWith(Battle.FindAll(new Vector2Int((int)p.x, (int)p.y), 0, SkillData.TargetTeam));
+                targets.UnionWith(Battle.FindAll(pos, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
+            }
+            AttackFromAreaPoints(targets, null, ref dInfo, bullet);
         }
-
-        if (dInfo is null || dInfo.FinalDamage <= 0)
-            return;
-
-        Battle.TriggerDatas.Push(new TriggerData()
-        {
-            User = Unit,
-            Target = target,
-        });
-        for (int i = 0; i < hitCount; i++)
-            Unit.Trigger(TriggerEnum.击中);
-        Battle.TriggerDatas.Pop();
     }
-    protected virtual void AttackFromArea(List<Unit> targets, Unit target, out int hitCount, out DamageInfo dInfo)
+    protected virtual void AttackFromArea(HashSet<Unit> targets, Unit target, ref DamageInfo dInfo, Bullet bullet = null)
     {
-        //DamageInfo dInfo = null;
         if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
         foreach (var t in targets)
         {
-            foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
-            {
-                m.Modify(t);
-            }
-            addBuff(t);
-            addEleInjure(t, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
+            Log.Debug(t.UnitData.Name);
+            addSkillEffect(t);
             if (SkillData.EffectEffect != null)
-            {
                 showEffectEffect(target, t);
-            }
             dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
             t.Damage(dInfo);
 
-            if (!SkillData.IfHeal)
-            {
-                afterDamage(dInfo, hitCount);
-            }
+            afterDamage(dInfo);
         }
     }
-    protected virtual void AttackFromAreaPoints(List<Unit> targets, Unit target, out int hitCount, out DamageInfo dInfo)
+    protected virtual void AttackFromAreaPoints(HashSet<Unit> targets, Unit target, ref DamageInfo dInfo, Bullet bullet = null)
     {
-        //DamageInfo dInfo = null;
         if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
         foreach (var t in targets)
         {
-            addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-            addBuff(t);
-            foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
-            {
-                m.Modify(t);
-            }
+            addSkillEffect(t);
             if (SkillData.EffectEffect != null)
-            {
                 showEffectEffect(target, t);
-            }
             dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
             t.Damage(dInfo);
 
-            if (!SkillData.IfHeal)
-            {
-                afterDamage(dInfo, hitCount);
-            }
+            afterDamage(dInfo);
         }
     }
-    protected virtual void Attack(Unit target, out int hitCount, out DamageInfo dInfo)
+    protected virtual void Attack(Unit target, ref DamageInfo dInfo, Bullet bullet = null)
     {
-        //DamageInfo dInfo = null;
-        addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
-        addBuff(target);
-        foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
-        {
-            m.Modify(target);
-        }
+        addSkillEffect(target);
         if (SkillData.EffectEffect != null)
-        {
             showEffectEffect(target);
-        }
         if (SkillData.IfHeal)
         {
             dInfo = GetDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
@@ -1193,18 +951,38 @@ public class Skill
         {
             dInfo = GetDamageInfo(target);
             target.Damage(dInfo);
-            afterDamage(dInfo, hitCount);
+            afterDamage(dInfo);
         }
     }
-    protected virtual void afterDamage(DamageInfo dInfo, out int hitCount)
+    protected virtual void afterDamage(DamageInfo dInfo)
     {
+        if (!SkillData.IfHeal) return;
+
         if (dInfo.Avoid)
-        {
             OnBeAvoid(dInfo.Target);
-        }
-        else hitCount++;
+        
         DoLifeSteal(dInfo);
         OnBeAttack(dInfo.Target);
+
+        if (dInfo is null || dInfo.FinalDamage <= 0)
+            return;
+
+        Battle.TriggerDatas.Push(new TriggerData()
+        {
+            User = Unit,
+            Target = dInfo.Target,
+        });
+        Unit.Trigger(TriggerEnum.击中);
+        Battle.TriggerDatas.Pop();
+    }
+    protected virtual void addSkillEffect(Unit target)
+    {
+        addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
+        addBuff(target);
+        foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
+        {
+            m.Modify(target);
+        }
     }
     protected virtual void addEleInjure(Unit target, string eleType)
     {
@@ -1217,17 +995,15 @@ public class Skill
 
     protected virtual void addBuff(Unit target)
     {
-        if (SkillData.Buffs != null)
+        if (SkillData.Buffs is null) return;
+        for (int i = 0; i < SkillData.Buffs.Length; i++)
         {
-            for (int i = 0; i < SkillData.Buffs.Length; i++)
+            var buffChance = 0f;
+            if (SkillData.BuffChance != null && SkillData.BuffChance.Length > i) buffChance = SkillData.BuffChance[i];
+            if (buffChance == 0 || Battle.Random.NextDouble() < buffChance)
             {
-                var buffChance = 0f;
-                if (SkillData.BuffChance != null && SkillData.BuffChance.Length > i) buffChance = SkillData.BuffChance[i];
-                if (buffChance == 0 || Battle.Random.NextDouble() < buffChance)
-                {
-                    int buffId = SkillData.Buffs[i];
-                    target.AddBuff(buffId, this, i);
-                }
+                int buffId = SkillData.Buffs[i];
+                target.AddBuff(buffId, this, i);
             }
         }
     }
@@ -1304,7 +1080,7 @@ public class Skill
             tempTargets.AddRange(tempTargetsFromEvent);
             tempTargets.AddRange(tempTargetsFromAttackRange);
         }
-        if (SkillData.SkillCondition != "" && SkillData.SkillCondition != null && Casting.Finished())
+        if (SkillData.SkillCondition is not null && Casting.Finished())
         {
             var evaluator = new ExpressionEvaluator(Unit, tempTargets);
             tempTargets = evaluator.Filter(SkillData.SkillCondition);
@@ -1713,6 +1489,13 @@ public class Skill
                 result.Attack = result.DamageRate;
                 result.DamageRate = 1;
                 break;
+            case 3:
+                Unit p = Unit;
+                while (p.Parent != null)
+                    p = p.Parent;
+                result.Attack = p.Attack;
+                //Log.Debug(p.Attack);
+                break;
         }
         //Debug.Log(result.Attack);
         foreach (var buff in Unit.Buffs)
@@ -1738,54 +1521,6 @@ public class Skill
         }
         return result;
     }
-
-    //<summary>
-    //待优化
-    //</summary>
-# region
-    public DamageInfo _GetLogosDamageInfo(Unit target, float fixedDamage, float damageRate = 1)
-    {
-        var cooldown = SkillData.Cooldown;
-        if (cooldown < SystemConfig.DeltaTime) cooldown = SystemConfig.DeltaTime;
-
-        var result = new DamageInfo()
-        {
-            Target = target,
-            AllCount = tempTargets.Count,
-            Source = this,
-            DamageRate = damageRate * (SkillData.DamageWithFrameRate ? cooldown : 1),
-            DamageType = SkillData.DamageType,
-            MinDamageRate = Unit.UnitData.MinDamageRate,
-            Attack = fixedDamage // 直接使用传入的基础伤害
-        };
-
-        // 应用各种伤害修正
-        foreach (var buff in Unit.Buffs)
-        {
-            if (buff is ISelfDamageModify damageModify)
-            {
-                damageModify.Modify(result);
-            }
-        }
-        foreach (var buff in target.Buffs)
-        {
-            if (buff is IDamageModify damageModify)
-            {
-                damageModify.Modify(result);
-            }
-        }
-        foreach (var modify in Modifies)
-        {
-            if (modify is IDamageModify damageModify)
-            {
-                damageModify.Modify(result);
-            }
-        }
-
-        return result;
-    }
-#endregion
-
     public void DoUpgrade(int skillId)
     {
         Debug.Log($"{SkillData.Id} 升级为 id:{Database.Instance.Get<SkillData>(skillId).Id}");
@@ -1835,6 +1570,31 @@ public class Skill
         if (showRange)
             HideUnitAttackArea();
     }
+
+    protected virtual void showHitEffect(Unit target, Bullet bullet = null)
+    {
+        var ps = EffectManager.Instance.GetEffect(SkillData.HitEffect.Value);
+        ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.HitEffect.Value).BindPoint);
+        if (bullet != null)
+            ps.Init(Unit, target, bullet.TargetPos, bullet.Direction);
+        else
+            ps.Init(Unit, target, target.GetHitPoint(), Vector3.zero); //ps.transform.rotation = Quaternion.identity;
+    }
+    protected virtual void showEffectEffect(Unit target, Unit t, Bullet bullet = null)
+    {
+        var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
+        ps.Init(Unit, t, bullet != null ? bullet.Position : Unit.Position, bullet != null ? bullet.Direction : Unit.Direction.ToV3());
+        if (target is null) return;
+        ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
+        //ps.Play();
+    }
+    protected virtual void showEffectEffect(Unit target)
+    {
+        var ps = EffectManager.Instance.GetEffect(SkillData.EffectEffect.Value);
+        ps.transform.position = target.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.EffectEffect.Value).BindPoint);
+        ps.Play();
+    }
+
     public void ShowUnitAttackArea()
     {
         //Log.Debug("ShowUnitAttackArea");

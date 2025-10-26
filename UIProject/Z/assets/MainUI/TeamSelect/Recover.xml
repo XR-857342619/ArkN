@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="110,32">
-  <controller name="recover" pages="0,,1,,2," selected="0">
+  <controller name="recover" pages="0,,1,,2,,6,,3," selected="3">
     <remark page="0" value="自动"/>
     <remark page="1" value="攻击"/>
     <remark page="2" value="受击"/>
+    <remark page="3" value="闪避"/>
+    <remark page="4" value="无"/>
   </controller>
   <displayList>
-    <loader id="n17_voep" name="r" xy="0,0" size="110,32" url="ui://k4mja8t1voep3n">
-      <gearIcon controller="recover" pages="1,2" values="ui://k4mja8t1voep3l|ui://k4mja8t1voep3k" default="ui://k4mja8t1voep3n"/>
+    <loader id="n17_voep" name="r" xy="0,0" size="110,32">
+      <gearIcon controller="recover" pages="1,2,6,3" values="ui://k4mja8t1voep3l|ui://k4mja8t1voep3k||" default="ui://k4mja8t1voep3n"/>
     </loader>
+    <text id="n18_nyif" name="n18" xy="0,0" size="110,32" fontSize="22" color="#ffffff" align="center" vAlign="middle" autoSize="none" text="闪避">
+      <gearDisplay controller="recover" pages="6,3"/>
+      <gearText controller="recover" pages="6" values="闪避" default="无"/>
+    </text>
   </displayList>
 </component>

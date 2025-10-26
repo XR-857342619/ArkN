@@ -468,16 +468,6 @@ public class Battle
         result.TargetPos = targetPos;
         result.Target = target;
         result.Skill = skill;
-        逻各斯1技能类子弹 logosBullet = result as 逻各斯1技能类子弹;
-        if (logosBullet != null)
-        {
-            // 检查目标是否存在且存活
-            //if (target == null || !target.Alive())
-            //{
-                logosBullet.LogosBulletAttack = specialValue;
-            //}
-        }
-        Log.Debug($"LogosBulletAttack damage: {logosBullet.LogosBulletAttack}");
         Bullets.Add(result);
         result.Init();
         
@@ -541,6 +531,7 @@ public class Battle
     public HashSet<Unit> FindAll(Vector2 pos, float radius, int team, bool aliveOnly = true)
     {
         HashSet<Unit> result = new HashSet<Unit>();
+        if (radius == 0) return result;
         if (team%2 == 1)
         {
             var units = PlayerUnits.Where(x => !aliveOnly || x.InputTime >= 0).ToList();

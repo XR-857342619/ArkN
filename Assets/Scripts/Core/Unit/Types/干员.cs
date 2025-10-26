@@ -45,7 +45,7 @@ namespace Units
             //Log.Debug($"PowerType actual type: {MainSkill?.SkillData?.PowerType.GetType().Name}");
         }
 
-        protected override void baseAttributeInit()
+        public override void baseAttributeInit()
         {
             base.baseAttributeInit();
             CostBase = UnitData.Cost + UnitData.CostEx;

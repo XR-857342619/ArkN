@@ -9,24 +9,41 @@ namespace Buffs
     public class 数值变化依表达式 : Buff
     {
         public string expression;
+        public int time;
         public ExpressionExecutor evaluator;
         public override void Init()
         {
             base.Init();
             expression = BuffData.Data.GetStr("Expression", string.Empty);
+            time = BuffData.Data.GetInt("Time", -1);
             evaluator = new ExpressionExecutor(this);
         }
         
         public override void Apply()
         {
             //base.Update();
-            if (string.IsNullOrEmpty(expression))
+            if (string.IsNullOrEmpty(expression) || time == 0)
             {
-                Finish();
+                //Finish();
                 return;
             }
             evaluator.ExecuteAssignment(expression);
-            Log.Debug(Skill.SkillData.DamageRate.ToString());
+            time--;
+            //Log.Debug(time);
         }
+        public override void Reset()
+        {
+            base.Reset();
+            time = BuffData.Data.GetInt("Time", -1);
+        }
+        //public override void Update()
+        //{
+        //    base.Update();
+        //    if (string.IsNullOrEmpty(expression) || time == 0)
+        //    {
+        //        Finish();
+        //        //return;
+        //    }
+        //}
     }
 }
