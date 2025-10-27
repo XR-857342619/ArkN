@@ -8,5 +8,6 @@ public class BulletData : IConfig
       public int FaceCamera;
       public int ScaleX;
       public int EffectBase;
+      public int[] Modifys;
       public System.Collections.Generic.Dictionary<string,object> Data;
 }

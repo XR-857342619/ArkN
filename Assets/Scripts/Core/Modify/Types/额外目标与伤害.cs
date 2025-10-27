@@ -22,7 +22,7 @@ namespace Modifys
             Rate = ModifyData.Data.GetFloat("Rate");
         }
 
-        public int Modify(int count)
+        public int Modify(int count, Unit unit)
         {
             if (Battle.Random.NextDouble() < Chance)
             {

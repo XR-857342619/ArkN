@@ -32,10 +32,13 @@ public interface IDamageModify
 {
     void Modify(DamageInfo damageInfo);
 }
-
+public interface IBulletDamageModify
+{
+    void Modify(DamageInfo damageInfo, Bullet bullet);
+}
 public interface ITargetModify
 {
-    int Modify(int count);
+    int Modify(int count, Unit unit);
 }
 
 public interface ISkillModify

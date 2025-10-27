@@ -25,7 +25,7 @@ namespace Bullets
         // 属性
         public int LinkNum => linkNum;
         public float reductionRate;
-        public float ReductionRate => reductionRate;
+        //public float ReductionRate => reductionRate;
 
         public override void Init()
         {
@@ -47,8 +47,8 @@ namespace Bullets
             moveHeight = BulletData.Data.GetFloat("MoveHeight");
             maxLinkNum = BulletData.Data.GetInt("MaxLinkNum");
             linkNum = 0;
-            reductionBase = BulletData.Data.GetFloat("ReductionRate", 0);
-            reductionRate = 1 - reductionBase * linkNum;
+            //reductionBase = BulletData.Data.GetFloat("ReductionRate", 0);
+            //reductionRate = 1 - reductionBase * linkNum;
             canBack = BulletData.Data.GetBool("CanBack");
             skillId = BulletData.Data.GetStr("SkillId");
 
@@ -78,11 +78,15 @@ namespace Bullets
 
         private void CreateTempUnit()
         {
-            tempUnit = Battle.CreateTempUnit(Position, new Vector2(0,1));
+            //tempUnit = Battle.CreateTempUnit(Position, new Vector2(0,1));
+            tempUnit = new Unit();
+            tempUnit.Battle = Battle;
+            tempUnit.Init();
+            tempUnit.Position = Skill.Unit.Position;
             if (tempUnit == null) return;
 
             var skillData = Database.Instance.GetIndex<SkillData>(skillId);
-            if (skillData != null)
+            if (skillData != -1)
             {
                 findTargetSkill = tempUnit.LearnSkill(skillData);
                 findTargetSkill.Init();
@@ -178,7 +182,7 @@ namespace Bullets
                 maxLinkNum--;
                 linkNum++;
             }
-            reductionRate = 1 - reductionBase * linkNum;
+            //reductionRate = 1 - reductionBase * linkNum;
 
             // 记录已命中目标
             if (Target != null)
@@ -213,7 +217,7 @@ namespace Bullets
                 maxLinkNum--;
                 linkNum++;
             }
-            reductionRate = 1 - reductionBase * linkNum;
+            //reductionRate = 1 - reductionBase * linkNum;
 
             // 记录已命中目标
             if (Target != null)

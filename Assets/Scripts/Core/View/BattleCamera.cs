@@ -142,7 +142,7 @@ public class BattleCamera : MonoBehaviour
         Tiles.Clear();
         var targetUnit = FocusUnit == null ? BuildUnit : FocusUnit;
         bool ifHeal = targetUnit.FirstSkill.SkillData.IfHeal;
-        var sk = showSkillArea ? targetUnit.MainSkill : targetUnit.GetNowAttackSkill();
+        var sk = showSkillArea ? targetUnit.MainSkill : targetUnit.GetNowUseingSkill();
         if (sk == null)
             sk = targetUnit.Skills[0];
         if (sk != null && sk.AttackPoints != null)

@@ -150,7 +150,7 @@ namespace Bullets
             {
                 if (!DamagedUnits.Contains(t))
                 {
-                    Debug.Log("击中:" + t.UnitData.Id);
+                    //Debug.Log("击中:" + t.UnitData.Id);
                     if (countLimit && maxTargetCount == 0)
                         break;
                     DamagedUnits.Add(t);

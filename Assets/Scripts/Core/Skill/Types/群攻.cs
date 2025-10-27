@@ -15,7 +15,7 @@ namespace Skills
             {
                 if (modify is ITargetModify targetModify)
                 {
-                    result = targetModify.Modify(result);
+                    result = targetModify.Modify(result, Unit);
                 }
             }
             return result;

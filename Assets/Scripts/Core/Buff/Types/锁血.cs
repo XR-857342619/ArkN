@@ -64,7 +64,7 @@ namespace Buffs
         public void DamageRewrite(DamageInfo damageInfo)
         {
             float remainingHp = Unit.Hp - damageInfo.FinalDamage;
-            Debug.Log("锁血剩余Hp：" + remainingHp);
+            //Debug.Log("锁血剩余Hp：" + remainingHp);
             if (remainingHp <= finalTriggerThreshold)
             {
                 Unit.Hp = finalTriggerThreshold;
@@ -75,7 +75,7 @@ namespace Buffs
             {
                 damageInfo.FinalDamage = Unit.Hp - finalTriggerThreshold;
             }
-            Debug.Log("当前伤害" + damageInfo.FinalDamage);
+            //Debug.Log("当前伤害" + damageInfo.FinalDamage);
         }
     }
 }

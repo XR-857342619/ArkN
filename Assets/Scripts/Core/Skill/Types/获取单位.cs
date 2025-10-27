@@ -19,7 +19,7 @@ namespace Skills
             base.Init();
             Count = SkillData.Data.GetInt("Count");
             ChildId = Database.Instance.GetIndex<UnitData>(SkillData.Data.GetStr("UnitId"));
-            MaxCount = SkillData.Data.GetInt("MaxCount");
+            MaxCount = SkillData.Data.GetInt("MaxCount", int.MaxValue);
             MainSkillId = SkillData.Data.GetInt("MainSkillIndex",0);
             NowCount = 0;
         }

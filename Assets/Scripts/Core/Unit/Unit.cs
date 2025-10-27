@@ -526,6 +526,8 @@ public class Unit
             {
                 skill.RecoverPower(1);
             }
+            //if (triggerEnum == TriggerEnum.打数溢出)
+            //    Log.Debug("打数溢出");
             if (skill.SkillData.Trigger == triggerEnum)
             {
                 if (skill.SkillData.Trigger != TriggerEnum.元素爆发 || skill.SkillData.Trigger != TriggerEnum.自身元素爆发)
@@ -970,11 +972,11 @@ public class Unit
         return damage;
     }
 
-    public Skill GetNowAttackSkill()
+    public Skill GetNowUseingSkill()
     {
         for (int i = Skills.Count - 1; i >= 0; i--)
         {
-            if (Skills[i].InAttackUsing())
+            if (Skills[i].InUsing())
             {
                 return Skills[i];
             }
@@ -983,7 +985,19 @@ public class Unit
             return Skills[0];
         else return null;
     }
-
+    public Skill GetNowAttackSkill()
+    {
+        for (int i = Skills.Count - 1; i >= 0; i--)
+        {
+            if (Skills[i].InUsing() && Skills[i].GetAttackTarget().Count > 0)
+            {
+                return Skills[i];
+            }
+        }
+        //if (Skills.Count > 0)
+            //return Skills[0];
+        return null;
+    }
     public virtual float Hatred()
     {
         return -Hatre * 100000;
@@ -1026,7 +1040,10 @@ public class Unit
     {
         return GridPos + v2;
     }
-
+    public virtual float distanceToFinal()
+    {
+        return 100000;
+    }
     public Vector3 GetHitPoint()
     {
         return UnitModel.GetPoint(UnitData.HitPointName);

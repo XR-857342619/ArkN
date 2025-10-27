@@ -12,6 +12,8 @@ public class TriggerData
 
     public Skill Skill;
 
+    public int Count;
+
     public void Clear()
     {
         Target = null;

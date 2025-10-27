@@ -96,7 +96,7 @@ public class ExpressionEvaluator
             CustomTypeProvider = customTypeProvider
         };
 
-        Log.Debug(parameters);
+        //Log.Debug(parameters);
 
         // 使用DynamicExpressionParser解析并编译表达式
         var lambda = DynamicExpressionParser.ParseLambda(

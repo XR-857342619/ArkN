@@ -472,7 +472,7 @@ namespace Units
             return PathPoints[index].Pos + new Vector3(WaveData.OffsetX, 0, WaveData.OffetsetY);
         }
 
-        public float distanceToFinal()
+        public override float distanceToFinal()
         {
             float result = 0;
             for (int i = NowPathPoint + 1; i < PathPoints.Count-1; i++)

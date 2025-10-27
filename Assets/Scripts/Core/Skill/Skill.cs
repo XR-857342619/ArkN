@@ -383,6 +383,10 @@ public class Skill
             case SkillReadyEnum.充能释放:
                 if (Power < MaxPower) return false;
                 break;
+            case SkillReadyEnum.未攻击:
+                //Log.Debug((Unit.GetNowAttackSkill()?.SkillData.Id ?? "没有") + "技能正攻击");
+                if (Unit.GetNowAttackSkill() != null) return false;
+                break;
             default:
                 break;
         }
@@ -399,7 +403,7 @@ public class Skill
         return Cooldown.Finished();
     }
 
-    public virtual bool InAttackUsing()
+    public virtual bool InUsing()
     {
         if (SkillData.NotAttackFlag) return false;
         if (SkillData.UseType == SkillUseTypeEnum.被动) return false;
@@ -873,14 +877,14 @@ public class Skill
         if (SkillData.AreaRange != 0)
         {
             var targets = Battle.FindAll(target.Position2, SkillData.AreaRange, SkillData.TargetTeam);
-            targets.UnionWith(Battle.FindAll(target.Position2, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
+            //targets.UnionWith(Battle.FindAll(target.Position2, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
             AttackFromArea(targets, target, ref dInfo, bullet);
         }
         else if (SkillData.AreaPoints != null)
         {
             var area = SkillData.AreaPoints.Select(x => x + target.GridPos).ToList();
             var targets = Battle.FindAll(area, SkillData.TargetTeam);
-            targets.UnionWith(Battle.FindAll(target.Position2, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
+            //targets.UnionWith(Battle.FindAll(target.Position2, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
             AttackFromAreaPoints(targets, target, ref dInfo, bullet);
         }
         else
@@ -892,7 +896,7 @@ public class Skill
         if (SkillData.AreaRange != 0)
         {
             var targets = Battle.FindAll(pos, SkillData.AreaRange, SkillData.TargetTeam);
-            targets.UnionWith(Battle.FindAll(pos, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
+            //targets.UnionWith(Battle.FindAll(pos, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
             AttackFromArea(targets, null, ref dInfo, bullet);
         }
         else if (SkillData.AreaPoints != null)
@@ -902,7 +906,7 @@ public class Skill
             foreach (var p in area)
             {
                 targets.UnionWith(Battle.FindAll(new Vector2Int((int)p.x, (int)p.y), 0, SkillData.TargetTeam));
-                targets.UnionWith(Battle.FindAll(pos, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
+                //targets.UnionWith(Battle.FindAll(pos, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
             }
             AttackFromAreaPoints(targets, null, ref dInfo, bullet);
         }
@@ -912,11 +916,20 @@ public class Skill
         if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
         foreach (var t in targets)
         {
-            Log.Debug(t.UnitData.Name);
+            //Log.Debug(t.UnitData.Name);
             addSkillEffect(t);
             if (SkillData.EffectEffect != null)
                 showEffectEffect(target, t);
-            dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
+            //dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
+            dInfo = GetDamageInfo(t, t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage);
+            if (bullet is not null)
+            {
+                foreach (var m in bullet.Modifies)
+                {
+                    if (m is IBulletDamageModify bm)
+                        bm.Modify(dInfo, bullet);
+                }
+            }
             t.Damage(dInfo);
 
             afterDamage(dInfo);
@@ -930,7 +943,16 @@ public class Skill
             addSkillEffect(t);
             if (SkillData.EffectEffect != null)
                 showEffectEffect(target, t);
-            dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
+            //dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
+            dInfo = GetDamageInfo(t, t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage);
+            if (bullet is not null)
+            {
+                foreach (var m in bullet.Modifies)
+                {
+                    if (m is IBulletDamageModify bm)
+                        bm.Modify(dInfo, bullet);
+                }
+            }
             t.Damage(dInfo);
 
             afterDamage(dInfo);
@@ -943,13 +965,30 @@ public class Skill
             showEffectEffect(target);
         if (SkillData.IfHeal)
         {
-            dInfo = GetDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
+            //dInfo = GetDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
+            dInfo = GetDamageInfo(target);
+            if (bullet is not null)
+            {
+                foreach (var m in bullet.Modifies)
+                {
+                    if (m is IBulletDamageModify bm)
+                        bm.Modify(dInfo, bullet);
+                }
+            }
             target.Heal(dInfo, !SkillData.DamageWithFrameRate);
             OnHeal(target);
         }
         else
         {
             dInfo = GetDamageInfo(target);
+            if (bullet is not null)
+            {
+                foreach (var m in bullet.Modifies)
+                {
+                    if (m is IBulletDamageModify bm)
+                        bm.Modify(dInfo, bullet);
+                }
+            }
             target.Damage(dInfo);
             afterDamage(dInfo);
         }
@@ -1037,6 +1076,7 @@ public class Skill
     protected List<Unit> tempTargetsFromAttackRange = new List<Unit>();
     public virtual List<Unit> GetAttackTarget()
     {
+        //Log.Debug(SkillData.Id + "获取攻击目标");
         tempTargets.Clear();
         tempTargetsFromEvent.Clear();
         tempTargetsFromAttackRange.Clear();
@@ -1069,7 +1109,7 @@ public class Skill
         }
         else
         {
-            var attackPoints = SkillData.AttackAreaWithMain ? Unit.GetNowAttackSkill().AttackPoints : AttackPoints;
+            var attackPoints = SkillData.AttackAreaWithMain ? Unit.GetNowUseingSkill().AttackPoints : AttackPoints;
             tempTargetsFromAttackRange.AddRange(Battle.FindAll(attackPoints, SkillData.TargetTeam, !SkillData.DeadFind));
         }
 
@@ -1092,7 +1132,7 @@ public class Skill
         return tempTargets;
     }
 
-    protected void orderTargets(List<Unit> targets)
+    protected virtual void orderTargets(List<Unit> targets)
     {
         //List<>
         targets.RemoveAll(x => !CanUseTo(x));
@@ -1104,7 +1144,22 @@ public class Skill
             FilterTarget(targets);
         }
         else
+        {
+            if (SkillData.DamageCount > targets.Count)
+            {
+                Battle.TriggerDatas.Push(new TriggerData()
+                {
+                    User = Unit,
+                    Skill = this,
+                    Count = SkillData.DamageCount - targets.Count,
+                });
+                //if (Unit is Units.干员)
+                    //Log.Debug(SkillData.Id + "打数溢出");
+                Unit.Trigger(TriggerEnum.打数溢出);
+                Battle.TriggerDatas.Pop();
+            }
             targets.AddRange(Battle.AllUnits.Where(x => x.UnitData?.Name == SkillData.Data?.GetStr("ExTarget") && (SkillData.DeadFind ? true : x.IfAlive)));
+        }
     }
 
     protected virtual void SortTarget(List<Unit> targets)
@@ -1174,7 +1229,7 @@ public class Skill
             case AttackTargetOrderEnum.无:
                 break;
             case AttackTargetOrderEnum.终点距离:
-                result = (x as Units.敌人).distanceToFinal();
+                result = x.distanceToFinal();
                 break;
             case AttackTargetOrderEnum.血量升序:
                 result = x.Hp;
@@ -1276,6 +1331,18 @@ public class Skill
         if (SkillData.DamageCount != 0)
         {
             int targetCount = GetTargetCount();
+            if (targetCount > targets.Count)
+            {
+                Battle.TriggerDatas.Push(new TriggerData()
+                {
+                    User = Unit,
+                    Skill = this,
+                    Count = targetCount - targets.Count,
+                });
+                //Log.Debug(SkillData.Id + "打数溢出");
+                Unit.Trigger(TriggerEnum.打数溢出);
+                Battle.TriggerDatas.Pop();
+            }
             for (int i = targets.Count() - 1; i >= targetCount; i--)
             {
                 targets.RemoveAt(i);
@@ -1290,7 +1357,7 @@ public class Skill
         {
             if (modify is ITargetModify targetModify)
             {
-                result = targetModify.Modify(result);
+                result = targetModify.Modify(result, Unit);
             }
         }
         return result;
@@ -1378,18 +1445,18 @@ public class Skill
         //    UnitModel.ResetColor();
     }
 
-    public virtual void _OnBeAttack(Unit target)
-    {
-        //Debug.Log(target.UnitData.Name +"被攻击");
-        Battle.TriggerDatas.Push(new TriggerData()
-        {
-            User = Unit,
-            Target = target,
-            Skill = this,
-        });
-        target.Trigger(TriggerEnum.被击);
-        Battle.TriggerDatas.Pop();
-    }
+    //public virtual void _OnBeAttack(Unit target)
+    //{
+    //    //Debug.Log(target.UnitData.Name +"被攻击");
+    //    Battle.TriggerDatas.Push(new TriggerData()
+    //    {
+    //        User = Unit,
+    //        Target = target,
+    //        Skill = this,
+    //    });
+    //    target.Trigger(TriggerEnum.被击);
+    //    Battle.TriggerDatas.Pop();
+    //}
 
     protected virtual void OnBeAvoid(Unit target)
     {

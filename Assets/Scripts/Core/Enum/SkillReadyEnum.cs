@@ -10,4 +10,5 @@ using System.Threading.Tasks;
         特技激活,
         充能释放,
         禁止主动,
+        未攻击,
     }

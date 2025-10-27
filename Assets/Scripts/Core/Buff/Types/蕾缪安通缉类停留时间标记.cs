@@ -66,7 +66,7 @@ namespace Buffs
             }
 
             // 获取攻击范围
-            List<Vector2Int> attackPoints = this.Unit.GetNowAttackSkill().AttackPoints;
+            List<Vector2Int> attackPoints = this.Unit.GetNowUseingSkill().AttackPoints;
             if (attackPoints == null)
             {
                 return;

@@ -21,10 +21,22 @@ public class Bullet
     public Unit Target;
     public Vector3 TargetPos;
 
+    public List<Modify> Modifies = new List<Modify>();
+
     public virtual void Init()
     {
         StartPosition = Position;
         CreateModel();
+        //Log.Debug("加载弹道附加效果" + BulletData.Modifys.Length);
+        if (BulletData.Modifys != null)
+        {
+            for (int i = 0; i < BulletData.Modifys.Length; i++)
+            {
+                //Log.Debug("加载弹道附加效果");
+                //Debug.Log(BulletData.Modifys[i]);
+                Modifies.Add(ModifyManager.Instance.Get(BulletData.Modifys[i], this));
+            }
+        }
     }
 
     public virtual void CreateModel()
@@ -59,6 +71,8 @@ public class Bullet
     }
     public Vector3 GetTargetPos(Unit target)
     {
+        //Log.Debug(target.UnitData.Name);
+        //Log.Debug(target.UnitData.Id);
         if (BulletData.EffectBase == 0)
             return target.GetHitPoint();
         else

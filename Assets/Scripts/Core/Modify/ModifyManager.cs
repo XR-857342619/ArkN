@@ -33,5 +33,19 @@ public class ModifyManager
         modify.Init();
         return modify;
     }
+    public Modify Get(int id, Bullet bullet)
+    {
+        //int index = Database.Instance.GetIndex<ModifyData>(id);
+        //ModifyData data = Database.Instance.Get<ModifyData>(index);
+        ModifyData data = Database.Instance.Get<ModifyData>(id);
+        //Log.Debug(data.Type);
+        Modify modify = typeof(Unit).Assembly.CreateInstance(nameof(Modifys) + "." + data.Type) as Modify;
+        //Log.Debug(modify);
+        //modify.Id = index;
+        modify.Id = id;
+        modify.Skill = bullet.Skill;
+        modify.Init();
+        return modify;
+    }
 }
 

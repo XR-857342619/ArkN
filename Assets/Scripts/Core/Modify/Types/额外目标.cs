@@ -16,7 +16,7 @@ namespace Modifys
             Chance = ModifyData.Data.GetFloat("Chance");
             Count = ModifyData.Data.GetInt("Count");
         }
-        public int Modify(int count)
+        public int Modify(int count, Unit unit)
         {
             if (Chance == 0 || Battle.Random.NextDouble() < Chance)
             {
