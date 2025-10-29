@@ -1730,7 +1730,7 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: 5252c353225e67b459e5c5558498bcd7
-    m_Address: Assets/Bundles/Units/0Empty
+    m_Address: "Assets/Bundles/Units/\u7A7A\u7269\u4F53"
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: 749e80ad4519dc24ba6c2b6732853315

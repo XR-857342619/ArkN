@@ -37,6 +37,7 @@ public class Bullet
                 Modifies.Add(ModifyManager.Instance.Get(BulletData.Modifys[i], this));
             }
         }
+        Modifies.Sort((x, y) => x.OrderCode.CompareTo(y.OrderCode));
     }
 
     public virtual void CreateModel()

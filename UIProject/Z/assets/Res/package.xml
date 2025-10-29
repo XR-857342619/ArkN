@@ -1140,6 +1140,7 @@
     <image id="z5qs1rc" name="token_10030_mlyss_wtrman.png" path="/头像/" exported="true"/>
     <image id="us6h1rd" name="icon_morphis.png" path="/头像/" exported="true"/>
     <image id="us6h1re" name="icon_wolf.png" path="/头像/" exported="true"/>
+    <image id="pncx1rf" name="icon_cuier.png" path="/头像/" exported="true"/>
   </resources>
   <publish name=""/>
 </packageDescription>

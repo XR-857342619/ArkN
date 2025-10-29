@@ -9,112 +9,86 @@ using static EnemyInfoExcelTool;
 
 namespace Skills
 {
-    public class ew3类部署干员 : Skill
+    public class ew3类部署干员 : 部署干员
     {
-        public 干员 Operator;
         //public 干员 skilloprator;
         //public Vector2Int pos;
-        public DirectionEnum direction = DirectionEnum.Right;
+        //public new DirectionEnum direction = DirectionEnum.Right;
         //public Vector3 pos = new Vector3(float.MaxValue, 0, float.MaxValue);
         public Vector3 pos;
-        public string targetDirection;
-        public string setMod;
-        public string targetPos;
-        public string name;
-        public int mainSkillId;
         public float r;
         public override void Init()
         {
             base.Init();
-            mainSkillId = SkillData.Data.GetInt("召唤物主技能索引", 0);
-            targetPos = SkillData.Data.GetStr("召唤位置", "");
             r = SkillData.Data.GetFloat("半径", 0);
-            //targetDirection = SkillData.Data.GetStr("召唤物方向", "固定方向");
-            //setMod = SkillData.Data.GetStr("部署模式", "追加");
-            //if (targetDirection == "固定方向")
-            //Enum.TryParse(SkillData.Data.GetStr("方向"), out direction);
         }
         public override void Start()
         {
             //base.Start();
-            FindTarget();
+            //FindTarget();
             //Debug.Log(Targets?.First()?.Position);
-            switch (targetPos)
-            {
-                case "使用自身位置":
-                    Debug.Log("useSelfPos:" + Unit.Position);
-                    pos = Unit.Position;
-                    break;
-                case "使用附加技能索敌位置":
-                    if (SkillData.Skills.Count() > 0)
-                    {
-                        var skill = Unit.LearnSkill(SkillData.Skills[0]);
-                        skill.Init();
-                        List<Unit> targets = skill.GetAttackTarget();
-                        if (targets.Count > 0)
-                        {
-                            pos = targets.FirstOrDefault()?.Position ?? new Vector3(float.MaxValue, 0, float.MaxValue);
-                        }
-                    }
-                    else
-                    {
-                        pos = Unit.Position;
-                    }
-                    Debug.Log("useTargetPos:");
-                    break;
-                case "使用干员攻击范围位置":
-                    foreach (var point in AttackPoints)
-                    {
-                        if (point != Unit.Position2)
-                        {
-                            pos.x = point.x;
-                            pos.z = point.y;
-                        }
-                    }
-                    Debug.Log("useAttackPoint:");
-                    break;
-                case "使用本技能索敌位置":
-                    Debug.Log(Targets.FirstOrDefault()?.Position ?? new Vector3(float.MaxValue, 0, float.MaxValue));
-                    pos = Targets.FirstOrDefault()?.Position ?? new Vector3(float.MaxValue, 0, float.MaxValue);
-                    break;
-            }
-
+            pos = GetPos();
             if (pos == new Vector3(float.MaxValue, 0, float.MaxValue)) return;
 
-            string unitId = SkillData.Data.GetStr("召唤物ID");
-            Operator = Battle.CreatePlayerUnit(Database.Instance.GetIndex<UnitData>(unitId)) as 干员;
-            Operator.Parent = Unit;
-            Unit.Children.Add(Operator);
+            List<Unit> battleOp = Battle.AllUnits.FindAll(x => x.UnitData.Id == unitId);
+            List<Vector2Int> tilesPos = new List<Vector2Int>();
+            
+            if (r > 0) tilesPos = GetTilesFromCirle(new Vector2Int((int)pos.x, (int)pos.z), r);
+            if (SkillData.AttackPoints.Length > 0) tilesPos.AddRange(GetTilesFromAttackPoints(new Vector2Int((int)pos.x, (int)pos.z)));
 
-            var tilesPos = GetTilesFromCirle(new Vector2Int((int)pos.x, (int)pos.z), r);
-            tilesPos.AddRange(SkillData.AttackPoints?? new Vector2Int[0]);
-            Tile tile = GetTile(tilesPos.ToList(), Operator);
+            List<Tile> tiles = GetTile(pos, tilesPos, battleOp.First(), count);
 
-            if (tile == null) return;
-
-            Debug.Log("获取到部署位置:" + tile.X + "," + tile.Y);
-
-            Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);
-            //Log.Debug(Operator.Skills.Count());
-
-            if (Operator.UnitData.MainSkill is not null && Operator.UnitData.MainSkill.Count() >= 0)
-                Operator.MainSkill = Operator.LearnSkill(Operator.UnitData.MainSkill[mainSkillId], null);
-            Operator.ChangePos((int)pos.x, (int)pos.z, direction);
-            Operator.JoinMap();
-            Operator.Parent = Unit;
-            //tile.Units.Add(Operator);
-        }
-        public Tile GetTile(List<Vector2Int> tilesPos, Unit op)
-        {
-            Tile result = Battle.Map.Tiles[0, 0];
-            foreach (Vector2Int pos in tilesPos)
+            for (int i = 0; i < tiles.Count; i++)
             {
-                if (pos.x < 0 || pos.x >= Battle.Map.maxX || pos.y < 0 || pos.y >= Battle.Map.maxZ) continue;
-                Tile tile = Battle.Map.Tiles[pos.x, pos.y];
-                if (tile.CanSet(op, op.UnitData.NotUseTile) && (pos - Unit.GridPos).sqrMagnitude < (new Vector2Int(result.X, result.Y) - Unit.GridPos).sqrMagnitude)
-                    result = tile;
+                Unit nowOp = null;
+                if (battleOp.Count <= i)
+                    nowOp = battleOp[i];
+                GetToken(nowOp);
+                SetToken(tiles[i], nowOp);
             }
-            if (!result.CanSet(op, op.UnitData.NotUseTile)) return null;
+
+        }
+
+        public void SetToken(Tile tile, Unit battleOp = null)
+        {
+            Debug.Log("获取到部署位置:" + tile.Pos + " 方向:" + direction);
+            //Tile tile = Battle.Map.Tiles[(int)pos.x, (int)pos.z];
+            Unit toRemove = null;
+            toRemove = tile.Units.Where(x => !x.UnitData.NotUseTile).First();
+            if (toRemove is not null && toRemove is Units.干员 toRemoveOprator)
+                //if (toRemove is not null)
+                toRemoveOprator.LeaveMap();
+            if (tile.CanSet(Operator, Operator.UnitData.NotUseTile))
+            {
+                Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + tile.Pos);
+                //Log.Debug(Operator.Skills.Count());
+                //GameObject go = Operator.UnitModel.gameObject;
+                //go.transform.position = new Vector3(pos.x, 0.5f, pos.z);
+                if (Operator.UnitData.MainSkill is not null && Operator.UnitData.MainSkill.Count() >= 0 && Operator.MainSkill is null)
+                    Operator.MainSkill = Operator.LearnSkill(Operator.UnitData.MainSkill[mainSkillId], null);
+                Operator.ChangePos((int)tile.Pos.x, (int)tile.Pos.z, direction);
+                Operator.JoinMap();
+                Operator.Parent = Battle.AllUnits.Find(x => x.UnitData.Name == name) as Units.干员 ?? null;
+                //tile.Units.Add(Operator);
+            }
+            else
+            {
+                if (toRemove is not null && toRemove is Units.干员 RemovedOperator)
+                    tile.Units.Add(RemovedOperator);
+                if (battleOp is not null)
+                    Operator.NowGrid.Units.Add(Operator);
+                Log.Debug("无法部署干员:" + Operator.UnitData.Name + "于" + tile.Pos);
+                return;
+            }
+        }
+
+        public List<Tile> GetTile(Vector3 targetPos, List<Vector2Int> tilesPos, Unit op, int count)
+        {
+            List<Tile> result = tilesPos.Select(p => Battle.Map.Tiles[p.x, p.y]).ToList();
+            result.RemoveAll(p => !p.CanSet(op, op.UnitData.NotUseTile));
+
+            result.Sort((a, b) => Vector3.Distance(a.Pos, targetPos).CompareTo(Vector3.Distance(b.Pos, targetPos)));
+            result = result.Take(count).ToList();
             return result;
         }
         public List<Vector2Int> GetTilesFromCirle(Vector2Int center, float radius)
@@ -144,8 +118,63 @@ namespace Skills
                     }
                 }
             }
-
+            result.RemoveAll(p => p.x < 0 || p.x >= Battle.Map.Tiles.GetLength(0) || p.y < 0 || p.y >= Battle.Map.Tiles.GetLength(1));
             return result;
+        }
+        public List<Vector2Int> GetTilesFromAttackPoints(Vector2Int pos)
+        {
+            List<Vector2Int> result = new List<Vector2Int>();
+            if (AttackPoints == null) return result;
+            //AttackPoints.Clear();
+            foreach (var p in SkillData.AttackPoints)
+            {
+                var point = pos + p;
+                if (point.x < 0 || point.x >= Battle.Map.Tiles.GetLength(0) || point.y < 0 || point.y >= Battle.Map.Tiles.GetLength(1)) continue;
+                result.Add(point);
+            }
+            return result;
+        }
+        public Vector3 GetPos()
+        {
+            switch (targetPos)
+            {
+                case "使用自身位置":
+                    Debug.Log("useSelfPos:" + Unit.Position);
+                    return Unit.Position;
+                case "使用附加技能索敌位置":
+                    if (SkillData.Skills.Count() > 0)
+                    {
+                        var skill = Unit.LearnSkill(SkillData.Skills[0]);
+                        skill.Init();
+                        List<Unit> targets = skill.GetAttackTarget();
+                        if (targets.Count > 0)
+                        {
+                            return targets.FirstOrDefault()?.Position ?? new Vector3(float.MaxValue, 0, float.MaxValue);
+                        }
+                    }
+                    else
+                    {
+                        return Unit.Position;
+                    }
+                    Debug.Log("useTargetPos:");
+                    break;
+                //case "使用干员攻击范围位置":
+                //    foreach (var point in AttackPoints)
+                //    {
+                //        if (point != Unit.Position2)
+                //        {
+                //            //pos.x = point.x;
+                //            //pos.z = point.y;
+                //            return new Vector3(point.x, 0, point.y);
+                //        }
+                //    }
+                //    Debug.Log("useAttackPoint:");
+                //    break;
+                case "使用本技能索敌位置":
+                    //Debug.Log(Targets.FirstOrDefault()?.Position ?? new Vector3(float.MaxValue, 0, float.MaxValue));
+                    return Targets.FirstOrDefault()?.Position ?? new Vector3(float.MaxValue, 0, float.MaxValue);
+            }
+            return new Vector3(float.MaxValue, 0, float.MaxValue);
         }
     }
 }

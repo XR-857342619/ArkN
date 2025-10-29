@@ -33,7 +33,7 @@ namespace Skills
             if (Battle.TriggerDatas.Count == 0) return 0;
             if (!SkillData.Skills.ToList().Contains(Battle.TriggerDatas.Peek().Skill.Id)) return 0;
             
-            result = Battle.TriggerDatas.Peek().Count;
+            result = (int)Battle.TriggerDatas.Peek().Count;
             foreach (var modify in Modifies)
             {
                 if (modify is ITargetModify targetModify)

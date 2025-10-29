@@ -253,6 +253,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SkeletonAnimation: {fileID: 852874015839116374}
+  isNew: 0
   Shadow: {fileID: 0}
   SkeletonAnimation2: {fileID: 1625709194577936234}
   Forward: 1

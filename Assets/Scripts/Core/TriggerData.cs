@@ -12,7 +12,7 @@ public class TriggerData
 
     public Skill Skill;
 
-    public int Count;
+    public float Count;
 
     public void Clear()
     {

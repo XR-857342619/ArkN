@@ -13,13 +13,16 @@ public class Modify
 
     public Skill Skill;
 
+    public int orderCode;
+
+    public int OrderCode { get { return orderCode; } }
     protected Unit Unit => Skill.Unit;
 
     protected Battle Battle => Skill.Unit.Battle;
 
     public virtual void Init()
     {
-
+        orderCode = ModifyData.Data.GetInt("OrderCode", 0);
     }
 }
 

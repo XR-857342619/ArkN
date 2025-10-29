@@ -10,7 +10,6 @@ namespace Modifys
     public class 链奶伤害衰减 : Modify, IBulletDamageModify
     {
         public float Rate;
-
         public override void Init()
         {
             base.Init();

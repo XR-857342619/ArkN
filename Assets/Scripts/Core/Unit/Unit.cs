@@ -859,7 +859,17 @@ public class Unit
         Hp += heal.FinalDamage;
         if (ifShowHeal) UnitModel.ShowHeal(heal);
         if (Hp > MaxHp)
+        {
+            Battle.TriggerDatas.Push(new TriggerData()
+            {
+                User = heal.GetSourceUnit(),
+                Target = this,
+                Count = Hp - MaxHp,
+            });
+            this.Trigger(TriggerEnum.过量治疗);
+            heal.GetSourceUnit().Trigger(TriggerEnum.过量治疗);
             Hp = MaxHp;
+        }
         Battle.TriggerDatas.Push(new TriggerData()
         {
             User = heal.GetSourceUnit(),

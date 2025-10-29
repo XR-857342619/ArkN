@@ -31,4 +31,5 @@ public enum TriggerEnum
     自身元素爆发,
     到达路径终点,
     打数溢出,
+    过量治疗,
 }
