@@ -68,7 +68,6 @@ namespace Skills
                     Operator.MainSkill = Operator.LearnSkill(Operator.UnitData.MainSkill[mainSkillId], null);
                 Operator.ChangePos((int)tile.Pos.x, (int)tile.Pos.z, direction);
                 Operator.JoinMap();
-                Operator.Parent = Battle.AllUnits.Find(x => x.UnitData.Name == name) as Units.干员 ?? null;
                 //tile.Units.Add(Operator);
             }
             else
@@ -136,9 +135,9 @@ namespace Skills
                 else if (direction == Vector2.left)
                     point = pos - p;
                 else if (direction == Vector2.up)
-                    point = pos + new Vector2Int(p.y, -p.x);
-                else if (direction == Vector2.down)
                     point = pos + new Vector2Int(-p.y, p.x);
+                else if (direction == Vector2.down)
+                    point = pos + new Vector2Int(p.y, -p.x);
                 else
                     point = pos + p;
 

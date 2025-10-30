@@ -123,6 +123,7 @@ namespace Skills
                 Operator.Parent = Unit;
                 Unit.Children.Add(Operator);
             }
+            Operator.Parent = Unit;
         }
         public virtual void SetToken(Vector3 pos, DirectionEnum direction, Unit battleOp = null)
         {
@@ -143,7 +144,6 @@ namespace Skills
                     Operator.MainSkill = Operator.LearnSkill(Operator.UnitData.MainSkill[mainSkillId], null);
                 Operator.ChangePos((int)pos.x, (int)pos.z, direction);
                 Operator.JoinMap();
-                Operator.Parent = Battle.AllUnits.Find(x => x.UnitData.Name == name) as Units.干员 ?? null;
                 //tile.Units.Add(Operator);
             }
             else
