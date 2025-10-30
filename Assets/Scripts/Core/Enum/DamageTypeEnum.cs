@@ -11,5 +11,6 @@ public enum DamageTypeEnum
     Real,
     Element,
     general,
+    heal,
 }
 

@@ -65,7 +65,7 @@ namespace Skills
             {
                 if (i >= count) break;
                 Unit nowOp = null;
-                if (battleOp.Count <= i)
+                if (battleOp.Count > 0 && battleOp.Count < i)
                     nowOp = battleOp[i];
                 GetToken(nowOp);
                 SetToken(posList[i], direction, nowOp);
@@ -104,7 +104,7 @@ namespace Skills
                     return AttackPoints2V3;
                     //break;
                 case "使用本技能索敌位置":
-                    Debug.Log(Targets.First().Position);
+                    Debug.Log(Targets.FirstOrDefault().Position);
                     return Targets.Select(x => x.Position).ToList();
                     //break;
             }
@@ -129,11 +129,11 @@ namespace Skills
             Debug.Log("获取到部署位置:" + pos + " 方向:" + direction);
             Tile tile = Battle.Map.Tiles[(int)pos.x, (int)pos.z];
             Unit toRemove = null;
-            toRemove = tile.Units.Where(x => !x.UnitData.NotUseTile).First();
+            toRemove = tile.Units.Where(x => !x.UnitData.NotUseTile).FirstOrDefault();
             if (toRemove is not null && toRemove is Units.干员 toRemoveOprator)
             //if (toRemove is not null)
                 toRemoveOprator.LeaveMap();
-            if (tile.CanSet(Operator, Operator.UnitData.NotUseTile))
+            if (tile.CanSet(Operator.UnitData))
             {
                 Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);
                 //Log.Debug(Operator.Skills.Count());

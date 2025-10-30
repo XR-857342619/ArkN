@@ -91,7 +91,7 @@ public class BattleCamera : MonoBehaviour
             {
                 var g = BuildUnit.UnitModel.gameObject;
                 var grid = hit.collider.GetComponentInParent<MapGrid>();
-                if (grid != null && (grid.Tile.CanSet(BuildUnit, BuildUnit.UnitData.NotUseTile)))
+                if (grid != null && (grid.Tile.CanSet(BuildUnit.UnitData)))
                 {
                     //预览干员位置和攻击范围
                     canBuild = true;
@@ -186,7 +186,7 @@ public class BattleCamera : MonoBehaviour
         foreach (var grid in BattleManager.Instance.Battle.Map.Tiles)
         {
             if (grid == null || grid.MapGrid == null) continue;
-            if (grid.CanSet(BuildUnit, BuildUnit.UnitData.NotUseTile))
+            if (grid.CanSet(BuildUnit.UnitData))
             {
                 grid.MapGrid.ChangeHighLight(true);
             }

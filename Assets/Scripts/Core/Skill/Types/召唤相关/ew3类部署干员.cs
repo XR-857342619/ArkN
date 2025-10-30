@@ -36,12 +36,12 @@ namespace Skills
             if (r > 0) tilesPos = GetTilesFromCirle(new Vector2Int((int)pos.x, (int)pos.z), r);
             if (SkillData.AttackPoints.Length > 0) tilesPos.AddRange(GetTilesFromAttackPoints(new Vector2Int((int)pos.x, (int)pos.z)));
 
-            List<Tile> tiles = GetTile(pos, tilesPos, battleOp.First(), count);
+            List<Tile> tiles = GetTile(pos, tilesPos, Database.Instance.Get<UnitData>(unitId), count);
 
             for (int i = 0; i < tiles.Count; i++)
             {
                 Unit nowOp = null;
-                if (battleOp.Count <= i)
+                if (battleOp.Count > 0 && battleOp.Count < i)
                     nowOp = battleOp[i];
                 GetToken(nowOp);
                 SetToken(tiles[i], nowOp);
@@ -54,11 +54,11 @@ namespace Skills
             Debug.Log("获取到部署位置:" + tile.Pos + " 方向:" + direction);
             //Tile tile = Battle.Map.Tiles[(int)pos.x, (int)pos.z];
             Unit toRemove = null;
-            toRemove = tile.Units.Where(x => !x.UnitData.NotUseTile).First();
+            toRemove = tile.Units.Where(x => !x.UnitData.NotUseTile).FirstOrDefault();
             if (toRemove is not null && toRemove is Units.干员 toRemoveOprator)
                 //if (toRemove is not null)
                 toRemoveOprator.LeaveMap();
-            if (tile.CanSet(Operator, Operator.UnitData.NotUseTile))
+            if (tile.CanSet(Operator.UnitData))
             {
                 Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + tile.Pos);
                 //Log.Debug(Operator.Skills.Count());
@@ -82,10 +82,10 @@ namespace Skills
             }
         }
 
-        public List<Tile> GetTile(Vector3 targetPos, List<Vector2Int> tilesPos, Unit op, int count)
+        public List<Tile> GetTile(Vector3 targetPos, List<Vector2Int> tilesPos, UnitData opData, int count)
         {
             List<Tile> result = tilesPos.Select(p => Battle.Map.Tiles[p.x, p.y]).ToList();
-            result.RemoveAll(p => !p.CanSet(op, op.UnitData.NotUseTile));
+            result.RemoveAll(p => !p.CanSet(opData));
 
             result.Sort((a, b) => Vector3.Distance(a.Pos, targetPos).CompareTo(Vector3.Distance(b.Pos, targetPos)));
             result = result.Take(count).ToList();
@@ -128,7 +128,20 @@ namespace Skills
             //AttackPoints.Clear();
             foreach (var p in SkillData.AttackPoints)
             {
-                var point = pos + p;
+                Vector2Int point;
+                Vector2 direction = Unit.Direction;
+
+                if (direction == Vector2.right)
+                    point = pos + p;
+                else if (direction == Vector2.left)
+                    point = pos - p;
+                else if (direction == Vector2.up)
+                    point = pos + new Vector2Int(p.y, -p.x);
+                else if (direction == Vector2.down)
+                    point = pos + new Vector2Int(-p.y, p.x);
+                else
+                    point = pos + p;
+
                 if (point.x < 0 || point.x >= Battle.Map.Tiles.GetLength(0) || point.y < 0 || point.y >= Battle.Map.Tiles.GetLength(1)) continue;
                 result.Add(point);
             }

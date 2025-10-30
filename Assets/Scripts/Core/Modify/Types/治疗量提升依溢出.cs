@@ -28,7 +28,7 @@ namespace Modifys
                 return;
             }
             damageInfo.Attack += LastExDamage * Rate / damageInfo.DamageRate;
-            Log.Debug("治疗量提升依溢出：" + LastExDamage);
+            Log.Debug("治疗量提升依溢出：" + ExDamage);
             LastExDamage = ExDamage > 0 ? ExDamage : 0;
         }
     }

@@ -60,14 +60,14 @@ public class Bullet
             BulletManager.Instance.Return(BulletModel);
             BulletModel = null;
         }
-        Battle.TriggerDatas.Push(new TriggerData()
-        {
-            User = Skill.Unit,
-            Skill = Skill,
-            Target = Target,
-        });
-        Battle.Trigger(TriggerEnum.弹道命中);
-        Battle.TriggerDatas.Pop();
+        //Battle.TriggerDatas.Push(new TriggerData()
+        //{
+        //    User = Skill.Unit,
+        //    Skill = Skill,
+        //    Target = Target,
+        //});
+        //Battle.Trigger(TriggerEnum.弹道命中);
+        //Battle.TriggerDatas.Pop();
         //GameObject.Destroy(BulletModel.gameObject);
     }
     public Vector3 GetTargetPos(Unit target)

@@ -933,6 +933,17 @@ public class Skill
             t.Damage(dInfo);
 
             afterDamage(dInfo);
+            if (bullet is not null)
+            {
+                Battle.TriggerDatas.Push(new TriggerData()
+                {
+                    User = Unit,
+                    Target = t,
+                    Skill = this,
+                });
+                Battle.Trigger(TriggerEnum.弹道命中);
+                Battle.TriggerDatas.Pop();
+            }
         }
     }
     protected virtual void AttackFromAreaPoints(HashSet<Unit> targets, Unit target, ref DamageInfo dInfo, Bullet bullet = null)
@@ -956,6 +967,17 @@ public class Skill
             t.Damage(dInfo);
 
             afterDamage(dInfo);
+            if (bullet is not null)
+            {
+                Battle.TriggerDatas.Push(new TriggerData()
+                {
+                    User = Unit,
+                    Target = t,
+                    Skill = this,
+                });
+                Battle.Trigger(TriggerEnum.弹道命中);
+                Battle.TriggerDatas.Pop();
+            }
         }
     }
     protected virtual void Attack(Unit target, ref DamageInfo dInfo, Bullet bullet = null)
@@ -992,10 +1014,19 @@ public class Skill
             target.Damage(dInfo);
             afterDamage(dInfo);
         }
+        if (bullet is null) return;
+        Battle.TriggerDatas.Push(new TriggerData()
+        {
+            User = Unit,
+            Target = target,
+            Skill = this,
+        });
+        Battle.Trigger(TriggerEnum.弹道命中);
+        Battle.TriggerDatas.Pop();
     }
     protected virtual void afterDamage(DamageInfo dInfo)
     {
-        if (!SkillData.IfHeal) return;
+        if (SkillData.IfHeal) return;
 
         if (dInfo.Avoid)
             OnBeAvoid(dInfo.Target);
@@ -1541,7 +1572,7 @@ public class Skill
             AllCount = tempTargets.Count,
             Source = this,
             DamageRate = damageRate * SkillData.DamageRate * (SkillData.DamageWithFrameRate ? cooldown : 1),
-            DamageType = SkillData.DamageType,
+            DamageType = SkillData.IfHeal ? DamageTypeEnum.heal : SkillData.DamageType,
             MinDamageRate = Unit.UnitData.MinDamageRate,
         };
         switch (SkillData.DamageBase)

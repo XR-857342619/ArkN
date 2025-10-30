@@ -52,7 +52,7 @@ public class Unit
     public Skill MainSkill;
 
     public List<Buff> Buffs = new();
-    public List<IDamageRewrite> Shields = new();
+    public List<IDamageRewrite> DamageRewrites = new();
     public List<int> IgnoreBuffs = new();
 
     public float MaxHp;
@@ -681,10 +681,13 @@ public class Unit
 
             // 添加到BUFF列表
             Buffs.Add(newBuff);
-
-            // 如果是护盾类型，添加到护盾列表
+            
+            // 如果伤害重写类型，添加到伤害重写列表
             if (newBuff is IDamageRewrite shield)
-                Shields.Add(shield);
+            {
+                DamageRewrites.Add(shield);
+                DamageRewrites.Sort((a, b) => a.OrderCode.CompareTo(b.OrderCode));
+            }
 
             // 初始化BUFF
             newBuff.Init();
@@ -696,7 +699,7 @@ public class Unit
     public void RemoveBuff(Buff buff)
     {
         Buffs.Remove(buff);
-        if (buff is IDamageRewrite shield) Shields.Remove(shield);
+        if (buff is IDamageRewrite shield) DamageRewrites.Remove(shield);
         //Refresh();
     }
     #region 推拉相关
@@ -902,7 +905,7 @@ public class Unit
         if (!damageInfo.Avoid)
         {
             
-            foreach (var shield in Shields.ToArray())
+            foreach (var shield in DamageRewrites.ToArray())
             {
                 shield.DamageRewrite(damageInfo);
             }

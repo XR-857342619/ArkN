@@ -9973,6 +9973,122 @@ MonoBehaviour:
     m_Address: Assets/Bundles/Other/sprite_direction_ring
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 7f9a7933bd003294788da9a2fed8fd09
+    m_Address: Assets/Bundles/Units/char_1013_chen2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f878b509106a627449b8850445466c4c
+    m_Address: Assets/Bundles/Units/char_1035_wisdel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9ec945fb2cf2a2a4b828cf6374591707
+    m_Address: Assets/Bundles/Units/char_1040_blaze2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 133387c96c5bfaf48a67a802eea1ba4e
+    m_Address: Assets/Bundles/Units/char_1042_phatm2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c4626592e465b6541b0aaee655bed366
+    m_Address: Assets/Bundles/Units/char_1044_hsgma2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 65cb389b1fc491c4db46b16a732ca689
+    m_Address: Assets/Bundles/Units/char_4182_oblvns
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bbe5cde37841d07429a312edcb1fc916
+    m_Address: Assets/Bundles/Units/char_4182_oblvns_avemujica_1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0bf49261bca55a34c828e8331e32073b
+    m_Address: Assets/Bundles/Units/char_4183_mortis
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f653b0c2b687ebb4b9411a20af16e7b5
+    m_Address: Assets/Bundles/Units/char_4184_dolris
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3b08f35154602894e992ca1b6a358e07
+    m_Address: Assets/Bundles/Units/char_4185_amoris
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d335fbf18dbb670458532e2386cc465d
+    m_Address: Assets/Bundles/Units/char_4186_tmoris
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5178f3c49b355a94e9109f6d1715d8d3
+    m_Address: Assets/Bundles/Units/char_4187_graceb
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4294260f66f5f864192ed0acc973ab58
+    m_Address: Assets/Bundles/Units/char_4188_confes
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cb546618b55837542b937024194ec9a9
+    m_Address: Assets/Bundles/Units/char_4191_tippi
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 345f1938ac4d51f4087588bb3cc6c9c6
+    m_Address: Assets/Bundles/Units/char_4193_lemuen
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ca710845cdf4d754bb3a3427651cd393
+    m_Address: Assets/Bundles/Units/char_4194_rmixer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 111329a01160b3442b2d1223158e9d92
+    m_Address: Assets/Bundles/Units/char_4195_radian
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4f89f623dda40954584d1a03e0b4133d
+    m_Address: Assets/Bundles/Units/char_4196_reckpr
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5d3846bc39902dc42863de45068f44fe
+    m_Address: Assets/Bundles/Units/char_4198_christ
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5d378953f6ceb274889d86e97a457742
+    m_Address: Assets/Bundles/Units/char_4199_makiri
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1faae106ed31edf4e9acc5cddecd3121
+    m_Address: Assets/Bundles/Units/char_4202_haruka
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1c6d400055a7ca24bace424ae457a411
+    m_Address: Assets/Bundles/Units/char_4203_kichi
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 65d76e0e61106974e9649d7c7c4c9946
+    m_Address: Assets/Bundles/Units/char_4204_mantra
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: fafdc7e3c9104ff4c83f05b45527d8a6
+    m_Address: Assets/Bundles/Units/enemy_10106_mjcbat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 54507549950480e49aa48bb27062a41d
+    m_Address: Assets/Bundles/Units/enemy_10109_mjcgst
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c367edbb7ef6f11438d5f2dc4f245cf0
+    m_Address: Assets/Bundles/Units/enemy_1569_ldevil
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d592747ea4f7d164b9743dae3e07ca65
+    m_Address: "Assets/Bundles/Units/\u901A\u7528\u5730\u677F"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 71f6aa8cada30e642801c981f01fc5c2
+    m_Address: Assets/Bundles/UI/EquipIcon_atlas0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 33104efa4c2f5a44aaa68b4f4c0e4444
+    m_Address: Assets/Bundles/UI/EquipIcon_fui
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 242fd0e985ecef14caef48a8cdb9ed24, type: 2}
   m_SchemaSet:

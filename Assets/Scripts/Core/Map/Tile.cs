@@ -50,25 +50,25 @@ public class Tile
         this.Tag = mapGrid.Tag;
     }
 
-    public bool CanSet(Unit unit, bool notUseTile)
+    public bool CanSet(UnitData unitData)
     {
-        if (Units.Any(x => x.UnitData.Id == unit.UnitData.Id)) return true;
+        //if (Units.Any(x => x.UnitData.Id == unitData.Id)) return true;
         if (BattleManager.Instance.IsNoLimitBuild) return true;
         else
         {
             int tileUnitsCount = this.Units?.Count(X => X.UnitData.NotUseTile == true)?? 0;
             bool buildcount = this.Units.Count >= tileUnitsCount + 1;
             bool tileUnits = this.Units.Count > 0 ? !this.Units.Any(X => X.UnitData.NotUseTile == true) : false;
-            if (buildcount && tileUnits && !notUseTile) return false;
+            if (buildcount && tileUnits && !unitData.NotUseTile) return false;
             if (CanBuildUnit)
             {
                 if (Battle.MapData.NoBuildLimit) return true;
                 if (FarAttackGrid)
                 {
-                    return unit.UnitData.CanSetHigh;
+                    return unitData.CanSetHigh;
                 }
                 else
-                    return unit.UnitData.CanSetGround;
+                    return unitData.CanSetGround;
             }
             return false;
         }

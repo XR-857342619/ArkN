@@ -35,6 +35,14 @@ public interface IDamageModify
 {
     void Modify(DamageInfo damageInfo);
 }
+
+public interface IDamageRewrite
+{
+    void DamageRewrite(DamageInfo damageInfo);
+
+    public int OrderCode { get; }
+}
+
 public interface IBulletDamageModify
 {
     void Modify(DamageInfo damageInfo, Bullet bullet);
