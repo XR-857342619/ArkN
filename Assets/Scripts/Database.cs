@@ -54,6 +54,7 @@ public class Database
         }
         catch (Exception e)
         {
+            TipManager.Instance.ShowTip("Init database failed: " + e.Message);
             Debug.LogError(e);
         }
     }
@@ -85,6 +86,7 @@ public class Database
         }
         catch (Exception e)
         {
+            TipManager.Instance.initErorrTips.Add(e.Message);
             Debug.LogError(e);
         }
         return this;
@@ -353,6 +355,7 @@ public class Database
             }
             catch (Exception e)
             {
+                TipManager.Instance.initErorrTips.Add(arr[i] + "\n" + e.ToString());
                 Debug.LogError(arr[i] + "\n" + e.ToString());
             }
         }

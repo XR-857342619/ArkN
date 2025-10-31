@@ -3,16 +3,16 @@
   <controller name="showLevelInfo" pages="0,,1," selected="0"/>
   <controller name="contractChoose" pages="0,,1," selected="0"/>
   <controller name="ShowMain" pages="0,,1," selected="0"/>
-  <controller name="PackageEdit" pages="0,,1," selected="1"/>
+  <controller name="PackageEdit" pages="0,,1," selected="0"/>
   <controller name="mode" pages="2,edit,0,move,1,link,3,excel" selected="0"/>
   <displayList>
-    <image id="n17_qn1s" name="BackGround" src="qn1sr5g" fileName="Map/Avg_60_i05.png" xy="0,0" size="1920,1080" aspect="true">
-      <relation target="" sidePair="width-width,height-height"/>
-    </image>
+    <loader id="n42_o1i5" name="n42" xy="0,0" size="1920,1080" url="ui://k4mja8t1qn1sr5g" align="center" vAlign="middle" fill="scaleNoBorder" useResize="true">
+      <relation target="" sidePair="width-width%,height-height%,center-center%,middle-middle%"/>
+    </loader>
     <component id="n7_kbte" name="world" src="kbte12" fileName="Level/World1.xml" xy="0,0" size="1920,1080" aspect="true">
       <relation target="" sidePair="width-width,height-height"/>
     </component>
-    <component id="n10_voep" name="back" src="voep3c" fileName="UnitInfo/back.xml" xy="23,24" alpha="0">
+    <component id="n10_voep" name="back" src="voep3c" fileName="UnitInfo/back.xml" xy="23,24">
       <gearDisplay controller="PackageEdit" pages="0"/>
       <gearLook controller="PackageEdit" pages="1" values="0,0,0,1" default="1,0,0,1" tween="true"/>
     </component>
@@ -36,7 +36,7 @@
       <item/>
       <item/>
     </list>
-    <component id="n18_pkao" name="MapPackage" src="pkaor6g" fileName="Map/MapPackage.xml" xy="247,24" alpha="0">
+    <component id="n18_pkao" name="MapPackage" src="pkaor6g" fileName="Map/MapPackage.xml" xy="247,24">
       <gearDisplay controller="PackageEdit" pages="0"/>
       <gearLook controller="PackageEdit" pages="1" values="0,0,0,1" default="1,0,0,1" tween="true"/>
       <ComboBox visibleItemCount="10" autoClearItems="true">
@@ -52,53 +52,53 @@
     <text id="n22_ip2q" name="tip" xy="0,1030" size="1920,50" fontSize="30" color="#ffffff" autoSize="none" text="">
       <relation target="" sidePair="width-width,height-height%"/>
     </text>
-    <component id="n31_ip2q" name="EditExcel" src="ip2qr6r" fileName="Map/PackageEditor.xml" xy="966,24" group="n37_ip2q">
+    <component id="n31_ip2q" name="EditExcel" src="ip2qr6r" fileName="Map/PackageEditor.xml" xy="562,24" group="n37_ip2q">
       <gearDisplay controller="PackageEdit" pages="1"/>
       <gearXY controller="PackageEdit" pages="0,1" values="562,24|966,24" tween="true"/>
       <gearLook controller="mode" pages="0,1,3" values="1,0,0,0|1,0,0,0|1,0,0,0" default="1,0,0,1" tween="true"/>
       <Button title="选择表格" controller="mode" page="3"/>
     </component>
-    <component id="n25_ip2q" name="MapLink" src="ip2qr6r" fileName="Map/PackageEditor.xml" xy="651,24" group="n37_ip2q">
+    <component id="n25_ip2q" name="MapLink" src="ip2qr6r" fileName="Map/PackageEditor.xml" xy="562,24" group="n37_ip2q">
       <gearDisplay controller="PackageEdit" pages="1"/>
       <gearXY controller="PackageEdit" pages="0,1" values="562,24|651,24" tween="true"/>
       <gearLook controller="mode" pages="0,1,3" values="1,0,0,0|1,0,0,0|1,0,0,0" default="1,0,0,1" tween="true"/>
       <Button title="连接" controller="mode" page="1"/>
     </component>
-    <component id="n26_ip2q" name="MapMove" src="ip2qr6r" fileName="Map/PackageEditor.xml" xy="336,24" group="n37_ip2q">
+    <component id="n26_ip2q" name="MapMove" src="ip2qr6r" fileName="Map/PackageEditor.xml" xy="562,24" group="n37_ip2q">
       <gearDisplay controller="PackageEdit" pages="1"/>
       <gearXY controller="PackageEdit" pages="0,1" values="562,24|336,24" tween="true"/>
       <gearLook controller="mode" pages="0,1,3" values="1,0,0,0|1,0,0,0|1,0,0,0" default="1,0,0,1" tween="true"/>
       <Button title="移动" controller="mode" page="0"/>
     </component>
-    <component id="n41_tmdw" name="DelLink" src="tmdwr6u" fileName="Map/PackageEditor(1).xml" xy="1521,24" group="n37_ip2q">
+    <component id="n41_tmdw" name="DelLink" src="tmdwr6u" fileName="Map/PackageEditor(1).xml" xy="562,24" group="n37_ip2q">
       <gearDisplay controller="PackageEdit" pages="1"/>
       <gearXY controller="PackageEdit" pages="0,1" values="562,24|1521,24" tween="true"/>
       <gearLook controller="mode" pages="0,1,3" values="0,0,0,0|0,0,0,0|0,0,0,0" default="1,0,0,1" tween="true"/>
       <Button title="删除所有连线"/>
     </component>
     <group id="n37_ip2q" name="btn" xy="336,24" size="1496,74"/>
-    <component id="n33_ip2q" name="Editcomfirm" src="ip2qr6t" fileName="Map/comfirmBtn.xml" xy="1267,17" group="n36_ip2q">
+    <component id="n33_ip2q" name="Editcomfirm" src="ip2qr6t" fileName="Map/comfirmBtn.xml" xy="562,17" group="n36_ip2q">
       <gearDisplay controller="PackageEdit" pages="1"/>
       <gearXY controller="PackageEdit" pages="0,1" values="562,17|1267,17" tween="true"/>
       <gearLook controller="mode" pages="0,1" values="0,0,0,1|0,0,0,1" default="1,0,0,1" tween="true"/>
       <gearDisplay2 controller="mode" pages="2" condition="0"/>
       <Button controller="PackageEdit" page="0"/>
     </component>
-    <component id="n30_ip2q" name="Linkcomfirm" src="ip2qr6t" fileName="Map/comfirmBtn.xml" xy="1267,17" group="n36_ip2q" alpha="0">
+    <component id="n30_ip2q" name="Linkcomfirm" src="ip2qr6t" fileName="Map/comfirmBtn.xml" xy="562,17" group="n36_ip2q" alpha="0">
       <gearDisplay controller="PackageEdit" pages="1"/>
       <gearXY controller="PackageEdit" pages="0,1" values="562,17|1267,17" tween="true"/>
       <gearLook controller="mode" pages="2,0" values="0,0,0,1|0,0,0,1" default="1,0,0,1" tween="true"/>
       <gearDisplay2 controller="mode" pages="1" condition="0"/>
       <Button controller="mode" page="2"/>
     </component>
-    <component id="n35_ip2q" name="Excelcomfirm" src="ip2qr6t" fileName="Map/comfirmBtn.xml" xy="1267,17" group="n36_ip2q">
+    <component id="n35_ip2q" name="Excelcomfirm" src="ip2qr6t" fileName="Map/comfirmBtn.xml" xy="562,17" group="n36_ip2q" alpha="0">
       <gearDisplay controller="PackageEdit" pages="1"/>
       <gearXY controller="PackageEdit" pages="0,1" values="562,17|1267,17" tween="true"/>
       <gearLook controller="PackageEdit" pages="0,1" values="0,0,0,1|1,0,0,1" tween="true"/>
       <gearDisplay2 controller="mode" pages="3" condition="0"/>
       <Button controller="mode" page="2"/>
     </component>
-    <component id="n34_ip2q" name="Movecomfirm" src="ip2qr6t" fileName="Map/comfirmBtn.xml" xy="1267,17" group="n36_ip2q">
+    <component id="n34_ip2q" name="Movecomfirm" src="ip2qr6t" fileName="Map/comfirmBtn.xml" xy="562,17" group="n36_ip2q" alpha="0">
       <gearDisplay controller="PackageEdit" pages="1"/>
       <gearXY controller="PackageEdit" pages="0,1" values="562,17|1267,17" tween="true"/>
       <gearLook controller="PackageEdit" pages="0,1" values="0,0,0,1|1,0,0,1" tween="true"/>
@@ -106,16 +106,16 @@
       <Button controller="mode" page="2"/>
     </component>
     <group id="n36_ip2q" name="comfirm" xy="1267,17" size="274,120"/>
-    <component id="n20_ip2q" name="EditorMod" src="ip2qr6r" fileName="Map/PackageEditor.xml" xy="21,24" touchable="false">
+    <component id="n20_ip2q" name="EditorMod" src="ip2qr6r" fileName="Map/PackageEditor.xml" xy="562,24">
       <gearDisplay controller="PackageEdit" pages="0"/>
       <gearXY controller="PackageEdit" pages="1" values="21,24" default="562,24" tween="true"/>
       <gearLook controller="PackageEdit" pages="1" values="1,0,0,0" default="1,0,0,1" tween="true"/>
-      <Button checked="true" title="编辑地图包" controller="PackageEdit" page="1"/>
+      <Button title="编辑地图包" controller="PackageEdit" page="1"/>
     </component>
-    <component id="n27_ip2q" name="EditorMod_1" src="ip2qr6r" fileName="Map/PackageEditor.xml" xy="21,24" touchable="false">
+    <component id="n27_ip2q" name="EditorMod_1" src="ip2qr6r" fileName="Map/PackageEditor.xml" xy="562,24" touchable="false">
       <gearDisplay controller="PackageEdit" pages="1"/>
       <gearXY controller="PackageEdit" pages="0" values="562,24" default="21,24" tween="true"/>
-      <Button checked="true" title="编辑地图包" controller="PackageEdit" page="1"/>
+      <Button title="编辑地图包" controller="PackageEdit" page="1"/>
     </component>
     <list id="n38_ip2q" name="ExcelList" xy="245,172" size="1430,735" overflow="scroll" margin="0,0,5,0" clipSoftness="5,0" lineGap="1" defaultItem="ui://k4mja8t16ew9r6q" autoClearItems="true" treeView="true" indent="25" clickToExpand="0">
       <gearDisplay controller="mode" pages="3"/>

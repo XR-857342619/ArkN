@@ -171,13 +171,15 @@ namespace BattleUI
 
         public void ChooseUnit(List<Unit> units)
         {
+            units.Sort((a, b) => b.UnitData.NotUseTile.CompareTo(a.UnitData.NotUseTile));
+            units.Sort((a, b) => b.InputTime.CompareTo(a.InputTime));
             TimeHelper.Instance.SetGameSpeed(0.2f);
-            selectedUnit = units.Last();
+            selectedUnit = units.First();
             this.units = units;
             m_state.selectedIndex = 4;
             //Debug.Log("sate:4");
-            m_left.SetUnit(units.Last());
-            BattleCamera.Instance.ShowUnitInfo(units.Last());
+            m_left.SetUnit(units.First());
+            BattleCamera.Instance.ShowUnitInfo(units.First());
         }
         public void ChooseUnit(Unit unit)
         {

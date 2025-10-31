@@ -7,7 +7,6 @@ namespace MainUI
 {
     public partial class UI_Loading : GComponent
     {
-        public GImage m_BackGround;
         public GTextField m_name;
         public const string URL = "ui://k4mja8t1it6gr51";
 
@@ -20,7 +19,6 @@ namespace MainUI
         {
             base.ConstructFromXML(xml);
 
-            m_BackGround = (GImage)GetChildAt(0);
             m_name = (GTextField)GetChildAt(1);
             Init();
         }

@@ -15,7 +15,7 @@ public class NormalModel : UnitModel
     private void Awake()
     {
         Animator = GetComponentInChildren<Animator>();
-        meshRenderer = GetComponent<MeshRenderer>();
+        meshRenderer = GetComponentInChildren<MeshRenderer>();
 
         if (meshRenderer == null) return;
         // 创建材质实例（避免影响原材质）
@@ -25,8 +25,9 @@ public class NormalModel : UnitModel
     public override void Init(Unit unit)
     {
         this.Unit = unit;
-        string Color = unit.UnitData.Ablititys.GetStr("Color", "#FFFFFF");
-        float Alpha = unit.UnitData.Ablititys.GetFloat("Alpha", 0.25f);
+        string Color = unit.UnitData.Ablititys.GetStr("Color");
+        float Alpha = unit.UnitData.Ablititys.GetFloat("Alpha");
+        //Debug.Log(Color + "," + Alpha);
         //gameObject.SetActive(false);
         Animator?.Play(Unit.AnimationName[0]);
         SetColorFromHex(Color);
@@ -54,7 +55,7 @@ public class NormalModel : UnitModel
 
     public override float GetAnimationDuration(string animationName)
     {
-        var result = Animator.runtimeAnimatorController.animationClips.FirstOrDefault(x => x.name == animationName);
+        var result = Animator?.runtimeAnimatorController?.animationClips?.FirstOrDefault(x => x.name == animationName) ?? null;
         if (result == null) return 0;
         return result.length;
     }
@@ -78,7 +79,10 @@ public class NormalModel : UnitModel
     /// <param name="hexCode">16进制颜色代码（6位或8位，8位时最后两位控制透明度）</param>
     public void SetColorFromHex(string hexCode)
     {
-        if (materialInstance == null) return;
+        if (materialInstance == null || hexCode is null){
+            //Debug.Log("材质实例为空");
+            return;
+        }
 
         // 尝试解析16进制颜色（支持6位RGB或8位RGBA）
         if (ColorUtility.TryParseHtmlString(hexCode, out Color newColor))
@@ -94,7 +98,10 @@ public class NormalModel : UnitModel
     // 单独修改透明度
     public void SetAlpha(float alpha)
     {
-        if (materialInstance == null) return;
+        if (materialInstance == null || alpha == 0) {
+            //Debug.Log("材质实例为空");
+            return; 
+        }
         Color current = materialInstance.color;
         materialInstance.color = new Color(current.r, current.g, current.b, alpha);
 }

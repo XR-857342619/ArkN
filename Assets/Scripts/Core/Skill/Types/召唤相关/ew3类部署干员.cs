@@ -26,7 +26,8 @@ namespace Skills
         {
             //base.Start();
             //FindTarget();
-            //Debug.Log(Targets?.First()?.Position);
+            //Debug.Log(Targets?.FirstOrDefault()?.Position);
+            //Debug.Log(SkillData.Id + "start");
             pos = GetPos();
             if (pos == new Vector3(float.MaxValue, 0, float.MaxValue)) return;
 
@@ -34,7 +35,7 @@ namespace Skills
             List<Vector2Int> tilesPos = new List<Vector2Int>();
             
             if (r > 0) tilesPos = GetTilesFromCirle(new Vector2Int((int)pos.x, (int)pos.z), r);
-            if (SkillData.AttackPoints.Length > 0) tilesPos.AddRange(GetTilesFromAttackPoints(new Vector2Int((int)pos.x, (int)pos.z)));
+            tilesPos.AddRange(GetTilesFromAttackPoints(new Vector2Int((int)pos.x, (int)pos.z)));
 
             List<Tile> tiles = GetTile(pos, tilesPos, Database.Instance.Get<UnitData>(unitId), count);
 
@@ -123,7 +124,7 @@ namespace Skills
         public List<Vector2Int> GetTilesFromAttackPoints(Vector2Int pos)
         {
             List<Vector2Int> result = new List<Vector2Int>();
-            if (AttackPoints == null) return result;
+            if (SkillData.AttackPoints == null) return result;
             //AttackPoints.Clear();
             foreach (var p in SkillData.AttackPoints)
             {
@@ -148,10 +149,12 @@ namespace Skills
         }
         public Vector3 GetPos()
         {
+            FindTarget();
+            //if (Targets.Count == 0) return new Vector3(float.MaxValue, 0, float.MaxValue);
             switch (targetPos)
             {
                 case "使用自身位置":
-                    Debug.Log("useSelfPos:" + Unit.Position);
+                    //Debug.Log("useSelfPos:" + Unit.Position);
                     return Unit.Position;
                 case "使用附加技能索敌位置":
                     if (SkillData.Skills.Count() > 0)
@@ -183,7 +186,7 @@ namespace Skills
                 //    Debug.Log("useAttackPoint:");
                 //    break;
                 case "使用本技能索敌位置":
-                    //Debug.Log(Targets.FirstOrDefault()?.Position ?? new Vector3(float.MaxValue, 0, float.MaxValue));
+                    //Debug.Log(string.Join(" ", Targets.Select(x => x.Position)));
                     return Targets.FirstOrDefault()?.Position ?? new Vector3(float.MaxValue, 0, float.MaxValue);
             }
             return new Vector3(float.MaxValue, 0, float.MaxValue);

@@ -212,15 +212,15 @@ namespace Units
             selfDirection.transform.position = new Vector3(GridPos.x, Battle.Map.Tiles[GridPos.x, GridPos.y].FarAttackGrid ? 0.25f : 0, GridPos.y);
             selfDirection.transform.SetParent(Battle.Map.Tiles[GridPos.x, GridPos.y].MapGrid.transform);
             //Position = new Vector3(GridPos.x, 0, GridPos.y);
-            if (this.UnitData.NotUseTile && tileUnits.Count > 1)
-            {
-                if (!tileUnits[tileUnits.Count - 2].UnitData.NotUseTile)
-                {
-                    Unit tmp = tileUnits[tileUnits.Count - 2];
-                    tileUnits[tileUnits.Count - 2] = this;
-                    tileUnits[tileUnits.Count - 1] = tmp;
-                }
-            }
+            //if (this.UnitData.NotUseTile && tileUnits.Count > 1)
+            //{
+            //    if (!tileUnits[tileUnits.Count - 2].UnitData.NotUseTile)
+            //    {
+            //        Unit tmp = tileUnits[tileUnits.Count - 2];
+            //        tileUnits[tileUnits.Count - 2] = this;
+            //        tileUnits[tileUnits.Count - 1] = tmp;
+            //    }
+            //}
             BattleUI.UI_Battle.Instance.CreateUIUnit(this);
             foreach (var skill in Skills)//重置非普攻类技能的基础cd
             {

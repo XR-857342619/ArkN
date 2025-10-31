@@ -52,7 +52,7 @@ namespace Skills
         }
         public virtual void SetToken(Vector3 pos, Vector2 direction, float lifeTime = 0)
         {
-            Debug.Log("部署装置：" + unitId + " 到：" + pos + " 方向：" + direction + " 持续：" + lifeTime);
+            //Debug.Log("部署装置：" + unitId + " 到：" + pos + " 方向：" + direction + " 持续：" + lifeTime);
             Operator = Battle.CreateSceneUnit(unitId, pos, direction, lifeTime) as 中立单位;
             Operator.Parent = Unit;
             Unit.Children.Add(Operator);

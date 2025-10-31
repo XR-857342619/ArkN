@@ -1157,9 +1157,11 @@ public class Skill
             tempTargets = evaluator.Filter(SkillData.SkillCondition);
         }
 
+        //if (SkillData.Id == "萃蔓去重")
+            //Debug.Log("获取到目标：" + string.Join(" ", tempTargets.Select(x => x.Position2)));
+
         orderTargets(tempTargets);
-        //if (tempTargets.Count > 0)
-        //    Debug.Log("获取到目标：" + tempTargets.First().Position);
+
         return tempTargets;
     }
 
@@ -1167,6 +1169,10 @@ public class Skill
     {
         //List<>
         targets.RemoveAll(x => !CanUseTo(x));
+
+        //if (SkillData.Id == "萃蔓去重")
+            //Debug.Log("获取到目标：" + string.Join(" ", tempTargets.Select(x => x.Position2)));
+
         if (targets.Count > 0)
         {
             //首先计算出所有目标的仇恨优先级，然后再选出攻击个数的实际目标
@@ -1470,7 +1476,7 @@ public class Skill
         //target.beAttacked.Add(1f);
         //if (beAttacked.Update(SystemConfig.DeltaTime) && UnitModel.isOriginalColor())
         target.beAttacked.Add(0.15f);
-        target.UnitModel.SetColor(Color.red);
+        target.UnitModel?.SetColor(Color.red);
         //else if (beAttacked.Finished() && !UnitModel.isOriginalColor())
         //    //else
         //    UnitModel.ResetColor();
@@ -1516,7 +1522,7 @@ public class Skill
             Target = this.Unit,
             Skill = source,
         });
-        Unit.Trigger(TriggerEnum.被治疗);
+        this.Unit.Trigger(TriggerEnum.被治疗);
         Battle.TriggerDatas.Pop();
     }
 
@@ -1528,7 +1534,7 @@ public class Skill
             Target = target,
             Skill = this,
         });
-        target.Trigger(TriggerEnum.治疗);
+        Unit.Trigger(TriggerEnum.治疗);
         Battle.TriggerDatas.Pop();
     }
     protected virtual void DoLifeSteal(DamageInfo damageInfo)

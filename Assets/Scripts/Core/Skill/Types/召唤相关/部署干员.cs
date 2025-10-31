@@ -104,7 +104,7 @@ namespace Skills
                     return AttackPoints2V3;
                     //break;
                 case "使用本技能索敌位置":
-                    Debug.Log(Targets.FirstOrDefault().Position);
+                    //Debug.Log(Targets.FirstOrDefault().Position);
                     return Targets.Select(x => x.Position).ToList();
                     //break;
             }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace Units
 {
@@ -33,6 +34,7 @@ namespace Units
                 MainSkill = LearnSkill(UnitData.MainSkill[0], null);
             BattleUI.UI_Battle.Instance.CreateUIUnit(this);
             Agi = 100;
+            Trigger(TriggerEnum.自己入场);
         }
 
         public override void Finish(bool leaveEvent = true)

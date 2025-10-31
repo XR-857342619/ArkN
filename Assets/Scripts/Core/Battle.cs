@@ -480,7 +480,10 @@ public class Battle
         if (Map.Tiles.GetLength(0) <= point.x || Map.Tiles.GetLength(1) <= point.y || point.x < 0 || point.y < 0) return result;
         if (team % 2 == 1)
         {
-            var target = Map.Tiles[point.x, point.y].Units?.Last();
+            var tileUnits = Map.Tiles[point.x, point.y].Units;
+            tileUnits.Sort((a, b) => b.UnitData.NotUseTile.CompareTo(a.UnitData.NotUseTile));
+            tileUnits.Sort((a, b) => b.InputTime.CompareTo(a.InputTime));
+            var target = tileUnits.First();
             if (target != null)
             {
                 if ((!aliveOnly || target.Alive()) && (team >> target.Team) % 2 == 1)
@@ -506,14 +509,16 @@ public class Battle
         {
             var targetPoint = point;
             if (targetPoint.x < 0 || targetPoint.y < 0 || targetPoint.x >= Map.Tiles.GetLength(0) || targetPoint.y >= Map.Tiles.GetLength(1)) continue;
+
             if (team  % 2 == 1)
             {
-                var tileUnits = Map.Tiles[targetPoint.x, targetPoint.y].Units;
-                var target = tileUnits.Count > 0 ? tileUnits.Last() : null;
-                if (target != null)
+                var tileUnits = Map.Tiles[point.x, point.y].Units;
+                tileUnits.Sort((a, b) => b.UnitData.NotUseTile.CompareTo(a.UnitData.NotUseTile));
+                tileUnits.Sort((a, b) => b.InputTime.CompareTo(a.InputTime));
+                foreach (var unit in tileUnits)
                 {
-                    if ((!aliveOnly || target.Alive()) && (team >> target.Team) % 2 == 1)
-                        result.Add(target);
+                    if ((!aliveOnly || unit.Alive()) && (team >> unit.Team) % 2 == 1)
+                        result.Add(unit);
                 }
             }
             if ((team >> 1) % 2 == 1)
@@ -524,8 +529,28 @@ public class Battle
                         result.Add(unit);
                 }
             }
+            //if (team  % 2 == 1)
+            //{
+            //    var tileUnits = Map.Tiles[point.x, point.y].Units;
+            //    tileUnits.Sort((a, b) => b.UnitData.NotUseTile.CompareTo(a.UnitData.NotUseTile));
+            //    tileUnits.Sort((a, b) => b.InputTime.CompareTo(a.InputTime));
+            //    var target = tileUnits.Count > 0 ? tileUnits.First() : null;
+            //    if (target != null)
+            //    {
+            //        if ((!aliveOnly || target.Alive()) && (team >> target.Team) % 2 == 1)
+            //            result.Add(target);
+            //    }
+            //}
+            //if ((team >> 1) % 2 == 1)
+            //{
+            //    foreach (var unit in UnitMap[targetPoint.x, targetPoint.y])
+            //    {
+            //        if ((!aliveOnly || unit.Alive()) && (team >> unit.Team) % 2 == 1)
+            //            result.Add(unit);
+            //    }
+            //}
         }
-        return result;
+            return result;
     }
 
     public HashSet<Unit> FindAll(Vector2 pos, float radius, int team, bool aliveOnly = true)

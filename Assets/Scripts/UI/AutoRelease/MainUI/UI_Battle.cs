@@ -12,7 +12,6 @@ namespace MainUI
         public Controller m_ShowMain;
         public Controller m_PackageEdit;
         public Controller m_mode;
-        public GImage m_BackGround;
         public UI_World1 m_world;
         public GButton m_back;
         public UI_LevelInfo m_levelInfo;
@@ -47,7 +46,6 @@ namespace MainUI
             m_ShowMain = GetControllerAt(2);
             m_PackageEdit = GetControllerAt(3);
             m_mode = GetControllerAt(4);
-            m_BackGround = (GImage)GetChildAt(0);
             m_world = (UI_World1)GetChildAt(1);
             m_back = (GButton)GetChildAt(2);
             m_levelInfo = (UI_LevelInfo)GetChildAt(3);

@@ -366,7 +366,7 @@ public class Unit
         IfAlive = false;
         CanChangeAnimation = true;
         SetStatus(StateEnum.Die);
-        Dying.Set(UnitModel.GetAnimationDuration("Die"));
+        Dying.Set(UnitModel?.GetAnimationDuration("Die") ?? 0.01f);
 
         var box = UnitModel?.GetComponent<BoxCollider>();
         if (box != null) box.enabled = false;
@@ -877,7 +877,7 @@ public class Unit
         {
             User = heal.GetSourceUnit(),
             Target = this,
-            //Skill = source,
+            //Skill = heal.Source,
         });
         Trigger(TriggerEnum.被治疗);
         Battle.TriggerDatas.Pop();
