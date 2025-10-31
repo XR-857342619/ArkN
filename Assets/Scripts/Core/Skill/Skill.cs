@@ -32,6 +32,7 @@ public class Skill
     public int StartId = -1;//升级前id
 
     public List<Vector2Int> AttackPoints;
+    public List<Vector2Int> EXAttackPoints = new List<Vector2Int>();
 
 
     /// <summary>
@@ -1410,6 +1411,8 @@ public class Skill
             if (point.x < 0 || point.x >= Battle.Map.Tiles.GetLength(0) || point.y < 0 || point.y >= Battle.Map.Tiles.GetLength(1)) continue;
             AttackPoints.Add(point);
         }
+        if (EXAttackPoints.Count == 0) return;
+        AttackPoints.AddRange(EXAttackPoints);
     }
 
     public virtual void BreakCast()

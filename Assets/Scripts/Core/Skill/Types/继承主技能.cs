@@ -20,7 +20,7 @@ namespace Skills
 
         public override void Start()
         {
-            base.Start();
+            //base.Start();
             switch (targetMod)
             {
                 case "useFixedUnitSkill":
@@ -82,7 +82,7 @@ namespace Skills
                     Unit.LearnSkill(skill);
                 }
             }
-            base.Cast();
+            //base.Cast();
         }
     }
 }
