@@ -40,7 +40,7 @@ namespace Units
                     MainSkill = LearnSkill(UnitData.MainSkill[MainSkillId], null);
                 else
                     MainSkill = LearnSkill(UnitData.MainSkill[0], null);
-
+            //Debug.Log(Position);
             //if (MainSkill == null) Log.Debug("MainSkill is null");
             //Log.Debug($"PowerType actual type: {MainSkill?.SkillData?.PowerType.GetType().Name}");
         }
@@ -375,7 +375,7 @@ namespace Units
         void CheckBlock()
         {
             var blockUnits = Battle.FindAll(Position2, UnitData.Radius, 1);
-            blockUnits.RemoveWhere(x => x is 干员);
+            blockUnits.RemoveWhere(x => x is not 敌人);
             foreach (Units.敌人 u in blockUnits)
             {
                 if (CanStop(u))

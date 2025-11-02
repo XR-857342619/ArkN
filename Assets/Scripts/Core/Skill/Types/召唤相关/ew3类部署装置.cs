@@ -55,6 +55,8 @@ namespace Skills
 
         public void SetToken(Vector3 pos, Vector2 direction, float lifeTime = 0)
         {
+            if (Battle.Map.Tiles[(int)pos.x, (int)pos.z].Units.Any(x => x.UnitData.Id == unitId)) return;
+            if (Battle.Map.Tiles[(int)pos.x, (int)pos.z].MidUnits.Any(x => x.UnitData.Id == unitId)) return;
             //Debug.Log("部署装置：" + unitId + " 到：" + pos + " 方向：" + direction + " 持续：" + lifeTime);
             Operator = Battle.CreateSceneUnit(unitId, pos, direction, lifeTime) as 中立单位;
             Operator.Parent = Unit;

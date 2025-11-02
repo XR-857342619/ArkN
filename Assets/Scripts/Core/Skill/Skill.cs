@@ -1159,7 +1159,7 @@ public class Skill
         }
 
         //if (SkillData.Id == "萃蔓去重")
-            //Debug.Log("获取到目标：" + string.Join(" ", tempTargets.Select(x => x.Position2)));
+        //    Debug.Log(Unit.UnitData.Id + "获取到目标：" + string.Join(" ", tempTargets.Select(x => x.Position2)));
 
         orderTargets(tempTargets);
 
@@ -1172,7 +1172,7 @@ public class Skill
         targets.RemoveAll(x => !CanUseTo(x));
 
         //if (SkillData.Id == "萃蔓去重")
-            //Debug.Log("获取到目标：" + string.Join(" ", tempTargets.Select(x => x.Position2)));
+        //    Debug.Log("获取到目标：" + string.Join(" ", tempTargets.Select(x => x.Position2)));
 
         if (targets.Count > 0)
         {

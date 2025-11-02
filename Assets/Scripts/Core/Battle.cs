@@ -357,7 +357,7 @@ public class Battle
         if (!unit.UnitData.NotUseTile)
             Map.Tiles[(int)pos.x, (int)pos.z].Units.Add(unit);
         else
-            Map.Tiles[(int)pos.x, (int)pos.z].MidUnit = unit;
+            Map.Tiles[(int)pos.x, (int)pos.z].MidUnits.sAdd(unit);
         AllUnits.Add(unit);
         if (unit.Team == 0) PlayerUnits2.Add(unit);
         return unit;

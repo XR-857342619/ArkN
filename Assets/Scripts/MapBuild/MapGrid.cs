@@ -84,8 +84,8 @@ public class MapGrid : MonoBehaviour, IPointerClickHandler
             if (Tile == null) return;
             if (Tile.Units.Count > 0)
                 BattleUI.UI_Battle.Instance.ChooseUnit(Tile.Units);
-            else if (Tile.MidUnit != null)
-                BattleUI.UI_Battle.Instance.ChooseUnit(Tile.MidUnit);
+            else if (Tile.MidUnits.Count > 0)
+                BattleUI.UI_Battle.Instance.ChooseUnit(Tile.MidUnits);
         }
     }
 

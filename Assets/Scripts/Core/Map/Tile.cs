@@ -22,7 +22,7 @@ public class Tile
     public bool FarAttackGrid;
 
     public List<Unit> Units = new List<Unit>();
-    public Unit MidUnit;
+    public List<Unit> MidUnits = new List<Unit>();
     /// <summary>
     /// 广搜临时数据
     /// </summary>

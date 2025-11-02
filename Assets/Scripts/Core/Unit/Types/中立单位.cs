@@ -45,8 +45,8 @@ namespace Units
             BattleUI.UI_Battle.Instance.ReturnUIUnit(this);
             if (Battle.Map.Tiles[GridPos.x, GridPos.y].Units.Contains(this))
                 Battle.Map.Tiles[GridPos.x, GridPos.y].Units.Remove(this);
-            if (Battle.Map.Tiles[GridPos.x, GridPos.y].MidUnit == this)
-                Battle.Map.Tiles[GridPos.x, GridPos.y].MidUnit = null;
+            if (Battle.Map.Tiles[GridPos.x, GridPos.y].MidUnits.Contains(this))
+                Battle.Map.Tiles[GridPos.x, GridPos.y].MidUnits.Remove(this);
             UnityEngine.GameObject.Destroy(UnitModel.gameObject);
             UnitModel = null;
         }
