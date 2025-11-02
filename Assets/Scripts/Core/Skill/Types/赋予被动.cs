@@ -20,10 +20,12 @@ namespace Skills
         public override void Start()
         {
             //base.Start();
+            //Debug.Log("赋予被动技能开始");
             FindTarget();
             if (Targets is null || Targets.Count == 0) return;
             foreach (var target in Targets)
             {
+                //Debug.Log("赋予被动技能给：" + target.UnitData.Id);
                 giveSkill(target);
             }
         }

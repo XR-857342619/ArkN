@@ -44,13 +44,23 @@ namespace Skills
             if (r > 0) tilesPos = GetTilesFromCirle(new Vector2Int((int)pos.x, (int)pos.z), r);
             tilesPos.AddRange(GetTilesFromAttackPoints(new Vector2Int((int)pos.x, (int)pos.z)));
 
-            List<Tile> tiles = GetTile(pos, tilesPos, Database.Instance.Get<UnitData>(unitId), count);
+            List<Tile> tiles = GetTile(pos, tilesPos, count);
 
             for (int i = 0; i < tiles.Count; i++)
             {
                 SetToken(tiles[i].Pos, directionV2, lifeTime);
             }
 
+        }
+
+        public List<Tile> GetTile(Vector3 targetPos, List<Vector2Int> tilesPos, int count)
+        {
+            List<Tile> result = tilesPos.Select(p => Battle.Map.Tiles[p.x, p.y]).ToList();
+            //result.RemoveAll(p => !p.CanSet(opData));
+
+            result.Sort((a, b) => Vector3.Distance(a.Pos, targetPos).CompareTo(Vector3.Distance(b.Pos, targetPos)));
+            result = result.Take(count).ToList();
+            return result;
         }
 
         public void SetToken(Vector3 pos, Vector2 direction, float lifeTime = 0)

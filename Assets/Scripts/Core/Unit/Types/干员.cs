@@ -263,6 +263,7 @@ namespace Units
             {
                 Target = this,
             });
+            //Debug.Log(UnitData.Name + "撤退");
             Trigger(TriggerEnum.撤退);
             Battle.TriggerDatas.Pop();
             Finish(false);
@@ -296,15 +297,15 @@ namespace Units
                 Battle.PlayerUnits.Remove(this);
             }
 
-            foreach (var unit in Children)
+            foreach (干员 unit in Children.Where(x => x is 干员))
             {
-                if ((unit as 干员).InputTime < 0)
+                if (unit.InputTime < 0)
                 {
                     Battle.AllUnits.Remove(unit);
-                    Battle.PlayerUnits.Remove(unit as 干员);
+                    Battle.PlayerUnits.Remove(unit);
                 }
                 if (!unit.UnitData.NotReturn)
-                    (unit as 干员).LeaveMap();
+                    unit.LeaveMap();
             }
             Children.Clear();
 

@@ -33,9 +33,9 @@ namespace Buffs
             //Unit.RewriteDamage = MinResponseLimit;
         public void DamageRewrite(DamageInfo damageInfo)
         {
-            if (damageInfo.DamageType == DamageTypeEnum.heal) return;
-            Log.Debug(damageInfo.FinalDamage);
-            if (!isMainUnit) return;
+            if (damageInfo.DamageType == DamageTypeEnum.heal || damageInfo.DamageType == DamageTypeEnum.LoseHP) return;
+            //Log.Debug(damageInfo.FinalDamage);
+            
             if (onlyFatal && Unit.Hp - damageInfo.FinalDamage > 0) return;
             List<Unit> shareList = Battle.AllUnits
                 .Where(u => u.Buffs.OfType<伤害分摊>().Any(b => b.group == group))
@@ -46,6 +46,7 @@ namespace Buffs
             {
                 if (mainList.Count > 0)
                 {
+                    if (!isMainUnit) return;
                     shareList.RemoveAll(x => mainList.Contains(x));
                     if (shareList.Count == 0) return;
                     float totalShareDamage = onlyFatal ? (damageInfo.FinalDamage - Unit.Hp) * shareRate : damageInfo.FinalDamage * shareRate;
@@ -58,7 +59,7 @@ namespace Buffs
                         unit.Damage(new DamageInfo()
                         {
                             DamageRate = 1,
-                            DamageType = DamageTypeEnum.general,
+                            DamageType = DamageTypeEnum.LoseHP,
                             Attack = damage
                         });
                         //unit.Hp -= damage;
@@ -76,7 +77,7 @@ namespace Buffs
                         unit.Damage(new DamageInfo()
                         {
                             DamageRate = 1,
-                            DamageType = DamageTypeEnum.general,
+                            DamageType = DamageTypeEnum.LoseHP,
                             Attack = damage
                         });
                         //unit.Hp -= damage;

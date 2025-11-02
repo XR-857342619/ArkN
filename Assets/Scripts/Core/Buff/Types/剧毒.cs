@@ -32,7 +32,7 @@ namespace Buffs
                 Unit.Damage(new DamageInfo()
                 {
                     Attack = damage,
-                    DamageType = DamageTypeEnum.Real,
+                    DamageType = DamageTypeEnum.LoseHP,
                     Target = Unit,
                     Source = this,
                 });

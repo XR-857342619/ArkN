@@ -1124,8 +1124,12 @@ public class Skill
             //正在事件当中，技能去取事件目标
             //Debug.Log("正在事件"+ Battle.TriggerDatas.Peek().ToString() +"当中");
             var t = Battle.TriggerDatas.Peek().Target;
+            //Debug.Log("事件目标：" + t.UnitData.Name);
             if (t != null && CanUseTo(t))
+            {
+                //Debug.Log("CanUseTo：" + t.UnitData.Name);
                 tempTargetsFromEvent.Add(t);
+            }
         }
         //仅自己的情况下 优化一下
         if (tempTargets.Count == 0 && SkillData.TargetFilter == SkillTargetFilterEnum.仅自己)
@@ -1158,8 +1162,8 @@ public class Skill
             tempTargets = evaluator.Filter(SkillData.SkillCondition);
         }
 
-        //if (SkillData.Id == "萃蔓去重")
-        //    Debug.Log(Unit.UnitData.Id + "获取到目标：" + string.Join(" ", tempTargets.Select(x => x.Position2)));
+        if (SkillData.Id == "萃儿3击杀生成萃蔓")
+            Debug.Log(Unit.UnitData.Id + "获取到目标：" + string.Join(" ", tempTargets.Select(x => x.UnitData.Name)));
 
         orderTargets(tempTargets);
 
@@ -1171,14 +1175,14 @@ public class Skill
         //List<>
         targets.RemoveAll(x => !CanUseTo(x));
 
-        //if (SkillData.Id == "萃蔓去重")
-        //    Debug.Log("获取到目标：" + string.Join(" ", tempTargets.Select(x => x.Position2)));
+        if (SkillData.Id == "萃儿3击杀生成萃蔓")
+            Debug.Log("获取到目标：" + string.Join(" ", tempTargets.Select(x => x.UnitData.Name)));
 
         if (targets.Count > 0)
         {
             //首先计算出所有目标的仇恨优先级，然后再选出攻击个数的实际目标
             SortTarget(targets);
-            targets.AddRange(Battle.AllUnits.Where(x => x.UnitData?.Name == SkillData.Data?.GetStr("ExTarget") && (SkillData.DeadFind ? true : x.IfAlive)));
+            //targets.AddRange(Battle.AllUnits.Where(x => x.UnitData?.Name == SkillData.Data?.GetStr("ExTarget") && (SkillData.DeadFind ? true : x.IfAlive)));
             FilterTarget(targets);
         }
         else
@@ -1196,7 +1200,7 @@ public class Skill
                 Unit.Trigger(TriggerEnum.打数溢出);
                 Battle.TriggerDatas.Pop();
             }
-            targets.AddRange(Battle.AllUnits.Where(x => x.UnitData?.Name == SkillData.Data?.GetStr("ExTarget") && (SkillData.DeadFind ? true : x.IfAlive)));
+            //targets.AddRange(Battle.AllUnits.Where(x => x.UnitData?.Name == SkillData.Data?.GetStr("ExTarget") && (SkillData.DeadFind ? true : x.IfAlive)));
         }
     }
 
