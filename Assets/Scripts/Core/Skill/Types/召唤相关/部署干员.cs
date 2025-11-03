@@ -17,7 +17,7 @@ namespace Skills
         //public Vector2Int pos;
         public DirectionEnum direction;
         //public Vector3 pos = new Vector3(float.MaxValue, 0, float.MaxValue);
-        public List<Vector3> posList;
+        public List<Vector2Int> posList;
         public string targetDirection;
         public string setMod;
         public string targetPos;
@@ -71,7 +71,7 @@ namespace Skills
                 SetToken(posList[i], direction, nowOp);
             }
         }
-        public virtual List<Vector3> GetPosList()
+        public virtual List<Vector2Int> GetPosList()
         {
             FindTarget();
             //Debug.Log(Targets?.First()?.Position);
@@ -79,36 +79,36 @@ namespace Skills
             {
                 case "使用自身位置":
                     Debug.Log("useSelfPos:" + Unit.Position);
-                    return new List<Vector3>() { Unit.Position };
+                    return new List<Vector2Int>() { Unit.GridPos };
                 case "使用附加技能索敌位置":
                     if (SkillData.Skills.Count() > 0)
                     {
                         var skill = Unit.LearnSkill(SkillData.Skills[0]);
                         skill.Init();
                         List<Unit> targets = skill.GetAttackTarget();
-                        return targets.Select(x => x.Position).ToList();
+                        return targets.Select(x => x.GridPos).ToList();
                     }
                     else
                     {
-                        return new List<Vector3>();
+                        return new List<Vector2Int>();
                     }
                     //Debug.Log("useTargetPos:");
                     //break;
                 case "使用干员攻击范围位置":
-                    List<Vector3> AttackPoints2V3 = new List<Vector3>();
-                    foreach (var point in AttackPoints)
-                    {
-                        AttackPoints2V3.Add(new Vector3(point.x, 0, point.y));
-                    }
+                    //List<Vector3> AttackPoints2V3 = new List<Vector3>();
+                    //foreach (var point in AttackPoints)
+                    //{
+                    //    AttackPoints2V3.Add(new Vector3(point.x, 0, point.y));
+                    //}
                     Debug.Log("useAttackPoint:");
-                    return AttackPoints2V3;
+                    return AttackPoints;
                     //break;
                 case "使用本技能索敌位置":
                     //Debug.Log(Targets.FirstOrDefault().Position);
-                    return Targets.Select(x => x.Position).ToList();
+                    return Targets.Select(x => x.GridPos).ToList();
                     //break;
             }
-            return new List<Vector3>();
+            return new List<Vector2Int>();
         }
         public virtual void GetToken(Unit battleOp = null)
         {
@@ -125,10 +125,10 @@ namespace Skills
             }
             Operator.Parent = Unit;
         }
-        public virtual void SetToken(Vector3 pos, DirectionEnum direction, Unit battleOp = null)
+        public virtual void SetToken(Vector2Int pos, DirectionEnum direction, Unit battleOp = null)
         {
             Debug.Log("获取到部署位置:" + pos + " 方向:" + direction);
-            Tile tile = Battle.Map.Tiles[(int)pos.x, (int)pos.z];
+            Tile tile = Battle.Map.Tiles[pos.x, pos.y];
             Unit toRemove = null;
             toRemove = tile.Units.Where(x => !x.UnitData.NotUseTile).FirstOrDefault();
             if (toRemove is not null && toRemove is Units.干员 toRemoveOprator)
@@ -142,7 +142,7 @@ namespace Skills
                 //go.transform.position = new Vector3(pos.x, 0.5f, pos.z);
                 if (Operator.UnitData.MainSkill is not null && Operator.UnitData.MainSkill.Count() >= 0 && Operator.MainSkill is null)
                     Operator.MainSkill = Operator.LearnSkill(Operator.UnitData.MainSkill[mainSkillId], null);
-                Operator.ChangePos((int)pos.x, (int)pos.z, direction);
+                Operator.ChangePos(pos.x, pos.y, direction);
                 Operator.JoinMap();
                 //tile.Units.Add(Operator);
             }

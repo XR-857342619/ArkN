@@ -15,7 +15,7 @@ namespace Skills
         //public Vector2Int pos;
         //public new DirectionEnum direction = DirectionEnum.Right;
         //public Vector3 pos = new Vector3(float.MaxValue, 0, float.MaxValue);
-        public Vector3 pos;
+        public Vector2Int pos;
         public float r;
         public override void Init()
         {
@@ -29,13 +29,13 @@ namespace Skills
             //Debug.Log(Targets?.FirstOrDefault()?.Position);
             //Debug.Log(SkillData.Id + "start");
             pos = GetPos();
-            if (pos == new Vector3(float.MaxValue, 0, float.MaxValue)) return;
+            if (pos == new Vector2Int(int.MaxValue, int.MaxValue)) return;
 
             List<Unit> battleOp = Battle.AllUnits.FindAll(x => x.UnitData.Id == unitId);
             List<Vector2Int> tilesPos = new List<Vector2Int>();
             
-            if (r > 0) tilesPos = GetTilesFromCirle(new Vector2Int((int)pos.x, (int)pos.z), r);
-            tilesPos.AddRange(GetTilesFromAttackPoints(new Vector2Int((int)pos.x, (int)pos.z)));
+            if (r > 0) tilesPos = GetTilesFromCirle(new Vector2Int(pos.x, pos.y), r);
+            tilesPos.AddRange(GetTilesFromAttackPoints(new Vector2Int(pos.x, pos.y)));
 
             List<Tile> tiles = GetTile(pos, tilesPos, Database.Instance.Get<UnitData>(unitId), count);
 
@@ -82,12 +82,12 @@ namespace Skills
             }
         }
 
-        public List<Tile> GetTile(Vector3 targetPos, List<Vector2Int> tilesPos, UnitData opData, int count)
+        public List<Tile> GetTile(Vector2Int targetPos, List<Vector2Int> tilesPos, UnitData opData, int count)
         {
             List<Tile> result = tilesPos.Select(p => Battle.Map.Tiles[p.x, p.y]).ToList();
             result.RemoveAll(p => !p.CanSet(opData));
 
-            result.Sort((a, b) => Vector3.Distance(a.Pos, targetPos).CompareTo(Vector3.Distance(b.Pos, targetPos)));
+            result.Sort((a, b) => Vector2.Distance(a.Pos.ToV2(), targetPos).CompareTo(Vector2.Distance(b.Pos.ToV2(), targetPos)));
             result = result.Take(count).ToList();
             return result;
         }
@@ -147,7 +147,7 @@ namespace Skills
             }
             return result;
         }
-        public Vector3 GetPos()
+        public Vector2Int GetPos()
         {
             FindTarget();
             //if (Targets.Count == 0) return new Vector3(float.MaxValue, 0, float.MaxValue);
@@ -155,7 +155,7 @@ namespace Skills
             {
                 case "使用自身位置":
                     //Debug.Log("useSelfPos:" + Unit.Position);
-                    return Unit.Position;
+                    return Unit.GridPos;
                 case "使用附加技能索敌位置":
                     if (SkillData.Skills.Count() > 0)
                     {
@@ -164,12 +164,12 @@ namespace Skills
                         List<Unit> targets = skill.GetAttackTarget();
                         if (targets.Count > 0)
                         {
-                            return targets.FirstOrDefault()?.Position ?? new Vector3(float.MaxValue, 0, float.MaxValue);
+                            return targets.FirstOrDefault()?.GridPos ?? new Vector2Int(int.MaxValue, int.MaxValue);
                         }
                     }
                     else
                     {
-                        return Unit.Position;
+                        return Unit.GridPos;
                     }
                     Debug.Log("useTargetPos:");
                     break;
@@ -187,9 +187,9 @@ namespace Skills
                 //    break;
                 case "使用本技能索敌位置":
                     //Debug.Log(string.Join(" ", Targets.Select(x => x.Position)));
-                    return Targets.FirstOrDefault()?.Position ?? new Vector3(float.MaxValue, 0, float.MaxValue);
+                    return Targets.FirstOrDefault()?.GridPos ?? new Vector2Int(int.MaxValue, int.MaxValue);
             }
-            return new Vector3(float.MaxValue, 0, float.MaxValue);
+            return new Vector2Int(int.MaxValue, int.MaxValue);
         }
     }
 }

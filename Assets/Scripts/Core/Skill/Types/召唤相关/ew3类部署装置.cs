@@ -28,7 +28,7 @@ namespace Skills
             //Debug.Log(SkillData.Id + "start");
             pos = GetPos();
             //Debug.Log(pos);
-            if (pos == new Vector3(float.MaxValue, 0, float.MaxValue)) return;
+            if (pos == new Vector2Int(int.MaxValue, int.MaxValue)) return;
 
             //List<Unit> battleOp = Battle.AllUnits.FindAll(x => x.UnitData.Id == unitId);
 
@@ -41,8 +41,8 @@ namespace Skills
 
             List<Vector2Int> tilesPos = new List<Vector2Int>();
             
-            if (r > 0) tilesPos = GetTilesFromCirle(new Vector2Int((int)pos.x, (int)pos.z), r);
-            tilesPos.AddRange(GetTilesFromAttackPoints(new Vector2Int((int)pos.x, (int)pos.z)));
+            if (r > 0) tilesPos = GetTilesFromCirle(new Vector2Int(pos.x, pos.y), r);
+            tilesPos.AddRange(GetTilesFromAttackPoints(new Vector2Int(pos.x, pos.y)));
 
             List<Tile> tiles = GetTile(pos, tilesPos, count);
 
@@ -53,12 +53,12 @@ namespace Skills
 
         }
 
-        public List<Tile> GetTile(Vector3 targetPos, List<Vector2Int> tilesPos, int count)
+        public List<Tile> GetTile(Vector2Int targetPos, List<Vector2Int> tilesPos, int count)
         {
             List<Tile> result = tilesPos.Select(p => Battle.Map.Tiles[p.x, p.y]).ToList();
             //result.RemoveAll(p => !p.CanSet(opData));
 
-            result.Sort((a, b) => Vector3.Distance(a.Pos, targetPos).CompareTo(Vector3.Distance(b.Pos, targetPos)));
+            result.Sort((a, b) => Vector2.Distance(a.Pos.ToV2(), targetPos).CompareTo(Vector2.Distance(b.Pos.ToV2(), targetPos)));
             result = result.Take(count).ToList();
             return result;
         }

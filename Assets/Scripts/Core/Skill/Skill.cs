@@ -545,7 +545,7 @@ public class Skill
         }
         if (Targets.Count == 0)
         {
-            //if (Unit is Units.干员) Log.Debug(SkillData.Id + "开始索敌");
+            //if (Unit is Units.中立单位) Log.Debug(SkillData.Id + "开始索敌");
             FindTarget();
         }
         if (Targets.Count > 0)
@@ -1050,6 +1050,7 @@ public class Skill
     {
         addEleInjure(target, SkillData.ElementInjure?.Keys.ToArray()[0] ?? "");
         addBuff(target);
+        //Debug.Log(target.UnitData.Id);
         foreach (IUnitModify m in Modifies.Where(x => x is IUnitModify))
         {
             m.Modify(target);
@@ -1108,7 +1109,8 @@ public class Skill
     protected List<Unit> tempTargetsFromAttackRange = new List<Unit>();
     public virtual List<Unit> GetAttackTarget()
     {
-        //Log.Debug(SkillData.Id + "获取攻击目标");
+        //if (SkillData.Id == "萃蔓无敌")
+            //Log.Debug(SkillData.Id + "获取攻击目标");
         tempTargets.Clear();
         tempTargetsFromEvent.Clear();
         tempTargetsFromAttackRange.Clear();
@@ -1135,6 +1137,7 @@ public class Skill
         if (tempTargets.Count == 0 && SkillData.TargetFilter == SkillTargetFilterEnum.仅自己)
         {
             tempTargets.Add(Unit);
+            //Debug.Log(Unit.UnitData.Id + "获取到目标：" + string.Join(" ", tempTargets.Select(x => x.UnitData.Name)));
             return tempTargets;
         }
         //if (!SkillData.UseEventTarget && !SkillData.UseEventUser)
@@ -1162,8 +1165,11 @@ public class Skill
             tempTargets = evaluator.Filter(SkillData.SkillCondition);
         }
 
-        if (SkillData.Id == "萃儿3击杀生成萃蔓")
-            Debug.Log(Unit.UnitData.Id + "获取到目标：" + string.Join(" ", tempTargets.Select(x => x.UnitData.Name)));
+        if (SkillData.Id == "萃蔓无敌")
+        {
+            //Debug.Log(SkillData.Id);
+            Log.Debug(Unit.UnitData.Id + "获取到目标：" + string.Join(" ", tempTargets.Select(x => x.UnitData.Name)));
+        }
 
         orderTargets(tempTargets);
 
@@ -1175,8 +1181,8 @@ public class Skill
         //List<>
         targets.RemoveAll(x => !CanUseTo(x));
 
-        if (SkillData.Id == "萃儿3击杀生成萃蔓")
-            Debug.Log("获取到目标：" + string.Join(" ", tempTargets.Select(x => x.UnitData.Name)));
+        if (SkillData.Id == "萃蔓无敌")
+            Log.Debug("获取到目标：" + string.Join(" ", tempTargets.Select(x => x.UnitData.Name)));
 
         if (targets.Count > 0)
         {

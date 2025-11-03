@@ -23,7 +23,7 @@ namespace Skills
         public override void Start()
         {
             //base.Start();
-            Debug.Log(SkillData.Id + " 部署装置开始");
+            //Debug.Log(SkillData.Id + " 部署装置开始");
             posList = GetPosList();
             if (posList.Count == 0)
             {
@@ -51,12 +51,12 @@ namespace Skills
                 SetToken(posList[i], directionV2, lifeTime);
             }
         }
-        public virtual void SetToken(Vector3 pos, Vector2 direction, float lifeTime = 0)
+        public virtual void SetToken(Vector2Int pos, Vector2 direction, float lifeTime = 0)
         {
-            Debug.Log("部署装置：" + unitId + " 到：" + pos + " 方向：" + direction + " 持续：" + lifeTime);
-            if (Battle.Map.Tiles[(int)pos.x, (int)pos.z].Units.Any(x => x.UnitData.Id == unitId)) return;
-            if (Battle.Map.Tiles[(int)pos.x, (int)pos.z].MidUnits.Any(x => x.UnitData.Id == unitId)) return;
-            Operator = Battle.CreateSceneUnit(unitId, pos, direction, lifeTime) as 中立单位;
+            //Debug.Log("部署装置：" + unitId + " 到：" + pos + " 方向：" + direction + " 持续：" + lifeTime);
+            if (Battle.Map.Tiles[pos.x, pos.y].Units.Any(x => x.UnitData.Id == unitId)) return;
+            if (Battle.Map.Tiles[pos.x, pos.y].MidUnits.Any(x => x.UnitData.Id == unitId)) return;
+            Operator = Battle.CreateSceneUnit(unitId, new Vector3(pos.x, 0, pos.y), direction, lifeTime) as 中立单位;
             Operator.Parent = Unit;
             Unit.Children.Add(Operator);
         }

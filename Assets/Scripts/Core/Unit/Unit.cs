@@ -657,6 +657,7 @@ public class Unit
         if (IgnoreBuffs.Contains(buffId)) return null;
 
         var config = Database.Instance.Get<BuffData>(buffId);
+        //Debug.Log("AddBuff:" + config.Id);
         if (config.RelyBuff != null && !Buffs.Any(x => x.Id == config.RelyBuff.Value))
             return null;
 
