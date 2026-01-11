@@ -1,42 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="154,154" extention="ProgressBar">
   <controller name="using" pages="0,,1," selected="0"/>
-  <controller name="canStop" pages="0,,1," selected="0"/>
+  <controller name="canStop" pages="0,,1," selected="1"/>
   <controller name="isReady" pages="0,,1," selected="0"/>
-  <controller name="isInfinity" pages="0,,1," selected="0"/>
+  <controller name="isInfinity" pages="0,,1," selected="1"/>
   <displayList>
-    <image id="n7_bcc3" name="n7" src="bcc31r8" fileName="其他/missing.png" pkg="kera0i3h" xy="0,0" size="154,154"/>
-    <loader id="n5_bcc3" name="icon" xy="0,0" size="154,154" touchable="false" align="center" vAlign="middle" fill="scale"/>
+    <image id="n7_bcc3" name="n7" src="bcc31r8" fileName="其他/missing.png" pkg="kera0i3h" xy="0,0" size="154,154">
+      <relation target="" sidePair="width-width%,height-height%"/>
+    </image>
+    <loader id="n5_bcc3" name="icon" xy="0,0" size="154,154" touchable="false" align="center" vAlign="middle" fill="scale">
+      <relation target="" sidePair="width-width%,height-height%"/>
+    </loader>
     <graph id="n9_bcc3" name="n9" xy="0,0" size="154,154" alpha="0.4" type="rect" lineSize="0" fillColor="#ff000000">
       <gearDisplay controller="isReady" pages="0"/>
+      <relation target="" sidePair="width-width%,height-height%"/>
     </graph>
     <image id="n2_kbte" name="bar" src="kbte49" fileName="bar.png" xy="0,0" alpha="0.5" color="#66ff00" fillMethod="vt" fillOrigin="1">
       <gearDisplay controller="isReady" pages="0"/>
       <gearColor controller="using" pages="0,1" values="#66ff00|#ffcc00"/>
+      <relation target="" sidePair="width-width%,height-height%"/>
     </image>
     <image id="n8_bcc3" name="n8" src="bcc35r" fileName="sprite_skill_stop.png" xy="77,77" pivot="0.5,0.5" anchor="true">
       <gearDisplay controller="canStop" pages="1"/>
       <gearDisplay2 controller="using" pages="1" condition="0"/>
+      <relation target="" sidePair="width-width%,height-height%,center-center%,middle-middle%"/>
     </image>
     <image id="n10_bcc3" name="n10" src="bcc35t" fileName="sprite_skill_ready_bar.png" xy="-15,164" pivot="0.5,0.5" size="184,69" aspect="true">
       <gearDisplay controller="isReady" pages="1"/>
       <gearDisplay2 controller="using" pages="0" condition="0"/>
+      <relation target="" sidePair="width-width%,height-height%,center-center%,top-bottom%"/>
     </image>
     <image id="n12_bcc3" name="n12" src="bcc35v" fileName="sprite_skill_notready.png" xy="-15,164" size="184,69" aspect="true">
       <gearDisplay controller="isReady" pages="0"/>
       <gearDisplay2 controller="using" pages="0" condition="0"/>
+      <relation target="" sidePair="width-width%,height-height%,center-center%,top-bottom%"/>
     </image>
     <image id="n13_bcc3" name="n13" src="bcc35u" fileName="sprite_skill_bullet.png" xy="-15,164" size="184,69" aspect="true">
       <gearDisplay controller="using" pages="1"/>
+      <relation target="" sidePair="width-width%,height-height%,center-center%,top-bottom%"/>
     </image>
-    <text id="n4_kbte" name="title" xy="92,181" pivot="0.5,0.5" anchor="true" size="10,48" fontSize="35" color="#ffffff" align="center" text="">
+    <text id="n4_kbte" name="title" xy="92,181" pivot="0.5,0.5" anchor="true" size="115,48" fontSize="35" color="#ffffff" align="center" autoSize="shrink" text="">
       <gearDisplay controller="isReady" pages="0"/>
       <gearDisplay2 controller="isInfinity" pages="0" condition="0"/>
-      <relation target="n12_bcc3" sidePair="left-left%"/>
+      <relation target="n12_bcc3" sidePair="left-left%,top-bottom%"/>
+      <relation target="" sidePair="width-width%,height-height%"/>
     </text>
-    <text id="n14_8c2c" name="IsInfinity" xy="47,155" size="88,48" fontSize="35" color="#ffffff" align="center" vAlign="middle" text="∞/∞">
+    <text id="n14_8c2c" name="IsInfinity" xy="47,155" size="88,48" fontSize="35" color="#ffffff" align="center" vAlign="middle" autoSize="shrink" text="∞/∞">
       <gearDisplay controller="isInfinity" pages="1"/>
-      <relation target="" sidePair="center-center%,bottom-bottom%"/>
+      <relation target="" sidePair="width-width%,height-height%"/>
+      <relation target="n12_bcc3" sidePair="left-left%,bottom-bottom%"/>
     </text>
   </displayList>
   <ProgressBar titleType="valueAndmax"/>

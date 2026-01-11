@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="240,213" pivot="0.5,0.5" extention="Button">
+  <controller name="button" pages="0,up,1,down" selected="0"/>
+  <displayList>
+    <image id="n0_ndp9" name="n0" src="ndp9tu" fileName="specialized_3.png" xy="0,0">
+      <relation target="" sidePair="width-width,height-height,center-center%,middle-middle%"/>
+    </image>
+    <image id="n1_ndp9" name="n1" src="ndp9tw" fileName="specialized_glow_1.png" xy="53,0" group="n4_ndp9">
+      <relation target="" sidePair="width-width%,height-height%,center-center%,top-top%"/>
+    </image>
+    <image id="n2_ndp9" name="n2" src="ndp9tx" fileName="specialized_glow_2.png" xy="101,106" group="n4_ndp9">
+      <relation target="" sidePair="width-width%,height-height%,right-right%,bottom-bottom%"/>
+    </image>
+    <image id="n3_ndp9" name="n3" src="ndp9ty" fileName="specialized_glow_3.png" xy="0,102" group="n4_ndp9">
+      <relation target="" sidePair="width-width%,height-height%,left-left%,bottom-bottom%"/>
+    </image>
+    <group id="n4_ndp9" name="n4" xy="0,0" size="240,213" advanced="true">
+      <gearDisplay controller="button" pages="1"/>
+      <relation target="" sidePair="width-width%,height-height%,center-center%,middle-middle%"/>
+    </group>
+  </displayList>
+  <Button mode="Check" downEffect="scale" downEffectValue="0.9"/>
+</component>

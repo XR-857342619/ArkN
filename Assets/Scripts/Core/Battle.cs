@@ -432,8 +432,7 @@ public class Battle
         //unit.Position = grid.transform.position + new Vector3(0, config.Height, 0);
         Enemys.Add(unit);
         unit.index = Enemys.IndexOf(unit);
-        if (unit.Team == 0) 
-            PlayerUnits2.Add(unit);
+        if (unit.Team == 0) PlayerUnits2.Add(unit);
         AllUnits.Add(unit);
         TriggerDatas.Push(new TriggerData()
         {
@@ -483,7 +482,7 @@ public class Battle
             var tileUnits = Map.Tiles[point.x, point.y].Units;
             tileUnits.Sort((a, b) => b.UnitData.NotUseTile.CompareTo(a.UnitData.NotUseTile));
             tileUnits.Sort((a, b) => b.InputTime.CompareTo(a.InputTime));
-            var target = tileUnits.First();
+            var target = tileUnits.FirstOrDefault();
             if (target != null)
             {
                 if ((!aliveOnly || target.Alive()) && (team >> target.Team) % 2 == 1)

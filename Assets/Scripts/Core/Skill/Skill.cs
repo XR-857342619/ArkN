@@ -209,7 +209,7 @@ public class Skill
 
         if (!Casting.Finished()) //抬手期间，如果无有效目标，则取消抬手
         {
-            if ((!SkillData.RegetTarget && !SkillData.NoTargetAlsoUse) && Targets.All(x => !CanUseTo(x) && x.UnitData.Name != SkillData.Data.GetStr("ExTarget")))
+            if ((!SkillData.RegetTarget && !SkillData.NoTargetAlsoUse) && Targets.All(x => !CanUseTo(x)))
             {
                 Log.Debug($"{Unit.UnitData.Id}的{SkillData.Name}全部目标不合法,强制打断抬手动作{Time.time}");
                 BreakCast();
@@ -753,6 +753,7 @@ public class Skill
             {
                 foreach (var skillId in SkillData.ExSkills)
                 {
+                    Debug.Log(Unit.Skills.Find(x => x.Id == skillId).SkillData.Id + "附加技能开始");
                     Unit.Skills.Find(x => x.Id == skillId).Start();
                 }
             }
@@ -805,7 +806,7 @@ public class Skill
     /// <param name="target"></param>
     public virtual void Effect(Unit target)
     {
-        if (!CanUseTo(target) && target.UnitData.Name != SkillData.Data.GetStr("ExTarget")) return;
+        if (!CanUseTo(target)) return;
         if (SkillData.GatherEffect != null && Targets.Count > 0)
         {
             var ps = EffectManager.Instance.GetEffect(SkillData.GatherEffect.Value);
@@ -879,14 +880,14 @@ public class Skill
         {
             var targets = Battle.FindAll(target.Position2, SkillData.AreaRange, SkillData.TargetTeam);
             //targets.UnionWith(Battle.FindAll(target.Position2, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
-            AttackFromArea(targets, target, ref dInfo, bullet);
+            AttackArea(targets, target, ref dInfo, bullet);
         }
         else if (SkillData.AreaPoints != null)
         {
             var area = SkillData.AreaPoints.Select(x => x + target.GridPos).ToList();
             var targets = Battle.FindAll(area, SkillData.TargetTeam);
             //targets.UnionWith(Battle.FindAll(target.Position2, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
-            AttackFromAreaPoints(targets, target, ref dInfo, bullet);
+            AttackAreaPoints(targets, target, ref dInfo, bullet);
         }
         else
             Attack(target, ref dInfo, bullet);
@@ -898,7 +899,7 @@ public class Skill
         {
             var targets = Battle.FindAll(pos, SkillData.AreaRange, SkillData.TargetTeam);
             //targets.UnionWith(Battle.FindAll(pos, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
-            AttackFromArea(targets, null, ref dInfo, bullet);
+            AttackArea(targets, null, ref dInfo, bullet);
         }
         else if (SkillData.AreaPoints != null)
         {
@@ -909,10 +910,10 @@ public class Skill
                 targets.UnionWith(Battle.FindAll(new Vector2Int((int)p.x, (int)p.y), 0, SkillData.TargetTeam));
                 //targets.UnionWith(Battle.FindAll(pos, SkillData.AreaRange, 7).Where(x => x.UnitData.Name == SkillData.Data.GetStr("ExTarget")));
             }
-            AttackFromAreaPoints(targets, null, ref dInfo, bullet);
+            AttackAreaPoints(targets, null, ref dInfo, bullet);
         }
     }
-    protected virtual void AttackFromArea(HashSet<Unit> targets, Unit target, ref DamageInfo dInfo, Bullet bullet = null)
+    protected virtual void AttackArea(HashSet<Unit> targets, Unit target, ref DamageInfo dInfo, Bullet bullet = null)
     {
         if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
         foreach (var t in targets)
@@ -947,7 +948,7 @@ public class Skill
             }
         }
     }
-    protected virtual void AttackFromAreaPoints(HashSet<Unit> targets, Unit target, ref DamageInfo dInfo, Bullet bullet = null)
+    protected virtual void AttackAreaPoints(HashSet<Unit> targets, Unit target, ref DamageInfo dInfo, Bullet bullet = null)
     {
         if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
         foreach (var t in targets)
@@ -986,32 +987,24 @@ public class Skill
         addSkillEffect(target);
         if (SkillData.EffectEffect != null)
             showEffectEffect(target);
+        
+        dInfo = GetDamageInfo(target);
+        if (bullet is not null)
+        {
+            foreach (var m in bullet.Modifies)
+            {
+                if (m is IBulletDamageModify bm)
+                    bm.Modify(dInfo, bullet);
+            }
+        }
+        
         if (SkillData.IfHeal)
         {
-            //dInfo = GetDamageInfo(target, (bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1);
-            dInfo = GetDamageInfo(target);
-            if (bullet is not null)
-            {
-                foreach (var m in bullet.Modifies)
-                {
-                    if (m is IBulletDamageModify bm)
-                        bm.Modify(dInfo, bullet);
-                }
-            }
             target.Heal(dInfo, !SkillData.DamageWithFrameRate);
             OnHeal(target);
         }
         else
         {
-            dInfo = GetDamageInfo(target);
-            if (bullet is not null)
-            {
-                foreach (var m in bullet.Modifies)
-                {
-                    if (m is IBulletDamageModify bm)
-                        bm.Modify(dInfo, bullet);
-                }
-            }
             target.Damage(dInfo);
             afterDamage(dInfo);
         }
@@ -1116,7 +1109,7 @@ public class Skill
         tempTargetsFromAttackRange.Clear();
         if (SkillData.UseEventUser && Battle.TriggerDatas.Count > 0)
         {
-            //正在事件当中，技能去取事件目标
+            //正在事件当中，技能去取事件来源
             var t = Battle.TriggerDatas.Peek().User;
             if (t != null && CanUseTo(t))
                 tempTargetsFromEvent.Add(t);

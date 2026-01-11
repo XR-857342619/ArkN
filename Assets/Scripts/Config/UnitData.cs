@@ -36,8 +36,7 @@ public class UnitData : IConfig
       public int[] MainSkill;
       public int HpBarType;
       public float Height;
-      public bool CanSetHigh;
-      public bool CanSetGround;
+      public string[] CanSetPos;
       public int StopCount;
       public float LeaveReturn;
       public bool NotUseTile;

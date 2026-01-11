@@ -266,6 +266,7 @@ namespace BattleUI
 
         public void UpdateUnitsLayout()
         {
+            //Debug.Log("UpdateUnitsLayout");
             for (int i = 0; i < m_UnitList.numChildren; i++)
             {
                 var head = m_UnitList.GetChildAt(i) as UI_BuildSprite;

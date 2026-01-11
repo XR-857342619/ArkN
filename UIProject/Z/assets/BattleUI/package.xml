@@ -129,6 +129,11 @@
     <image id="p78xtq" name="equip_normal_icon.png" path="/"/>
     <component id="tg9gts" name="BuffInfo.xml" path="/"/>
     <component id="tg9gtt" name="ShowDetails.xml" path="/"/>
+    <image id="ndp9tu" name="specialized_3.png" path="/"/>
+    <component id="ndp9tv" name="MoreSkillBtn.xml" path="/"/>
+    <image id="ndp9tw" name="specialized_glow_1.png" path="/"/>
+    <image id="ndp9tx" name="specialized_glow_2.png" path="/"/>
+    <image id="ndp9ty" name="specialized_glow_3.png" path="/"/>
   </resources>
   <publish name="" genCode="true"/>
 </packageDescription>

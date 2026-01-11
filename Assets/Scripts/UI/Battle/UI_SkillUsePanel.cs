@@ -68,6 +68,7 @@ namespace BattleUI
                 //m_mainSkillInfo.m_icon.url = s.SkillData.Icon.ToSkillIcon();
                 IconHelper.SetTexture(m_mainSkillInfo.m_icon, s.SkillData.Icon, IconType.SkillIcon);
                 //Log.Debug(m_mainSkillInfo.m_icon.url);
+
                 if (!s.Opening.Finished())
                 {
                     if (s.SkillData.OpenTime > 3600)
@@ -85,6 +86,7 @@ namespace BattleUI
                 }
                 else
                 {
+                    m_mainSkillInfo.m_isInfinity.selectedIndex = 0;
                     m_mainSkillInfo.max = Unit.MainSkill.MaxPower;
                     m_mainSkillInfo.value = Unit.MainSkill.Power - Unit.MainSkill.MaxPower * Mathf.FloorToInt(Unit.MainSkill.Power / Unit.MainSkill.MaxPower);
                     skillUseing = false;

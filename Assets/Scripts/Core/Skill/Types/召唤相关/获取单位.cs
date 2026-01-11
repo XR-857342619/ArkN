@@ -26,8 +26,8 @@ namespace Skills
 
         public override bool Useable()
         {
-            Log.Debug("获取单位" + (MaxCount != 0 && NowCount >= MaxCount));
-            if (MaxCount != 0 && NowCount >= MaxCount) return false;
+            //Log.Debug("获取单位" + !(MaxCount != int.MaxValue && NowCount >= MaxCount));
+            if (MaxCount != int.MaxValue && NowCount >= MaxCount) return false;
             return base.Useable();
         }
 
