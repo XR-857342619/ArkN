@@ -17,6 +17,8 @@ namespace Skills
         {
             //base.Start();
             posList = GetPosList();
+            Debug.Log("部署位置列表:" + String.Join(", ", posList));
+            
             if (posList.Count == 0)
             {
                 Log.Debug("无法获取到部署位置");

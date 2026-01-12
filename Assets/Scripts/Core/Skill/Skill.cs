@@ -32,7 +32,7 @@ public class Skill
     public int StartId = -1;//升级前id
 
     public List<Vector2Int> AttackPoints;
-    public List<Vector2Int> EXAttackPoints = new List<Vector2Int>();
+    public List<Vector2Int> ExAttackPoints = new List<Vector2Int>();
 
 
     /// <summary>
@@ -1284,6 +1284,10 @@ public class Skill
             case AttackTargetOrderEnum.血量比例降序:
                 result = -x.Hp / x.MaxHp;
                 break;
+            case AttackTargetOrderEnum.放置升序:
+                if (x is Units.干员)
+                    result = (x as Units.干员).InputTime;
+                break;
             case AttackTargetOrderEnum.放置降序:
                 if (x is Units.干员)
                     result = -(x as Units.干员).InputTime;
@@ -1359,11 +1363,11 @@ public class Skill
 
         float orderByTag = 0;
         if (SkillData.OrderTag is not null)
-            orderByTag = (x.UnitData.Tags.Contains(SkillData.OrderTag.Substring(1)) ? -1000 : 0) * (SkillData.OrderTag.Substring(0,1) == "-" ? -1 : 1);
+            orderByTag = (x.UnitData.Tags.Contains(SkillData.OrderTag.Substring(1)) ? -10000 : 0) * (SkillData.OrderTag.Substring(0,1) == "-" ? -1 : 1);
 
         float orderByBuff = 0;
         if (SkillData.OrderBuff is not null)
-            orderByBuff = (x.Buffs.Any(x => x.BuffData.Id == SkillData.OrderBuff.Substring(1)) ? -1000 : 0) * (SkillData.OrderBuff.Substring(0, 1) == "-" ? -1 : 1);
+            orderByBuff = (x.Buffs.Any(x => x.BuffData.Id == SkillData.OrderBuff.Substring(1)) ? -10000 : 0) * (SkillData.OrderBuff.Substring(0, 1) == "-" ? -1 : 1);
         return orderByExpression + orderByTag + orderByBuff;
     }
 
@@ -1406,16 +1410,22 @@ public class Skill
 
     public void UpdateAttackPoints()
     {
-        if (AttackPoints == null) return;
+        if (AttackPoints == null && ExAttackPoints.Count == 0) return;
+        if (AttackPoints == null && ExAttackPoints.Count != 0) AttackPoints = new List<Vector2Int>();
+        
         AttackPoints.Clear();
-        foreach (var p in SkillData.AttackPoints)
+        if (SkillData.AttackPoints is not null)
         {
-            var point = Unit.PointWithDirection(p);
-            if (point.x < 0 || point.x >= Battle.Map.Tiles.GetLength(0) || point.y < 0 || point.y >= Battle.Map.Tiles.GetLength(1)) continue;
-            AttackPoints.Add(point);
+            foreach (var p in SkillData.AttackPoints)
+            {
+                var point = Unit.PointWithDirection(p);
+                if (point.x < 0 || point.x >= Battle.Map.Tiles.GetLength(0) || point.y < 0 || point.y >= Battle.Map.Tiles.GetLength(1)) continue;
+                AttackPoints.Add(point);
+            }
         }
-        if (EXAttackPoints.Count == 0) return;
-        AttackPoints.AddRange(EXAttackPoints);
+        
+        if (ExAttackPoints.Count == 0) return;
+        AttackPoints.AddRange(ExAttackPoints);
     }
 
     public virtual void BreakCast()
@@ -1584,7 +1594,7 @@ public class Skill
             AllCount = tempTargets.Count,
             Source = this,
             DamageRate = damageRate * SkillData.DamageRate * (SkillData.DamageWithFrameRate ? cooldown : 1),
-            DamageType = SkillData.IfHeal ? DamageTypeEnum.heal : SkillData.DamageType,
+            DamageType = SkillData.IfHeal ? DamageTypeEnum.Heal : SkillData.DamageType,
             MinDamageRate = Unit.UnitData.MinDamageRate,
         };
         switch (SkillData.DamageBase)

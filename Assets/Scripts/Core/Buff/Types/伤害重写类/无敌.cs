@@ -14,7 +14,7 @@ namespace Buffs
         public int OrderCode { get { return 0; } }
         public void DamageRewrite(DamageInfo damageInfo)
         {
-            Log.Debug("无敌buff，伤害被重写为0");
+            //Log.Debug("无敌buff，伤害被重写为0");
             damageInfo.FinalDamage = 0;
         }
 

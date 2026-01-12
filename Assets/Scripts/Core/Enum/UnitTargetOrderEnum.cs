@@ -13,6 +13,7 @@ public enum AttackTargetOrderEnum
     血量比例升序,
     血量比例降序,
 
+    放置升序,
     放置降序,
     区域顺序,
     防御降序,

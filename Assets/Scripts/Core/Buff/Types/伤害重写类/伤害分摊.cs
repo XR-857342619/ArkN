@@ -33,7 +33,7 @@ namespace Buffs
             //Unit.RewriteDamage = MinResponseLimit;
         public void DamageRewrite(DamageInfo damageInfo)
         {
-            if (damageInfo.DamageType == DamageTypeEnum.heal || damageInfo.DamageType == DamageTypeEnum.LoseHP) return;
+            if (damageInfo.DamageType == DamageTypeEnum.Heal || damageInfo.DamageType == DamageTypeEnum.LoseHP) return;
             //Log.Debug(damageInfo.FinalDamage);
             
             if (onlyFatal && Unit.Hp - damageInfo.FinalDamage > 0) return;

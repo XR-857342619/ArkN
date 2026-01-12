@@ -672,13 +672,18 @@ public class Unit
         {
             // 创建新的buff实例
             var newBuff = typeof(Buff).Assembly.CreateInstance(nameof(Buffs) + "." + config.Type) as Buff;
-            if (newBuff == null) return null;
-
+            if (newBuff == null)
+            {
+                TipManager.Instance.ShowTip("创建" + config.Id + "Buff失败, 请检查" + config.Type + "是否存在");
+                return null;
+            }
             newBuff.Index = index;
             newBuff.Id = buffId;
             newBuff.Skill = source;
             newBuff.Unit = this;
             newBuff.LastTime = lastTime;
+
+            //Debug.Log("Add " + config.Id + " Buff to " + UnitData.Name);
 
             // 添加到BUFF列表
             Buffs.Add(newBuff);
@@ -878,11 +883,11 @@ public class Unit
         {
             User = heal.GetSourceUnit(),
             Target = this,
-            //Skill = heal.Source,
+            //Skill = Heal.Source,
         });
         Trigger(TriggerEnum.被治疗);
         Battle.TriggerDatas.Pop();
-        //Debug.Log(UnitData.Name + " 受到" + heal.GetSourceUnit().UnitData.Name + "的" + heal.FinalDamage + "点治疗");
+        //Debug.Log(UnitData.Name + " 受到" + Heal.GetSourceUnit().UnitData.Name + "的" + Heal.FinalDamage + "点治疗");
     }
 
     public void Damage(DamageInfo damageInfo)
@@ -1184,9 +1189,9 @@ public class Unit
     //    return -buff.BuffData.OrderCount;
     //}
     /*
-    int GetHealPriority(IHeal heal)
+    int GetHealPriority(IHeal Heal)
     {
-        return -heal.HealOrderCount;
+        return -Heal.HealOrderCount;
     }
 
     int GetSelfHealPriority(ISelfHeal selfHeal)

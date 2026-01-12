@@ -387,6 +387,7 @@ public class Battle
     {
         var config = Database.Instance.Get<UnitData>(card.UnitId);
         var unit = typeof(Battle).Assembly.CreateInstance(nameof(Units) + "." + config.Type) as Units.干员;
+        //unit.dircectAssetAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "ShowDirection");
         unit.Id = Database.Instance.GetIndex<UnitData>(config);
         unit.Card = card;
         unit.MainSkillId = skill;

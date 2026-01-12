@@ -122,17 +122,21 @@ public class Tile
     
         if (UseTokenMode) 
         {
-            Unit Target = Battle.AllUnits.FirstOrDefault(x => x.UnitData.Name == UnitName);
-            List<Vector2Int> TargetAtkPos = new List<Vector2Int>() {Target.GridPos};
+            List<Unit> Targets = Battle.AllUnits.FindAll(x => x.UnitData.Name == UnitName);
+            List<Vector2Int> TargetAtkPos = new List<Vector2Int>();
             Vector2Int thisTilePos = new Vector2Int(X, Y);
+            foreach (Unit target in Targets)
+            {
+                TargetAtkPos.Add(target.GridPos);
 
-            if (Target is null) return false;
+                if (target is null) return false;
 
-            var sk = Target.GetNowUseingSkill();
-            if (sk == null)
-                sk = Target.Skills[0];
-            if (sk != null && sk.AttackPoints != null)
-                TargetAtkPos.AddRange(sk.AttackPoints);
+                var sk = target.GetNowUseingSkill();
+                if (sk == null)
+                    sk = target.Skills[0];
+                if (sk != null && sk.AttackPoints != null)
+                    TargetAtkPos.AddRange(sk.AttackPoints);
+            }
             if (!TargetAtkPos.Contains(thisTilePos)) return false;
         };
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using static UnityEngine.UI.CanvasScaler;
 
 namespace Units
 {
@@ -30,16 +31,21 @@ namespace Units
         public float Cost;
         public float CostBase, CostAdd;
 
-        public GameObject selfDirection;
+        public GameObject selfDirection = null;
+        public GameObject dircectAssetAsset = null;
 
         public override void Init()
         {
             base.Init();
             if (UnitData.MainSkill != null)
+            {
+                MainSkillId = MainSkillId >　UnitData.MainSkill.Length - 1 ? 0 : MainSkillId;
                 if (MainSkillId >= 0)
                     MainSkill = LearnSkill(UnitData.MainSkill[MainSkillId], null);
                 else
                     MainSkill = LearnSkill(UnitData.MainSkill[0], null);
+            }
+            
             //Debug.Log(Position);
             //if (MainSkill == null) Log.Debug("MainSkill is null");
             //Log.Debug($"PowerType actual type: {MainSkill?.SkillData?.PowerType.GetType().Name}");
@@ -206,8 +212,14 @@ namespace Units
             InputTime = Battle.Tick;
             List<Unit> tileUnits =Battle.Map.Tiles[GridPos.x, GridPos.y].Units;
             tileUnits.Add(this);
-            var dircectAssetAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "ShowDirection");
-            selfDirection = UnityEngine.Object.Instantiate(dircectAssetAsset);  
+
+            if (dircectAssetAsset is null || selfDirection is null)
+            {
+                dircectAssetAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "ShowDirection");
+                selfDirection = UnityEngine.Object.Instantiate(dircectAssetAsset);
+            }
+
+            selfDirection.SetActive(true);
             selfDirection.transform.GetChild(1).localEulerAngles = new Vector3(0, Vector2.SignedAngle(Direction, Vector2.right), 0);
             selfDirection.transform.position = new Vector3(GridPos.x, Battle.Map.Tiles[GridPos.x, GridPos.y].FarAttackGrid ? 0.25f : 0, GridPos.y);
             selfDirection.transform.SetParent(Battle.Map.Tiles[GridPos.x, GridPos.y].MapGrid.transform);
@@ -272,7 +284,8 @@ namespace Units
         public override void Finish(bool leaveEvent = true)
         {
             base.Finish(leaveEvent);
-            UnityEngine.Object.Destroy(selfDirection);
+            //UnityEngine.Object.Destroy(selfDirection);
+            selfDirection.SetActive(false);
             IfAlive = false;
             UnitModel.gameObject.SetActive(false);
             BattleUI.UI_Battle.Instance.ReturnUIUnit(this);

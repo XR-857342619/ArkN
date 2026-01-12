@@ -35,8 +35,8 @@ namespace Skills
                 if (skillid == "") continue;
                 Skill skill = Unit.Skills.Find(s => s.SkillData.Id == skillid);
                 if (skill == null) continue;
-                skill.EXAttackPoints.Clear();
-                skill.EXAttackPoints.AddRange(GetExAttackPoints());
+                skill.ExAttackPoints.Clear();
+                skill.ExAttackPoints.AddRange(GetExAttackPoints());
                 skill.UpdateAttackPoints();
             }
         }
@@ -50,7 +50,7 @@ namespace Skills
                 if (skillid == "") continue;
                 Skill skill = Unit.Skills.Find(s => s.SkillData.Id == skillid);
                 if (skill == null) continue;
-                skill.EXAttackPoints.RemoveAll(p => exAttackPoints.Contains(p));
+                skill.ExAttackPoints.RemoveAll(p => exAttackPoints.Contains(p));
                 skill.UpdateAttackPoints();
             }
         exAttackPoints.Clear();

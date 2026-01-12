@@ -26,6 +26,9 @@ namespace Buffs
         {
             base.Reset();
             Level++;
+
+            Log.Debug("叠层转化buff升级到" + Level + "最大层数为" + MaxLevel);
+
             if (Level > MaxLevel && MaxLevel != 0)
             {
                 Unit.AddBuff(Database.Instance.GetIndex<BuffData>(BuffID), Skill, 0, Lasting);
