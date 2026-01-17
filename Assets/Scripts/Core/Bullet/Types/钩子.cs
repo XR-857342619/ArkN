@@ -28,6 +28,7 @@ namespace Bullets
         }
         public override void Update()
         {
+            base.Update();
             tickTime += SystemConfig.DeltaTime;
             if (Target != null && Target.Alive())
                 TargetPos = GetTargetPos(Target);
@@ -48,7 +49,7 @@ namespace Bullets
         Vector3 getPosOfTime(float time)
         {
             Vector3 Postion;
-            float totalTime = (TargetPos - StartPosition).magnitude / BulletData.Speed;
+            float totalTime = (TargetPos - StartPosition).magnitude / BulletData.Speed * Speed;
             if (time > totalTime)
             {
                 Position = TargetPos;

@@ -373,7 +373,7 @@ public class Battle
     //    unit.Position = pos;
     //    unit.Direction = direction;
     //    unit.Init();
-    //    //if (lifeTime != 0) unit.LifeTime = new CountDown(lifeTime);
+    //    //if (lifeTime != 0) unit._lifeTime = new CountDown(lifeTime);
     //    //if (!unit.UnitData.NotUseTile)
     //    //    Map.Tiles[(int)pos.x, (int)pos.z].Units.Add(unit);
     //    //else

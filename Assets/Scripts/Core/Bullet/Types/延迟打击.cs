@@ -25,6 +25,7 @@ namespace Bullets
 
         public override void Update()
         {
+            base.Update();
             Delay.Update(SystemConfig.DeltaTime);
             if (Delay.Finished())
             {

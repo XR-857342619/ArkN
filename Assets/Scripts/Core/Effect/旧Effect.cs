@@ -1,9 +1,9 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Spine.Unity;
 
-public class Effect : MonoBehaviour
+public class 旧Effect : MonoBehaviour
 {
     public int Id;
     public EffectData EffectData => Database.Instance.Get<EffectData>(Id);
@@ -15,37 +15,24 @@ public class Effect : MonoBehaviour
     PlayerUnitModel PlayerUnitModel;
     BoneFollower BoneFollower;
     bool forward;
-    bool _isBulletEffect;
-    Bullet _bullet;
 
     private void Awake()
     {
         PS = GetComponentsInChildren<ParticleSystem>();
         TR = GetComponentsInChildren<TrailRenderer>();
         //Debug.Log(name + "," + TR.Length);
-        gameObject.SetActive(false);
-        
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!gameObject.activeInHierarchy)
-        {
-            gameObject.SetActive(true);
-        }
-        if (EffectData.ParentFollow == 1 && !_isBulletEffect)
+        if (EffectData.ParentFollow == 1)
         {
             transform.localScale = new Vector3(Parent.ScaleX, 1, 1);
         }
-        if (EffectData.ParentFollow == 3 && !_isBulletEffect)
+        if (EffectData.ParentFollow == 3)
         {
             transform.position = Parent.Position + EffectData.Offset;
-        }
-
-        if (_isBulletEffect)
-        {
-            transform.position = _bullet.Position + EffectData.Offset;
         }
 
         LifeTime -= Time.deltaTime;
@@ -102,17 +89,12 @@ public class Effect : MonoBehaviour
 
     public virtual void Init(Unit user, Unit target, Vector3 basePos, Vector3 direction, float speed = 1)
     {
-        //gameObject.SetActive(false);
         foreach (var p in PS)
         {
             var m = p.main;
             m.simulationSpeed = speed;
         }
         Play();
-        if (!gameObject.activeInHierarchy)
-        {
-            gameObject.SetActive(true);
-        }
         if (EffectData.ParentFollow == 2)
             this.Parent = user;
         else
@@ -175,22 +157,5 @@ public class Effect : MonoBehaviour
             angleY = Vector2.SignedAngle(user.Direction, Vector2.right);
         }
         transform.eulerAngles = new Vector3(angleX, angleY, angleZ);
-    }
-    public virtual void Init(Bullet target, float speed = 1)
-    {
-        //gameObject.SetActive(false);
-        foreach (var p in PS)
-        {
-            var m = p.main;
-            m.simulationSpeed = speed;
-        }
-        Play();
-        if (!gameObject.activeInHierarchy)
-        {
-            gameObject.SetActive(true);
-        }
-        transform.position = target.Position;
-        _isBulletEffect = true;
-        _bullet = target;
     }
 }

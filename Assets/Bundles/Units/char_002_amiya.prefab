@@ -254,7 +254,7 @@ MonoBehaviour:
     materialsInsideMask: []
     materialsOutsideMask: []
   disableRenderingOnOverride: 1
-  _animationName: 
+  _animationName: Skill_2
   loop: 0
   timeScale: 1
 --- !u!1 &7561225305382676244
@@ -375,6 +375,6 @@ MonoBehaviour:
     materialsInsideMask: []
     materialsOutsideMask: []
   disableRenderingOnOverride: 1
-  _animationName: 
+  _animationName: Skill_2
   loop: 0
   timeScale: 1

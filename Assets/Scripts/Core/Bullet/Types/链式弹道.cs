@@ -95,6 +95,7 @@ namespace Bullets
 
         public override void Update()
         {
+            base.Update();
             if (isDirectHit)
             {
                 HandleDirectHit();
@@ -145,7 +146,7 @@ namespace Bullets
                 return TargetPos;
             }
 
-            float totalTime = distance / BulletData.Speed;
+            float totalTime = distance / BulletData.Speed * Speed;
             Vector3 position = startPositionCache + (TargetPos - startPositionCache) * (time / totalTime);
 
             // 添加抛物线高度

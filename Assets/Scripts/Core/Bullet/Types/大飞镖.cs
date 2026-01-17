@@ -32,7 +32,7 @@ namespace Bullets
             if (Target.Alive())
                 TargetPos = GetTargetPos(Target);
             moveHeight = BulletData.Data.GetFloat("MoveHeight");
-            LifeTime = new CountDown(BulletData.Data.GetFloat("LifeTime"));
+            LifeTime = new CountDown(BulletData.Data.GetFloat("_lifeTime"));
             radius = BulletData.Data.GetFloat("Radius");
             if (BulletData.Data.TryGetValue("TargetTeam", out tmp))
                 targetTeam = Convert.ToInt32(tmp);
@@ -65,6 +65,7 @@ namespace Bullets
         }
         public override void Update()
         {
+            base.Update();
             tickTime += SystemConfig.DeltaTime;
             if (Target.Alive())
                 TargetPos = GetTargetPos(Target);
@@ -139,7 +140,7 @@ namespace Bullets
             {
                 Finish();
             }
-            if (arrive && BulletData.Data.GetFloat("LifeTime")==0)
+            if (arrive && BulletData.Data.GetFloat("_lifeTime")==0)
             {
                 Finish();
             }
@@ -152,7 +153,7 @@ namespace Bullets
         Vector3 getPosOfTime(float time)
         {
             Vector3 position = Vector3.zero;
-            float totalTime = (TargetPos - StartPosition).magnitude / BulletData.Speed;
+            float totalTime = (TargetPos - StartPosition).magnitude / BulletData.Speed * Speed;
             if (time > totalTime)
             {
                 position = TargetPos;

@@ -37,7 +37,7 @@ namespace Bullets
             if (Target.Alive())
                 TargetPos = GetTargetPos(Target);
             moveHeight = BulletData.Data.GetFloat("MoveHeight");
-            LifeTime = new CountDown(BulletData.Data.GetFloat("LifeTime"));
+            LifeTime = new CountDown(BulletData.Data.GetFloat("_lifeTime"));
             MaxRadius = BulletData.Data.GetFloat("MaxRadius");
             InitRadius = BulletData.Data.GetFloat("InitRadius");
             RadiusExponentRate = BulletData.Data.GetFloat("RadiusExponentRate");
@@ -91,6 +91,7 @@ namespace Bullets
         }
         public override void Update()
         {
+            base.Update();
             if (radius < MaxRadius)
                 radius += RadiusExponentRate * SystemConfig.DeltaTime;
             tickTime += SystemConfig.DeltaTime;
@@ -175,7 +176,7 @@ namespace Bullets
             {
                 Finish();
             }
-            if (arrive && BulletData.Data.GetFloat("LifeTime")==0)
+            if (arrive && BulletData.Data.GetFloat("_lifeTime")==0)
             {
                 Finish();
             }
@@ -188,7 +189,7 @@ namespace Bullets
         Vector3 getPosOfTime(float time)
         {
             Vector3 position = Vector3.zero;
-            float totalTime = (TargetPos - StartPosition).magnitude / BulletData.Speed;
+            float totalTime = (TargetPos - StartPosition).magnitude / BulletData.Speed * Speed;
             if (time > totalTime)
             {
                 position = TargetPos;

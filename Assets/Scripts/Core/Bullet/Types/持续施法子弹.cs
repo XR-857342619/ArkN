@@ -21,7 +21,7 @@ namespace Bullets
             Skill.Unit.AttackingSkill = Skill;
             Skill.Unit.OverWriteAnimation = Skill.SkillData.OverwriteAnimation;
             Skill.Unit.AttackingAction.Set(float.PositiveInfinity);
-            LifeTime.Set(BulletData.Data.GetFloat("LifeTime"));
+            LifeTime.Set(BulletData.Data.GetFloat("_lifeTime"));
             if (!string.IsNullOrEmpty(BulletData.Line))
             {
                 PullLine = BulletManager.Instance.GetLine(BulletData.Line);

@@ -16,14 +16,15 @@ namespace Bullets
         }
         public override void Update()
         {
+            base.Update();
             Vector3 delta = TargetPos - Position;
-            if (delta.magnitude < BulletData.Speed * SystemConfig.DeltaTime)
+            if (delta.magnitude < BulletData.Speed * Speed * SystemConfig.DeltaTime)
             {
                 Finish();
             }
             else
             {
-                Position += delta.normalized * BulletData.Speed * SystemConfig.DeltaTime;
+                Position += delta.normalized * BulletData.Speed * Speed * SystemConfig.DeltaTime;
             }
             var target = Battle.FindAll(Position.ToV2(), 0.25f, Skill.SkillData.TargetTeam); //Battle.FindAll(new Vector2Int(Mathf.RoundToInt(Position.x), Mathf.RoundToInt(Position.z)), Skill.SkillData.TargetTeam);
             if (target.Count > 0)

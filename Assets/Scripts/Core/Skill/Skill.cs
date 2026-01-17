@@ -588,7 +588,8 @@ public class Skill
         {
             var animation = SkillData.ModelAnimation;
             if (SkillData.ModelAnimationDown != null && Unit is Units.干员 u && u.Direction_E == DirectionEnum.Up) animation = SkillData.ModelAnimationDown;
-            var duration = GetSkillDelay(SkillData.OverwriteAnimation == null ? animation : SkillData.OverwriteAnimation, Unit.GetAnimation(), out float fullDuration, out float beginDuration);//.SkeletonAnimation.skeleton.data.Animations.Find(x => x.Name == "Attack");
+            var duration = GetSkillDelay(SkillData.OverwriteAnimation == null ? animation : SkillData.OverwriteAnimation, Unit.GetAnimation(), out float fullDuration, out float beginDuration);
+            //.SkeletonAnimation.skeleton.data.Animations.Find(x => x.Name == "Attack");
             if (SkillData.AnimationTime != null) duration = SkillData.AnimationTime.Value;
             float attackSpeed = 1f / Unit.Agi * 100;//攻速影响冷却时间
             if (SkillData.AttackMode == AttackModeEnum.固定间隔) attackSpeed = 1;
@@ -923,7 +924,7 @@ public class Skill
             if (SkillData.EffectEffect != null)
                 showEffectEffect(target, t);
             //dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
-            dInfo = GetDamageInfo(t, t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage);
+            dInfo = GetDamageInfo(t, t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage, bullet is not null ? bullet.Attack : 1);
             if (bullet is not null)
             {
                 foreach (var m in bullet.Modifies)
@@ -957,7 +958,7 @@ public class Skill
             if (SkillData.EffectEffect != null)
                 showEffectEffect(target, t);
             //dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
-            dInfo = GetDamageInfo(t, t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage);
+            dInfo = GetDamageInfo(t, t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage, bullet is not null ? bullet.Attack : 1);
             if (bullet is not null)
             {
                 foreach (var m in bullet.Modifies)
@@ -988,7 +989,7 @@ public class Skill
         if (SkillData.EffectEffect != null)
             showEffectEffect(target);
         
-        dInfo = GetDamageInfo(target);
+        dInfo = GetDamageInfo(target, 1, bullet is not null ? bullet.Attack : 1);
         if (bullet is not null)
         {
             foreach (var m in bullet.Modifies)
@@ -1584,7 +1585,7 @@ public class Skill
     }
 
     //protected DamageInfo GetDamageInfo(Unit target, float damageRate = 1, bool fixedDamage = false)
-    protected DamageInfo GetDamageInfo(Unit target, float damageRate = 1)
+    protected DamageInfo GetDamageInfo(Unit target, float damageRate = 1, float bulletDamageRate = 1)
     {
         var cooldown = SkillData.Cooldown;
         if (cooldown < SystemConfig.DeltaTime) cooldown = SystemConfig.DeltaTime;
@@ -1593,7 +1594,7 @@ public class Skill
             Target = target,
             AllCount = tempTargets.Count,
             Source = this,
-            DamageRate = damageRate * SkillData.DamageRate * (SkillData.DamageWithFrameRate ? cooldown : 1),
+            DamageRate = damageRate * SkillData.DamageRate * (SkillData.DamageWithFrameRate ? cooldown : 1) * bulletDamageRate,
             DamageType = SkillData.IfHeal ? DamageTypeEnum.Heal : SkillData.DamageType,
             MinDamageRate = Unit.UnitData.MinDamageRate,
         };

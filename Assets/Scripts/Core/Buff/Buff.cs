@@ -17,6 +17,7 @@ public class Buff
 
     [System.NonSerialized]
     public Unit Unit;
+    public Bullet Bullet;
     public Skill Skill;
     protected Battle Battle => Skill.Unit.Battle;
 
@@ -60,10 +61,11 @@ public class Buff
         if (BuffData.LastingEffect.HasValue)
         {
             LastingEffect = EffectManager.Instance.GetEffect(BuffData.LastingEffect.Value);
-            LastingEffect.Init(Skill.Unit, Unit, Unit.Position, Unit.Direction);
+            if (Unit is not null) LastingEffect.Init(SourceUnit, Unit, Unit.Position, Unit.Direction);
+            else if (Bullet is not null) LastingEffect.Init(Bullet);
             LastingEffect.SetLifeTime(float.PositiveInfinity);
         }
-
+        if (Unit is null) return;
         // 范围需求
         if (BuffData.RoundNeed == 1)
         {
@@ -94,6 +96,7 @@ public class Buff
 
     public bool Enable()
     {
+        if (Unit is null) return true;
         if (BuffData.StopNeed != 0 && Unit is Units.干员 u && u.StopUnits.Count < BuffData.StopNeed) return false;
         if (BuffData.StopLess != 0 && Unit is Units.干员 u2 && u2.StopUnits.Count >= BuffData.StopLess) return false;
         if (BuffData.StopNeed != 0 && Unit is Units.敌人 u1 && u1.StopUnit == null) return false;
@@ -113,14 +116,17 @@ public class Buff
     public virtual void Reset()
     {
         updateLastTime();
-        if ((Unit.Buffs.Any(x => x is Buffs.Buff抵挡) && SourceUnit.Buffs.Any(x => x is Buffs.Buff可抵挡)) && !BuffData.NotCancelable)
+        if (Unit is not null)
         {
-            Buffs.Buff抵挡 blockbuff = (Buffs.Buff抵挡)Unit.Buffs.First(x => x is Buffs.Buff抵挡);
-            if (blockbuff.Duration.value != 0)
+            if ((Unit.Buffs.Any(x => x is Buffs.Buff抵挡) && SourceUnit.Buffs.Any(x => x is Buffs.Buff可抵挡)) && !BuffData.NotCancelable)
             {
-                if (Duration.value > blockbuff.Duration.value)
-                    blockbuff.AddBuff(new object[] { Id, Skill, Index, Duration.value - blockbuff.Duration.value });
-                Finish();
+                Buffs.Buff抵挡 blockbuff = (Buffs.Buff抵挡)Unit.Buffs.First(x => x is Buffs.Buff抵挡);
+                if (blockbuff.Duration.value != 0)
+                {
+                    if (Duration.value > blockbuff.Duration.value)
+                        blockbuff.AddBuff(new object[] { Id, Skill, Index, Duration.value - blockbuff.Duration.value });
+                    Finish();
+                }
             }
         }
         if (BuffData.Upgrade != null)
@@ -132,7 +138,8 @@ public class Buff
             }
             //Finish();
             //Unit.RemoveBuff(this);
-            Unit.AddBuff(BuffData.Upgrade.Value, this.Skill, Index);
+            if (Unit is not null) Unit.AddBuff(BuffData.Upgrade.Value, this.Skill, Index);        
+            if (Bullet is not null) Bullet.AddBuff(BuffData.Upgrade.Value, Index);        
         }
         if (BuffData.IfSwitch)
         {
