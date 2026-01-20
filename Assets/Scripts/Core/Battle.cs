@@ -153,6 +153,7 @@ public class Battle
             {
                 Target = unit,
             });
+            Debug.Log(unit.UnitData.Name + "trigger 出场");
             Trigger(TriggerEnum.出场);
             TriggerDatas.Pop();
         }

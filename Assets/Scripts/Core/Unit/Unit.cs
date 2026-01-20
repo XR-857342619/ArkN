@@ -657,7 +657,7 @@ public class Unit
         if (IgnoreBuffs.Contains(buffId)) return null;
 
         var config = Database.Instance.Get<BuffData>(buffId);
-        //Debug.Log("AddBuff:" + config.Id);
+        
         if (config.RelyBuff != null && !Buffs.Any(x => x.Id == config.RelyBuff.Value))
             return null;
 
@@ -666,6 +666,7 @@ public class Unit
         if (oldBuff != null)
         {
             oldBuff.Reset();
+            Refresh();
             return oldBuff;
         }
         else
@@ -683,7 +684,7 @@ public class Unit
             newBuff.Unit = this;
             newBuff.LastTime = lastTime;
 
-            //Debug.Log("Add " + config.Id + " Buff to " + UnitData.Name);
+            Debug.Log("Add " + config.Id + " Buff to " + UnitData.Name);
 
             // 添加到BUFF列表
             Buffs.Add(newBuff);
@@ -697,7 +698,7 @@ public class Unit
 
             // 初始化BUFF
             newBuff.Init();
-
+            Refresh();
             return newBuff;
         }
     }
@@ -1080,11 +1081,11 @@ public class Unit
 
         // 检查是否需要调整位置（距离过近且方向向量有效）
         if (direction.sqrMagnitude < requiredDistance * requiredDistance &&
-            direction.sqrMagnitude > 0.0001f)
+            direction.sqrMagnitude > 0.001f)
         {
             target.Position = Position + direction.normalized * requiredDistance;
         }
-        else if (direction.sqrMagnitude <= 0.0001f)
+        else if (direction.sqrMagnitude <= 0.001f)
         {
             // 处理位置完全重叠的情况，例如沿默认方向偏移
             target.Position = Position + Vector3.forward * requiredDistance;

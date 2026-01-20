@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BattleUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,6 +29,7 @@ namespace Units
         /// </summary>
         public int BuildTime;
 
+        public float LastCost;
         public float Cost;
         public float CostBase, CostAdd;
 
@@ -55,6 +57,7 @@ namespace Units
         {
             base.baseAttributeInit();
             CostBase = UnitData.Cost + UnitData.CostEx;
+            LastCost = CostBase;
             ResetTimeBase = UnitData.ResetTime + UnitData.ResetTimeEx;
         }
 
@@ -63,7 +66,12 @@ namespace Units
             CostAdd = 0;
             ResetTimeAdd = ResetTimeRate = 0;
             base.Refresh();
-            Cost = CostBase + CostAdd;
+            Cost = Math.Max(0, CostBase + CostAdd);
+            Debug.Log("Cost = " + CostBase + "+" + CostAdd + "=" + Cost);
+            if (Cost != LastCost) UI_Battle.Instance.TriggerUnitStateUpdate(this);
+            LastCost = Cost;
+            //if (Cost == 0) UI_Battle.Instance.TriggerUnitStateUpdate(this);
+
             ResetTime = (ResetTimeBase + ResetTimeAdd) * (1 + ResetTimeRate);
 
             int costAll = StopUnits.Sum(x => x.StopCost);
@@ -244,6 +252,11 @@ namespace Units
                 {
                     unit.Reseting.Set(ResetTime);
                 }
+            }
+
+            foreach (var buff in Buffs)
+            {
+                buff.ShowEffect();
             }
 
             //UnitModel.Init(this);

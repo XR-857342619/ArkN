@@ -10,6 +10,7 @@ public class Effect : MonoBehaviour
     public Unit Parent;
     ParticleSystem[] PS;
     public TrailRenderer[] TR;
+    public bool IsHide = false;
     float LifeTime = 5f;
 
     PlayerUnitModel PlayerUnitModel;
@@ -30,7 +31,7 @@ public class Effect : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!gameObject.activeInHierarchy)
+        if (!gameObject.activeInHierarchy && !IsHide)
         {
             gameObject.SetActive(true);
         }
@@ -109,7 +110,7 @@ public class Effect : MonoBehaviour
             m.simulationSpeed = speed;
         }
         Play();
-        if (!gameObject.activeInHierarchy)
+        if (!gameObject.activeInHierarchy && !IsHide)
         {
             gameObject.SetActive(true);
         }
@@ -185,7 +186,7 @@ public class Effect : MonoBehaviour
             m.simulationSpeed = speed;
         }
         Play();
-        if (!gameObject.activeInHierarchy)
+        if (!gameObject.activeInHierarchy && !IsHide)
         {
             gameObject.SetActive(true);
         }

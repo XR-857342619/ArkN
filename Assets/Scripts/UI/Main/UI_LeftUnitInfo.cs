@@ -53,11 +53,11 @@ namespace MainUI
                 return;
             var mainSkill = Database.Instance.Get<SkillData>(this.Card.UnitData.Skills[0]);
 
-            if (mainSkill.AttackPoints is not null && mainSkill.AttackPoints.Length >= 0)
+            if (mainSkill?.AttackPoints is not null && mainSkill.AttackPoints.Length >= 0)
             {
                 ShowAttackPoints(mainSkill);
             }
-            else if (mainSkill.AttackRange > 0)
+            else if (mainSkill?.AttackRange > 0)
             {
                 ShowAttackArea(mainSkill);
             }

@@ -120,14 +120,14 @@ public class Database
 
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
-            TipManager.Instance.SendMessage("No data loaded for type " + typeof(T).Name);
+            TipManager.Instance.ShowTip("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return false;
         }
 
         if (string.IsNullOrEmpty(id))
         {
-            TipManager.Instance.SendMessage($"Invalid (null or empty) id for type {typeof(T).Name}");
+            TipManager.Instance.ShowTip($"Invalid (null or empty) id for type {typeof(T).Name}");
             Debug.LogWarning($"Invalid (null or empty) id for type {typeof(T).Name}");
             return false;
         }
@@ -160,14 +160,14 @@ public class Database
     {
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
-            TipManager.Instance.SendMessage("No data loaded for type " + typeof(T).Name);
+            TipManager.Instance.ShowTip("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return null;
         }
 
         if (match == null)
         {
-            TipManager.Instance.SendMessage("Null match function for type " + typeof(T).Name);
+            TipManager.Instance.ShowTip("Null match function for type " + typeof(T).Name);
             Debug.LogWarning($"Null match function for type {typeof(T).Name}");
             return null;
         }
@@ -182,7 +182,7 @@ public class Database
     {
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
-            TipManager.Instance.SendMessage("No data loaded for type " + typeof(T).Name);
+            TipManager.Instance.ShowTip("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return Array.Empty<T>();
         }
@@ -199,14 +199,14 @@ public class Database
 
         if (config == null)
         {
-            TipManager.Instance.SendMessage("Null config for type " + typeof(T).Name);
+            TipManager.Instance.ShowTip("Null config for type " + typeof(T).Name);
             Debug.LogWarning($"Null config for type {typeof(T).Name}");
             return false;
         }
 
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
-            TipManager.Instance.SendMessage("No data loaded for type " + typeof(T).Name);
+            TipManager.Instance.ShowTip("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return false;
         }
@@ -221,14 +221,14 @@ public class Database
 
         if (string.IsNullOrEmpty(id))
         {
-            TipManager.Instance.SendMessage($"Invalid (null or empty) id for type {typeof(T).Name}");
+            TipManager.Instance.ShowTip($"Invalid (null or empty) id for type {typeof(T).Name}");
             Debug.LogWarning($"Invalid (null or empty) id for type {typeof(T).Name}");
             return false;
         }
 
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
-            TipManager.Instance.SendMessage("No data loaded for type " + typeof(T).Name);
+            TipManager.Instance.ShowTip("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return false;
         }

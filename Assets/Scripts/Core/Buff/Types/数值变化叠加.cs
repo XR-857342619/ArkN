@@ -10,19 +10,28 @@ namespace Buffs
     {
         public int Level;
         public int MaxLevel;
+        public int AddValue;
 
         public override void Init()
         {
             base.Init();
             Level = 1;
             MaxLevel = BuffData.Data.GetInt("MaxLevel");
+            AddValue = BuffData.Data.GetInt("AddValue", 1);
+            Log.Debug(BuffData.Id + "Init");
         }
 
         public override void Reset()
         {
             base.Reset();
-            Level++;
+            Level += AddValue;
             if (Level > MaxLevel && MaxLevel != 0) Level = MaxLevel;
+        }
+
+        public override void Apply()
+        {
+            Log.Debug("数值变化可叠加Apply");
+            base.Apply();
         }
 
         public override void Update()
@@ -64,9 +73,17 @@ namespace Buffs
                     Level--;
                     updateLastTime();
                 }
-                Finish();
+                else
+                    Finish();
             }
         }
+
+        public override void Finish()
+        {
+            Level = 0;
+            base.Finish();
+        }
+
         protected override float GetValue(int i)
         {
             return base.GetValue(i) * Level;

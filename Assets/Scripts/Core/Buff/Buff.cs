@@ -65,6 +65,10 @@ public class Buff
             else if (Bullet is not null) LastingEffect.Init(Bullet);
             LastingEffect.SetLifeTime(float.PositiveInfinity);
         }
+        
+        if (Unit is not null && Unit.InputTime == -1) HideEffect();
+        //if (Unit is null && Bullet is not null) ShowEffect();
+
         if (Unit is null) return;
         // 范围需求
         if (BuffData.RoundNeed == 1)
@@ -203,6 +207,20 @@ public class Buff
     public virtual void UpdateView()
     {
 
+    }
+
+    public void ShowEffect()
+    {
+        if (LastingEffect is null) return;
+        LastingEffect.IsHide = false;
+        LastingEffect.gameObject.SetActive(true);
+    }
+
+    public void HideEffect() 
+    {
+        if (LastingEffect is null) return;
+        LastingEffect.IsHide = true;
+        LastingEffect.gameObject.SetActive(false);
     }
 
     public virtual void Finish()

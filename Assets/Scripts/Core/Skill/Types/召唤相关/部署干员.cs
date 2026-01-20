@@ -45,7 +45,7 @@ namespace Skills
             posList = GetPosList();
             if (posList.Count == 0)
             {
-                Log.Debug("无法获取到部署位置");
+                Log.Debug(this.SkillData.Id + "无法获取到部署位置");
                 return;
             }
             List<Unit> battleOp = Battle.AllUnits.FindAll(x => x.UnitData.Id == unitId);
@@ -74,7 +74,8 @@ namespace Skills
         public virtual List<Vector2Int> GetPosList()
         {
             FindTarget();
-            //Debug.Log(Targets?.First()?.Position);
+            Debug.Log(this.SkillData.Id);
+            Debug.Log(Targets?.First()?.Position);
             switch (targetPos)
             {
                 case "使用自身位置":

@@ -540,7 +540,7 @@ public class Skill
     {
         if (!Useable())
         {
-            //Debug.Log(SkillData.Id + "不可用");
+            Debug.Log(SkillData.Id + "不可用");
             return;
         }
         if (Targets.Count == 0)
@@ -568,7 +568,7 @@ public class Skill
         
         if (showRange)
             ShowUnitAttackArea();
-        //Log.Debug(SkillData.Id + "开始使用");
+        Log.Debug(SkillData.Id + "开始使用");
         //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "使用次数:" + UseCount);
         if (SkillData.ReadyType == SkillReadyEnum.充能释放)
         {
@@ -670,6 +670,8 @@ public class Skill
         {
             Power -= MaxPower;
         }
+
+        Debug.Log(SkillData.Id + "生效");
 
         //if (SkillData.PowerUseType == PowerRecoverTypeEnum.攻击 && IsNormalAttack)//有动作有伤害的技能视为普攻，用于消耗弹药
         if (SkillData.PowerUseType == PowerRecoverTypeEnum.攻击)//有动作有伤害的技能视为普攻，用于消耗弹药
@@ -1411,8 +1413,8 @@ public class Skill
 
     public void UpdateAttackPoints()
     {
-        if (AttackPoints == null && ExAttackPoints.Count == 0) return;
-        if (AttackPoints == null && ExAttackPoints.Count != 0) AttackPoints = new List<Vector2Int>();
+        if (AttackPoints is null && ExAttackPoints.Count == 0) return;
+        if (AttackPoints is null && ExAttackPoints.Count != 0) AttackPoints = new List<Vector2Int>();
         
         AttackPoints.Clear();
         if (SkillData.AttackPoints is not null)
@@ -1424,7 +1426,6 @@ public class Skill
                 AttackPoints.Add(point);
             }
         }
-        
         if (ExAttackPoints.Count == 0) return;
         AttackPoints.AddRange(ExAttackPoints);
     }
@@ -1718,7 +1719,7 @@ public class Skill
 
     public void ShowUnitAttackArea()
     {
-        //Log.Debug("ShowUnitAttackArea");
+        Log.Debug("ShowUnitAttackArea");
         if (AttackPoints.Count > 0)
         {
             //Debug.LogWarning("ShowAttackArea");

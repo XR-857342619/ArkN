@@ -22,10 +22,15 @@ namespace BattleUI
 
         GameObject worldUI;
         UI_DragPanel dragPanel;
-        
+
+        // 添加单位状态监听器
+        private Dictionary<int, Action<Unit>> unitStateListeners = new Dictionary<int, Action<Unit>>();
+        private HashSet<int> dirtyUnits = new HashSet<int>(); // 标记需要刷新的单位
+
         partial void Init()
         {
             Instance = this;
+            //m_UnitList.asTree.SetIgnoreEngineTimeScale(true);
             UIPool = new GObjectPool(container.cachedTransform);
             m_state.onChanged.Add(pageChange);
             m_SkillUseBack.onClick.Add(StopChooseUnit);
@@ -120,6 +125,13 @@ namespace BattleUI
         protected override void OnUpdate()
         {
             base.OnUpdate();
+
+            // 自动刷新脏单位
+            if (dirtyUnits.Count > 0)
+            {
+                RefreshDirtyUnits();
+            }
+
             if (Battle != null)
             {
                 if (Input.GetKeyDown(KeyCode.Space) && !Battle.Finish)
@@ -143,6 +155,70 @@ namespace BattleUI
                     pos.y = Screen.height - pos.y;
                     m_SkillUsePanel.position = pos.ScreenToUI();
                 }
+                //m_UnitList.visible = true;
+            }
+        }
+
+        /// <summary>
+        /// 注册单位状态监听器，当单位状态改变时自动刷新UI
+        /// </summary>
+        /// <param name="unitId">单位ID</param>
+        /// <param name="onStateChanged">状态改变回调</param>
+        public void RegisterUnitStateListener(int unitId, Action<Unit> onStateChanged)
+        {
+            if (!unitStateListeners.ContainsKey(unitId))
+            {
+                unitStateListeners[unitId] = onStateChanged;
+            }
+            else
+            {
+                unitStateListeners[unitId] += onStateChanged;
+            }
+        }
+
+        /// <summary>
+        /// 触发单位状态更新
+        /// </summary>
+        /// <param name="unit">更新的单位</param>
+        public void TriggerUnitStateUpdate(Unit unit)
+        {
+            if (unitStateListeners.ContainsKey(unit.Id))
+            {
+                unitStateListeners[unit.Id]?.Invoke(unit);
+            }
+
+            // 标记单位为脏数据，需要刷新UI
+            dirtyUnits.Add(unit.Id);
+        }
+
+        /// <summary>
+        /// 刷新所有脏单位
+        /// </summary>
+        private void RefreshDirtyUnits()
+        {
+            foreach (int unitId in dirtyUnits.ToList())
+            {
+                RefreshUnitInList(unitId);
+            }
+            dirtyUnits.Clear();
+        }
+
+        /// <summary>
+        /// 刷新列表中的特定单位
+        /// </summary>
+        /// <param name="unitId">单位ID</param>
+        private void RefreshUnitInList(int unitId)
+        {
+            // 查找列表中对应的UI元素并更新
+            for (int i = 0; i < m_UnitList.numChildren; i++)
+            {
+                var uiElement = m_UnitList.GetChildAt(i) as UI_BuildSprite;
+                if (uiElement?.Unit?.Id == unitId)
+                {
+                    // 重新设置单位数据
+                    uiElement.SetUnit(uiElement.Unit);
+                    break;
+                }
             }
         }
 
@@ -150,7 +226,17 @@ namespace BattleUI
         {
             this.Battle = battle;
             m_DamageInfo.RemoveChildren(0, m_DamageInfo.numChildren, true);
+
             UpdateUnitsLayout();
+        }
+
+        /// <summary>
+        /// 战斗单位状态改变回调
+        /// </summary>
+        /// <param name="unit">状态改变的单位</param>
+        private void OnBattleUnitStateChanged(Unit unit)
+        {
+            TriggerUnitStateUpdate(unit);
         }
 
         public void CreateUIUnit(Unit unit)
@@ -158,6 +244,12 @@ namespace BattleUI
             var battleUnit = UIPool.GetObject(UI_BattleUnit.URL) as UI_BattleUnit;
             battleUnit.SetUnit(unit);
             m_Units.AddChild(battleUnit);
+
+            // 注册单位状态监听
+            RegisterUnitStateListener(unit.Id, (u) => {
+                // 当单位状态改变时，标记为需要刷新
+                dirtyUnits.Add(u.Id);
+            });
         }
 
         public void ReturnUIUnit(Unit unit)
