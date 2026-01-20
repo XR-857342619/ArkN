@@ -435,6 +435,7 @@ public class Unit
         {
             skill.Finish();
         }
+        Refresh();
         PushBuffs.Clear();
     }
 
