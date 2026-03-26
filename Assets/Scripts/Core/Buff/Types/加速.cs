@@ -50,9 +50,9 @@ namespace Buffs
             }
         }
 
-        public override void Apply()
+        public override void ApplyToUnit()
         {
-            base.Apply();
+            base.ApplyToUnit();
             Unit.SpeedRate += level * rate;
         }
 

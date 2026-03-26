@@ -24,6 +24,23 @@ namespace Skills
                 bullets.UnionWith(Battle.FindAllBullets(Unit.Position, SkillData.AttackRange));
             }
             //bullets = bullets.Distinct().ToList();
+            if (bullets.Count == 0) return;
+
+
+        }
+        protected virtual void addBuff(Bullet target)
+        {
+            if (SkillData.Buffs is null) return;
+            for (int i = 0; i < SkillData.Buffs.Length; i++)
+            {
+                var buffChance = 0f;
+                if (SkillData.BuffChance != null && SkillData.BuffChance.Length > i) buffChance = SkillData.BuffChance[i];
+                if (buffChance == 0 || Battle.Random.NextDouble() < buffChance)
+                {
+                    int buffId = SkillData.Buffs[i];
+                    target.AddBuff(buffId, this, i);
+                }
+            }
         }
     }
 }

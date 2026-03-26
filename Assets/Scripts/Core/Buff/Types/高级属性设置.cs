@@ -26,7 +26,7 @@ namespace Buffs
             }
         }
 
-        public override void Apply()
+        public override void ApplyToUnit()
         {
             for (int i = 0; i < names.Length; i++)
             {

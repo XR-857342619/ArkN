@@ -8,9 +8,9 @@ namespace Buffs
 {
     public class 不可阻挡 : Buff
     {
-        public override void Apply()
+        public override void ApplyToUnit()
         {
-            base.Apply();
+            base.ApplyToUnit();
             if (Unit is Units.敌人 u)
             {
                 u.UnStopped = true;

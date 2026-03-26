@@ -22,7 +22,7 @@ namespace Buffs
             }
         }
 
-        public override void Apply()
+        public override void ApplyToUnit()
         {
             Debug.Log("开始应用数值变化buff");
             for (int i = 0; i < names.Length; i++)
@@ -37,6 +37,24 @@ namespace Buffs
                 float baseValue = (float)field.GetValue(Unit);
                 field.SetValue(Unit, baseValue + GetValue(i));
                 Log.Debug($"{Unit.UnitData.Id}的{names[i]}变成{field.GetValue(Unit)}");
+            }
+        }
+
+        public override void ApplyToBullet()
+        {
+            Debug.Log("开始应用数值变化buff");
+            for (int i = 0; i < names.Length; i++)
+            {
+                string fieldName = (string)names[i];
+                var field = Bullet.GetType().GetField(fieldName);
+                if (field == null)
+                {
+                    Log.Debug($"{Bullet.BulletData.Id} 没有 属性 {fieldName}");
+                    continue;
+                }
+                float baseValue = (float)field.GetValue(Bullet);
+                field.SetValue(Bullet, baseValue + GetValue(i));
+                Log.Debug($"{Bullet.BulletData.Id}的{names[i]}变成{field.GetValue(Bullet)}");
             }
         }
 

@@ -8,9 +8,9 @@ namespace Buffs
 {
     public class 缴械 : Buff
     {
-        public override void Apply()
+        public override void ApplyToUnit()
         {
-            base.Apply();
+            base.ApplyToUnit();
             Unit.CanAttack = false;
         }
     }

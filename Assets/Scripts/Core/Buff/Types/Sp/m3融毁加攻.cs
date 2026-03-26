@@ -15,7 +15,7 @@ namespace Buffs
             Unit.BreakAllCast();
         }
 
-        public override void Apply()
+        public override void ApplyToUnit()
         {
             var p = (Unit as Units.干员).Parent;
             Unit.AttackRate += Skill.SkillData.GetBuffData(Index)[0] * p.MainSkill.Opening.value / p.MainSkill.SkillData.OpenTime;

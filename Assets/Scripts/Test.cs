@@ -57,7 +57,7 @@ public class Test : MonoBehaviour
         //};
         //AstarPath.StartPath(p);
         //p.BlockUntilCalculated();
-        //s.Apply(p);
+        //s.ApplyToUnit(p);
         //foreach (var point in p.vectorPath)
         //{
         //    Debug.Log(point);

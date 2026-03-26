@@ -273,7 +273,7 @@ public class Unit
             Hatre = UnitData.Hatred;
             foreach (var buff in Buffs)
             {
-                if (buff.Enable()) buff.Apply();
+                if (buff.Enable()) buff.ApplyToUnit();
             }
             StopCount = UnitData.StopCount + (int)StopCountAdd;
             Speed = (SpeedBase + SpeedAdd) * (1 + SpeedRate) / 2;

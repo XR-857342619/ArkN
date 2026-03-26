@@ -9,9 +9,9 @@ namespace Buffs
     public class 绝食 : Buff
     {
         int unitId = -1;
-        public override void Apply()
+        public override void ApplyToUnit()
         {
-            base.Apply();
+            base.ApplyToUnit();
             Unit.CanBeHeal = false;
             var str= BuffData.Data.GetStr("HealOnly");
             if (!string.IsNullOrEmpty(str))

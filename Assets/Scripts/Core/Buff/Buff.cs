@@ -40,21 +40,6 @@ public class Buff
 
     public virtual void Init()
     {
-        //// 如果施加者有「BUFF可抵挡制造」效果 → 这个buff就是可抵挡的
-        //if (SourceUnit != null)
-        //{
-        //    BuffData.IsCancelable = SourceUnit.Buffs.Any(b => b.MakesBuffsCancelable && !b.Dead);
-        //}
-
-        //// 自己是不是「BUFF抵挡制造者」
-        //if (MakesBuffsCancelable)
-        //    MakesBuffsCancelable = true;
-
-        //// 先检查目标是否能抵挡
-        //if (BuffData.IsCancelable && Unit.Buffs.Any(b => b.CancelsCancelableBuffs && !b.Dead))
-        //{
-        //    return; // 进入压制状态，不生效，但持续时间仍在走
-        //}
         updateLastTime();
         //Log.Debug(Unit.UnitData.Name + "获取了buff: " + BuffData.Id + "持续时间" + Duration.value);
         // 持续特效（显示用）
@@ -112,7 +97,12 @@ public class Buff
         return true;
     }
 
-    public virtual void Apply()
+    public virtual void ApplyToUnit()
+    {
+
+    }
+
+    public virtual void ApplyToBullet()
     {
 
     }
@@ -143,7 +133,7 @@ public class Buff
             //Finish();
             //Unit.RemoveBuff(this);
             if (Unit is not null) Unit.AddBuff(BuffData.Upgrade.Value, this.Skill, Index);        
-            if (Bullet is not null) Bullet.AddBuff(BuffData.Upgrade.Value, Index);        
+            if (Bullet is not null) Bullet.AddBuff(BuffData.Upgrade.Value, this.Skill,Index);        
         }
         if (BuffData.IfSwitch)
         {

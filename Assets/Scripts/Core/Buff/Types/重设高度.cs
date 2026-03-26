@@ -49,9 +49,9 @@ namespace Buffs
             velocity = 0f;
         }
 
-        public override void Apply()
+        public override void ApplyToUnit()
         {
-            base.Apply();
+            base.ApplyToUnit();
 
             if (isTakingOff)
             {
@@ -87,7 +87,7 @@ namespace Buffs
                 isLanding = true;
                 velocity = 0f;
                 //velocity = (takeOffHeight - landingHeight) / smoothTime;
-                Apply();
+                ApplyToUnit();
             }
         }
 

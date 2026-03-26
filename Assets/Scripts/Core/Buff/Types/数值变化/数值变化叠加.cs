@@ -28,10 +28,16 @@ namespace Buffs
             if (Level > MaxLevel && MaxLevel != 0) Level = MaxLevel;
         }
 
-        public override void Apply()
+        public override void ApplyToUnit()
         {
             Log.Debug("数值变化可叠加Apply");
-            base.Apply();
+            base.ApplyToUnit();
+        }
+
+        public override void ApplyToBullet()
+        {
+            Log.Debug("数值变化可叠加Apply");
+            base.ApplyToBullet();
         }
 
         public override void Update()

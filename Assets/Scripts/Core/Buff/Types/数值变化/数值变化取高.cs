@@ -8,7 +8,7 @@ namespace Buffs
 {
     public class 数值变化取高:数值变化
     {
-        public override void Apply()
+        public override void ApplyToUnit()
         {
             for (int i = 0; i < names.Length; i++)
             {
@@ -24,6 +24,25 @@ namespace Buffs
                 if (baseValue < targetValue)
                     field.SetValue(Unit, targetValue);
                 //UnityEngine.Debug.Log($"{Unit.UnitData.Id}的{names[i]}变成{field.GetValue(Unit)}");
+            }
+        }
+
+        public override void ApplyToBullet()
+        {
+            for (int i = 0; i < names.Length; i++)
+            {
+                string fieldName = (string)names[i];
+                var field = Bullet.GetType().GetField(fieldName);
+                if (field == null)
+                {
+                    Log.Debug($"{Bullet.BulletData.Id} 没有 属性 {fieldName}");
+                    continue;
+                }
+                float baseValue = (float)field.GetValue(Bullet);
+                var targetValue = GetValue(i);
+                if (baseValue < targetValue)
+                    field.SetValue(Bullet, targetValue);
+                //UnityEngine.Debug.Log($"{Bullet.BulletData.Id}的{names[i]}变成{field.GetValue(Bullet)}");
             }
         }
     }

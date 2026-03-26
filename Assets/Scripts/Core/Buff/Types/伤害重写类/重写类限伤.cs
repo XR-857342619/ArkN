@@ -14,9 +14,9 @@ namespace Buffs
             this.Count = BuffData.Data.GetInt("Count", 0);
             this.Unit.RewriteDamage = (float)this.Count;
         }
-        public override void Apply()
+        public override void ApplyToUnit()
         {
-            base.Apply();
+            base.ApplyToUnit();
             if (this.Dead)
             {
                 return;

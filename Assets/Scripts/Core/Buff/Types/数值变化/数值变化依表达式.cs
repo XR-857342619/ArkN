@@ -19,7 +19,7 @@ namespace Buffs
             evaluator = new ExpressionExecutor(this);
         }
         
-        public override void Apply()
+        public override void ApplyToUnit()
         {
             //base.Update();
             if (string.IsNullOrEmpty(expression) || time == 0)
@@ -31,6 +31,20 @@ namespace Buffs
             time--;
             //Log.Debug(time);
         }
+
+        public override void ApplyToBullet()
+        {
+            //base.Update();
+            if (string.IsNullOrEmpty(expression) || time == 0)
+            {
+                //Finish();
+                return;
+            }
+            evaluator.ExecuteAssignment(expression);
+            time--;
+            //Log.Debug(time);
+        }
+
         public override void Reset()
         {
             base.Reset();

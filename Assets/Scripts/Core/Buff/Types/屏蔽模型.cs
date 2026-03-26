@@ -14,9 +14,9 @@ namespace Buffs
             base.Init();
             buffConfig = Skill.SkillData.GetBuffData(Index)[0];
         }
-        public override void Apply()
+        public override void ApplyToUnit()
         {
-            base.Apply();
+            base.ApplyToUnit();
             switch (buffConfig)
             {
                 case 0:

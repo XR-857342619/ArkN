@@ -93,13 +93,13 @@ public class Bullet
     {
         foreach (var buff in Buffs)
         {
-            if (buff.Enable()) buff.Apply();
+            if (buff.Enable()) buff.ApplyToBullet();
         }
         Speed = Math.Max(0.001f, (SpeedBase + SpeedAdd) * (1 + SpeedRate));
         Attack = Math.Max(1, ((AttackBase + AttackAdd) * (1 + AttackRate) + AttackAddFin) * (1 + AttackRateFin));
     }
 
-    public Buff AddBuff(int buffId, int index, float lastTime = -1.0f)
+    public Buff AddBuff(int buffId, Skill source, int index, float lastTime = -1.0f)
     {
         //if (IgnoreBuffs.Contains(buffId)) return null;
 
@@ -126,7 +126,7 @@ public class Bullet
             }
             newBuff.Index = index;
             newBuff.Id = buffId;
-            newBuff.Skill = Skill;
+            newBuff.Skill = source;
             //newBuff.Unit = this;
             newBuff.LastTime = lastTime;
 
