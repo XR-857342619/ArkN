@@ -286,7 +286,7 @@ public class Unit
             if (Defence < 0) Defence = 0;
             MagicDefence = ((MagicDefenceBase + MagicDefenceAdd) * (1 + MagicDefenceRate) + MagicDefenceAddFin) * (1 + MagicDefenceRateFin);
             if (MagicDefence < 0) MagicDefence = 0;
-            if (MagicDefence > 100) MagicDefence = 100;
+            //if (MagicDefence > 100) MagicDefence = 100;
             HpRecover = (HpRecoverBase + HpRecoverAdd);
             if (HpRecover > 0) HpRecover = HpRecover * (1 + HpRecoverRate);
             Agi = ((AgiBase + AgiAdd) * (1 + AgiRate) + AgiAddFin) * (1 + AgiRateFin);
@@ -986,7 +986,7 @@ public class Unit
                 if (damage < 0) damage = 1;
                 break;
             case DamageTypeEnum.Magic:
-                var magDefence = Mathf.Max(0, MagicDefence * (1 - defIgnoreRate) - defIgnore);
+                var magDefence = Mathf.Max(0, Mathf.Min(100, MagicDefence * (1 - defIgnoreRate)) - defIgnore);
                 damage = Mathf.Max(damage * minDamageRate, damage * (100 - magDefence) / 100);
                 break;
         }
