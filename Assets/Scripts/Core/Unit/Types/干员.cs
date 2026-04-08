@@ -67,7 +67,7 @@ namespace Units
             ResetTimeAdd = ResetTimeRate = 0;
             base.Refresh();
             Cost = Math.Max(0, CostBase + CostAdd);
-            Debug.Log("Cost = " + CostBase + "+" + CostAdd + "=" + Cost);
+            //Debug.Log("Cost = " + CostBase + "+" + CostAdd + "=" + Cost);
             if (Cost != LastCost) UI_Battle.Instance.TriggerUnitStateUpdate(this);
             LastCost = Cost;
             //if (Cost == 0) UI_Battle.Instance.TriggerUnitStateUpdate(this);

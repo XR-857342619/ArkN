@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SkeletonAnimation: {fileID: 3858661512976373257}
+  isNew: 0
   Shadow: {fileID: 0}
 --- !u!1 &3058355912006120150
 GameObject:
@@ -214,7 +215,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &3858661512976373257
 MonoBehaviour:

@@ -20,7 +20,6 @@ public class NormalModel : UnitModel
         if (meshRenderer == null) return;
         // 创建材质实例（避免影响原材质）
         materialInstance = new Material(meshRenderer.material);
-        meshRenderer.material = materialInstance;
     }
     public override void Init(Unit unit)
     {
@@ -30,8 +29,12 @@ public class NormalModel : UnitModel
         //Debug.Log(Color + "," + Alpha);
         //gameObject.SetActive(false);
         Animator?.Play(Unit.AnimationName[0]);
-        SetColorFromHex(Color);
-        SetAlpha(Alpha);
+        if (Color is not null)
+        {
+            meshRenderer.material = materialInstance;
+            SetColorFromHex(Color);
+            SetAlpha(Alpha);
+        }
     }
 
 

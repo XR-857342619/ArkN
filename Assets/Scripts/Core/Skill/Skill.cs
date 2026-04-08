@@ -540,7 +540,7 @@ public class Skill
     {
         if (!Useable())
         {
-            Debug.Log(SkillData.Id + "不可用");
+            //Debug.Log(SkillData.Id + "不可用");
             return;
         }
         if (Targets.Count == 0)
@@ -568,7 +568,7 @@ public class Skill
         
         if (showRange)
             ShowUnitAttackArea();
-        Log.Debug(SkillData.Id + "开始使用");
+        //Log.Debug(SkillData.Id + "开始使用");
         //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "使用次数:" + UseCount);
         if (SkillData.ReadyType == SkillReadyEnum.充能释放)
         {
@@ -671,7 +671,7 @@ public class Skill
             Power -= MaxPower;
         }
 
-        Debug.Log(SkillData.Id + "生效");
+        //Debug.Log(SkillData.Id + "生效");
 
         //if (SkillData.PowerUseType == PowerRecoverTypeEnum.攻击 && IsNormalAttack)//有动作有伤害的技能视为普攻，用于消耗弹药
         if (SkillData.PowerUseType == PowerRecoverTypeEnum.攻击)//有动作有伤害的技能视为普攻，用于消耗弹药
@@ -729,8 +729,8 @@ public class Skill
         CastExSkill();
         if (SkillData.BurstCount > 0)
         {
-            //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "开始Burst");
-            //Burst();
+            Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "开始Burst");
+            Burst();
             BurstCount = SkillData.BurstCount;
             IsBursting = true;
             BurstGap.Set(SkillData.BurstDelay);

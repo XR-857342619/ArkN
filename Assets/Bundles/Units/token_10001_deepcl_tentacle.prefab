@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1236959040133752257}
   - component: {fileID: 6027258955731860300}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: "\u5F71\u5B50"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2945142553889178682}
   - component: {fileID: 796839590942381595}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: token_10001_deepcl_tentacle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131,6 +131,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SkeletonAnimation: {fileID: 324496441368159949}
+  isNew: 0
   Shadow: {fileID: 0}
 --- !u!1 &7251410903560258036
 GameObject:
@@ -144,7 +145,7 @@ GameObject:
   - component: {fileID: 4477774972465869709}
   - component: {fileID: 4451711045550757088}
   - component: {fileID: 324496441368159949}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -194,7 +195,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8d35a1bbc9be94d4a8920915e11ff2aa, type: 2}
+  - {fileID: 2100000, guid: b775dbfc40841994b86e20d2da448c12, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -214,7 +215,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &324496441368159949
 MonoBehaviour:

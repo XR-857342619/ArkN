@@ -32,7 +32,8 @@ namespace Skills
                 FindTarget();
             }
             if (Targets.Count == 0 && !SkillData.NoTargetAlsoUse) return;
-                UseCount++; AstarPath.active.Scan();
+            UseCount++; 
+            //AstarPath.active.Scan();
             //由于地块通行性发生变化，通知所有敌人
             foreach (var unit in Battle.Enemys)
             {

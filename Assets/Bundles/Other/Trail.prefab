@@ -14,6 +14,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2330784161164761208, guid: 0e3e365f24490d7449eb5506b0bbf63d,
         type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2330784161164761208, guid: 0e3e365f24490d7449eb5506b0bbf63d,
+        type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2330784161164761208, guid: 0e3e365f24490d7449eb5506b0bbf63d,
+        type: 3}
       propertyPath: m_Parameters.alignment
       value: 1
       objectReference: {fileID: 0}

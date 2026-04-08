@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class Tile
+public class Tile: ITileData
 {
     public Battle Battle => Map.Battle;
     public Map Map;
@@ -28,10 +28,15 @@ public class Tile
     /// 广搜临时数据
     /// </summary>
     public Tile PreGrid;
+    public bool Passable {get => passable; set => passable = value;}
+    public bool passable;
+
+    public float PassCost { get => passCost; set => passCost = value; }
+    public float passCost;
 
     public string Tag;
     public float ActiveTime;
-
+    
     public virtual void Update()
     {
         //CanSet(unit);
@@ -49,6 +54,8 @@ public class Tile
         this.CanBuildUnit = mapGrid.CanBuildUnit;
         this.FarAttackGrid = mapGrid.FarAttackGrid;
         this.Tag = mapGrid.Tag;
+        passable = !FarAttackGrid;
+        passCost = FarAttackGrid ? 1000 : 0;
     }
 
     public bool CanSet(UnitData unitData)

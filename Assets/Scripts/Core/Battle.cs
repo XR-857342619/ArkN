@@ -153,7 +153,7 @@ public class Battle
             {
                 Target = unit,
             });
-            Debug.Log(unit.UnitData.Name + "trigger 出场");
+            //Debug.Log(unit.UnitData.Name + "trigger 出场");
             Trigger(TriggerEnum.出场);
             TriggerDatas.Pop();
         }
@@ -293,14 +293,15 @@ public class Battle
     {
         if (wave.WaveData.sUnitId == null)
         {
-            var PathPoints = MapData.PathInfos.Find(x => x.Name == wave.WaveData.Path).Path;
-            List<Vector3> p = new List<Vector3>();
-            for (int i = 0; i < PathPoints.Count - 1; i++)
-            {
-                var p1 = Map.FindPath(PathPoints[i].Pos, PathPoints[i + 1].Pos, PathPoints[i].DirectMove);
-                p.AddRange(p1);
-            }
-            TrailManager.Instance.ShowPath(p);
+            var pathInfo = MapData.PathInfos.Find(x => x.Name == wave.WaveData.Path);
+            //var PathPoints = pathInfo.Path;
+            //List<Vector3> p = new List<Vector3>();
+            //for (int i = 0; i < PathPoints.Count - 1; i++)
+            //{
+            //    var p1 = Map.FindPath(PathPoints[i].Pos, PathPoints[i + 1].Pos, PathPoints[i].DirectMove);
+            //    p.AddRange(p1);
+            //}
+            TrailManager.Instance.ShowPath(AStarPathFinder.FindPath(Map.Tiles, pathInfo.Path.Select(x => x.Pos).ToList(), pathInfo.FlyPath));
         }
         else
         {

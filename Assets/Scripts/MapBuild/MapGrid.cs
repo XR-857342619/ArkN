@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Linq;
 
-public class MapGrid : MonoBehaviour, IPointerClickHandler
+public class MapGrid : MonoBehaviour, IPointerClickHandler, ITileData
 {
     public int X, Y;
     /// <summary>
@@ -15,10 +15,14 @@ public class MapGrid : MonoBehaviour, IPointerClickHandler
     /// 远程格子
     /// </summary>
     public bool FarAttackGrid;
+    public bool Passable { get => !FarAttackGrid; }
     /// <summary>
     /// 能否移动
     /// </summary>
     public bool CanMove;
+
+    public float PassCost { get => passCost; }
+    public float passCost = 0;
 
     public string MapUnitId;
     public GameObject go;

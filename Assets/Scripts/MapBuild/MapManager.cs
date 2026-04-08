@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.Threading.Tasks;
-using Pathfinding;
+//using Pathfinding;
 using System;
 
 public class MapManager : MonoBehaviour
@@ -11,9 +11,6 @@ public class MapManager : MonoBehaviour
     public static MapManager Instance;
 
     public MapGrid[,] Grids;
-
-    public float cornerSmoothDistance = 0.3f; // 拐角过渡距离
-    public int segmentsPerCorner = 5; // 每个拐角的过渡段数
 
     bool choose;
     bool brush;
@@ -87,22 +84,23 @@ public class MapManager : MonoBehaviour
     }
 
 
-    StartEndModifier startEndModifier = new StartEndModifier()
-    {
-        exactStartPoint = StartEndModifier.Exactness.ClosestOnNode,
-        exactEndPoint = StartEndModifier.Exactness.ClosestOnNode,
-    };
-    RaycastModifier raycastModifier = new RaycastModifier()
-    {
-        useGraphRaycasting = true,
-        useRaycasting = false,
-        //thickRaycastRadius = 0.25f
-    };
+    //StartEndModifier startEndModifier = new StartEndModifier()
+    //{
+    //    exactStartPoint = StartEndModifier.Exactness.ClosestOnNode,
+    //    exactEndPoint = StartEndModifier.Exactness.ClosestOnNode,
+    //};
+    //RaycastModifier raycastModifier = new RaycastModifier()
+    //{
+    //    useGraphRaycasting = true,
+    //    useRaycasting = false,
+    //    //thickRaycastRadius = 0.25f
+    //};
     LineRenderer Line;
     Pool<Transform> Pool = new Pool<Transform>();
     List<Transform> Sphere = new List<Transform>();
     public void ShowPath(List<PathPoint> points, bool fly = false)
     {
+        //Debug.Log(Grids.Length);
         if (Line == null)
         {
             Line = ResHelper.Instantiate("Assets/Bundles/Other/Line").GetComponent<LineRenderer>();
@@ -129,52 +127,57 @@ public class MapManager : MonoBehaviour
                 Sphere.Add(t);
             }
 
-            List<Vector3> pathPoints = new List<Vector3>();
+            List<Vector3> rawPath = points.Select(x => x.Pos).ToList();
+            List<Vector3> pathPoints = AStarPathFinder.FindPath(Grids, rawPath, fly);
 
-            if (!fly)
-            {
-                // 处理非飞行路径
-                for (int i = 0; i < points.Count - 1; i++)
-                {
-                    PathPoint point = points[i];
-                    if (points[i].HideMove)
-                    {
-                        pathPoints.Add(points[i].Pos);
-                        pathPoints.Add(points[i + 1].Pos);
-                    }
-                    else
-                    {
-                        var p = ABPath.Construct(points[i].Pos, points[i + 1].Pos);
-                        AstarPath.StartPath(p);
-                        p.BlockUntilCalculated();
+            //if (!fly)
+            //{
+            //    //// 处理非飞行路径
+            //    //for (int i = 0; i < points.Count - 1; i++)
+            //    //{
+            //    //    PathPoint point = points[i];
+            //    //    if (points[i].HideMove)
+            //    //    {
+            //    //        pathPoints.Add(points[i].Pos);
+            //    //        pathPoints.Add(points[i + 1].Pos);
+            //    //    }
+            //    //    //else
+            //    //    //{
+            //    //    //    //var p = ABPath.Construct(points[i].Pos, points[i + 1].Pos);
+            //    //    //    //AstarPath.StartPath(p);
+            //    //    //    //p.BlockUntilCalculated();
 
-                        startEndModifier.Apply(p);
+            //    //    //    //startEndModifier.Apply(p);
 
-                        if (p.vectorPath.Count > 0 && (points[i].DirectMove || points[i].HideMove))
-                            raycastModifier.Apply(p);
+            //    //    //    //if (p.vectorPath.Count > 0 && (points[i].DirectMove || points[i].HideMove))
+            //    //    //    //    raycastModifier.Apply(p);
 
-                        pathPoints.AddRange(p.vectorPath);
-                    }
-                }
-            }
-            else
-            {
-                // 处理飞行路径
-                pathPoints.AddRange(points.Select(x => x.Pos));
-            }
+            //    //    //    //pathPoints.AddRange(p.vectorPath);
+            //    //    //    List<Vector3> p = new List<Vector3>();
+            //    //    //    p.AddRange(AStarPathFinder.FindPath(Grids, point.Pos, points[i + 1].Pos));
+            //    //    //    //if (p.Count > 2)
+            //    //    //    pathPoints.AddRange(p);
+            //    //    //}
+            //    //}
+            //}
+            //else
+            //{
+            //    // 处理飞行路径
+            //    pathPoints.AddRange(points.Select(x => x.Pos));
+            //}
 
             // 应用贝塞尔曲线平滑处理
-            List<Vector3> smoothedPoints = ApplyBezierSmoothing(pathPoints);
+            //List<Vector3> smoothedPoints = ApplyBezierSmoothing(pathPoints);
 
             // 调整Y轴高度
-            for (int i = 0; i < smoothedPoints.Count; i++)
+            for (int i = 0; i < pathPoints.Count; i++)
             {
-                smoothedPoints[i] += new Vector3(0, fly ? 0.5f : 0.1f, 0);
+                pathPoints[i] += new Vector3(0, fly ? 0.5f : 0.1f, 0);
             }
 
             // 设置LineRenderer的顶点
-            Line.positionCount = smoothedPoints.Count;
-            Line.SetPositions(smoothedPoints.ToArray());
+            Line.positionCount = pathPoints.Count;
+            Line.SetPositions(pathPoints.ToArray());
         }
         else
         {
@@ -182,60 +185,60 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 对路径点应用贝塞尔曲线平滑处理
-    /// </summary>
-    private List<Vector3> ApplyBezierSmoothing(List<Vector3> originalPoints)
-    {
-        if (originalPoints.Count < 3)
-        {
-            // 少于3个点，无需平滑处理
-            return new List<Vector3>(originalPoints);
-        }
+    ///// <summary>
+    ///// 对路径点应用贝塞尔曲线平滑处理
+    ///// </summary>
+    //private List<Vector3> ApplyBezierSmoothing(List<Vector3> originalPoints)
+    //{
+    //    if (originalPoints.Count < 3)
+    //    {
+    //        // 少于3个点，无需平滑处理
+    //        return new List<Vector3>(originalPoints);
+    //    }
 
-        List<Vector3> smoothedPoints = new List<Vector3>();
+    //    List<Vector3> smoothedPoints = new List<Vector3>();
 
-        // 添加第一个点
-        smoothedPoints.Add(originalPoints[0]);
+    //    // 添加第一个点
+    //    smoothedPoints.Add(originalPoints[0]);
 
-        // 处理中间的每个拐角
-        for (int i = 1; i < originalPoints.Count - 1; i++)
-        {
-            Vector3 prevPoint = originalPoints[i - 1];
-            Vector3 currentPoint = originalPoints[i];
-            Vector3 nextPoint = originalPoints[i + 1];
+    //    // 处理中间的每个拐角
+    //    for (int i = 1; i < originalPoints.Count - 1; i++)
+    //    {
+    //        Vector3 prevPoint = originalPoints[i - 1];
+    //        Vector3 currentPoint = originalPoints[i];
+    //        Vector3 nextPoint = originalPoints[i + 1];
 
-            // 计算当前点与前后点的方向
-            Vector3 dirToCurrent = (currentPoint - prevPoint).normalized;
-            Vector3 dirFromCurrent = (nextPoint - currentPoint).normalized;
+    //        // 计算当前点与前后点的方向
+    //        Vector3 dirToCurrent = (currentPoint - prevPoint).normalized;
+    //        Vector3 dirFromCurrent = (nextPoint - currentPoint).normalized;
 
-            // 计算拐角处的起点和终点偏移
-            Vector3 startTangent = currentPoint - dirToCurrent * cornerSmoothDistance;
-            Vector3 endTangent = currentPoint + dirFromCurrent * cornerSmoothDistance;
+    //        // 计算拐角处的起点和终点偏移
+    //        Vector3 startTangent = currentPoint - dirToCurrent * cornerSmoothDistance;
+    //        Vector3 endTangent = currentPoint + dirFromCurrent * cornerSmoothDistance;
 
-            // 使用贝塞尔曲线生成过渡点
-            for (int j = 1; j <= segmentsPerCorner; j++)
-            {
-                float t = j / (float)segmentsPerCorner;
-                Vector3 bezierPoint = CalculateQuadraticBezier(startTangent, currentPoint, endTangent, t);
-                smoothedPoints.Add(bezierPoint);
-            }
-        }
+    //        // 使用贝塞尔曲线生成过渡点
+    //        for (int j = 1; j <= segmentsPerCorner; j++)
+    //        {
+    //            float t = j / (float)segmentsPerCorner;
+    //            Vector3 bezierPoint = CalculateQuadraticBezier(startTangent, currentPoint, endTangent, t);
+    //            smoothedPoints.Add(bezierPoint);
+    //        }
+    //    }
 
-        // 添加最后一个点
-        smoothedPoints.Add(originalPoints[originalPoints.Count - 1]);
+    //    // 添加最后一个点
+    //    smoothedPoints.Add(originalPoints[originalPoints.Count - 1]);
 
-        return smoothedPoints;
-    }
+    //    return smoothedPoints;
+    //}
 
-    /// <summary>
-    /// 计算二次贝塞尔曲线上的点
-    /// </summary>
-    private Vector3 CalculateQuadraticBezier(Vector3 start, Vector3 control, Vector3 end, float t)
-    {
-        float u = 1 - t;
-        return u * u * start + 2 * u * t * control + t * t * end;
-    }
+    ///// <summary>
+    ///// 计算二次贝塞尔曲线上的点
+    ///// </summary>
+    //private Vector3 CalculateQuadraticBezier(Vector3 start, Vector3 control, Vector3 end, float t)
+    //{
+    //    float u = 1 - t;
+    //    return u * u * start + 2 * u * t * control + t * t * end;
+    //}
 
     public void AutoBuild()
     {

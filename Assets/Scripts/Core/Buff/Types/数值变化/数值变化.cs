@@ -24,7 +24,7 @@ namespace Buffs
 
         public override void ApplyToUnit()
         {
-            Debug.Log("开始应用数值变化buff");
+            //Debug.Log("开始应用数值变化buff");
             for (int i = 0; i < names.Length; i++)
             {
                 string fieldName = (string)names[i];
@@ -36,7 +36,7 @@ namespace Buffs
                 }
                 float baseValue = (float)field.GetValue(Unit);
                 field.SetValue(Unit, baseValue + GetValue(i));
-                Log.Debug($"{Unit.UnitData.Id}的{names[i]}变成{field.GetValue(Unit)}");
+                //Log.Debug($"{Unit.UnitData.Id}的{names[i]}变成{field.GetValue(Unit)}");
             }
         }
 

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6367997977989604319}
   - component: {fileID: 8237449662457965408}
   - component: {fileID: 6660266390375003063}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 7962c663d2147e345b5e9fffa1832bb4, type: 2}
+  - {fileID: 2100000, guid: b775dbfc40841994b86e20d2da448c12, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -82,7 +82,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &6660266390375003063
 MonoBehaviour:
@@ -131,7 +131,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8847298104799312948}
   - component: {fileID: 5930230879680128258}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: token_10000_silent_healrb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -168,6 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SkeletonAnimation: {fileID: 6660266390375003063}
+  isNew: 0
   Shadow: {fileID: 0}
 --- !u!1 &9094607423970801578
 GameObject:
@@ -179,7 +180,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8996247561928947474}
   - component: {fileID: 1912174933578221988}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: "\u5F71\u5B50"
   m_TagString: Untagged
   m_Icon: {fileID: 0}

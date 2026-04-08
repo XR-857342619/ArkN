@@ -65,7 +65,7 @@ public class PathInfo
     public string Name;
     public bool FlyPath;
     public List<PathPoint> Path;
-    public List<PathPoint> fixedPath;
+    //public List<PathPoint> fixedPath;
     //public List<float> distances;
     //public float time;
     public float length;

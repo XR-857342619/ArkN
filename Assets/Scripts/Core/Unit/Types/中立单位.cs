@@ -11,12 +11,16 @@ namespace Units
     {
         public override void UpdateAction()
         {
-            base.UpdateAction();
+            //UpdateBuffSuppression();
 
-            //if (MainSkill != null && MainSkill.SkillData.PowerType == PowerRecoverTypeEnum.自动)
-            //{
-            //    RecoverPower(PowerSpeed * SystemConfig.DeltaTime);
-            //}
+            if (Alive())
+            {
+                //HP自动回复
+                Hp += HpRecover * SystemConfig.DeltaTime;
+                Hp += HpRecoverP * MaxHp * SystemConfig.DeltaTime;
+                if (Hp > MaxHp) Hp = MaxHp;
+                if (Hp < 0) DoDie(null);
+            }
             if (this.State == StateEnum.Die)
             {
                 UpdateDie();

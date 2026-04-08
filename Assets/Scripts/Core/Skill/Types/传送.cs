@@ -69,7 +69,7 @@ namespace Skills
                         enemy.Position = pos;
                     else if (useMod == "IfCanArrvie")
                     {
-                        if (enemy.IsCanArrive(new PathPoint() { Pos = enemy.Position }, new PathPoint() { Pos = pos }))
+                        if (enemy.IsCanArrive(enemy.Position, pos))
                             enemy.Position = pos;
                     }
                     else if (useMod == ">limitDistance")

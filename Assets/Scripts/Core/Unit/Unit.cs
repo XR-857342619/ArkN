@@ -685,7 +685,7 @@ public class Unit
             newBuff.Unit = this;
             newBuff.LastTime = lastTime;
 
-            Debug.Log("Add " + config.Id + " Buff to " + UnitData.Name);
+            //Debug.Log("Add " + config.Id + " Buff to " + UnitData.Name);
 
             // 添加到BUFF列表
             Buffs.Add(newBuff);

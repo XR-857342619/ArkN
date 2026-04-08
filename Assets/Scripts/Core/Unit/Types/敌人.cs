@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEngine.GraphicsBuffer;
 
 namespace Units
@@ -21,7 +22,7 @@ namespace Units
     {
         public const float StopExCheck = 0.1f, TempArriveDistance = 0.1f;
         public Unit StopUnit;
-        public 敌人 Parent;
+        new public 敌人 Parent;
 
         public WaveInfo WaveData;//=> Database.Instance.Get<WaveData>(WaveId);
         //public int WaveId;
@@ -46,6 +47,9 @@ namespace Units
 
         public List<PathPoint> tmpPathPointList = new List<PathPoint>();
         public List<CountDown> tmpPathPointLastList = new List<CountDown>();
+
+        List<PathPoint> toRemoveTmpPathPointList = new List<PathPoint>();
+        List<CountDown> toRemoveTmpPathPointLastList = new List<CountDown>();
 
         public override void Init()
         {
@@ -263,7 +267,8 @@ namespace Units
                         var offset = new Vector3(WaveData.OffsetX, 0, WaveData.OffetsetY);
                         List<Vector3> tempPath;
                         if (Height <= 0)
-                            tempPath = Battle.Map.FindPath(Position - offset, GetPoint(pathIndex + 1) - offset, PathPoints[NowPathPoint].DirectMove);
+                            //tempPath = Battle.Map.FindPath(Position - offset, GetPoint(pathIndex + 1) - offset, PathPoints[NowPathPoint].DirectMove);
+                            tempPath = AStarPathFinder.FindPath(Battle.Map.Tiles, new List<Vector3> { Position - offset, GetPoint(pathIndex + 1) - offset }, false);
                         else
                             tempPath = new List<Vector3>() { Position - offset, GetPoint(pathIndex + 1) - offset };
                         for (int i = 1; i < tempPath.Count; i++) //注意不要把起点加进去了
@@ -303,8 +308,8 @@ namespace Units
         {
             if (tmpPathPointList.Count > 0)
             {
-                List<PathPoint> toRemoveTmpPathPointList = new List<PathPoint>();
-                List<CountDown> toRemoveTmpPathPointLastList = new List<CountDown>();
+                toRemoveTmpPathPointList.Clear();
+                toRemoveTmpPathPointLastList.Clear();
                 foreach (CountDown tmpPathPointLast in tmpPathPointLastList)
                 {
                     tmpPathPointLast.Update(SystemConfig.DeltaTime);
@@ -319,9 +324,12 @@ namespace Units
                 if (toRemoveTmpPathPointLastList.Count > 0)
                 {
                     tmpPathPointLastList.RemoveAll(x => toRemoveTmpPathPointLastList.Contains(x));
-                    PathPoints.RemoveAll(x => toRemoveTmpPathPointList.Contains(x));
+                    //PathPoints.RemoveAll(x => toRemoveTmpPathPointList.Contains(x));
                     tmpPathPointList.RemoveAll(x => toRemoveTmpPathPointList.Contains(x));
+                    NowPathPoint += toRemoveTmpPathPointLastList.Count;
+                    Debug.Log(PathPoints.Count + " NowPathPoint:" + NowPathPoint);
                     //NowPathPoint -= toRemoveTmpPathPointLastList.Count();
+                    //NowPathPoint--;
                     NeedResetPath = true;
                 }
             }
@@ -438,7 +446,8 @@ namespace Units
             //Debug.Log("NowPathPoint:" + NowPathPoint);
             var offset = new Vector3(WaveData.OffsetX, 0, WaveData.OffetsetY);
             if (Height <= 0)
-                TempPath = Battle.Map.FindPath(Position - offset, NextPoint - offset, PathPoints[NowPathPoint].DirectMove);
+                //TempPath = Battle.Map.FindPath(Position - offset, NextPoint - offset, PathPoints[NowPathPoint].DirectMove);
+                TempPath = AStarPathFinder.FindPath(Battle.Map.Tiles, new List<Vector3> { Position - offset, NextPoint - offset }, false);
             else
                 TempPath = new List<Vector3>() { Position - offset, GetPoint(NowPathPoint + 1) - offset };
             //Debug.Log(UnitData.Id+ index + " find new path:"+TempPath.Count);
@@ -448,9 +457,11 @@ namespace Units
             {
                 TempPath[i] += offset;
             }
-            //var log = "";
-            //foreach (var p in TempPath) log += p.ToString() + ",";
-            //Debug.Log($"Path:{log}");
+
+            var log = "";
+            foreach (var p in TempPath) log += p.ToString() + ",";
+            Debug.Log($"Path:{log}");
+            
             TempIndex = 0;
             NeedResetPath = false;
             
@@ -459,12 +470,13 @@ namespace Units
         public void DisplayPath()
         {
             List<Vector3> p = new List<Vector3>();
-            for (int i = NowPathPoint; i < PathPoints.Count - 1; i++)
-            {
-                var p1 = Battle.Map.FindPath(PathPoints[i].Pos, PathPoints[i + 1].Pos, PathPoints[i].DirectMove);
-                p.AddRange(p1);
-            }
-            TrailManager.Instance.ShowPath(p);
+            //for (int i = NowPathPoint; i < PathPoints.Count - 1; i++)
+            //{
+            //    //var p1 = Battle.Map.FindPath(PathPoints[i].Pos, PathPoints[i + 1].Pos, PathPoints[i].DirectMove);
+            //    p.Add(PathPoints[i].Pos);
+            //}
+            p.AddRange(PathPoints.FindAll(x => PathPoints.IndexOf(x) >= NowPathPoint).Select(x => x.Pos).ToList());
+            TrailManager.Instance.ShowPath(AStarPathFinder.FindPath(Battle.Map.Tiles, p, Height > 0 ? true : false));
         }
 
         Vector3 GetPoint(int index)
@@ -506,15 +518,16 @@ namespace Units
             //因推拉等外力导致偏移路线时，需要结束等待并,重新寻路
             NeedResetPath = true;
         }
-        public bool IsCanArrive(PathPoint start, PathPoint end)
+        public bool IsCanArrive(Vector3 start, Vector3 end)
         {
-            var path = Battle.Map.FindPath(start.Pos, end.Pos, start.DirectMove);
-            if (Battle.Map.Tiles[(int)start.Pos.x, (int)start.Pos.y].FarAttackGrid != Battle.Map.Tiles[(int)end.Pos.x, (int)end.Pos.y].FarAttackGrid)
+            //var path = Battle.Map.FindPath(start.Pos, end.Pos, start.DirectMove);
+            var path = AStarPathFinder.FindPath(Battle.Map.Tiles, new List<Vector3> { start, end }, false);
+            if (Battle.Map.Tiles[(int)start.x, (int)start.y].FarAttackGrid != Battle.Map.Tiles[(int)end.x, (int)end.y].FarAttackGrid)
                 return false;
             if (path.Count > 2) return true;
             else
             {
-                float distance = (end.Pos - start.Pos).magnitude;
+                float distance = (end - start).magnitude;
                 if (distance > 1.5f)
                     return false;
                 else
@@ -524,7 +537,7 @@ namespace Units
         public bool AddTmpPathPoint(Vector3 pos, float time)
         {
             PathPoint tmpPoint = new PathPoint() { Pos = pos, Delay = time, HideMove = false };
-            if (IsCanArrive(PathPoints[NowPathPoint], tmpPoint))
+            if (IsCanArrive(Position, pos))
             {
                 List<PathPoint> tmp = tmpPathPointList.FindAll(x => x.Pos == pos);
                 if (tmp.Count > 0)
@@ -540,7 +553,7 @@ namespace Units
                 tmpPathPointLastList.Add(new CountDown(time));
                 PathPoints.Insert(NowPathPoint + tmpPathPointList.Count, tmpPoint);
                 PathWaiting.Finish();
-
+                Debug.Log(NextPoint.ToV2());
                 findNewPath();
                 Debug.Log("插入临时路径点成功:" + pos + "lasttime:" + time);
                 DisplayPath();

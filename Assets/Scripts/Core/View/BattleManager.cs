@@ -88,7 +88,7 @@ public class BattleManager : MonoBehaviour
         Battle = new Battle();
         Battle.Init(battleConfig);
         await TimeHelper.Instance.WaitAsync(0.1f);
-        AstarPath.active.Scan();
+        //AstarPath.active.Scan();
 
          for (int i = 0; i < battleConfig.Team.Cards.Count; i++)
         {

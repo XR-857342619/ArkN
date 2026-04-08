@@ -233,7 +233,7 @@ namespace MapBuilderUI
                     //Debug.Log(speed);
                     PathInfo pathinfo = MapInfo.PathInfos.Find(x => x.Name == NowSelect.Path);
                     UI_PathPage ui_PathPage = new UI_PathPage();
-                    ui_PathPage.setFixedPathPoint(pathinfo);
+                    //ui_PathPage.setFixedPathPoint(pathinfo);
                     if (NowSelect.Count > 1)
                         lastTime = pathinfo.length / speed + NowSelect.GapTime * (NowSelect.Count - 1);
                     else

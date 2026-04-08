@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using Pathfinding;
+//using Pathfinding;
 public class Map
 {
     public Battle Battle;
@@ -79,30 +79,30 @@ public class Map
         return tile;
     }
 
-    StartEndModifier startEndModifier = new StartEndModifier()
-    {
-        exactStartPoint = StartEndModifier.Exactness.ClosestOnNode,
-        exactEndPoint = StartEndModifier.Exactness.ClosestOnNode,
-    };
-    RaycastModifier raycastModifier = new RaycastModifier()
-    {
-        useGraphRaycasting = true,
-        useRaycasting = false,
-        //thickRaycastRadius=0.25f
-    };
-    public List<Vector3> FindPath(Vector3 start, Vector3 end,bool raycastModify)
-    {
-        var p = ABPath.Construct(start, end);
-        AstarPath.StartPath(p);
-        p.BlockUntilCalculated();
-        //Log.Debug("path cost:" + p.cost);
-        startEndModifier.Apply(p);
+    //StartEndModifier startEndModifier = new StartEndModifier()
+    //{
+    //    exactStartPoint = StartEndModifier.Exactness.ClosestOnNode,
+    //    exactEndPoint = StartEndModifier.Exactness.ClosestOnNode,
+    //};
+    //RaycastModifier raycastModifier = new RaycastModifier()
+    //{
+    //    useGraphRaycasting = true,
+    //    useRaycasting = false,
+    //    //thickRaycastRadius=0.25f
+    //};
+    //public List<Vector3> FindPath(Vector3 start, Vector3 end,bool raycastModify)
+    //{
+    //    var p = ABPath.Construct(start, end);
+    //    AstarPath.StartPath(p);
+    //    p.BlockUntilCalculated();
+    //    //Log.Debug("path cost:" + p.cost);
+    //    startEndModifier.Apply(p);
 
-        if (raycastModify) raycastModifier.Apply(p);
+    //    if (raycastModify) raycastModifier.Apply(p);
 
-        var result = new List<Vector3>(p.vectorPath);
-        return result;
-    }
+    //    var result = new List<Vector3>(p.vectorPath);
+    //    return result;
+    //}
 
     /// <summary>
     /// 已弃用，请使用A*插件版

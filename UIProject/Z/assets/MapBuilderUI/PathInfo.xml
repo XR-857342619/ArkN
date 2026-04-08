@@ -10,7 +10,7 @@
       <gearDisplay controller="button" pages="4"/>
     </graph>
     <component id="n18_ic0q" name="Fly" src="jh39a" fileName="box.xml" xy="269,6"/>
-    <text id="n19_ic0q" name="n19" xy="203,4" size="64,42" fontSize="30" text="飞机"/>
+    <text id="n19_ic0q" name="n19" xy="203,4" size="64,42" fontSize="30" text="飞行"/>
   </displayList>
   <Button mode="Radio"/>
 </component>

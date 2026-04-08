@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3678341529625122899}
   - component: {fileID: 9093697445951985328}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: token_10003_cgbird_bird
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SkeletonAnimation: {fileID: 8274574475330029291}
+  isNew: 0
   Shadow: {fileID: 0}
 --- !u!1 &4517466667554329017
 GameObject:
@@ -60,7 +61,7 @@ GameObject:
   - component: {fileID: 5143390964463029272}
   - component: {fileID: 1653425533494755199}
   - component: {fileID: 8274574475330029291}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -110,7 +111,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f9d31a772ab7ca54e9c7b501292dca6e, type: 2}
+  - {fileID: 2100000, guid: b775dbfc40841994b86e20d2da448c12, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -130,7 +131,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &8274574475330029291
 MonoBehaviour:
@@ -179,7 +180,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3346314061864751168}
   - component: {fileID: 804477587808839754}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: "\u5F71\u5B50"
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -82,7 +82,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &610311346250555311
 MonoBehaviour:
@@ -96,7 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skeletonDataAsset: {fileID: 11400000, guid: 43a180607710f634fb0968d173c77e95, type: 2}
+  skeletonDataAsset: {fileID: 11400000, guid: 99a134d759fe08846803e33c2f7638c0, type: 2}
   initialSkinName: default
   initialFlipX: 0
   initialFlipY: 0
@@ -168,6 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SkeletonAnimation: {fileID: 610311346250555311}
+  isNew: 0
   Shadow: {fileID: 0}
 --- !u!1 &5104228743599169753
 GameObject:

@@ -108,7 +108,15 @@ namespace MapBuilderUI
             }
             MapManager.Instance.ShowPath(NowSelect.Path, NowSelect.FlyPath);
             // 写入预览路径信息
-            setFixedPathPoint(NowSelect);
+            //setFixedPathPoint(NowSelect);
+            var totalPoint = AStarPathFinder.FindPath(MapManager.Instance.Grids, NowSelect.Path.Select(x => x.Pos).ToList(), NowSelect.FlyPath);
+            float l = 0;
+            for (int i = 0; i < totalPoint.Count - 1; i++)
+            {
+                l += Vector3.Distance(totalPoint[i], totalPoint[i + 1]);
+            }
+            NowSelect.length = l;
+            Debug.Log(NowSelect.length);
         }
 
         async void AddPoint()
@@ -157,60 +165,61 @@ namespace MapBuilderUI
             m_select.selectedIndex = 0;
             FreshPoints();
         }
-        public void setFixedPathPoint(PathInfo path)
-        {
-            float length = 0;
-            if (path.Path.Count >= 2)
-            {
-                path.fixedPath = new List<PathPoint>();
-                //path.distances = new List<float>();
-                for (int i = 0; i < path.Path.Count - 1; i++)
-                {
-                    if (path.Path[i].HideMove || path.Path[i].DirectMove)
-                    {
-                        path.Path[i].nextPoint = path.Path[i + 1];
-                        path.fixedPath.Add(path.Path[i]);
-                        continue;
-                    }
-                    Map Map = new Map();
-                    List<Vector3> points = Map.FindPath(path.Path[i].Pos, path.Path[i + 1].Pos, path.FlyPath);
-                    for (int j = 0; j < points.Count - 1; j++)
-                    {
-                        PathPoint pathPoint = new PathPoint();
-                        if (j == 0)
-                        {
-                            pathPoint.Delay = path.Path[i].Delay;
-                            pathPoint.HideMove = path.Path[i].HideMove;
-                        }
-                        else
-                        {
-                            pathPoint.Delay = 0;
-                            pathPoint.HideMove = false;
-                        }
-                        pathPoint.Pos = points[j];
-                        path.fixedPath.Add(pathPoint);
-                    }
-                }
-                path.fixedPath.Add(path.Path[path.Path.Count - 1]);
-                for (int i = 0; i < path.fixedPath.Count - 1; i++)
-                {
-                    path.fixedPath[i].nextPoint = path.fixedPath[i + 1];
-                    if (path.fixedPath[i].HideMove)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        float distance = Vector3.Distance(path.fixedPath[i].Pos, path.fixedPath[i + 1].Pos);
-                        length += distance;
-                    }
-                }
-                path.fixedPath[path.fixedPath.Count-1].nextPoint = null;
-            }
-            else length = Vector3.Distance(path.Path[0].Pos, path.Path[1].Pos);
-            path.length = length;
-            Debug.Log(path.fixedPath.Count);
-            Debug.Log(path.length);
-        }
+        //public void setFixedPathPoint(PathInfo path)
+        //{
+        //    float length = 0;
+        //    if (path.Path.Count >= 2)
+        //    {
+        //        path.fixedPath = new List<PathPoint>();
+        //        //path.distances = new List<float>();
+        //        for (int i = 0; i < path.Path.Count - 1; i++)
+        //        {
+        //            if (path.Path[i].HideMove || path.Path[i].DirectMove)
+        //            {
+        //                path.Path[i].nextPoint = path.Path[i + 1];
+        //                path.fixedPath.Add(path.Path[i]);
+        //                continue;
+        //            }
+        //            //Map Map = new Map();
+        //            //List<Vector3> points = Map.FindPath(path.Path[i].Pos, path.Path[i + 1].Pos, path.FlyPath);
+        //            List<Vector3> points = AStarPathFinder.FindPath(MapManager.Instance.Grids, new List<Vector3>() { path.Path[i].Pos, path.Path[i + 1].Pos }, path.FlyPath);
+        //            for (int j = 0; j < points.Count - 1; j++)
+        //            {
+        //                PathPoint pathPoint = new PathPoint();
+        //                if (j == 0)
+        //                {
+        //                    pathPoint.Delay = path.Path[i].Delay;
+        //                    pathPoint.HideMove = path.Path[i].HideMove;
+        //                }
+        //                else
+        //                {
+        //                    pathPoint.Delay = 0;
+        //                    pathPoint.HideMove = false;
+        //                }
+        //                pathPoint.Pos = points[j];
+        //                path.fixedPath.Add(pathPoint);
+        //            }
+        //        }
+        //        path.fixedPath.Add(path.Path[path.Path.Count - 1]);
+        //        for (int i = 0; i < path.fixedPath.Count - 1; i++)
+        //        {
+        //            path.fixedPath[i].nextPoint = path.fixedPath[i + 1];
+        //            if (path.fixedPath[i].HideMove)
+        //            {
+        //                continue;
+        //            }
+        //            else
+        //            {
+        //                float distance = Vector3.Distance(path.fixedPath[i].Pos, path.fixedPath[i + 1].Pos);
+        //                length += distance;
+        //            }
+        //        }
+        //        path.fixedPath[path.fixedPath.Count-1].nextPoint = null;
+        //    }
+        //    else length = Vector3.Distance(path.Path[0].Pos, path.Path[1].Pos);
+        //    path.length = length;
+        //    Debug.Log(path.fixedPath.Count);
+        //    Debug.Log(path.length);
+        //}
     }
 }

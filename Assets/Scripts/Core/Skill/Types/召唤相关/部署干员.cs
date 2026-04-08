@@ -134,7 +134,8 @@ namespace Skills
             toRemove = tile.Units.Where(x => !x.UnitData.NotUseTile).FirstOrDefault();
             if (toRemove is not null && toRemove is Units.干员 toRemoveOprator)
             //if (toRemove is not null)
-                toRemoveOprator.LeaveMap();
+                //toRemoveOprator.LeaveMap();
+                toRemoveOprator.Finish(false); //防止无限递归
             if (tile.CanSet(Operator.UnitData))
             {
                 Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);

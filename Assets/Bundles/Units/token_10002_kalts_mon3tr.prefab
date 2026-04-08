@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3333685666941893853}
   - component: {fileID: 6466267131917364116}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: token_10002_kalts_mon3tr
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SkeletonAnimation: {fileID: 5307369637102713131}
+  isNew: 0
   Shadow: {fileID: 0}
 --- !u!1 &8019944776790351720
 GameObject:
@@ -58,7 +59,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5550734763251237541}
   - component: {fileID: 2687946376249505506}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: "\u5F71\u5B50"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -144,7 +145,7 @@ GameObject:
   - component: {fileID: 6127600736550171285}
   - component: {fileID: 381406424524444745}
   - component: {fileID: 5307369637102713131}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -194,7 +195,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 3fb80f5d8ad1fbb4d82cf1620fdb4171, type: 2}
+  - {fileID: 2100000, guid: b775dbfc40841994b86e20d2da448c12, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -214,7 +215,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &5307369637102713131
 MonoBehaviour:

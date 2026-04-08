@@ -65,7 +65,7 @@ public class Preview : MonoBehaviour
         slider = timeslider;
         waveInfo = inputwaveInfo;
         enemy = Database.Instance.Get<UnitData>(waveInfo.sUnitId);
-        pathinfo = mapInfo.PathInfos.Find(x => x.Name == waveInfo.Path).fixedPath;
+        pathinfo = mapInfo.PathInfos.Find(x => x.Name == waveInfo.Path).Path;
         playBtn = playbutton;
         wavetimes = waveInfo.Count;
         WaveGap.Set(waveInfo.GapTime);

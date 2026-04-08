@@ -2,10 +2,11 @@
 <component size="40,40" extention="Button">
   <controller name="button" pages="2,up,3,down" selected="1"/>
   <displayList>
-    <graph id="n30_jh39" name="n30" xy="0,0" size="40,40" type="rect" lineSize="5" fillColor="#ffcccccc"/>
-    <image id="n31_iexc" name="n31" src="iexco" fileName="图层 1.png" xy="4,-11">
-      <gearDisplay controller="button" pages="2"/>
-    </image>
+    <graph id="n30_jh39" name="n30" xy="0,0" size="40,40" type="rect" lineSize="3" lineColor="#ff333333"/>
+    <graph id="n32_fm8t" name="n32" xy="20,20" pivot="0.5,0.5" anchor="true" size="24,24" scale="0.5,0.5" alpha="0" rotation="45" type="rect" lineSize="0" lineColor="#ff00ffff" fillColor="#ff00ffff">
+      <gearSize controller="button" pages="2,3" values="24,24,1,1|24,24,0.5,0.5" tween="true" ease="Expo.Out"/>
+      <gearLook controller="button" pages="2,3" values="1,0,0,1|0,45,0,1" tween="true" ease="Expo.Out"/>
+    </graph>
   </displayList>
   <Button mode="Check"/>
 </component>

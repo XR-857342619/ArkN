@@ -30,8 +30,10 @@ namespace MapBuilderUI
                     else SceneManager.UnloadSceneAsync("MapBuilder");m_MidPage.Despawn(); 
             });
             m_back.onClick.Add(goMain);
-            m_DoPath.onClick.Add(() => { m_state.selectedIndex = 3; AstarPath.active.Scan(); m_PathPage.Fresh(); m_PathPage.FreshPoints(); });
-            m_DoUnit.onClick.Add(() => { m_state.selectedIndex = 4; AstarPath.active.Scan(); m_WavePage.Fresh(); });
+            //m_DoPath.onClick.Add(() => { m_state.selectedIndex = 3; AstarPath.active.Scan(); m_PathPage.Fresh(); m_PathPage.FreshPoints(); });
+            m_DoPath.onClick.Add(() => { m_state.selectedIndex = 3; m_PathPage.Fresh(); m_PathPage.FreshPoints(); });
+            //m_DoUnit.onClick.Add(() => { m_state.selectedIndex = 4; AstarPath.active.Scan(); m_WavePage.Fresh(); });
+            m_DoUnit.onClick.Add(() => { m_state.selectedIndex = 4; m_WavePage.Fresh(); });
             m_DoMidUnit.onClick.Add(() => { m_state.selectedIndex = 5; m_MidPage.Fresh(); });
 
             m_upgrid.onClick.Add(() => { m_state.selectedIndex = 6; MapManager.Instance.Brush(upper); });
