@@ -1,3 +1,4 @@
+{"Id":"通用链奶弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Modifys":[22],"Data":{"MoveHeight":0,"MaxLinkNum":4,"SkillId":"通用干员链式弹道索敌","CanBack":"false"}}
 {"Id":"阿米娅子弹","Type":"子弹","Model":"蓝色子弹","Speed":10,"FaceCamera":2}
 {"Id":"抛物线子弹","Type":"子弹","Model":"testBullet","Speed":3,"Data":{"MoveHeight":2}}
 {"Id":"阿米娅强力击子弹","Type":"子弹","Model":"testBullet","Speed":10}

@@ -10,7 +10,7 @@ namespace MapBuilderUI
         public GTextInput m_X;
         public GTextInput m_Y;
         public GTextInput m_Delay;
-        public GButton m_DirectMove;
+        public GButton m_CheckPoint;
         public GButton m_HideMove;
         public const string URL = "ui://wof4wytzjh399";
 
@@ -26,7 +26,7 @@ namespace MapBuilderUI
             m_X = (GTextInput)GetChildAt(2);
             m_Y = (GTextInput)GetChildAt(5);
             m_Delay = (GTextInput)GetChildAt(8);
-            m_DirectMove = (GButton)GetChildAt(10);
+            m_CheckPoint = (GButton)GetChildAt(10);
             m_HideMove = (GButton)GetChildAt(12);
             Init();
         }

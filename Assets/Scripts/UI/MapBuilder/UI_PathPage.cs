@@ -129,7 +129,7 @@ namespace MapBuilderUI
             NowSelect.Path.Add(new PathPoint()
             {
                 Delay = 0,
-                DirectMove = false,
+                CheckPoint = false,
                 HideMove = false,
                 Pos = grid.transform.position,
             });
@@ -148,7 +148,7 @@ namespace MapBuilderUI
                 NowSelect.Path.Add(new PathPoint()
                 {
                     Delay = 0,
-                    DirectMove = false,
+                    CheckPoint = false,
                     HideMove = false,
                     Pos = grid.transform.position,
                 });
@@ -157,7 +157,7 @@ namespace MapBuilderUI
                 NowSelect.Path.Insert(index + 1, new PathPoint()
                 {
                     Delay = 0,
-                    DirectMove = false,
+                    CheckPoint = false,
                     HideMove = false,
                     Pos = grid.transform.position,
                 });

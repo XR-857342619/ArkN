@@ -323,6 +323,7 @@
 {"Id":"大主教1启动","Prefab":"skfire_skill_02_hit1","ScaleXFollow":2,"FaceCamera":60,"LifeTime":5}
 {"Id":"黑蛇十字爆","Prefab":"ifrit_skill_03_range2","StartPos":1,"ForwordDirection":2,"LifeTime":1}
 {"Id":"buff_violent","Prefab":"buff_violent","ParentFollow":2,"ScaleXFollow":2,"FaceCamera":60}
+{"Id":"萃儿3伤害分摊","Prefab":"common_ resistance_01","ParentFollow":2,"ScaleXFollow":2,"FaceCamera":60}
 {"Id":"推王攻击启动","Prefab":"siege_attack_01_start","ScaleXFollow":2,"FaceCamera":60,"LifeTime":5}
 {"Id":"推王2启动","Prefab":"siege_skill_02_start","ScaleXFollow":2,"FaceCamera":60,"LifeTime":5}
 {"Id":"推王3武器buff","Prefab":"siege_skill_03_buff_03","BindPoint":"Weapon","BoneFollow":1,"ParentFollow":2,"ScaleXFollow":1}

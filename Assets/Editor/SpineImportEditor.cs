@@ -152,8 +152,8 @@ public class SpineImportEditor
             //    EditorUtility.SetDirty(dataAsset);
             //}
             var root = AssetDatabase.LoadAssetAtPath<GameObject>(unitAnimationPrefab_AssetPath + name + ".prefab");
-            if (root == null)
-                //if (true)
+            //if (root == null)
+            if (true)
             {
                 root = GameObject.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/Res/Spine/{(enemy ? "Enemy" : "Unit")}.prefab"));
                 PrefabUtility.SaveAsPrefabAsset(root, string.Format("{0}/{1}.prefab", unitAnimationPrefab_AssetPath, name));

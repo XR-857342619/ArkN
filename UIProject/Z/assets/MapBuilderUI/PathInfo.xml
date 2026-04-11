@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component size="321,51" extention="Button">
+<component size="350,51" extention="Button">
   <controller name="button" pages="3,up,4,down" selected="0"/>
   <displayList>
-    <graph id="n15_ei15" name="n15" xy="0,0" size="321,51" type="rect" fillColor="#ffcccccc"/>
-    <graph id="n13_ei15" name="n13" xy="108,4" size="85,43" type="rect"/>
-    <text id="n12_ei15" name="PathName" xy="111,4" size="88,42" fontSize="30" autoSize="none" text="" input="true"/>
-    <text id="n14_ei15" name="n14" xy="10,4" size="94,42" fontSize="30" text="路线名"/>
+    <graph id="n15_ei15" name="n15" xy="0,0" size="350,51" type="rect" fillColor="#ffcccccc">
+      <relation target="" sidePair="width-width,height-height,center-center,middle-middle"/>
+    </graph>
+    <graph id="n13_ei15" name="n13" xy="106,4" size="130,43" type="rect">
+      <relation target="n12_ei15" sidePair="width-width,height-height,center-center%,middle-middle%"/>
+    </graph>
+    <text id="n12_ei15" name="PathName" xy="107,4" size="128,42" fontSize="30" align="center" vAlign="middle" autoSize="shrink" autoClearText="true" text="aaa" input="true">
+      <relation target="n14_ei15" sidePair="left-left%"/>
+    </text>
+    <text id="n14_ei15" name="n14" xy="8,4" size="94,42" fontSize="30" text="路线名">
+      <relation target="" sidePair="left-left%"/>
+    </text>
     <graph id="n16_jh39" name="n16" xy="-4,-3" size="328,58" touchable="false" type="rect" lineSize="3" lineColor="#ffffff00" fillColor="#00ffffff">
       <gearDisplay controller="button" pages="4"/>
     </graph>
-    <component id="n18_ic0q" name="Fly" src="jh39a" fileName="box.xml" xy="269,6"/>
-    <text id="n19_ic0q" name="n19" xy="203,4" size="64,42" fontSize="30" text="飞行"/>
+    <component id="n18_ic0q" name="Fly" src="jh39a" fileName="box.xml" xy="304,6">
+      <relation target="" sidePair="right-right%"/>
+    </component>
+    <text id="n19_ic0q" name="n19" xy="238,4" size="64,42" fontSize="30" text="飞行">
+      <relation target="n18_ic0q" sidePair="right-right%"/>
+    </text>
   </displayList>
   <Button mode="Radio"/>
 </component>

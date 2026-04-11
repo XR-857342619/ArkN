@@ -291,7 +291,7 @@ namespace Units
             //Debug.Log(UnitData.Name + "撤退");
             Trigger(TriggerEnum.撤退);
             Battle.TriggerDatas.Pop();
-            Finish(false);
+            Finish(true);
         }
 
         public override void Finish(bool leaveEvent = true)

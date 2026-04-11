@@ -8,7 +8,7 @@ namespace Skills
 {
     public class 重寻路 : Skill
     {
-        CountDown c = new CountDown();
+        //CountDown c = new CountDown();
         public override void Init()
         {
             base.Init();
@@ -38,6 +38,7 @@ namespace Skills
             foreach (var unit in Battle.Enemys)
             {
                 (unit as Units.敌人).NeedResetPath = true;
+                (unit as Units.敌人).OnlyCheckPoint = true;
             }
             //c.Set(0.05f);
         }

@@ -52,7 +52,7 @@ namespace MapBuilderUI
             m_InitCost = (GTextInput)GetChildAt(29);
             m_BuildCount = (GTextInput)GetChildAt(32);
             m_MaxCost = (GTextInput)GetChildAt(35);
-            m_BoxCount = (GTextInput)GetChildAt(37);
+            m_BoxCount = (GTextInput)GetChildAt(38);
             m_NoBuildLimit = (GButton)GetChildAt(40);
             m_SMapPackageIndex = (GComboBox)GetChildAt(41);
             m_basicsetting = (GGroup)GetChildAt(43);

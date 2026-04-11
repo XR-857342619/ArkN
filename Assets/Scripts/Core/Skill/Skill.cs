@@ -756,7 +756,7 @@ public class Skill
             {
                 foreach (var skillId in SkillData.ExSkills)
                 {
-                    Debug.Log(Unit.Skills.Find(x => x.Id == skillId).SkillData.Id + "附加技能开始");
+                    //Debug.Log(Unit.Skills.Find(x => x.Id == skillId).SkillData.Id + "附加技能开始");
                     Unit.Skills.Find(x => x.Id == skillId).Start();
                 }
             }

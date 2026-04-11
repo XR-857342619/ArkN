@@ -38,7 +38,7 @@ namespace Skills
                 var unit = Battle.CreateEnemy(WaveInfo);
                 if (unit == null) continue;
                 unit.Position = new UnityEngine.Vector3(Battle.NextFloat(xMin, xMax), parent.Position.y, Battle.NextFloat(yMin, yMax)); //parent.Position;
-                unit.NowPathPoint = parent.NowPathPoint;
+                unit.currentPathIndex = parent.currentPathIndex;
                 unit.Parent = parent;
             }
         }

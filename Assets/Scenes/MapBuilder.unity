@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: bab5771740a2994478991da16b036538, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -427,6 +427,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8925643048164901021, guid: c6d81a84285bf274b83d0fa12d74b409,
+        type: 3}
+      propertyPath: m_ClearFlags
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8925643048164901021, guid: c6d81a84285bf274b83d0fa12d74b409,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0.14117648
+      objectReference: {fileID: 0}
+    - target: {fileID: 8925643048164901021, guid: c6d81a84285bf274b83d0fa12d74b409,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0.14117648
+      objectReference: {fileID: 0}
+    - target: {fileID: 8925643048164901021, guid: c6d81a84285bf274b83d0fa12d74b409,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0.14117648
       objectReference: {fileID: 0}
     - target: {fileID: 8925643048164901023, guid: c6d81a84285bf274b83d0fa12d74b409,
         type: 3}

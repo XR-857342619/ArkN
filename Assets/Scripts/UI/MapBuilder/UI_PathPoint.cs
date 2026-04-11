@@ -16,9 +16,9 @@ namespace MapBuilderUI
             {
                 PathPoint.Delay = float.Parse(m_Delay.text);
             });
-            m_DirectMove.onClick.Add(() =>
+            m_CheckPoint.onClick.Add(() =>
             {
-                PathPoint.DirectMove = !PathPoint.DirectMove;
+                PathPoint.CheckPoint = !PathPoint.CheckPoint;
             });
             m_HideMove.onClick.Add(() =>
             {
@@ -36,7 +36,7 @@ namespace MapBuilderUI
             m_X.text = pathPoint.Pos.x.ToString();
             m_Y.text = pathPoint.Pos.z.ToString();
             m_Delay.text = pathPoint.Delay.ToString();
-            m_DirectMove.selected = !pathPoint.DirectMove;
+            m_CheckPoint.selected = !pathPoint.CheckPoint;
             m_HideMove.selected = !pathPoint.HideMove;
         }
     }

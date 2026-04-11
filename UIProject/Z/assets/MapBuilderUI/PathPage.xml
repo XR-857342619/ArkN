@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080">
   <controller name="select" pages="0,,1," selected="0"/>
-  <controller name="ShowPathList" pages="0,,1," selected="1"/>
+  <controller name="ShowPathList" pages="0,,1," selected="0"/>
   <controller name="ShowPathInfo" pages="0,,1," selected="0"/>
   <displayList>
-    <graph id="n32_z9w3" name="n32" xy="-399,79" size="400,925" alpha="0.25" type="rect" corner="15">
+    <graph id="n32_z9w3" name="n32" xy="0,79" size="400,925" alpha="0.25" type="rect" corner="15">
       <gearXY controller="ShowPathList" pages="1" values="-400,80,-0.208,0.074" default="0,80,0,0.074" tween="true" positionsInPercent="true"/>
       <gearDisplay2 controller="select" pages="0" condition="0"/>
       <relation target="" sidePair="left-left"/>
     </graph>
-    <list id="n16_ei15" name="Paths" xy="-374,102" size="335,891" overflow="scroll" scrollBarFlags="512" lineGap="5" defaultItem="ui://wof4wytzei157">
+    <list id="n16_ei15" name="Paths" xy="25,102" size="353,891" overflow="scroll" scrollBarFlags="512" lineGap="5" defaultItem="ui://wof4wytzei157">
       <gearDisplay controller="select" pages="0"/>
-      <gearXY controller="ShowPathList" pages="0,1" values="-374,102|-374,102"/>
+      <gearXY controller="ShowPathList" pages="0,1" values="25,102|25,102"/>
       <relation target="n32_z9w3" sidePair="center-center%,middle-middle%"/>
       <item/>
       <item/>

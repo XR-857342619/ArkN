@@ -123,12 +123,12 @@
     <text id="n61_luym" name="n61" xy="93,735" size="124,42" group="n77_hnil" fontSize="30" text="箱子个数">
       <relation target="" sidePair="middle-middle%,left-left%"/>
     </text>
-    <text id="n63_luym" name="BoxCount" xy="271,735" size="240,42" group="n77_hnil" fontSize="30" autoSize="none" singleLine="true" text="9" input="true" keyboardType="4">
-      <relation target="" sidePair="middle-middle%,left-left%"/>
-    </text>
     <graph id="n62_luym" name="n62" xy="258,730" size="267,51" group="n77_hnil" type="rect" corner="20">
       <relation target="" sidePair="middle-middle%,left-left%"/>
     </graph>
+    <text id="n63_luym" name="BoxCount" xy="271,735" size="240,42" group="n77_hnil" fontSize="30" autoSize="none" singleLine="true" text="9" input="true" keyboardType="4">
+      <relation target="" sidePair="middle-middle%,left-left%"/>
+    </text>
     <group id="n77_hnil" name="box" xy="93,730" size="432,51" group="n82_hnil"/>
     <text id="n60_10uur" name="n60" xy="63,807" size="184,42" group="n78_hnil" fontSize="30" text="部署位无限制">
       <relation target="" sidePair="middle-middle%,left-left%"/>

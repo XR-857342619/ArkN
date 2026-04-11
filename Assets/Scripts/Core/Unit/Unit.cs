@@ -548,6 +548,12 @@ public class Unit
         if (s != null) return s;
         var skillConfig = Database.Instance.Get<SkillData>(skillId);
         var skill = typeof(Unit).Assembly.CreateInstance(nameof(Skills) + "." + skillConfig.Type) as Skill;
+
+        if (skill == null)
+        {
+            Debug.Log(skillConfig.Type);
+            TipManager.Instance.ShowTip("获取技能类型失败" + skillConfig.Type);
+        }
         skill.Unit = this;
         skill.Id = skillId;
         try

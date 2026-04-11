@@ -15,7 +15,9 @@ public class PathPoint
 {
     public Vector3 Pos;
     public float Delay;
-    public bool DirectMove;
+    //public bool DirectMove;
+    public bool CheckPoint;
     public bool HideMove;
-    public PathPoint nextPoint;
+    public bool IsArrive;
+    //public PathPoint nextPoint;
 }
