@@ -19,5 +19,6 @@ public class PathPoint
     public bool CheckPoint;
     public bool HideMove;
     public bool IsArrive;
+    public bool IsTemp;
     //public PathPoint nextPoint;
 }

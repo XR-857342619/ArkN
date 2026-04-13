@@ -69,17 +69,18 @@ namespace Skills
                     nowOp = battleOp[i];
                 GetToken(nowOp);
                 SetToken(posList[i], direction, nowOp);
+                //foreach (Unit unit in Unit.Battle.AllUnits) Debug.Log(unit.UnitData.Name);
             }
         }
         public virtual List<Vector2Int> GetPosList()
         {
             FindTarget();
-            Debug.Log(this.SkillData.Id);
-            Debug.Log(Targets?.First()?.Position);
+            //Debug.Log(this.SkillData.Id);
+            //Debug.Log(Targets?.First()?.Position);
             switch (targetPos)
             {
                 case "使用自身位置":
-                    Debug.Log("useSelfPos:" + Unit.Position);
+                    //Debug.Log("useSelfPos:" + Unit.Position);
                     return new List<Vector2Int>() { Unit.GridPos };
                 case "使用附加技能索敌位置":
                     if (SkillData.Skills.Count() > 0)
@@ -128,7 +129,7 @@ namespace Skills
         }
         public virtual void SetToken(Vector2Int pos, DirectionEnum direction, Unit battleOp = null)
         {
-            Debug.Log("获取到部署位置:" + pos + " 方向:" + direction);
+            //Debug.Log("获取到部署位置:" + pos + " 方向:" + direction);
             Tile tile = Battle.Map.Tiles[pos.x, pos.y];
             Unit toRemove = null;
             toRemove = tile.Units.Where(x => !x.UnitData.NotUseTile).FirstOrDefault();
@@ -138,7 +139,7 @@ namespace Skills
                 toRemoveOprator.Finish(false); //防止无限递归
             if (tile.CanSet(Operator.UnitData))
             {
-                Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);
+                //Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);
                 //Log.Debug(Operator.Skills.Count());
                 //GameObject go = Operator.UnitModel.gameObject;
                 //go.transform.position = new Vector3(pos.x, 0.5f, pos.z);
@@ -154,7 +155,7 @@ namespace Skills
                     tile.Units.Add(RemovedOperator);
                 if (battleOp is not null)
                     Operator.NowGrid.Units.Add(Operator);
-                Log.Debug("无法部署干员:" + Operator.UnitData.Name + "于" + pos);
+                //Log.Debug("无法部署干员:" + Operator.UnitData.Name + "于" + pos);
                 return;
             }
         }

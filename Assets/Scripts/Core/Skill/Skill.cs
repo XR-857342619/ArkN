@@ -228,6 +228,7 @@ public class Skill
         //if (Bursting.value != 0) Debug.Log("Bursting:"+Bursting.value);
         //if (Bursting.Update(SystemConfig.DeltaTime))
         if (BurstGap.Update(SystemConfig.DeltaTime) && IsBursting)
+        ////if (IsBursting)
         {
             //BurstGap.Update(SystemConfig.DeltaTime);
             //Log.Debug("连击延迟" + BurstGap.value + "秒");
@@ -235,7 +236,6 @@ public class Skill
             //if (BurstGap.Finished())
             Burst();
         }
-
 
         if (SkillData.StopBreak)
         {
@@ -730,13 +730,14 @@ public class Skill
         if (SkillData.BurstCount > 0)
         {
             Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "开始Burst");
-            Burst();
             BurstCount = SkillData.BurstCount;
             IsBursting = true;
             BurstGap.Set(SkillData.BurstDelay);
             LastTargets.Clear();
             LastTargets.AddRange(Targets);
+            Burst();
         }
+
         Targets.Clear();
         if (SkillData.CastEffect != null)
         {
@@ -779,7 +780,6 @@ public class Skill
 
     protected virtual void Burst()
     {
-        //Debug.Log("正在连发");
         //if (BurstCount == SkillData.BurstCount)
         //{
         //    BurstCount = SkillData.BurstCount;
@@ -1719,7 +1719,7 @@ public class Skill
 
     public void ShowUnitAttackArea()
     {
-        Log.Debug("ShowUnitAttackArea");
+        //Log.Debug("ShowUnitAttackArea");
         if (AttackPoints.Count > 0)
         {
             //Debug.LogWarning("ShowAttackArea");

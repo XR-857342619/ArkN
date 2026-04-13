@@ -382,7 +382,7 @@ public class Unit
                     Target = this,
                     Skill = skill,
                 });
-                Debug.Log($"{skill.Unit.UnitData.Id} 击杀了 {UnitData.Id}");
+                //Debug.Log($"{skill.Unit.UnitData.Id} 击杀了 {UnitData.Id}");
                 if (skill.Unit is Units.干员 u && u.Parent != null)//召唤物杀人，算主子击杀
                     sourceUnit = u.Parent;
                 else

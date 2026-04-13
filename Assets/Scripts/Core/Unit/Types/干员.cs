@@ -317,7 +317,7 @@ namespace Units
                 if (Parent != null) Parent.Children.Remove(this);
             }
 
-            if (Parent != null && (Parent as 干员).InputTime < 0)
+            if (Parent != null && (Parent as 干员).InputTime < 0 && !this.UnitData.NotReturn)
             {
                 Battle.AllUnits.Remove(this);
                 Battle.PlayerUnits.Remove(this);
@@ -325,7 +325,7 @@ namespace Units
 
             foreach (干员 unit in Children.Where(x => x is 干员))
             {
-                if (unit.InputTime < 0)
+                if (unit.InputTime < 0 && !unit.UnitData.NotReturn)
                 {
                     Battle.AllUnits.Remove(unit);
                     Battle.PlayerUnits.Remove(unit);

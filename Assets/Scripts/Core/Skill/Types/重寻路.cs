@@ -37,6 +37,7 @@ namespace Skills
             //由于地块通行性发生变化，通知所有敌人
             foreach (var unit in Battle.Enemys)
             {
+                Log.Debug(SkillData.Id+"重寻路技能通知敌人");
                 (unit as Units.敌人).NeedResetPath = true;
                 (unit as Units.敌人).OnlyCheckPoint = true;
             }

@@ -60,11 +60,14 @@ namespace Units
         public int StopCost;
         public float WaitTimeEx;
 
+        public float distance2Final = 0;
+        public bool distanceChenged = true;
+
         public List<PathPoint> tmpPathPointList = new List<PathPoint>();
         public List<CountDown> tmpPathPointLastList = new List<CountDown>();
 
-        //List<PathPoint> toRemoveTmpPathPointList = new List<PathPoint>();
-        //List<CountDown> toRemoveTmpPathPointLastList = new List<CountDown>();
+        List<PathPoint> toRemoveTmpPathPointList = new List<PathPoint>();
+        List<CountDown> toRemoveTmpPathPointLastList = new List<CountDown>();
 
         public override void Init()
         {
@@ -242,17 +245,32 @@ namespace Units
                 //Debug.Log("Arrived" + TempTarget.ToV2().ToString());
                 TempIndex++;
                 //Debug.Log(TempIndex);
+                //Debug.Log("终点距离:"+distanceToFinal());
                 if (TempIndex == TempPath.Count - 1)
                 {
                     Debug.Log("Arrived End");
+                    Debug.Log(NowPathPoint.Pos + ":" + NowPathPoint.IsTemp);
 
-                    currentPathIndex++;
-                    NowPathPoint.IsArrive = true;
+                    if (!NowPathPoint.IsTemp)
+                    {
+                        currentPathIndex++;
+                        NowPathPoint.IsArrive = true;
+                    }
 
-                    if (NowPathPoint.CheckPoint) currentCheckIndex++;
+                    if (NowPathPoint.CheckPoint && !NowPathPoint.IsTemp)
+                    {
+                        currentCheckIndex++;
+                        if (OnlyCheckPoint)
+                        {
+                            currentPathIndex = PathPoints.IndexOf(CheckPoints[currentCheckIndex]);
+                            for (int i = 0; i <= currentPathIndex; i++)
+                                PathPoints[i].IsArrive = true;
+                        }
+                        OnlyCheckPoint = false;
+                    }
+                    Debug.Log(NowPathPoint.Pos +":"+NowPathPoint.IsTemp);
+                    Debug.Log("CheckPointIndex:" + currentCheckIndex);
 
-                    //Debug.Log("CheckPointIndex:" + currentCheckIndex);
-                    //Debug.Log(NowPathPoint.Pos + "->" + PathPoints[PathPoints.Count-1].Pos);
                     if ((PathPoints[PathPoints.Count - 1].Pos - Position).sqrMagnitude <= TempArriveDistance)
                     {
                         //破门了
@@ -271,13 +289,14 @@ namespace Units
                     PathWaiting.Set(NowPathPoint.Delay);
                     if (NowPathPoint.HideMove)
                     {
-                        //Debug.Log("隐藏移动");
+                        Debug.Log("隐藏移动");
                         if (PathWaiting.value > 0)
                             Visiable = false;
                         else
                             FinishHide();
                     }
-                    
+
+                    //Debug.Log(NowPathPoint.Pos + "->" + PathPoints[PathPoints.Count-1].Pos);                    
                     //Debug.Log("当前路径点索引"+ currentPathIndex +"下一路径点" + NextPathPoint.Pos.ToV2());
 
                     TempPath = null;
@@ -294,7 +313,7 @@ namespace Units
             //NextPathPoint = PathPoints[PathPoints.IndexOf(NowPathPoint) + 1];
             Position = NextPathPoint.Pos;
             currentPathIndex++;
-            if (NowPathPoint.CheckPoint) currentCheckIndex++;
+            if (NowPathPoint.CheckPoint && !NowCheckPoint.IsTemp) currentCheckIndex++;
             Visiable = true;
             UnitModel?.gameObject.SetActive(true);
             //Refresh();
@@ -377,35 +396,34 @@ namespace Units
         {
             if (tmpPathPointList.Count > 0)
             {
-                //toRemoveTmpPathPointList.Clear();
-                //toRemoveTmpPathPointLastList.Clear();
-                foreach (CountDown tmpPathPointLast in tmpPathPointLastList)
+                toRemoveTmpPathPointList.Clear();
+                toRemoveTmpPathPointLastList.Clear();
+                for (int i = 0; i < tmpPathPointLastList.Count; i++)
                 {
+                    var tmpPathPointLast = tmpPathPointLastList[i];
                     tmpPathPointLast.Update(SystemConfig.DeltaTime);
+                    //Debug.Log(tmpPathPointLast.value);
                     if (tmpPathPointLast.Finished())
                     {
-                        int index = tmpPathPointLastList.IndexOf(tmpPathPointLast);
-                        //toRemoveTmpPathPointLastList.Add(tmpPathPointLast);
-                        //toRemoveTmpPathPointList.Add(tmpPathPointList[index]);
-                        tmpPathPointList[index].IsArrive = true;
+                        toRemoveTmpPathPointLastList.Add(tmpPathPointLast);
+                        toRemoveTmpPathPointList.Add(tmpPathPointList[i]);
+                        tmpPathPointList[i].IsArrive = true;
+                        tmpPathPointList[i].CheckPoint = false;
+                        tmpPathPointList[i].IsTemp = false;
                         Debug.Log("移除临时路径点成功:" + tmpPathPointList[index].Pos);
+                        NeedResetPath = true;
                     }
                 }
-                if (!tmpPathPointList.Any(x => x.IsArrive) && !tmpPathPointLastList.Any(x => !x.Finished()))
+                for (int i = 0; i < toRemoveTmpPathPointList.Count; i++)
                 {
-                    //tmpPathPointLastList.RemoveAll(x => toRemoveTmpPathPointLastList.Contains(x));
-                    ////PathPoints.RemoveAll(x => toRemoveTmpPathPointList.Contains(x));
-                    //tmpPathPointList.RemoveAll(x => toRemoveTmpPathPointList.Contains(x));
-                    ////NowPathPoint += toRemoveTmpPathPointLastList.Count;
-                    ////Debug.Log(PathPoints.Count + " NowPathPoint:" + NowPathPoint);
-                    ////NowPathPoint -= toRemoveTmpPathPointLastList.Count();
-                    ////NowPathPoint--;
-                    
-                    tmpPathPointLastList.Clear();
-                    tmpPathPointList.Clear();
-
-                    NeedResetPath = true;
-                }
+                    tmpPathPointLastList.Remove(toRemoveTmpPathPointLastList[i]);
+                    tmpPathPointList.Remove(toRemoveTmpPathPointList[i]);
+                }    
+                //if (!tmpPathPointList.Any(x => x.IsArrive) && !tmpPathPointLastList.Any(x => !x.Finished()))
+                //{   
+                //    tmpPathPointLastList.Clear();
+                //    tmpPathPointList.Clear();
+                //}
             }
                 //tmpPathPointLast.update(SystemConfig.DeltaTime);
             if (!PathWaiting.Finished() && tmpPathPointList.Count == 0)
@@ -417,6 +435,8 @@ namespace Units
             CheckArrive();
             if (TempPath == null || NeedResetPath)//无路径或因为外力走出了预定路线，重寻路
             {
+                //Debug.Log("TempPath:"+(TempPath == null));
+                //Debug.Log("NeedResetPath:"+NeedResetPath);
                 findNewPath(OnlyCheckPoint);
             }
             if (Unbalance || !Visiable) return;//失衡状态下不许主动移动
@@ -466,48 +486,8 @@ namespace Units
 
             var target = Position + (TempTarget - Position).normalized * Speed * SystemConfig.DeltaTime;
             Position = target;
-
-            //if ((TempTarget - Position).sqrMagnitude < Speed * SystemConfig.DeltaTime * 0.1f)
-            //{
-            //    //Debug.Log("Arrive");
-            //    Position = TempTarget;
-            //    //抵达临时目标
-            //    TempIndex++;
-            //    if (TempIndex >= TempPath.Count - 1)
-            //    {
-            //        // 走完临时路径，推进全局路径索引
-            //        currentPathIndex++;
-
-            //        Debug.Log(NowPathPoint?.Pos.ToV2() ?? null);
-            //        Debug.Log(PathPoints.Last());
-
-            //        if (NowPathPoint == PathPoints.Last())
-            //        {
-            //            //破门了
-            //            Battle.DoDamage(UnitData.Damage);
-            //            Battle.TriggerDatas.Push(new TriggerData()
-            //            {
-            //                User = this,
-            //                //Skill = this,
-            //            });
-            //            this.Trigger(TriggerEnum.到达路径终点);
-            //            Battle.TriggerDatas.Pop();
-            //            Finish(true);
-            //        }
-            //        else
-            //        {
-            //            // 重置等待，准备寻路到下一个点
-            //            PathWaiting.Set(NowPathPoint.Delay);
-            //            TempPath = null; // 触发下帧重新寻路
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            //    var target = Position + (TempTarget - Position).normalized * Speed * SystemConfig.DeltaTime;
-            //    Position = target;
-            //    //Debug.Log(Position.x);
-            //}
+            
+            distanceChenged = true;
         }
 
         public override void DoDie(object source)
@@ -584,59 +564,120 @@ namespace Units
             var tmpCheckPoint = tmpPathPointList.FirstOrDefault(x => !x.IsArrive);
 
             //if (tmpCheckPoint is not null) result = tmpCheckPoint;
-            if (tmpCheckPoint is not null) return tmpCheckPoint;
+            if (tmpCheckPoint is not null) 
+            {
+                Debug.Log("getTmpPoint:" + tmpCheckPoint.Pos.ToV2());
+                return tmpCheckPoint; 
+            }
             //else if (OnlyCheckPoint) result = NowCheckPoint;
-            if (OnlyCheckPoint && index <= CheckPoints.Count - 1) return CheckPoints[index];
-            //else if (index < PathPoints.Count) result = PathPoints[index];
-            if (index < PathPoints.Count) return PathPoints[index];
-            //Debug.Log(result.Pos.ToV2());
+            if (OnlyCheckPoint && index <= CheckPoints.Count - 1)
+            {
+                Debug.Log("getCheckPoint:" + CheckPoints[index].Pos.ToV2());
+                return CheckPoints[index];
+            }//else if (index < PathPoints.Count) result = PathPoints[index];
+            if (index < PathPoints.Count)
+            {
+                Debug.Log("getPathPoint:" + PathPoints[index].Pos.ToV2());
+                return PathPoints[index];
+
+            }//Debug.Log(result.Pos.ToV2());
             //return result;
             return null;
         }
 
-        //PathPoint GetNextPathPoint(PathPoint nowPoint)
+        //public override float distanceToFinal()
         //{
-        //    // 1. 提前获取当前点的索引，避免重复查找和计算
-        //    int currentIndex = PathPoints.IndexOf(nowPoint);
-
-        //    // 边界保护（防止 nowPoint 不在列表中导致 IndexOf 返回 -1）
-        //    if (currentIndex == -1) return null;
-
-        //    if (OnlyCheckPoint)
+        //    float result = 0;
+        //    for (int i = currentPathIndex+1 ; i < PathPoints.Count-1; i++)
         //    {
-        //        // 2. 查找下一个检查点
-        //        var nextCheckPoint = PathPoints.Find(x => !x.IsArrive && x.CheckPoint);
-
-        //        // 3. 如果当前点就是那个检查点，返回“非检查点列表”中的第2个点
-        //        if (nextCheckPoint == nowPoint)
-        //        {
-        //            // 优化：使用 LINQ 替代 FindAll，避免创建临时列表，直接取第2个元素
-        //            return PathPoints.Where(x => !x.IsArrive && !x.CheckPoint).Skip(1).FirstOrDefault();
-        //        }
+        //        result += (GetPoint(i).Pos - GetPoint(i + 1).Pos).sqrMagnitude;
         //    }
-
-        //    // 4. 默认情况：返回下一个点
-        //    return PathPoints[currentIndex + 1];
+        //    if (TempPath != null)
+        //    {
+        //        for (int i = TempIndex + 1; i < TempPath.Count - 1; i++)
+        //        {
+        //            result += Mathf.Abs(TempPath[i].x - TempPath[i + 1].x) + Mathf.Abs(TempPath[i].y - TempPath[i + 1].y);
+        //        }
+        //        result += (Position - TempTarget).sqrMagnitude;
+        //    }
+        //    return result;
         //}
 
         public override float distanceToFinal()
         {
-            float result = 0;
-            for (int i = currentPathIndex+1 ; i < PathPoints.Count-1; i++)
+            // 检查缓存
+            if (!distanceChenged)
             {
-                result += (GetPoint(i).Pos - GetPoint(i + 1).Pos).sqrMagnitude;
+                return distance2Final;
             }
-            if (TempPath != null)
+
+            // 计算实际距离
+            float totalDistance = 0;
+            int currentIndex = currentPathIndex;
+            bool onlyCheckPoint = OnlyCheckPoint;
+            List<Vector3> pathPointsToCalculate = new List<Vector3>();
+            // 计算当前位置到"下一"路径点的距离
+            if (TempPath is not null)
             {
-                for (int i = TempIndex + 1; i < TempPath.Count - 1; i++)
+                // 临时路径不为空,说明正在前往下一路径点.计算当前位置到最近临时路径点的距离,再计算剩余临时路径点的总长
+                totalDistance += (Position - TempPath[TempIndex]).magnitude;
+                for (int i = TempIndex; i < TempPath.Count - 1; i++)
+                    totalDistance += (TempPath[i] - TempPath[i + 1]).magnitude;
+            }
+            else
+            {
+                // 临时路径为空有额外临时路径点.先计算剩余临时路径点的总长,再计算当前位置到下一路径点的距离
+                if (tmpPathPointList.Count > 0)
                 {
-                    result += Mathf.Abs(TempPath[i].x - TempPath[i + 1].x) + Mathf.Abs(TempPath[i].y - TempPath[i + 1].y);
+                    totalDistance += (tmpPathPointList[tmpPathPointList.Count - 1].Pos - NextPathPoint.Pos).magnitude;
+                    for (int i = 1; i < tmpPathPointList.Count - 1; i++)
+                        totalDistance += (tmpPathPointList[i].Pos - tmpPathPointList[i + 1].Pos).magnitude;
                 }
-                result += (Position - TempTarget).sqrMagnitude;
+                else
+                {
+                    //// 临时路径为空,说明正好处于上一路径点位置,且无额外临时路径点,直接获取到下一路径点的全部临时路径点,计算路径总长
+                    //List<Vector3> tmpPath = AStarPathFinder.FindPath(this.Battle.Map.Tiles, new List<Vector3> { NowPathPoint.Pos, NextPathPoint.Pos }, Height > 0);
+                    //for (int i = 0; i < tmpPath.Count - 1; i++)
+                    //    totalDistance += (tmpPath[i] - tmpPath[i + 1]).magnitude;
+                }
             }
-            return result;
+
+            // 从 currentPathIndex + 1 开始，直到终点
+            for (int i = currentPathIndex + 1; i < PathPoints.Count; i++)
+            {
+                pathPointsToCalculate.Add(PathPoints[i].Pos);
+            }
+            // 计算从下一点开始的剩余路径总长
+            // 计算序列中所有点的累计距离
+            // 如果有点序列，我们需要计算从当前位置（或第一个点）到最后一个点的距离
+            if (pathPointsToCalculate.Count > 0)
+            {
+                Vector3 lastPos = NextPathPoint.Pos; // 起点是当前位置
+
+                if (tmpPathPointList.Count == 0)
+                {
+                    lastPos = NowPathPoint?.Pos ?? Position;
+                }
+
+                // 遍历所有需要去的点
+                foreach (var point in pathPointsToCalculate)
+                {
+                    // 简单累加欧几里得距离
+                    // 近似值，忽略了地形障碍物。
+                    // 如果需要跟高精确改用 A*。
+                    // A* 性能开销大,在距离估算中使用直线距离。
+                    totalDistance += (lastPos - point).magnitude;
+                    lastPos = point;
+                }
+            }
+
+            distanceChenged = false;
+            distance2Final = totalDistance;
+
+            return totalDistance;
         }
-        
+
+
         public override float Hatred()
         {
             return base.Hatred();
@@ -661,7 +702,7 @@ namespace Units
                 return false;
             if (path.Count > 0) return true;
             
-            Debug.Log("目标"+ end.ToV2().ToString() +"无法到达");
+            //Debug.Log("目标"+ end.ToV2().ToString() +"无法到达");
 
             return false;
         }
@@ -669,7 +710,15 @@ namespace Units
         // 待优化
         public bool AddTmpPathPoint(Vector3 pos, float time)
         {
-            PathPoint tmpPoint = new PathPoint() { Pos = pos, Delay = time, HideMove = false, CheckPoint = true, IsArrive = false };
+            PathPoint tmpPoint = new PathPoint() 
+            {
+                Pos = pos,
+                Delay = time,
+                HideMove = false,
+                CheckPoint = true,
+                IsArrive = false,
+                IsTemp = true
+            };
             if (IsCanArrive(Position, pos))
             {
                 PathPoint tmp = tmpPathPointList.FirstOrDefault(x => x.Pos == pos);
@@ -679,18 +728,32 @@ namespace Units
                     tmpPathPointLastList[index].value += time;
                     PathWaiting.Finish();
 
-                    Debug.Log("更新临时路径点成功:" + pos + "lasttime:" + time);
+                    //Debug.Log("更新临时路径点成功:" + pos + "lasttime:" + time);
                     return true;
                 }
                 tmpPathPointList.Add(tmpPoint);
                 tmpPathPointLastList.Add(new CountDown(time));
                 //PathPoints.Insert(PathPoints.IndexOf(NowPathPoint) + tmpPathPointList.Count, tmpPoint);
                 //PathWaiting.Finish();
-                Debug.Log(NextPathPoint.Pos.ToV2());
+                //Debug.Log(NextPathPoint.Pos.ToV2());
+                OnlyCheckPoint = true;
                 findNewPath(OnlyCheckPoint);
-                Debug.Log("插入临时路径点成功:" + pos + "lasttime:" + time);
+                //Debug.Log("插入临时路径点成功:" + pos + "lasttime:" + time);
                 DisplayPath();
-                return true;
+
+                //int s = PathPoints.IndexOf(CheckPoints[currentCheckIndex]);
+                //int e = PathPoints.IndexOf(CheckPoints[currentCheckIndex+1]);
+                //while (s + 1 < e)
+                //{
+                //    if (!PathPoints[s + 1].IsArrive)
+                //    {
+                //        PathPoints[s + 1].IsArrive = true;
+                //        currentPathIndex++;
+                //    }
+                //    s++;
+                //}
+
+                return true;                
             }
             else
                 return false;

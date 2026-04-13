@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
+//using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 /// <summary>
@@ -280,9 +280,9 @@ public static class AStarPathFinder
             // 尝试从 lastIndex 直接连接到 i
             if (hit.HasValue && !isFly)
             {
-                // 1. 确认平滑逻辑生效：这里会打印出阻挡平滑路径的物体名称
-                Debug.Log($"路径平滑生效！在 {rawPath[lastIndex]} -> {rawPath[i]} 处被阻挡。");
-                Debug.Log($"阻挡物体: <color=red>{hit.Value.collider.name}</color> (Layer: {LayerMask.LayerToName(hit.Value.collider.gameObject.layer)})");
+                //// 1. 确认平滑逻辑生效：这里会打印出阻挡平滑路径的物体名称
+                //Debug.Log($"路径平滑生效！在 {rawPath[lastIndex]} -> {rawPath[i]} 处被阻挡。");
+                //Debug.Log($"阻挡物体: <color=red>{hit.Value.collider.name}</color> (Layer: {LayerMask.LayerToName(hit.Value.collider.gameObject.layer)})");
 
                 // 2. 可视化：在 Scene 视图中画出射线，确认阻挡位置
                 Debug.DrawRay(hit.Value.point, hit.Value.normal * 0.5f, Color.red, 5f);

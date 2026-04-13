@@ -70,19 +70,31 @@ namespace Skills
                     else if (useMod == "IfCanArrvie")
                     {
                         if (enemy.IsCanArrive(enemy.Position, pos))
+                        {
+                            enemy.NeedResetPath = true;
+                            enemy.OnlyCheckPoint = true;
                             enemy.Position = pos;
+                        }
                     }
                     else if (useMod == ">limitDistance")
                     {
                         var dis = Vector3.Distance(enemy.Position, pos);
                         if (dis >= distanceLimit)
+                        {
+                            enemy.NeedResetPath = true;
+                            enemy.OnlyCheckPoint = true;
                             enemy.Position = pos;
+                        }
                     }
                     else if (useMod == "<limitDistance")
                     {
                         var dis = Vector3.Distance(enemy.Position, pos);
                         if (dis <= distanceLimit)
+                        {
+                            enemy.NeedResetPath = true;
+                            enemy.OnlyCheckPoint = true;
                             enemy.Position = pos;
+                        }
                     }
                 }
             }
