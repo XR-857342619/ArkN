@@ -1105,8 +1105,6 @@ public class Skill
     protected List<Unit> tempTargetsFromAttackRange = new List<Unit>();
     public virtual List<Unit> GetAttackTarget()
     {
-        //if (SkillData.Id == "萃蔓无敌")
-            //Log.Debug(SkillData.Id + "获取攻击目标");
         tempTargets.Clear();
         tempTargetsFromEvent.Clear();
         tempTargetsFromAttackRange.Clear();
@@ -1119,8 +1117,6 @@ public class Skill
         }
         if (SkillData.UseEventTarget && Battle.TriggerDatas.Count > 0)
         {
-            //正在事件当中，技能去取事件目标
-            //Debug.Log("正在事件"+ Battle.TriggerDatas.Peek().ToString() +"当中");
             var t = Battle.TriggerDatas.Peek().Target;
             //Debug.Log("事件目标：" + t.UnitData.Name);
             if (t != null && CanUseTo(t))
@@ -1136,8 +1132,7 @@ public class Skill
             //Debug.Log(Unit.UnitData.Id + "获取到目标：" + string.Join(" ", tempTargets.Select(x => x.UnitData.Name)));
             return tempTargets;
         }
-        //if (!SkillData.UseEventTarget && !SkillData.UseEventUser)
-        //{
+
         if (AttackPoints == null && !SkillData.AttackAreaWithMain)//根据攻击范围进行索敌
         {
             tempTargetsFromAttackRange.AddRange(Battle.FindAll(Unit.Position2, SkillData.AttackRange * Unit.AttackRange, SkillData.TargetTeam, !SkillData.DeadFind));
