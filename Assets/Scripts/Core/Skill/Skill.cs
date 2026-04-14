@@ -295,10 +295,10 @@ public class Skill
                 if (target == Unit) return false;
                 break;
             case SkillTargetFilterEnum.召唤物:
-                if (target != Unit && !(Unit as Units.干员).Children.Contains(target)) return false;
+                if (target != Unit && !Unit.Children.Contains(target)) return false;
                 break;
             case SkillTargetFilterEnum.仅召唤:
-                if (!(Unit as Units.干员).Children.Contains(target)) return false;
+                if (!Unit.Children.Contains(target)) return false;
                 break;
         }
         if (SkillData.SelfHpLess != 0 && Unit.Hp / Unit.MaxHp > SkillData.SelfHpLess) return false;
@@ -837,7 +837,7 @@ public class Skill
         }
         if (SkillData.Bullet == null)
         {
-            Hit(pos);
+            Hit(pos.ToV2());
         }
         else
         {
