@@ -139,7 +139,7 @@ public class Bullet
             //if (newBuff is IDamageRewrite shield)
             //{
             //    DamageRewrites.Add(shield);
-            //    DamageRewrites.Sort((a, b) => a.OrderCode.CompareTo(b.OrderCode));
+            //    DamageRewrites.SortTargets((a, b) => a.OrderCode.CompareTo(b.OrderCode));
             //}
 
             // 初始化BUFF

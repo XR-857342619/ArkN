@@ -17,6 +17,8 @@ public class Unit
     public UnitData UnitData => Database.Instance.Get<UnitData>(Id);
     public int Id;
 
+    public bool Abnormal;
+
     public int index;
 
     public UnitModel UnitModel;
@@ -115,7 +117,7 @@ public class Unit
     public bool CanStopOther;
     public float Hatre;
 
-    public float RewriteDamage;
+    //public float RewriteDamage;
 
     public bool IfAlive = true;
 

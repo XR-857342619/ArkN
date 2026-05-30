@@ -79,16 +79,16 @@ public class ExpressionEvaluator
         // 向IList<Type>中添加所需类型（无需强制转换）
         customTypeProvider.AdditionalTypes.Add(typeof(string[]));
         customTypeProvider.AdditionalTypes.Add(typeof(System.Linq.Enumerable));
-        //customTypeProvider.AdditionalTypes.Add(typeof(PowerRecoverTypeEnum));
-        //customTypeProvider.AdditionalTypes.Add(typeof(SkillReadyEnum));
-        //customTypeProvider.AdditionalTypes.Add(typeof(SkillUseTypeEnum));
-        //customTypeProvider.AdditionalTypes.Add(typeof(TriggerEnum));
-        //customTypeProvider.AdditionalTypes.Add(typeof(SkillTargetFilterEnum));
-        //customTypeProvider.AdditionalTypes.Add(typeof(UnitTypeEnum));
-        //customTypeProvider.AdditionalTypes.Add(typeof(AttackTargetOrderEnum));
-        //customTypeProvider.AdditionalTypes.Add(typeof(AttackTargetOrder2Enum));
-        //customTypeProvider.AdditionalTypes.Add(typeof(DamageTypeEnum));
-        //customTypeProvider.AdditionalTypes.Add(typeof(AttackModeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(PowerRecoverTypeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(SkillReadyEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(SkillUseTypeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(TriggerEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(SkillTargetFilterEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(UnitTypeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(AttackTargetOrderEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(AttackTargetOrder2Enum));
+        customTypeProvider.AdditionalTypes.Add(typeof(DamageTypeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(AttackModeEnum));
 
         // 配置解析器以支持string[]的Contains方法
         var parsingConfig = new ParsingConfig

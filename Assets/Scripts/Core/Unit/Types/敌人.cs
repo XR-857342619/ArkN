@@ -105,6 +105,8 @@ namespace Units
             else
                 SetStatus(StateEnum.Start);
             //tmpPathPointLast.Finish();
+
+            //TrailManager.Instance.ShowPath(PathPoints.Select(x => x.Pos).ToList());
         }
 
         public void StartEnd()
@@ -540,7 +542,8 @@ namespace Units
             foreach (var p in TempPath) log += p.ToString() + ",";
             Debug.Log($"Path:{log}");
 
-            if (OnlyChekPoint) DisplayPath();
+            //if (OnlyChekPoint) DisplayPath();
+            DisplayPath();
 
             TempIndex = 0;
             NeedResetPath = false;
@@ -566,18 +569,18 @@ namespace Units
             //if (tmpCheckPoint is not null) result = tmpCheckPoint;
             if (tmpCheckPoint is not null) 
             {
-                Debug.Log("getTmpPoint:" + tmpCheckPoint.Pos.ToV2());
+                Debug.Log("GetTmpPoint:" + tmpCheckPoint.Pos.ToV2());
                 return tmpCheckPoint; 
             }
             //else if (OnlyCheckPoint) result = NowCheckPoint;
             if (OnlyCheckPoint && index <= CheckPoints.Count - 1)
             {
-                Debug.Log("getCheckPoint:" + CheckPoints[index].Pos.ToV2());
+                Debug.Log("GetCheckPoint:" + CheckPoints[index].Pos.ToV2());
                 return CheckPoints[index];
             }//else if (index < PathPoints.Count) result = PathPoints[index];
             if (index < PathPoints.Count)
             {
-                Debug.Log("getPathPoint:" + PathPoints[index].Pos.ToV2());
+                Debug.Log("GetPathPoint:" + PathPoints[index].Pos.ToV2());
                 return PathPoints[index];
 
             }//Debug.Log(result.Pos.ToV2());
@@ -740,18 +743,6 @@ namespace Units
                 findNewPath(OnlyCheckPoint);
                 //Debug.Log("插入临时路径点成功:" + pos + "lasttime:" + time);
                 DisplayPath();
-
-                //int s = PathPoints.IndexOf(CheckPoints[currentCheckIndex]);
-                //int e = PathPoints.IndexOf(CheckPoints[currentCheckIndex+1]);
-                //while (s + 1 < e)
-                //{
-                //    if (!PathPoints[s + 1].IsArrive)
-                //    {
-                //        PathPoints[s + 1].IsArrive = true;
-                //        currentPathIndex++;
-                //    }
-                //    s++;
-                //}
 
                 return true;                
             }

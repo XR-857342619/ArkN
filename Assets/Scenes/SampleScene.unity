@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.55499935, g: 0.88285697, b: 0.892977, a: 1}
+  m_IndirectSpecularColor: {r: 0.22189179, g: 0.39474937, b: 0.5998592, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -199,6 +199,7 @@ GameObject:
   - component: {fileID: 494434775}
   - component: {fileID: 494434774}
   - component: {fileID: 494434773}
+  - component: {fileID: 494434778}
   m_Layer: 0
   m_Name: Stage Camera
   m_TagString: Untagged
@@ -302,13 +303,21 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 494434772}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.7720585, y: -5, z: 0}
+  m_LocalPosition: {x: 9.817596, y: -5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!81 &494434778
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 494434772}
+  m_Enabled: 1
 --- !u!1 &732212779
 GameObject:
   m_ObjectHideFlags: 0

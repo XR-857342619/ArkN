@@ -10,13 +10,15 @@ namespace Buffs
     {
         public string expression;
         public int time;
-        public ExpressionExecutor evaluator;
+        //public ExpressionExecutor evaluator;
+        public UnifiedExpressionEngine evaluator;
         public override void Init()
         {
             base.Init();
             expression = BuffData.Data.GetStr("Expression", string.Empty);
             time = BuffData.Data.GetInt("Time", -1);
-            evaluator = new ExpressionExecutor(this);
+            //evaluator = new ExpressionExecutor(this);
+            evaluator = new UnifiedExpressionEngine(this);
         }
         
         public override void ApplyToUnit()

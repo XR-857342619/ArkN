@@ -160,10 +160,10 @@ public class Battle
 
         UnitMap = new HashSet<Unit>[Map.Tiles.GetLength(0), Map.Tiles.GetLength(1)];
         for (int i = 0; i < UnitMap.GetLength(0); i++)
-                     for (int j = 0; j < UnitMap.GetLength(1); j++)
-               {
+            for (int j = 0; j < UnitMap.GetLength(1); j++)
+            {    
                 UnitMap[i, j] = new HashSet<Unit>();
-             }
+            }
 
         //WaveData[] array = Database.Instance.GetAll<WaveData>();
         //for (int id = 0; id < array.Length; id++)
@@ -534,8 +534,8 @@ public class Battle
             //if (team  % 2 == 1)
             //{
             //    var tileUnits = Map.Tiles[point.x, point.y].Units;
-            //    tileUnits.Sort((a, b) => b.UnitData.NotUseTile.CompareTo(a.UnitData.NotUseTile));
-            //    tileUnits.Sort((a, b) => b.InputTime.CompareTo(a.InputTime));
+            //    tileUnits.SortTargets((a, b) => b.UnitData.NotUseTile.CompareTo(a.UnitData.NotUseTile));
+            //    tileUnits.SortTargets((a, b) => b.InputTime.CompareTo(a.InputTime));
             //    var target = tileUnits.Count > 0 ? tileUnits.First() : null;
             //    if (target != null)
             //    {

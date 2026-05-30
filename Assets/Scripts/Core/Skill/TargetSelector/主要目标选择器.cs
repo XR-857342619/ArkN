@@ -2,235 +2,384 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-//using System.Numerics;
 using UnityEngine;
-using UnityEngine.Rendering;
 using static UnityEngine.GraphicsBuffer;
 
-public class 获取单位所在地块 : ITargetSelector
+#region 弃用的选择器
+//public class 获取单位所在地块 : ITargetSelector
+//{
+//    public List<Vector3> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config = null)
+//    {
+//        return targets.Where(t => (skill.SkillData.TargetTeam >> t.Team) % 2 == 1).Select(t => new Vector3(t.GridPos.x, 0, t.GridPos.y)).Distinct().ToList();
+//    }
+//}
+//public class 获取单位所在地块 : IFilterStrategy
+//{
+//    public string Name => "获取单位所在地块";
+//    public int _targetTeam;
+//    public 获取单位所在地块(int targetTeam)
+//    {
+//        _targetTeam = targetTeam;
+//    }
+//    public Func<Unit, bool> GetPredicate() => (unit) =>
+//    {
+//        if (!unit.Abnormal) return false;
+//        return (_targetTeam >> unit.Team) % 2 == 1 && unit.Position.x % 1 == 0 && unit.Position.z % 1 == 0;
+//    };
+//}
+
+//public class 获取地块上的单位 : ITargetSelector
+//{
+//    public List<Unit> GetTargets(Skill skill, List<Vector3> targets, SelectorConfig config = null)
+//    {
+//        Battle Battle = skill.Unit.Battle;
+//        List<Unit> result = new List<Unit>();
+
+//        result.AddRange(Battle.FindAll(targets.Select(t => new Vector2Int((int)t.x, (int)t.z)).ToList(), config.TargetTeam, !config.DeadFind));
+
+//        return result.Distinct().ToList();
+//    }
+//}
+//    public class 从攻击范围获取单位 : ITargetSelector
+//{
+//    //public List<Vector2Int> AttackPoints;
+//    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config = null)
+//    {
+//        Battle Battle = skill.Unit.Battle;
+//        Unit Unit = skill.Unit;
+//        List<Unit> result = new List<Unit>();
+
+//        if (skill.AttackPoints == null && !skill.SkillData.AttackAreaWithMain)//根据攻击范围进行索敌
+//        {
+//            result.AddRange(Battle.FindAll(Unit.Position2, skill.SkillData.AttackRange * Unit.AttackRange, config.TargetTeam, !config.DeadFind));
+//        }
+//        else
+//        {
+//            var attackPoints = skill.SkillData.AttackAreaWithMain ? Unit.GetNowUseingSkill().AttackPoints : skill.AttackPoints;
+//            result.AddRange(Battle.FindAll(attackPoints, skill.SkillData.TargetTeam, !config.DeadFind));
+//        }
+
+//        return result;
+//    }
+//}
+//public class 从攻击范围获取单位 : IFilterStrategy
+//{
+//    //public List<Vector2Int> AttackPoints;
+//    public string Name => "从攻击范围获取单位";
+//    public int _targetTeam;
+//    public 从攻击范围获取单位(int targetTeam)
+//    {
+//        _targetTeam = targetTeam;
+//    }
+//    public Func<Unit, bool> GetPredicate() => (unit) =>
+//    {
+//        return false;
+//    };
+//    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config = null)
+//    {
+//        Battle Battle = skill.Unit.Battle;
+//        Unit Unit = skill.Unit;
+//        List<Unit> result = new List<Unit>();
+
+//        if (skill.AttackPoints == null && !skill.SkillData.AttackAreaWithMain)//根据攻击范围进行索敌
+//        {
+//            result.AddRange(Battle.FindAll(Unit.Position2, skill.SkillData.AttackRange * Unit.AttackRange, config.TargetTeam, !config.DeadFind));
+//        }
+//        else
+//        {
+//            var attackPoints = skill.SkillData.AttackAreaWithMain ? Unit.GetNowUseingSkill().AttackPoints : skill.AttackPoints;
+//            result.AddRange(Battle.FindAll(attackPoints, skill.SkillData.TargetTeam, !config.DeadFind));
+//        }
+
+//        return result;
+//    }
+//}
+
+//public class 从攻击范围获取地块 : ITargetSelector
+//{
+//    //public List<Vector2Int> AttackPoints;
+//    public List<Vector3> GetTargetsPos(Skill skill, List<Unit> targets, SelectorConfig config = null)
+//    {
+//        Battle Battle = skill.Unit.Battle;
+//        Unit Unit = skill.Unit;
+//        List<Vector3> result = new List<Vector3>();
+
+//        if (skill.AttackPoints == null && !skill.SkillData.AttackAreaWithMain)//根据攻击范围进行索敌
+//        {
+//            float attackRange = skill.SkillData.AttackRange * Unit.AttackRange;
+//            result.AddRange(GetTileFromRange(Unit, attackRange));
+//        }
+//        else
+//        {
+//            var attackPoints = skill.SkillData.AttackAreaWithMain ? Unit.GetNowUseingSkill().AttackPoints : skill.AttackPoints;
+//            result.AddRange(attackPoints.Select(p => new Vector3(p.x, 0, p.y)).ToList());
+//        }
+
+//        return result;
+//    }
+//    public List<Vector3> GetTileFromRange(Unit unit, float range)
+//    {
+//        List<Vector3> result = new List<Vector3>();
+//        for (int x = (int)-range; x <= range; x++)
+//        {
+//            for (int z = (int)-range; z <= range; z++)
+//            {
+//                if (x * x + z * z <= range * range)
+//                {
+//                    Vector3 pos = new Vector3(unit.Position.x + x, unit.Position.y, unit.Position.z + z);
+//                    result.Add(pos);
+//                }
+//            }
+//        }
+//        return result;
+//    }
+//    //public List<Vector3> GetTileFromAttackPoints(Unit unit, List<Vector2Int> attackPoints)
+//    //{
+
+//    //}
+//}
+
+//public class 获取事件目标单位 : ITargetSelector
+//{
+//    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
+//    {
+//        Unit t = skill.Unit.Battle.TriggerDatas.Peek().Target;
+//        if (t != null && (skill.SkillData.TargetTeam >> t.Team) % 2 == 1)
+//            targets.Add(t);
+//        return targets;
+//    }
+//}
+
+//public class 获取事件目标地块 : ITargetSelector
+//{
+//    public List<Vector3> GetTargets(Skill skill, List<Vector3> targets, SelectorConfig config)
+//    {
+//        Unit t = skill.Unit.Battle.TriggerDatas.Peek().Target;
+//        if (t != null && (skill.SkillData.TargetTeam >> t.Team) % 2 == 1)
+//            targets.Add(new Vector3(t.GridPos.x, 0, t.GridPos.y));
+//        return targets;
+//    }
+//}
+
+//public class 获取事件来源单位 : ITargetSelector
+//{
+//    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
+//    {
+//        Unit t = skill.Unit.Battle.TriggerDatas.Peek().User;
+//        if (t != null && (skill.SkillData.TargetTeam >> t.Team) % 2 == 1)
+//            targets.Add(t);
+//        return targets;
+//    }
+//}
+
+//public class 获取事件来源地块 : ITargetSelector
+//{
+//    public List<Vector3> GetTargets(Skill skill, List<Vector3> targets, SelectorConfig config)
+//    {
+//        Unit t = skill.Unit.Battle.TriggerDatas.Peek().User;
+//        if (t != null && (skill.SkillData.TargetTeam >> t.Team) % 2 == 1)
+//            targets.Add(new Vector3(t.GridPos.x, 0, t.GridPos.y));
+//        return targets;
+//    }
+//}
+
+//public partial class SelectorConfig
+//{
+//    public TargetAttributeEnum Attribute1;
+//    public TargetAttributeEnum Attribute2;
+
+//    public float HighAttributePercent = -1;
+//    public float LowAttributePercent = -1;
+//    public float HighAttribute = -1;
+//    public float LowAttribute = -1;
+//}
+//public class 以属性筛选单位 : ITargetSelector
+//{
+
+//    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
+//    {
+//        float highAttributePercent = config.HighAttributePercent;
+//        float lowAttributePercent = config.LowAttributePercent;
+//        float highAttribute = config.HighAttribute;
+//        float lowAttribute = config.LowAttribute;
+
+//        //List<Unit> result = new List<Unit>();
+//        //result.AddRange(targets);
+//        for (int i = targets.Count - 1; i >= 0 ; i--)
+//        {
+//            float hpPercent = targets[i].Hp / targets[i].MaxHp;
+//            bool remove = false;
+
+//            if (highAttributePercent > 0 && hpPercent >= highAttributePercent)
+//                remove = true;
+//            if (lowAttributePercent > 0 && hpPercent <= lowAttributePercent)
+//                remove = true;
+//            if (highAttribute >= 0 && targets[i].Hp >= highAttribute)
+//                remove = true;
+//            if (lowAttribute >= 0 && targets[i].Hp <= lowAttribute)
+//                remove = true;
+//            if (remove) targets.RemoveAt(i);
+//        }
+
+//        return targets;
+//    }
+
+//    protected float GetAttribute(Unit unit, TargetAttributeEnum attribute)
+//    {
+//        switch (attribute)
+//        {
+//            case TargetAttributeEnum.Hp:
+//                return unit.Hp;
+//            case TargetAttributeEnum.MaxHp:
+//                return unit.MaxHp;
+//            case TargetAttributeEnum.Attack:
+//                return unit.Attack;
+//            case TargetAttributeEnum.AttackBase:
+//                return unit.AttackBase;
+//            case TargetAttributeEnum.Defence:
+//                return unit.Defence;
+//            case TargetAttributeEnum.DefenceBase:
+//                return unit.DefenceBase;
+//            case TargetAttributeEnum.Agi:
+//                return unit.Agi;
+//            case TargetAttributeEnum.AgiBase:
+//                return unit.AgiBase;
+//            case TargetAttributeEnum.AttackGap:
+//                return unit.AttackGap;
+//            case TargetAttributeEnum.AttackGapBase:
+//                return unit.AttackGapBase;
+//            default:
+//                return 0;
+//        }
+//    }
+//}
+# endregion
+
+//public partial class SelectorConfig
+//{
+//    public List<Buff> MustHaveAnyBuffs = new List<Buff>();
+//    public List<Buff> MustHaveAllBuffs = new List<Buff>();
+//    public List<Buff> MustNotHaveAnyBuffs = new List<Buff>();
+//    public List<Buff> MustNotHaveAllBuffs = new List<Buff>();
+//}
+public class Buff筛选 : IFilterStrategy
 {
-    public List<Vector3> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config = null)
+    public string Name => "Buff筛选";
+    
+    private readonly int _targetTeam;
+    private readonly HashSet<int> _mustHaveAnyBuffIds;
+    private readonly HashSet<int> _mustHaveAllBuffIds;
+    private readonly HashSet<int> _mustNotHaveAnyBuffIds;
+    private readonly HashSet<int> _mustNotHaveAllBuffIds;
+
+    // 预计算的条件检查标志
+    private readonly bool _deadFind;
+    private readonly bool _hasMustHaveAny;
+    private readonly bool _hasMustHaveAll;
+    private readonly bool _hasMustNotHaveAny;
+    private readonly bool _hasMustNotHaveAll;
+
+    public Buff筛选(SkillContext skillContext, int[] mustHaveAnyBuffIds, int[] mustHaveAllBuffIds, int[] mustNotHaveAnyBuffIds, int[] mustNotHaveAllBuffIds)
     {
-        return targets.Select(t => new Vector3(t.GridPos.x, 0, t.GridPos.y)).Distinct().ToList();
+        _targetTeam = skillContext.TargetTeam;
+        _deadFind = skillContext.DeadFind;
+        // 使用HashSet提高查询性能
+        _mustHaveAnyBuffIds = new HashSet<int>(mustHaveAnyBuffIds ?? Array.Empty<int>());
+        _mustHaveAllBuffIds = new HashSet<int>(mustHaveAllBuffIds ?? Array.Empty<int>());
+        _mustNotHaveAnyBuffIds = new HashSet<int>(mustNotHaveAnyBuffIds ?? Array.Empty<int>());
+        _mustNotHaveAllBuffIds = new HashSet<int>(mustNotHaveAllBuffIds ?? Array.Empty<int>());
+
+        // 预计算条件标志，避免每次检查数组长度
+        _hasMustHaveAny = _mustHaveAnyBuffIds.Count > 0;
+        _hasMustHaveAll = _mustHaveAllBuffIds.Count > 0;
+        _hasMustNotHaveAny = _mustNotHaveAnyBuffIds.Count > 0;
+        _hasMustNotHaveAll = _mustNotHaveAllBuffIds.Count > 0;
     }
-}
 
-public class 获取地块上的单位 : ITargetSelector
-{
-    public List<Unit> GetTargets(Skill skill, List<Vector3> targets, SelectorConfig config = null)
+    public Func<Unit, bool> GetPredicate() => (unit) =>
     {
-        Battle Battle = skill.Unit.Battle;
-        List<Unit> result = new List<Unit>();
-        
-        result.AddRange(Battle.FindAll(targets.Select(t => new Vector2Int((int)t.x, (int)t.z)).ToList(), config.TargetTeam, !config.DeadFind));
+        if (!unit.IfAlive && !_deadFind) return false;
+        // 缓存buff ID 集合，避免每次创建新的HashSet
+        var buffIdCache = new Dictionary<Unit, HashSet<int>>();
 
-        return result.Distinct().ToList();
-    }
-}
-    public class 从攻击范围获取单位 : ITargetSelector
-{
-    //public List<Vector2Int> AttackPoints;
-    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config = null)
-    {
-        Battle Battle = skill.Unit.Battle;
-        Unit Unit = skill.Unit;
-        List<Unit> result = new List<Unit>();
+        if (!unit.Abnormal) return false;
 
-        if (skill.AttackPoints == null && !skill.SkillData.AttackAreaWithMain)//根据攻击范围进行索敌
+        // 2. 获取或创建buff ID缓存
+        if (!buffIdCache.TryGetValue(unit, out var unitBuffIds))
         {
-            result.AddRange(Battle.FindAll(Unit.Position2, skill.SkillData.AttackRange * Unit.AttackRange, config.TargetTeam, !config.DeadFind));
-        }
-        else
-        {
-            var attackPoints = skill.SkillData.AttackAreaWithMain ? Unit.GetNowUseingSkill().AttackPoints : skill.AttackPoints;
-            result.AddRange(Battle.FindAll(attackPoints, skill.SkillData.TargetTeam, !config.DeadFind));
+            unitBuffIds = new HashSet<int>(unit.Buffs.Select(b => b.Id));
+            buffIdCache[unit] = unitBuffIds;
         }
 
-        return result;
-    }
+        if ((_targetTeam >> unit.Team) % 2 == 0) return false;
+
+        // 3. 必须拥有至少一个buff
+        if (_hasMustHaveAny && !_mustHaveAnyBuffIds.Any(id => unitBuffIds.Contains(id)))
+            return false;
+
+        // 4. 必须拥有所有buff
+        if (_hasMustHaveAll && !_mustHaveAllBuffIds.All(id => unitBuffIds.Contains(id)))
+            return false;
+
+        // 5. 不能拥有任何一个buff
+        if (_hasMustNotHaveAny && _mustNotHaveAnyBuffIds.Any(id => unitBuffIds.Contains(id)))
+            return false;
+
+        // 6. 不能同时拥有所有buff
+        if (_hasMustNotHaveAll && _mustNotHaveAllBuffIds.All(id => unitBuffIds.Contains(id)))
+            return false;
+
+        return true;
+    };
 }
 
-public class 从攻击范围获取地块 : ITargetSelector
-{
-    //public List<Vector2Int> AttackPoints;
-    public List<Vector3> GetTargetsPos(Skill skill, List<Unit> targets, SelectorConfig config = null)
-    {
-        Battle Battle = skill.Unit.Battle;
-        Unit Unit = skill.Unit;
-        List<Vector3> result = new List<Vector3>();
+//public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
+//{
+//    var mustHaveAny = new HashSet<Buff>(config.MustHaveAnyBuffs);
+//    var mustHaveAll = new HashSet<Buff>(config.MustHaveAllBuffs);
+//    var mustNotHaveAny = new HashSet<Buff>(config.MustNotHaveAnyBuffs);
+//    var mustNotHaveAll = new HashSet<Buff>(config.MustNotHaveAllBuffs);
 
-        if (skill.AttackPoints == null && !skill.SkillData.AttackAreaWithMain)//根据攻击范围进行索敌
-        {
-            float attackRange = skill.SkillData.AttackRange * Unit.AttackRange;
-            result.AddRange(GetTileFromRange(Unit, attackRange));
-        }
-        else
-        {
-            var attackPoints = skill.SkillData.AttackAreaWithMain ? Unit.GetNowUseingSkill().AttackPoints : skill.AttackPoints;
-            result.AddRange(attackPoints.Select(p => new Vector3(p.x, 0, p.y)).ToList());
-        }
+//    targets = targets.Where(t => (skill.SkillData.TargetTeam >> t.Team) % 2 == 1).ToList();
 
-        return result;
-    }
-    public List<Vector3> GetTileFromRange(Unit unit, float range)
-    {
-        List<Vector3> result = new List<Vector3>();
-        for (int x = (int)-range; x <= range; x++)
-        {
-            for (int z = (int)-range; z <= range; z++)
-            {
-                if (x * x + z * z <= range * range)
-                {
-                    Vector3 pos = new Vector3(unit.Position.x + x, unit.Position.y, unit.Position.z + z);
-                    result.Add(pos);
-                }
-            }
-        }
-        return result;
-    }
-    //public List<Vector3> GetTileFromAttackPoints(Unit unit, List<Vector2Int> attackPoints)
-    //{
-        
-    //}
-}
+//    for (int i = targets.Count - 1; i >= 0; i--)
+//    {
+//        HashSet<Buff> targetBuffs = new HashSet<Buff>(targets[i].Buffs);
+//        bool remove = false;
 
-public class 获取事件目标单位 : ITargetSelector
-{
-    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
-    {
-        Unit t = skill.Unit.Battle.TriggerDatas.Peek().Target;
-        if (t != null)
-            targets.Add(t);
-        return targets;
-    }
-}
+//        // 必须拥有至少一个
+//        if (mustHaveAny.Count > 0 && !mustHaveAny.Any(b => targetBuffs.Contains(b)))
+//            remove = true;
 
-public class 获取事件目标地块 : ITargetSelector
-{
-    public List<Vector3> GetTargets(Skill skill, List<Vector3> targets, SelectorConfig config)
-    {
-        Unit t = skill.Unit.Battle.TriggerDatas.Peek().Target;
-        if (t != null)
-            targets.Add(new Vector3(t.GridPos.x, 0, t.GridPos.y));
-        return targets;
-    }
-}
+//        // 必须拥有所有
+//        else if (mustHaveAll.Count > 0 && mustHaveAll.Any(b => !targetBuffs.Contains(b)))
+//            remove = true;
 
-public class 获取事件来源单位 : ITargetSelector
-{
-    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
-    {
-        Unit t = skill.Unit.Battle.TriggerDatas.Peek().User;
-        if (t != null)
-            targets.Add(t);
-        return targets;
-    }
-}
+//        // 不能拥有任何一个
+//        else if (mustNotHaveAny.Count > 0 && mustNotHaveAny.Any(b => targetBuffs.Contains(b)))
+//            remove = true;
 
-public class 获取事件来源地块 : ITargetSelector
-{
-    public List<Vector3> GetTargets(Skill skill, List<Vector3> targets, SelectorConfig config)
-    {
-        Unit t = skill.Unit.Battle.TriggerDatas.Peek().User;
-        if (t != null)
-            targets.Add(new Vector3(t.GridPos.x, 0, t.GridPos.y));
-        return targets;
-    }
-}
+//        // 不能同时拥有所有（特殊场景）
+//        else if (mustNotHaveAll.Count > 0 && mustNotHaveAll.All(b => targetBuffs.Contains(b)))
+//            remove = true;
 
-public partial class SelectorConfig
-{
-    public float HighHpPercent = -1;
-    public float LowHpPercent = -1;
-    public float HighHp = -1;
-    public float LowHp = -1;
-}
-public class 血量筛选 : ITargetSelector
-{
-
-    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
-    {
-        float highHpPercent = config.HighHpPercent;
-        float lowHpPercent = config.LowHpPercent;
-        float highHp = config.HighHp;
-        float lowHp = config.LowHp;
-
-        //List<Unit> result = new List<Unit>();
-        //result.AddRange(targets);
-        for (int i = targets.Count - 1; i >= 0 ; i--)
-        {
-            float hpPercent = targets[i].Hp / targets[i].MaxHp;
-            bool remove = false;
-
-            if (highHpPercent > 0 && hpPercent >= highHpPercent)
-                remove = true;
-            if (lowHpPercent > 0 && hpPercent <= lowHpPercent)
-                remove = true;
-            if (highHp >= 0 && targets[i].Hp >= highHp)
-                remove = true;
-            if (lowHp >= 0 && targets[i].Hp <= lowHp)
-                remove = true;
-            if (remove) targets.RemoveAt(i);
-        }
-
-        return targets;
-    }
-}
-
-public partial class SelectorConfig
-{
-    public List<Buff> MustHaveAnyBuffs = new List<Buff>();
-    public List<Buff> MustHaveAllBuffs = new List<Buff>();
-    public List<Buff> MustNotHaveAnyBuffs = new List<Buff>();
-    public List<Buff> MustNotHaveAllBuffs = new List<Buff>();
-}
-public class Buff筛选 : ITargetSelector
-{
-
-    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
-    {
-        var mustHaveAny = new HashSet<Buff>(config.MustHaveAnyBuffs);
-        var mustHaveAll = new HashSet<Buff>(config.MustHaveAllBuffs);
-        var mustNotHaveAny = new HashSet<Buff>(config.MustNotHaveAnyBuffs);
-        var mustNotHaveAll = new HashSet<Buff>(config.MustNotHaveAllBuffs);
-
-        for (int i = targets.Count - 1; i >= 0; i--)
-        {
-            HashSet<Buff> targetBuffs = new HashSet<Buff>(targets[i].Buffs);
-            bool remove = false;
-
-            // 必须拥有至少一个
-            if (mustHaveAny.Count > 0 && !mustHaveAny.Any(b => targetBuffs.Contains(b)))
-                remove = true;
-
-            // 必须拥有所有
-            else if (mustHaveAll.Count > 0 && mustHaveAll.Any(b => !targetBuffs.Contains(b)))
-                remove = true;
-
-            // 不能拥有任何一个
-            else if (mustNotHaveAny.Count > 0 && mustNotHaveAny.Any(b => targetBuffs.Contains(b)))
-                remove = true;
-
-            // 不能同时拥有所有（特殊场景）
-            else if (mustNotHaveAll.Count > 0 && mustNotHaveAll.All(b => targetBuffs.Contains(b)))
-                remove = true;
-
-            if (remove) targets.RemoveAt(i);
-        }
-        return targets;
-    }
-}
+//        if (remove) targets.RemoveAt(i);
+//    }
+//    return targets;
+//}
 
 public partial class SelectorConfig
 {
     public SkillTargetFilterEnum FilterEnum;
 }
-public class 通用选择器 : ITargetSelector
+public class 通用选择器
 {
 
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
     {
         SkillTargetFilterEnum filterEnum = config.FilterEnum;
+        
+        targets = targets.Where(t => (skill.SkillData.TargetTeam >> t.Team) % 2 == 1).ToList();
 
         switch (filterEnum)
         {
@@ -253,6 +402,40 @@ public class 通用选择器 : ITargetSelector
     }
 }
 
+public class 常用筛选器 : IFilterStrategy
+{
+    public string Name => "常用筛选器";
+
+    private readonly int _targetTeam;
+    private readonly SkillTargetFilterEnum _filterEnum;
+
+    public 常用筛选器(int targetTeam, int filterEnum)
+    {
+        _targetTeam = targetTeam;
+        _filterEnum = (SkillTargetFilterEnum)filterEnum;
+    }
+    public Func<Unit, bool> GetPredicate() => (unit) =>
+    {
+        //switch (_filterEnum)
+        //{
+        //    case SkillTargetFilterEnum.召唤物:
+                
+        //        break;
+        //    case SkillTargetFilterEnum.自己以外:
+        //        if (unit == unit.Battle.TriggerDatas.Peek().User) return false;
+        //        break;
+        //    case SkillTargetFilterEnum.仅自己:
+        //        if (unit != unit.Battle.TriggerDatas.Peek().User) return false;
+        //        break;
+        //    case SkillTargetFilterEnum.仅召唤:
+        //        if (unit == null || unit.Parent == null) return false;
+        //        if (unit.Parent != unit.Battle.TriggerDatas.Peek().User) return false;
+        //        break;
+        //}
+        return true;
+    };
+}
+
 public partial class SelectorConfig
 {
     // 距离范围模式
@@ -268,11 +451,13 @@ public partial class SelectorConfig
     // 是否启用精确距离模式
     public bool UseExactDistance => ExactDistance >= 0;
 }
-public class 距离筛选 : ITargetSelector
+public class 距离筛选
 {
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
     {
         Vector3 casterPos = skill.Unit.Position;
+
+        targets = targets.Where(t => (skill.SkillData.TargetTeam >> t.Team) % 2 == 1).ToList();
 
         // 精确距离模式
         if (config.UseExactDistance)
@@ -340,7 +525,7 @@ public partial class SelectorConfig
     /// </summary>
     public int RandomCount = 1;
 }
-public class 获取随机单位 : ITargetSelector
+public class 获取随机单位
 {
 
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
@@ -354,8 +539,7 @@ public class 获取随机单位 : ITargetSelector
         if (config.RandomCount <= 0)
             return new List<Unit>();
 
-        // 处理 null 输入
-        targets ??= new List<Unit>();
+        targets = targets.Where(t => (skill.SkillData.TargetTeam >> t.Team) % 2 == 1).ToList();
 
         // 模式1: NeedEmptyTargets = true (只在输入为空时执行)
         if (config.NeedEmptyTargets)
@@ -415,7 +599,8 @@ public class 获取随机单位 : ITargetSelector
     {
         // 通常从场景中获取所有合法目标
         // 这里假设获取所有敌方单位（具体逻辑需要根据业务调整）
-        var allValidTargets = skill.Unit.Battle.AllUnits.Where(u => u != skill.Unit && u.IfAlive == config.DeadFind).ToList();
+        //var allValidTargets = skill.Unit.Battle.AllUnits.Where(u => u != skill.Unit && u.IfAlive == config.DeadFind).ToList();
+        var allValidTargets = skill.Unit.Battle.AllUnits.Where(u => u != skill.Unit).ToList();
 
         // 没有可用目标
         if (allValidTargets.Count == 0)
@@ -427,5 +612,60 @@ public class 获取随机单位 : ITargetSelector
 
         // 随机选择指定数量
         return GetRandomTargets(allValidTargets, count, random);
+    }
+}
+
+public class 获取自身阻挡单位
+{
+    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
+    {
+        Unit Unit = skill.Unit;
+
+        if (Unit is Units.干员)
+            targets.AddRange(Unit.StopUnits);
+        else if (Unit is Units.敌人 enemy)
+            targets.Add(enemy.StopUnit);
+        
+        targets = targets.Where(t => (skill.SkillData.TargetTeam >> t.Team) % 2 == 1).ToList();
+
+        return targets;
+    }
+}
+
+public class 获取被阻挡的单位
+{
+    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
+    {
+        if (targets.Count == 0)
+            targets = skill.Unit.Battle.AllUnits;
+
+        targets = targets.Where(t => (skill.SkillData.TargetTeam >> t.Team) % 2 == 1).ToList();
+
+        targets = targets.Where(
+            t => t is Units.干员 && t.StopUnits.Count > 0 ||
+                 t is Units.敌人 enemy && enemy.StopUnit is not null)
+            .Distinct()
+            .ToList();
+
+        return targets;
+    }
+}
+
+public partial class SelectorConfig
+{
+    public Unit BlockerUnit;
+}
+public class 获取被指定单位阻挡的单位
+{
+    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
+    {
+        Unit blockerUnit = config.BlockerUnit;
+
+        if (blockerUnit == null)
+            return targets;
+
+        targets.AddRange(blockerUnit is Units.敌人 enemy ? new List<Unit>() { enemy.StopUnit } : blockerUnit.StopUnits);
+
+        return targets;
     }
 }

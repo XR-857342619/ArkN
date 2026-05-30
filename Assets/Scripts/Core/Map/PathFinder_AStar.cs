@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 //using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 /// <summary>
-/// 寻路节点数据（内部使用，避免污染外部命名空间）
+/// 寻路节点数据
 /// </summary>
 public class PathNode
 {
@@ -12,7 +11,7 @@ public class PathNode
     public float G; // 移动代价
     public float H; // 启发代价
     public float F => G + H; // 总代价
-    public PathNode Parent; // 父节点（用于回溯）
+    public PathNode Parent; // 父节点
 
     public PathNode(int x, int y)
     {
@@ -23,7 +22,6 @@ public class PathNode
 
 /// <summary>
 /// 独立寻路工具类
-/// 不包含任何 MonoBehaviour 依赖，可被任何脚本调用
 /// </summary>
 public static class AStarPathFinder
 {

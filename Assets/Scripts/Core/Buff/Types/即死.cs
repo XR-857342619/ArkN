@@ -16,9 +16,6 @@ namespace Buffs
                 return;
             }
 
-            // 立即杀死单位
-            this.Unit.DoDie(this.Skill?.Unit);
-
             // 触发致命效果相关事件
             base.Battle.TriggerDatas.Push(new TriggerData
             {
@@ -26,6 +23,9 @@ namespace Buffs
             });
             this.Unit.Trigger(TriggerEnum.致命);
             base.Battle.TriggerDatas.Pop();
+            
+            // 立即杀死单位
+            this.Unit.DoDie(this.Skill?.Unit);
 
             // 移除Buff
             this.Finish();

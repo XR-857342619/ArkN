@@ -79,7 +79,7 @@ public class Skill
     Pool<MapTile> SkillRange = new Pool<MapTile>();
 
     //public string FilterExpression;
-    public SkillTargetFilter filter;
+    //public SkillTargetFilter filter;
 
     public bool IsCantOpen = false;
     public bool IsCantUse = false;
@@ -92,7 +92,8 @@ public class Skill
     //public int 递归深度 = 1000;
     public bool IsBursting = false;
 
-    public ExpressionEvaluator tempEvaluator;
+    //public ExpressionEvaluator tempEvaluator;
+    public UnifiedExpressionEngine tempEvaluator;
 
     public virtual void Init()
     {
@@ -115,7 +116,7 @@ public class Skill
         //Debug.Log(SkillData.Id + showRange);
         showBar = SkillData.Data?.GetStr("ShowBar")?? "";
 
-        filter = new SkillTargetFilter(Unit, Targets);
+        //filter = new SkillTargetFilter(Unit, Targets);
         //FilterExpression = SkillData.SkillCondition;
 
         canStop = SkillData.CanStop;
@@ -124,13 +125,14 @@ public class Skill
         Reset();
         IsNormalAttack = SkillData.UseType == SkillUseTypeEnum.自动 && SkillData.MaxPower == 0 && SkillData.ModelAnimation != null && SkillData.DamageRate > 0;//4个条件判断技能是否为普攻，判断条件存疑
 
-        // 新增：预编译技能条件表达式（关键修改）
+        // 预编译技能条件表达式
         if (!string.IsNullOrEmpty(SkillData.SkillCondition))
         {
             // 传入空列表触发编译（实际执行时不依赖列表数据）
-            tempEvaluator = new ExpressionEvaluator(Unit, new List<Unit>());
+            //tempEvaluator = new ExpressionEvaluator(Unit, new List<Unit>());
+            tempEvaluator = new UnifiedExpressionEngine(Unit, new List<Unit>());
             // 调用Filter触发编译，此时仅会执行到GetCompiledPredicate并缓存
-            tempEvaluator.Filter(SkillData.SkillCondition);
+            tempEvaluator.FilterTargets(SkillData.SkillCondition);
         }
 
         //Waiting.Finish();
@@ -1357,7 +1359,8 @@ public class Skill
     {
         float orderByExpression = 0;
         if (SkillData.OrderExpression is not null)
-            orderByExpression = (float) tempEvaluator.EvaluateExpressionWithParameters(SkillData.OrderExpression);
+            //orderByExpression = (float) tempEvaluator.EvaluateExpressionWithParameters(SkillData.OrderExpression);
+            orderByExpression = tempEvaluator.Evaluate<float>(SkillData.OrderExpression);
 
         float orderByTag = 0;
         if (SkillData.OrderTag is not null)
