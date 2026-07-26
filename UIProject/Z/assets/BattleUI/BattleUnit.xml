@@ -10,8 +10,8 @@
     <remark page="4" value="大型敌人"/>
     <remark page="5" value="boss"/>
   </controller>
-  <controller name="showBuffInfo" pages="0,,1," selected="1"/>
-  <controller name="isPreview" pages="0,,1," selected="1"/>
+  <controller name="showBuffInfo" pages="0,,1," selected="0"/>
+  <controller name="isPreview" pages="0,,1," selected="0"/>
   <displayList>
     <component id="n31_h4sa" name="hp" src="h4sa42" fileName="Hp1.xml" xy="2,142">
       <gearDisplay controller="unitType" pages="0"/>
@@ -43,14 +43,17 @@
       <gearXY controller="unitType" pages="10" values="35,15" default="35,65"/>
       <ProgressBar value="50" max="100"/>
     </component>
-    <list id="n45_hwog" name="progressList" xy="93,-3" size="50,129" layout="flow_vt" selectionMode="none" scroll="both" lineGap="10" colGap="-15" lineItemCount="6" defaultItem="ui://vp312gabp78xtn" autoItemSize="true" align="center" renderOrder="arch" autoClearItems="true" scrollItemToViewOnClick="false">
+    <list id="n45_hwog" name="progressList" xy="93,0" size="75,158" layout="flow_vt" selectionMode="none" scroll="both" lineGap="15" colGap="5" lineItemCount="5" defaultItem="ui://vp312gabp78xtn" autoItemSize="true" align="center" renderOrder="arch" autoClearItems="true" scrollItemToViewOnClick="false">
       <relation target="" sidePair="middle-middle%,left-right%"/>
-      <item/>
-      <item/>
-      <item/>
-      <item/>
-      <item/>
-      <item/>
+      <item controllers="BarType,0"/>
+      <item controllers="BarType,1"/>
+      <item controllers="BarType,2"/>
+      <item controllers="BarType,3"/>
+      <item controllers="BarType,4"/>
+      <item controllers="BarType,5"/>
+      <item controllers="BarType,6"/>
+      <item controllers="BarType,7"/>
+      <item controllers="BarType,8"/>
     </list>
     <component id="n48_hwog" name="bigHp" src="hwogsq" fileName="ProgressBar_boss.xml" xy="-312,2">
       <gearDisplay controller="unitType" pages="10"/>

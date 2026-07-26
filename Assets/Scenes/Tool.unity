@@ -216,7 +216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0d94bbd5e3e578468a2c0da17075156, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TextAsset: {fileID: 4900000, guid: d1f57e777aab11247be488d74665829b, type: 3}
+  TextAsset: {fileID: 4900000, guid: e056d1638c9a8734897430729b6beed8, type: 3}
   Dir: ./Spine/
 --- !u!1 &582840802
 GameObject:
@@ -419,7 +419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1564333222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -465,7 +465,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2015475989
 Transform:
   m_ObjectHideFlags: 0

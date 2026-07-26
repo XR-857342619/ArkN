@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="50,50">
-  <controller name="BarType" pages="0,,1,,2,,3,,4,,5,,6,,7,,8," selected="4"/>
+  <controller name="BarType" exported="true" pages="0,,1,,2,,3,,4,,5,,6,,7,,8," selected="0"/>
   <displayList>
     <component id="n0_p78x" name="n0" src="hwogsk" fileName="ProgressBar_shield.xml" xy="0,0">
       <gearDisplay controller="BarType" pages="0"/>

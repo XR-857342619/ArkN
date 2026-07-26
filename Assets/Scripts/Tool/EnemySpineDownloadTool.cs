@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
+using Newtonsoft.Json.Linq;
 
 public class EnemySpineDownloadTool : MonoBehaviour
 {
     public TextAsset TextAsset;
     public string Dir;
-    public class A
-    {
-        public Dictionary<string, object> spCharGroups;
-    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,16 +18,36 @@ public class EnemySpineDownloadTool : MonoBehaviour
 
     IEnumerator DownloadAll()
     {
-        var a = JsonHelper.FromJson<Dictionary<string,object>>(TextAsset.text);
-        foreach (var kv in a)
+        var root = JsonHelper.FromJson<Dictionary<string, object>>(TextAsset.text);
+        if (root == null)
         {
-            //Log.Debug(kv.GetType());
-            float t = Time.time;
-            Debug.Log($"开始爬取{kv.Key}");
-            yield return StartCoroutine(dowloadOne(kv.Key));
-            Debug.Log($"{kv.Key}完成!耗时{Time.time - t}");
+            Debug.LogError("Failed to parse JSON");
+            yield break;
         }
-        Debug.Log($"全部爬取完成！");
+
+        if (!root.TryGetValue("enemyData", out object enemyDataObj))
+        {
+            Debug.LogError("enemyData not found in JSON");
+            yield break;
+        }
+
+        var enemyDataJObject = enemyDataObj as JObject;
+        if (enemyDataJObject == null)
+        {
+            Debug.LogError("enemyData is not a JObject");
+            yield break;
+        }
+
+        foreach (var property in enemyDataJObject.Properties())
+        {
+            string enemyId = property.Name;
+            Debug.Log($"开始爬取 {enemyId}");
+            float t = Time.time;
+            yield return StartCoroutine(dowloadOne(enemyId));
+            Debug.Log($"{enemyId} 完成！耗时 {Time.time - t}");
+        }
+
+        Debug.Log("全部爬取完成！");
     }
 
     IEnumerator dowloadOne(string name)
