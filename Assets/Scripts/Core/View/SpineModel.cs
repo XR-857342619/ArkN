@@ -39,7 +39,8 @@ public class SpineModel : UnitModel
         nowAnimations = Unit.UnitData.DefaultAnimation;
         SkeletonAnimation.SkeletonDataAsset.GetAnimationStateData().DefaultMix = 0f;
         updateState();
-        Shadow.localScale = isNew ? new Vector3(380, 330, 380) * unit.UnitData.ModelScale : Vector3.one * unit.UnitData.ModelScale;
+        //Shadow.localScale = isNew ? new Vector3(380, 330, 380) * unit.UnitData.ModelScale : Vector3.one * unit.UnitData.ModelScale;
+        Shadow.localScale = isNew ? Vector3.one * (1f / 0.0027f) * unit.UnitData.ModelScale : Vector3.one * unit.UnitData.ModelScale;
         //_originalColor = mpb.GetColor("_Color");
         if (SkeletonAnimation.Skeleton == null)
         {

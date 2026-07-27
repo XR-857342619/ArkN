@@ -543,7 +543,7 @@ namespace Units
             Debug.Log($"Path:{log}");
 
             //if (OnlyChekPoint) DisplayPath();
-            DisplayPath();
+            //DisplayPath();
 
             TempIndex = 0;
             NeedResetPath = false;

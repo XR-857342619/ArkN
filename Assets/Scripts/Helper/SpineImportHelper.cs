@@ -332,7 +332,16 @@ public class SpineImportHelper : MonoBehaviour
         GameObject targetObject = ResHelper.Instantiate("Assets/Res/Spine/" + (hasBack ? "NewUnit" : "NewEnemy"));
         // 遍历目标对象的子节点
         targetObject.transform.localScale = new Vector3(0.0027f, 0.0027f, 0.0027f);
-        //targetObject.transform.position += new Vector3(0, 0, -0.2f);
+
+        Transform shadow = targetObject.transform.GetChild(0); // 假设索引0是阴影
+        float rootScale = 0.0027f;
+
+        // 目标世界坐标 Y 固定为 0.0001（防止 Z-Fighting）
+        float targetWorldY = 0.0001f;
+        float targetWorldZ = hasBack ? -0.2f : 0f; // Unit 需要 Z=-0.2，Enemy 需要 Z=0
+
+        shadow.localPosition = new Vector3(0, targetWorldY / rootScale, targetWorldZ / rootScale);
+
         for (int i = 0; i < targetObject.transform.childCount; i++)
         {
             Transform child = targetObject.transform.GetChild(i);
