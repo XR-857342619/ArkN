@@ -3,7 +3,7 @@
   <controller name="funPage" pages="0,unit,1,skill,4,buff,5,modify" selected="0"/>
   <controller name="isNew" pages="0,,1," selected="0"/>
   <controller name="unitType" pages="0,normal,1,opreator,2,enemy" selected="0"/>
-  <controller name="selectIcon" pages="0,f,1,t,5,edr,6,nedr" selected="2"/>
+  <controller name="selectIcon" pages="0,f,1,t,5,edr,6,nedr" selected="0"/>
   <displayList>
     <image id="n138_o8qy" name="n138" src="o8qyk" fileName="干员信息_背景2.png" xy="0,0" size="1920,1080" group="n15_o8qy">
       <relation target="" sidePair="width-width%,height-height%"/>
@@ -110,10 +110,10 @@
       <gearDisplay controller="unitType" pages="2"/>
       <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
     </group>
-    <component id="n127_o8qy" name="NotUseTile" src="o8qyj" fileName="AttributeLable.xml" xy="144,714" size="595,65" group="n112_o8qy" customData="不占用地板/NotUseTile:bool" controller="type,1">
+    <component id="n127_o8qy" name="NotUseTile" src="o8qyj" fileName="AttributeLable.xml" xy="144,944" size="595,65" group="n112_o8qy" customData="不占用地板/NotUseTile:bool" controller="type,1">
       <Label title="不占用地板:"/>
     </component>
-    <group id="n112_o8qy" name="NormalUnit" xy="144,714" size="595,65" group="n19_o8qy" advanced="true">
+    <group id="n112_o8qy" name="NormalUnit" xy="144,944" size="595,65" group="n19_o8qy" advanced="true">
       <gearDisplay controller="unitType" pages="0"/>
       <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
     </group>
@@ -123,19 +123,20 @@
     <component id="n166_tw0x" name="unitName" src="o8qyj" fileName="AttributeLable.xml" xy="321,315" size="417,65" group="n114_o8qy" customData="Id/Id:string">
       <Label title="名称:"/>
     </component>
-    <component id="n122_o8qy" name="HP" src="o8qyj" fileName="AttributeLable.xml" xy="144,394" size="595,65" group="n114_o8qy" customData="血/Hp:int">
+    <component id="n122_o8qy" name="HP" src="o8qyj" fileName="AttributeLable.xml" xy="144,618" size="595,65" group="n114_o8qy" customData="血/Hp:int">
       <Label title="血量:"/>
     </component>
-    <component id="n123_o8qy" name="Def" src="o8qyj" fileName="AttributeLable.xml" xy="144,474" size="595,65" group="n114_o8qy" customData="防/Defence:int" controller="type,0">
+    <component id="n123_o8qy" name="Def" src="o8qyj" fileName="AttributeLable.xml" xy="144,698" size="595,65" group="n114_o8qy" customData="防/Defence:int" controller="type,0">
       <Label title="防御:"/>
     </component>
-    <component id="n124_o8qy" name="MicDef" src="o8qyj" fileName="AttributeLable.xml" xy="144,554" size="595,65" group="n114_o8qy" customData="魔防/MagicDefence:int" controller="type,0">
+    <component id="n124_o8qy" name="MicDef" src="o8qyj" fileName="AttributeLable.xml" xy="144,778" size="595,65" group="n114_o8qy" customData="魔防/MagicDefence:int" controller="type,0">
       <Label title="法抗:"/>
     </component>
-    <component id="n125_o8qy" name="Atk" src="o8qyj" fileName="AttributeLable.xml" xy="144,634" size="595,65" group="n114_o8qy" customData="攻/Attack:int">
+    <component id="n125_o8qy" name="Atk" src="o8qyj" fileName="AttributeLable.xml" xy="144,858" size="595,65" group="n114_o8qy" customData="攻/Attack:int">
       <Label title="攻击力:"/>
     </component>
-    <group id="n114_o8qy" name="uintGeneralAttribute" xy="144,220" size="595,479" group="n19_o8qy" advanced="true">
+    <graph id="n176_p5ih" name="spineMode" xy="150,400" size="590,200" group="n114_o8qy" type="rect"/>
+    <group id="n114_o8qy" name="uintGeneralAttribute" xy="144,220" size="596,703" group="n19_o8qy" advanced="true">
       <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
     </group>
     <loader id="n30_o8qy" name="unitIcon" xy="145,219" size="160,160" group="n137_o8qy" align="center" vAlign="middle" fill="scale" playing="false"/>
@@ -159,7 +160,7 @@
       <relation target="n13_o8qy" sidePair="right-right%,top-top%"/>
       <Button title="添加修改" titleFontSize="40"/>
     </component>
-    <list id="n115_o8qy" name="addUnitAttribute" xy="780,218" size="1050,800" group="n140_o8qy" layout="flow_hz" overflow="scroll" margin="10,0,0,0" lineGap="15" colGap="40" defaultItem="ui://0tzprgeuo8qyj" autoClearItems="true">
+    <list id="n115_o8qy" name="addUnitAttribute" xy="781,218" size="1050,800" group="n140_o8qy" layout="flow_hz" overflow="scroll" margin="10,0,0,0" lineGap="15" colGap="40" defaultItem="ui://0tzprgeuo8qyj" autoClearItems="true">
       <relation target="n13_o8qy" sidePair="top-top%,rightext-right%"/>
       <relation target="n114_o8qy" sidePair="left-left%"/>
       <item/>
@@ -197,6 +198,7 @@
     <group id="n19_o8qy" name="unit" xy="144,111" size="1689,907" advanced="true">
       <gearDisplay controller="funPage" pages="0"/>
       <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
+      <relation target="" sidePair="width-width%,height-height%,center-center%,middle-middle%"/>
     </group>
     <list id="n142_o8qy" name="skillList" xy="145,207" size="994,793" group="n149_n7no" overflow="scroll" lineGap="3" defaultItem="ui://0tzprgeuo8qyn" autoClearItems="true">
       <relation target="n13_o8qy" sidePair="left-left%,top-top%,bottomext-bottom%"/>
@@ -228,7 +230,7 @@
       <relation target="n13_o8qy" sidePair="right-right%,top-top%"/>
       <Button title="添加修改" titleFontSize="40"/>
     </component>
-    <list id="n146_n7no" name="addSkillAttribute" xy="1175,208" size="655,800" group="n148_n7no" layout="flow_hz" overflow="scroll" margin="10,0,0,0" lineGap="15" colGap="40" defaultItem="ui://0tzprgeuo8qyj" align="center" autoClearItems="true">
+    <list id="n146_n7no" name="addSkillAttribute" xy="1176,208" size="655,800" group="n148_n7no" layout="flow_hz" overflow="scroll" margin="10,0,0,0" lineGap="15" colGap="40" defaultItem="ui://0tzprgeuo8qyj" align="center" autoClearItems="true">
       <relation target="n13_o8qy" sidePair="top-top%,rightext-right%"/>
       <relation target="n114_o8qy" sidePair="left-left%"/>
       <item/>
@@ -267,13 +269,14 @@
       <gearDisplay controller="funPage" pages="1"/>
       <relation target="n13_o8qy" sidePair="left-left%,top-top%"/>
     </group>
-    <component id="n159_n7no" name="back" src="o8qy5" fileName="exitBtn.xml" xy="-594,-175" size="2544,1430" group="n155_n7no" aspect="true" alpha="0.2">
+    <component id="n159_n7no" name="back" src="o8qy5" fileName="exitBtn.xml" xy="-312,-175" size="2544,1430" group="n155_n7no" aspect="true" alpha="0.2">
       <gearDisplay controller="selectIcon" pages="1"/>
-      <relation target="" sidePair="rightext-right%,topext-top%,bottomext-bottom%,leftext-left%"/>
+      <relation target="" sidePair="width-width,height-height"/>
       <Button title=" " controller="selectIcon" page="0"/>
     </component>
-    <graph id="n153_n7no" name="n000" xy="160,115" size="1600,850" group="n155_n7no" alpha="0.5" type="rect" corner="15"/>
+    <graph id="n153_n7no" name="n000" xy="160,115" pivot="0.5,0.5" size="1600,850" group="n155_n7no" alpha="0.5" type="rect" corner="15"/>
     <list id="n154_n7no" name="icons" xy="175,140" size="1570,800" group="n155_n7no" layout="flow_hz" overflow="scroll" lineGap="2" colGap="2" defaultItem="ui://0tzprgeun7nos" align="center" autoClearItems="true">
+      <relation target="n153_n7no" sidePair="width-width%,height-height%,center-center,middle-middle"/>
       <item/>
       <item/>
       <item/>
@@ -308,9 +311,9 @@
       <item/>
       <item/>
     </list>
-    <group id="n155_n7no" name="iconList" xy="-594,-175" size="2544,1430" advanced="true">
+    <group id="n155_n7no" name="iconList" xy="-312,-175" size="2544,1430" advanced="true">
       <gearDisplay controller="selectIcon" pages="1"/>
-      <relation target="" sidePair="center-center%,top-top%"/>
+      <relation target="" sidePair="center-center,middle-middle"/>
     </group>
     <richtext id="n156_n7no" name="tip" xy="0,0" size="125,1080" fontSize="20" color="#ff0000" autoSize="none" autoClearText="true" text=""/>
     <component id="n167_tw0x" name="save" src="o8qy5" fileName="exitBtn.xml" xy="1586,32" size="120,60">

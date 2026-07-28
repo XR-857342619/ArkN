@@ -1,17 +1,20 @@
 using FairyGUI;
 using FairyGUI.Utils;
+using Spine.Unity;
 using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
 using System.IO;
-using UnityEngine;
-using System.Web;
 using System.IO.IsolatedStorage;
+using System.Linq;
+using System.Web;
+using System.Windows.Forms;
+using UnityEngine;
 
 namespace DIY
 {
     public partial class UI_Main : GComponent
     {
+        private GoWrapper _currentWrapper;
+
         public int pageIndex = 0;
         public bool isNew = false;
         public bool isOp = false;
@@ -19,12 +22,14 @@ namespace DIY
         public string folderPath = UnityEngine.Application.streamingAssetsPath + "/Excel/";
         public List<string> folderList = new List<string>();
         public string folder = "";
+
         public UnitData selectUnit = null;
         public Dictionary<(string, string, string), int> unitInfos = new Dictionary<(string name, string type, string icon), int>();
         public int lastRow = -1;
         public Dictionary<string, int> unitIndexs = new Dictionary<string, int>();
         public Dictionary<int, string> skillNames = new Dictionary<int, string>();
         public Dictionary<int, string> selectedUnitNames = new Dictionary<int, string>();
+        
         //public Dictionary<string, List<string>> attributeDic = ExcelHelper.dic;
         public Dictionary<string, Dictionary<string, int>> attributes = new Dictionary<string, Dictionary<string, int>>();
         public string[] unitTypes = new string[] { "中立单位", "干员", "敌人" };
@@ -34,16 +39,28 @@ namespace DIY
             new string[] {"Model/Model:string", "Name/Name:string", "Id/Id:string", "Type/Type:string", "血/Hp:int", "防/Defence:int", "魔防/MagicDefence:int", "攻/Attack:int", "消耗/Cost:int", "阻挡个数/StopCount:int", "攻击间隔:AttackGap:float", "复活时间/ResetTime:int"},
             new string[] { "Model/Model:string", "Name/Name:string", "Id/Id:string", "Type/Type:string", "血/Hp:int", "防/Defence:int", "魔防/MagicDefence:int", "攻/Attack:int", "重量/Weight:int", "阻挡个数/StopCount:int", "攻击间隔:AttackGap:float" }
         };
+        public IReadOnlyList<string> spineList => SpineResourceManager.Instance.AllSpineKeys.AsReadOnly();
+
         public string excelPath = "";
         public string model = "";
         public int attributeIndex = 0;
         List<Dictionary<(int, int), GLabel>> changeList = new List<Dictionary<(int row, int col), GLabel>>();
+
         partial void Init()
         {
             //unitList = ExcelHelper.GetUnitList();
             ExcelHelper.ExportClass(new List<string>() { UnityEngine.Application.streamingAssetsPath + "/Excel/Main/battle.xlsx" });
             List<string> folderpaths = Directory.GetDirectories(folderPath).ToList();
             folderList = Database.Instance.GetExcelPathNames(folderpaths);
+
+            GameObject spineGo = ResHelper.Instantiate("Assets/Bundles/Units/char_002_amiya");
+            spineGo.transform.localPosition = new Vector3(280, -150, 100);
+            spineGo.transform.localRotation = Quaternion.Euler(-60, 0, 0);
+            spineGo.transform.localScale = Vector3.one * 150;
+            GGraph holder = m_spineMode.asGraph;
+            _currentWrapper = new GoWrapper(spineGo);
+            holder.SetNativeObject(_currentWrapper);
+
             m_exit.onClick.Add(() =>
             {
                 UIManager.Instance.ChangeView<MainUI.UI_Main>(MainUI.UI_Main.URL);
@@ -114,8 +131,8 @@ namespace DIY
             });
             m_mode.onClick.Add(() =>
             {
-                if ((m_excels.items?.Length ?? 0) == 0) return;
-                Debug.Log("mode");
+                //if ((m_excels.items?.Length ?? 0) == 0) return;
+                //Debug.Log("mode");
                 freshIcon();
                 //m_mode.alpha = 0;
             });
@@ -130,6 +147,18 @@ namespace DIY
                 selectUnit = Database.Instance.Get<UnitData>(index);
                 string model = selectUnit.Model;
                 string icon = selectUnit.HeadIcon;
+                
+                GameObject modelGo;
+                loadModel(model, out modelGo);
+                if (modelGo is not null && modelGo.GetComponentsInChildren<SkeletonAnimation>(true).Length > 0)
+                {
+                    SkeletonAnimation front = modelGo.transform.GetChild(1).GetComponent<SkeletonAnimation>();
+                    front.loop = false;
+                    front.AnimationName = "default";
+                }
+                // 更新渲染器缓存，以确保新的 GameObject 正确显示
+                _currentWrapper.CacheRenderers();
+
                 m_modeName.m_text.text = model;
                 m_mode.alpha = 0;
                 if (m_unitType.selectedIndex != 0)
@@ -220,19 +249,36 @@ namespace DIY
         }
         private void freshIcon()
         {
-            var rows = unitInfos.Keys;
+            var rows = spineList;
             int j = 0;
             m_icons.RemoveChildrenToPool();
             foreach (var i in rows)
             {
-                string iconName = i.Item3 ?? "";
-                if (iconName == "") continue;
+                string modelName = i.Split("/").Last();
+                string iconName = modelName;
+                if (modelName.StartsWith("char_"))
+                {
+                    iconName = "icon_" + modelName.Split("_")[2];
+                }
+                else if (modelName.StartsWith("enemy_"))
+                {
+                    
+                }
+
+                if (modelName == "") continue;
                 m_icons.AddItemFromPool();
                 GObject obj = m_icons.GetChildAt(j);
-                obj.asLabel.GetChild("icon").asLoader.url = "ui://Res/" + iconName;
+                //obj.asLabel.GetChild("icon").asLoader.url = "ui://Res/" + modelName;
+                PackageItem icon = UIPackage.GetItemByURL("ui://Res/" + iconName);
+                if (icon != null)
+                {
+                    obj.asLabel.icon = "ui://Res/" + iconName;
+                }
+                obj.asLabel.title = modelName;
+
                 obj.onClick.Add(seclecIcon);
                 //obj.data = unitInfos[i].Item1;
-                obj.data = i.Item1.Split("/")[1];
+                obj.data = modelName;
                 j++;
             }
         }
@@ -242,12 +288,64 @@ namespace DIY
             m_unitIcon.url = obj.asLabel.GetChild("icon").asLoader.url;
             m_selectIcon.selectedIndex = 0;
             m_mode.alpha = 0;
-            string unitId = obj.data.ToString();
-            int modeliindex = Database.Instance.GetIndex<UnitData>(unitId);
-            model = Database.Instance.Get<UnitData>(modeliindex).Model;
+            //string unitId = obj.data.ToString();
+            //int modeliindex = Database.Instance.GetIndex<UnitData>(unitId);
+            //model = Database.Instance.Get<UnitData>(modeliindex).Model;
             //Debug.Log(model);
-            m_modeName.m_text.text = model;
+            m_modeName.m_text.text = obj.data.ToString();
+
+            GameObject model;
+            loadModel(obj.data.ToString(), out model);
+
+            if (model is not null && model.GetComponentsInChildren<SkeletonAnimation>(true).Length > 0)
+            {
+                SkeletonAnimation front = model.transform.GetChild(1).GetComponent<SkeletonAnimation>();
+                front.loop = false;
+                front.AnimationName = "default";
+            }
+            // 更新渲染器缓存，以确保新的 GameObject 正确显示
+            _currentWrapper.CacheRenderers();
         }
+
+        private void loadModel(string modelName, out GameObject model)
+        {
+            model = ResHelper.Instantiate("Assets/Bundles/Units/" + modelName);
+
+            model.transform.localPosition = new Vector3(280, -150, 50);
+            model.transform.localScale = Vector3.one * 150;
+
+            if (model.GetComponentsInChildren<SkeletonAnimation>(true).Length > 0)
+            {
+                model.transform.localRotation = Quaternion.Euler(-60, 0, 0);
+
+                SkeletonAnimation front = model.transform.GetChild(1).GetComponent<SkeletonAnimation>();
+                
+                front.loop = true;
+                front.AnimationName = "Idle";
+
+                SkeletonAnimation back = model.transform.Find("model_back")?.GetComponent<SkeletonAnimation>() ?? null;
+                if (back is not null)
+                {
+                    back.AnimationName = "Idle";
+                    back.gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                model.transform.localRotation = Quaternion.Euler(-15, 45, -15);
+            }
+
+            // 4. 创建 GoWrapper 来包装这个 GameObject
+            if (_currentWrapper.wrapTarget != null)
+            {
+                GameObject.Destroy(_currentWrapper.wrapTarget);
+            }
+            _currentWrapper.wrapTarget = model;
+
+            // 更新渲染器缓存，以确保新的 GameObject 正确显示
+            _currentWrapper.CacheRenderers();
+        }
+
         private void freshAttribute()
         {
             attributes = ExcelHelper.GetAttributes(UnityEngine.Application.streamingAssetsPath + "/Excel/temp.xlsx");

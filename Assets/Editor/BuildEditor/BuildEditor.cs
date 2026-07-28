@@ -136,7 +136,7 @@ public class BuildEditor
     private static void SetBundle(string path, string name, bool overwrite = true)
     {
         string extension = Path.GetExtension(path);
-        if (extension == ".cs" || extension == ".dll" || extension == ".js")
+        if (extension == ".cs" || extension == ".dll" || extension == ".js" || extension == ".ini")
         {
             return;
         }

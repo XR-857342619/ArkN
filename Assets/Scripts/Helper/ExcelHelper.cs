@@ -435,7 +435,7 @@ public class ExcelHelper
                     (string, string, string) unitInfo = (
                         worksheet.Cells[sourceRowIndex, 33].Value.ToString() + "/" + worksheet.Cells[sourceRowIndex, 1].Value.ToString(),
                         worksheet.Cells[sourceRowIndex, 2].Value.ToString(),
-                        worksheet.Cells[sourceRowIndex, 56].Value?.ToString()?? ""
+                        worksheet.Cells[sourceRowIndex, 55].Value?.ToString()?? ""
                         );
                     unitList[unitInfo] = sourceRowIndex;
                 }
