@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
 
 namespace Units
@@ -53,11 +54,6 @@ namespace Units
                 Battle.Map.Tiles[GridPos.x, GridPos.y].MidUnits.Remove(this);
             UnityEngine.GameObject.Destroy(UnitModel.gameObject);
             UnitModel = null;
-        }
-
-        public void AlignHeight()
-        {
-            Tile tile = Battle.Map.Tiles[GridPos.x, GridPos.y];
         }
     }
 }
