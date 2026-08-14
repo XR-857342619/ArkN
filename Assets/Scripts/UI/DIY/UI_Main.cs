@@ -2,6 +2,7 @@ using FairyGUI;
 using FairyGUI.Utils;
 using Spine.Unity;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
@@ -184,6 +185,8 @@ namespace DIY
 
             m_save.onClick.Add(save2Excel);
             m_saveAsNew.onClick.Add(save2Excel);
+
+            //SpineResourceManager.Instance.LoadAllSpineResources();
         }
         private void freshExcel(string folder)
         {
@@ -311,7 +314,7 @@ namespace DIY
         {
             model = ResHelper.Instantiate("Assets/Bundles/Units/" + modelName);
 
-            model.transform.localPosition = new Vector3(280, -150, 50);
+            model.transform.localPosition = new Vector3(280, -150, 500);
             model.transform.localScale = Vector3.one * 150;
 
             if (model.GetComponentsInChildren<SkeletonAnimation>(true).Length > 0)

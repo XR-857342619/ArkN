@@ -68,20 +68,23 @@ public class Tile: ITileData
             int tileUnitsCount = this.Units?.Count(X => X.UnitData.NotUseTile == true)?? 0;
             bool buildcount = this.Units.Count >= tileUnitsCount + 1;
             bool tileUnits = this.Units.Count > 0 ? !this.Units.Any(X => X.UnitData.NotUseTile == true) : false;
-            //if (buildcount && tileUnits && !UnitNotUseTile) return false;
+
+            if (buildcount && tileUnits && !UnitNotUseTile) return false;
+            
             if (CanBuildUnit)
             {
                 if (Battle.MapData.NoBuildLimit) return true;
                 return GetUnitCanSetData(unitData);
             }
-            if (buildcount && tileUnits && !UnitNotUseTile) return false;
+            //if (buildcount && tileUnits && !UnitNotUseTile) return false;
+            
             return false;
         }
     }
 
-    public bool GetUnitCanSetData(UnitData unitData)    
+    public bool GetUnitCanSetData(UnitData unitData)
     {
-        List<string> CanSetTags = unitData.CanSetPos.ToList();
+        List<string> CanSetTags = unitData?.CanSetPos?.ToList() ?? new List<string>();
         
         bool CanSetHigh = CanSetTags.Contains("高台位") || CanSetTags.Contains("全地形");
         bool CanSetGround = CanSetTags.Contains("地面位") || CanSetTags.Contains("全地形");

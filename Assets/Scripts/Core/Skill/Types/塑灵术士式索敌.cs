@@ -60,8 +60,8 @@ namespace Skills
             }
             if (SkillData.SkillCondition is not null && Casting.Finished())
             {
-                var evaluator = new ExpressionEvaluator(Unit, tempTargets);
-                tempTargets = evaluator.Filter(SkillData.SkillCondition);
+                var evaluator = new UnifiedExpressionEngine(Unit, tempTargets);
+                tempTargets = evaluator.FilterTargets(SkillData.SkillCondition);
             }
 
             if (Unit is Units.干员 op)

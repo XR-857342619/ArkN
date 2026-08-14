@@ -1154,8 +1154,8 @@ public class Skill
         }
         if (SkillData.SkillCondition is not null && Casting.Finished())
         {
-            var evaluator = new ExpressionEvaluator(Unit, tempTargets);
-            tempTargets = evaluator.Filter(SkillData.SkillCondition);
+            var evaluator = new UnifiedExpressionEngine(Unit, tempTargets);
+            tempTargets = evaluator.FilterTargets(SkillData.SkillCondition);
         }
 
         if (SkillData.Id == "萃蔓无敌")

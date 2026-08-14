@@ -54,5 +54,10 @@ namespace Units
             UnityEngine.GameObject.Destroy(UnitModel.gameObject);
             UnitModel = null;
         }
+
+        public void AlignHeight()
+        {
+            Tile tile = Battle.Map.Tiles[GridPos.x, GridPos.y];
+        }
     }
 }

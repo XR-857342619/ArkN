@@ -3,20 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Linq.Dynamic.Core;
-using System.Linq.Dynamic.Core.Parser;
+//using System.Linq.Dynamic.Core.Parser;
 using System.Reflection;
-using System.Linq.Dynamic.Core.CustomTypeProviders;
+//using System.Linq.Dynamic.Core.CustomTypeProviders;
 using UnityEngine;
 
+/// <summary>
+/// 统一表达式引擎，支持：
+/// - 强类型编译（基于实际对象类型，提升性能）
+/// - 自定义参数名（默认 Context / Target）
+/// - 过滤、数学计算、属性赋值
+/// - 缓存机制（包含参数名和类型）
+/// </summary>
 public class UnifiedExpressionEngine
 {
-    // 共享缓存（统一管理，避免重复）
     private static readonly Dictionary<string, Delegate> _compiledExpressions = new Dictionary<string, Delegate>();
     private static readonly Dictionary<Type, Dictionary<string, MemberInfo>> _memberCache = new Dictionary<Type, Dictionary<string, MemberInfo>>();
 
-    // 上下文对象
     private readonly object _context;
-    private readonly List<Unit> _targets; // 仅在需要时使用
+    private readonly List<Unit> _targets;
 
     public UnifiedExpressionEngine(object context, List<Unit> targets = null)
     {
@@ -24,24 +29,21 @@ public class UnifiedExpressionEngine
         _targets = targets;
     }
 
-    // 1. 过滤功能（原ExpressionEvaluator）
-    public List<Unit> FilterTargets(string expression)
+    // ===== 1. 过滤（原 ExpressionEvaluator 功能） =====
+    public List<Unit> FilterTargets(string expression, string contextName = "Unit", string targetName = "Target")
     {
         if (string.IsNullOrEmpty(expression) || _targets == null || _targets.Count == 0)
             return new List<Unit>();
 
         try
         {
-            var predicate = GetCompiledPredicate<Unit, Unit, bool>(expression, "Unit", "Target");
+            var predicate = CompileLambda<Unit, Unit, bool>(expression, contextName, targetName);
             var results = new List<Unit>();
-
             foreach (var target in _targets)
             {
                 if (target == null) continue;
                 if (predicate(_context as Unit, target))
-                {
                     results.Add(target);
-                }
             }
             return results;
         }
@@ -52,21 +54,22 @@ public class UnifiedExpressionEngine
         }
     }
 
-    // 2. 数学计算（原ExpressionEvaluator）
-    public T Evaluate<T>(string expression)
+    // ===== 2. 数学计算 =====
+    public T Evaluate<T>(string expression, string contextName = "Buff", string targetName = "Target")
     {
         if (string.IsNullOrWhiteSpace(expression))
             throw new ArgumentException("表达式不能为空", nameof(expression));
 
         try
         {
-            // 检查逻辑运算符（纯数学计算不支持）
             var logicOperators = new[] { "&&", "||", "!", "and", "or", "not", "==", "!=", "<", ">", "<=", ">=" };
             if (logicOperators.Any(op => expression.Contains(op)))
                 throw new ArgumentException("数学表达式不能包含逻辑运算符", nameof(expression));
 
-            var lambda = GetCompiledLambda<object, object, T>(expression, "Context", "Target");
-            return lambda(_context, _targets?.FirstOrDefault());
+            var contextType = _context.GetType();
+            var targetType = _targets?.FirstOrDefault()?.GetType() ?? typeof(object);
+            var del = CompileLambdaInternal(expression, contextType, targetType, typeof(T), contextName, targetName);
+            return (T)del.DynamicInvoke(_context, _targets?.FirstOrDefault());
         }
         catch (Exception ex)
         {
@@ -75,8 +78,8 @@ public class UnifiedExpressionEngine
         }
     }
 
-    // 3. 属性赋值（原ExpressionExecutor）
-    public void ExecuteAssignment(string expression)
+    // ===== 3. 属性赋值 =====
+    public void ExecuteAssignment(string expression, string contextName = "Buff", string targetName = "Target")
     {
         if (string.IsNullOrWhiteSpace(expression))
             throw new ArgumentException("表达式不能为空", nameof(expression));
@@ -90,12 +93,18 @@ public class UnifiedExpressionEngine
             var leftExpr = parts[0].Trim();
             var rightExpr = parts[1].Trim();
 
-            // 编译右边的表达式
-            var rightLambda = GetCompiledLambda<object, object, object>(rightExpr, "Context", "Target");
-            var rightValue = rightLambda(_context, _targets?.FirstOrDefault());
+            var contextType = _context.GetType();
+            var targetType = _targets?.FirstOrDefault()?.GetType() ?? typeof(object);
+            var rightDel = CompileLambdaInternal(rightExpr, contextType, targetType, typeof(object), contextName, targetName);
+            var rightValue = rightDel.DynamicInvoke(_context, _targets?.FirstOrDefault());
 
-            // 执行赋值
-            SetPropertyValue(_context, leftExpr, rightValue);
+            var leftPath = leftExpr;
+            if (leftExpr.StartsWith(contextName + "."))
+                leftPath = leftExpr.Substring(contextName.Length + 1);
+            else if (leftExpr.StartsWith(targetName + "."))
+                leftPath = leftExpr.Substring(targetName.Length + 1);
+
+            SetPropertyValue(_context, leftPath, rightValue);
         }
         catch (Exception ex)
         {
@@ -104,204 +113,135 @@ public class UnifiedExpressionEngine
         }
     }
 
-    // 4. 批量赋值
-    public void ExecuteAssignments(IEnumerable<string> expressions)
+    // 批量赋值
+    public void ExecuteAssignments(IEnumerable<string> expressions, string contextName = "Buff", string targetName = "Target")
     {
         foreach (var expr in expressions)
-        {
-            ExecuteAssignment(expr);
-        }
+            ExecuteAssignment(expr, contextName, targetName);
     }
 
-    // 核心：通用表达式编译方法（支持强类型）
-    private Func<T1, T2, TResult> GetCompiledPredicate<T1, T2, TResult>(string expression, string param1Name, string param2Name)
+    // ===== 核心编译 =====
+    private Func<T1, T2, TResult> CompileLambda<T1, T2, TResult>(string expression, string param1Name, string param2Name)
     {
-        var key = GenerateCacheKey(expression, typeof(T1), typeof(T2), typeof(TResult));
+        var del = CompileLambdaInternal(expression, typeof(T1), typeof(T2), typeof(TResult), param1Name, param2Name);
+        return (Func<T1, T2, TResult>)del;
+    }
 
+    private Delegate CompileLambdaInternal(string expression, Type contextType, Type targetType, Type resultType,
+                                           string contextName, string targetName)
+    {
+        var key = GenerateCacheKey(expression, contextType, targetType, resultType, contextName, targetName);
         if (_compiledExpressions.TryGetValue(key, out var cached))
-            return (Func<T1, T2, TResult>)cached;
+            return cached;
 
-        var param1 = Expression.Parameter(typeof(T1), param1Name);
-        var param2 = Expression.Parameter(typeof(T2), param2Name);
+        var param1 = Expression.Parameter(contextType, contextName);
+        var param2 = Expression.Parameter(targetType ?? typeof(object), targetName);
         var parameters = new[] { param1, param2 };
 
         var processedExpr = PreprocessExpression(expression);
         var lambda = DynamicExpressionParser.ParseLambda(
             parameters,
-            typeof(TResult),
+            resultType,
             processedExpr,
             GetParsingConfig()
         );
 
-        var compiled = lambda.Compile() as Func<T1, T2, TResult>;
-        if (compiled == null)
-            throw new InvalidOperationException($"无法编译表达式为 Func<{typeof(T1).Name}, {typeof(T2).Name}, {typeof(TResult).Name}>");
-
+        var compiled = lambda.Compile();
         _compiledExpressions[key] = compiled;
         return compiled;
     }
 
-    // 通用Lambda编译方法
-    private Func<T1, T2, TResult> GetCompiledLambda<T1, T2, TResult>(string expression, string param1Name, string param2Name)
+    // ===== 缓存键生成 =====
+    private string GenerateCacheKey(string expression, params object[] keyParts)
     {
-        var key = GenerateCacheKey(expression, typeof(T1), typeof(T2), typeof(TResult));
-
-        if (_compiledExpressions.TryGetValue(key, out var cached))
-            return (Func<T1, T2, TResult>)cached;
-
-        var param1 = Expression.Parameter(typeof(T1), param1Name);
-        var param2 = Expression.Parameter(typeof(T2), param2Name);
-        var parameters = new[] { param1, param2 };
-
-        var processedExpr = PreprocessExpression(expression);
-        var lambda = DynamicExpressionParser.ParseLambda(
-            parameters,
-            typeof(TResult),
-            processedExpr,
-            GetParsingConfig()
-        );
-
-        var compiled = lambda.Compile() as Func<T1, T2, TResult>;
-        if (compiled == null)
-            throw new InvalidOperationException($"无法编译表达式为 Func<{typeof(T1).Name}, {typeof(T2).Name}, {typeof(TResult).Name}>");
-
-        _compiledExpressions[key] = compiled;
-        return compiled;
+        var normalizedExpr = System.Text.RegularExpressions.Regex.Replace(expression, @"\s+", " ").Trim();
+        var parts = keyParts.Select(p => p?.ToString() ?? "null");
+        return $"{normalizedExpr}_{string.Join("_", parts)}";
     }
 
-    // 属性设置方法（处理赋值）
+    // ===== 属性赋值辅助 =====
     private void SetPropertyValue(object obj, string propertyPath, object value)
     {
         if (obj == null) throw new ArgumentNullException(nameof(obj));
         if (string.IsNullOrEmpty(propertyPath)) throw new ArgumentException("属性路径不能为空", nameof(propertyPath));
 
-        // 处理嵌套属性 (如 "Buff.Unit.AttackRate")
         var properties = propertyPath.Split('.');
         object currentObj = obj;
+        Type currentType = currentObj.GetType();
 
         for (int i = 0; i < properties.Length; i++)
         {
             var propName = properties[i];
-            var type = currentObj.GetType();
 
-            // 从缓存中获取成员信息
-            if (!_memberCache.TryGetValue(type, out var members))
+            if (!_memberCache.TryGetValue(currentType, out var members))
             {
                 members = new Dictionary<string, MemberInfo>();
-                foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-                {
+                foreach (var prop in currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                     members[prop.Name] = prop;
-                }
-                foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
-                {
+                foreach (var field in currentType.GetFields(BindingFlags.Public | BindingFlags.Instance))
                     members[field.Name] = field;
-                }
-                _memberCache[type] = members;
+                _memberCache[currentType] = members;
             }
 
             if (!members.TryGetValue(propName, out var member))
-            {
-                throw new ArgumentException($"对象 {type.Name} 没有属性或字段 '{propName}'");
-            }
+                throw new ArgumentException($"对象 {currentType.Name} 没有属性或字段 '{propName}'");
 
             if (i == properties.Length - 1)
             {
-                // 最后一个属性，进行赋值
                 if (member is PropertyInfo prop)
                 {
-                    // 类型转换
                     var propType = prop.PropertyType;
-                    object convertedValue = null;
-
-                    if (value != null && propType.IsAssignableFrom(value.GetType()))
-                    {
-                        convertedValue = value;
-                    }
-                    else if (propType.IsValueType && value == null)
-                    {
-                        convertedValue = Activator.CreateInstance(propType);
-                    }
-                    else
-                    {
-                        try
-                        {
-                            convertedValue = Convert.ChangeType(value, propType);
-                        }
-                        catch
-                        {
-                            throw new InvalidOperationException($"无法将值 {value} 转换为类型 {propType.Name}");
-                        }
-                    }
-
+                    object convertedValue = ConvertValue(value, propType);
                     prop.SetValue(currentObj, convertedValue);
                 }
                 else if (member is FieldInfo field)
                 {
-                    // 类型转换
                     var fieldType = field.FieldType;
-                    object convertedValue = null;
-
-                    if (value != null && fieldType.IsAssignableFrom(value.GetType()))
-                    {
-                        convertedValue = value;
-                    }
-                    else if (fieldType.IsValueType && value == null)
-                    {
-                        convertedValue = Activator.CreateInstance(fieldType);
-                    }
-                    else
-                    {
-                        try
-                        {
-                            convertedValue = Convert.ChangeType(value, fieldType);
-                        }
-                        catch
-                        {
-                            throw new InvalidOperationException($"无法将值 {value} 转换为类型 {fieldType.Name}");
-                        }
-                    }
-
+                    object convertedValue = ConvertValue(value, fieldType);
                     field.SetValue(currentObj, convertedValue);
                 }
                 else
-                {
                     throw new NotSupportedException($"不支持的成员类型: {member.GetType().Name}");
-                }
             }
             else
             {
-                // 中间属性，获取下一个对象
                 if (member is PropertyInfo prop)
-                {
                     currentObj = prop.GetValue(currentObj);
-                }
                 else if (member is FieldInfo field)
-                {
                     currentObj = field.GetValue(currentObj);
-                }
                 else
-                {
                     throw new NotSupportedException($"不支持的成员类型: {member.GetType().Name}");
-                }
 
                 if (currentObj == null)
-                {
                     throw new NullReferenceException($"属性路径中的对象为 null: {string.Join(".", properties.Take(i + 1))}");
-                }
+                currentType = currentObj.GetType();
             }
         }
     }
 
-    // 通用缓存键生成
-    private string GenerateCacheKey(string expression, params Type[] types)
+    private object ConvertValue(object value, Type targetType)
     {
-        var processedExpr = PreprocessExpression(expression);
-        var normalizedExpr = System.Text.RegularExpressions.Regex.Replace(processedExpr, @"\s+", " ").Trim();
-        var typeNames = string.Join("_", types.Select(t => t.Name));
-        return $"{normalizedExpr}_{typeNames}";
+        if (value == null)
+        {
+            if (targetType.IsValueType)
+                return Activator.CreateInstance(targetType);
+            return null;
+        }
+
+        var sourceType = value.GetType();
+        if (targetType.IsAssignableFrom(sourceType))
+            return value;
+
+        try
+        {
+            return Convert.ChangeType(value, targetType);
+        }
+        catch
+        {
+            throw new InvalidOperationException($"无法将值 {value} 转换为类型 {targetType.Name}");
+        }
     }
 
-    // 共享的预处理逻辑
     private string PreprocessExpression(string expression)
     {
         return expression.Replace("and", "&&")
@@ -311,30 +251,34 @@ public class UnifiedExpressionEngine
                         .Trim();
     }
 
-    // 共享的解析配置
     private ParsingConfig GetParsingConfig()
     {
         var customTypeProvider = new CustomDynamicLinqTypeProvider();
         customTypeProvider.AdditionalTypes.Add(typeof(string[]));
         customTypeProvider.AdditionalTypes.Add(typeof(System.Linq.Enumerable));
+        customTypeProvider.AdditionalTypes.Add(typeof(Buff));
+        customTypeProvider.AdditionalTypes.Add(typeof(Unit));
+        customTypeProvider.AdditionalTypes.Add(typeof(PowerRecoverTypeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(SkillReadyEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(SkillUseTypeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(TriggerEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(SkillTargetFilterEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(UnitTypeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(AttackTargetOrderEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(AttackTargetOrder2Enum));
+        customTypeProvider.AdditionalTypes.Add(typeof(DamageTypeEnum));
+        customTypeProvider.AdditionalTypes.Add(typeof(AttackModeEnum));
 
         return new ParsingConfig { CustomTypeProvider = customTypeProvider };
     }
 
-    // 统一的错误处理
     private void HandleExpressionError(Exception ex, string expression, string operationType)
     {
         var innerException = ex.InnerException ?? ex;
         Debug.LogError($"{operationType}表达式错误: {innerException.Message}\n表达式: {expression}");
-
-        // 假设 TipManager 存在，否则可以注释掉
-        if (TipManager.Instance != null)
-        {
-            TipManager.Instance.ShowTip($"{operationType}表达式错误: {innerException.Message}\n表达式: {expression}");
-        }
+        TipManager.Instance?.ShowTip($"{operationType}表达式错误: {innerException.Message}\n表达式: {expression}");
     }
 
-    // 清理缓存
     public static void ClearCache()
     {
         _compiledExpressions.Clear();

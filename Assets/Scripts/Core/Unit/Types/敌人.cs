@@ -199,7 +199,7 @@ namespace Units
         public virtual void CheckBlock()
         {
             if (!Alive() || Hp <= 0) return;
-            if (StopUnit != null) return;
+            
             if (StopUnit != null && StopUnit.Height != Height)
             {
                 StopUnit.RemoveStop(this);   // 让阻挡者把我放掉
@@ -412,7 +412,7 @@ namespace Units
                         tmpPathPointList[i].IsArrive = true;
                         tmpPathPointList[i].CheckPoint = false;
                         tmpPathPointList[i].IsTemp = false;
-                        Debug.Log("移除临时路径点成功:" + tmpPathPointList[index].Pos);
+                        //Debug.Log("移除临时路径点成功:" + tmpPathPointList[index].Pos);
                         NeedResetPath = true;
                     }
                 }
@@ -569,18 +569,18 @@ namespace Units
             //if (tmpCheckPoint is not null) result = tmpCheckPoint;
             if (tmpCheckPoint is not null) 
             {
-                Debug.Log("GetTmpPoint:" + tmpCheckPoint.Pos.ToV2());
+                //Debug.Log("GetTmpPoint:" + tmpCheckPoint.Pos.ToV2());
                 return tmpCheckPoint; 
             }
             //else if (OnlyCheckPoint) result = NowCheckPoint;
             if (OnlyCheckPoint && index <= CheckPoints.Count - 1)
             {
-                Debug.Log("GetCheckPoint:" + CheckPoints[index].Pos.ToV2());
+                //Debug.Log("GetCheckPoint:" + CheckPoints[index].Pos.ToV2());
                 return CheckPoints[index];
             }//else if (index < PathPoints.Count) result = PathPoints[index];
             if (index < PathPoints.Count)
             {
-                Debug.Log("GetPathPoint:" + PathPoints[index].Pos.ToV2());
+                //Debug.Log("GetPathPoint:" + PathPoints[index].Pos.ToV2());
                 return PathPoints[index];
 
             }//Debug.Log(result.Pos.ToV2());

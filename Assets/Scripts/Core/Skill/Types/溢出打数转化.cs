@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace Skills
 {
-    //与普通技能不同的是，就算攻击范围里没有有效模板，这类技能也能被释放
     public class 溢出打数转化 : Skill
     {
         //public override void Start()

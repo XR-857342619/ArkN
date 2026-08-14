@@ -195,7 +195,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b775dbfc40841994b86e20d2da448c12, type: 2}
+  - {fileID: 2100000, guid: 263f7f5d215eb4b4bb2a6210ad8e992b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -230,7 +230,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skeletonDataAsset: {fileID: 11400000, guid: 8586385cebbc81743a2de02bc7e8fd2f, type: 2}
-  initialSkinName: default
+  initialSkinName: Crabstick
   initialFlipX: 0
   initialFlipY: 0
   updateWhenInvisible: 3

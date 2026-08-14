@@ -54,15 +54,17 @@ namespace MainUI
                 pool.ReturnObject(item);
             }
             m_attackArea.RemoveChildren();
-
-            float midX = (mainSkill.AttackPoints.Max(x => x.x) + mainSkill.AttackPoints.Min(x => x.x)) / 2f;
-            float midY = (mainSkill.AttackPoints.Max(x => x.y) + mainSkill.AttackPoints.Min(x => x.y)) / 2f;
-            foreach (var point in mainSkill.AttackPoints)
+            if (mainSkill.AttackPoints != null && mainSkill.AttackPoints.Count() > 0)
             {
-                var a = pool.GetObject(UI_AttackArea.URL) as UI_AttackArea;
-                m_attackArea.AddChild(a);
-                a.xy = new Vector2((point.x - midX) * 16-6f, (point.y - midY) * 16 - 6f);
-                a.m_type.selectedIndex = (point.x == 0 && point.y == 0) ? 1 : 0;
+                float midX = (mainSkill.AttackPoints.Max(x => x.x) + mainSkill.AttackPoints.Min(x => x.x)) / 2f;
+                float midY = (mainSkill.AttackPoints.Max(x => x.y) + mainSkill.AttackPoints.Min(x => x.y)) / 2f;
+                foreach (var point in mainSkill.AttackPoints)
+                {
+                    var a = pool.GetObject(UI_AttackArea.URL) as UI_AttackArea;
+                    m_attackArea.AddChild(a);
+                    a.xy = new Vector2((point.x - midX) * 16 - 6f, (point.y - midY) * 16 - 6f);
+                    a.m_type.selectedIndex = (point.x == 0 && point.y == 0) ? 1 : 0;
+                }
             }
             m_place.text = UnitData.SetPos;
             var ts = "";
