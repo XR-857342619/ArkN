@@ -44,10 +44,13 @@ namespace FairyGUIEditor
                 if (!string.IsNullOrEmpty(gObj.resourceURL))
                 {
                     PackageItem pi = UIPackage.GetItemByURL(gObj.resourceURL);
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.PrefixLabel("Resource");
-                    EditorGUILayout.LabelField(pi.name + "@" + pi.owner.name);
-                    EditorGUILayout.EndHorizontal();
+                    if (pi != null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.PrefixLabel("Resource");
+                        EditorGUILayout.LabelField(pi.name + "@" + pi.owner.name);
+                        EditorGUILayout.EndHorizontal();
+                    }
                 }
 
                 EditorGUI.BeginChangeCheck();

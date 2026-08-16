@@ -54,17 +54,17 @@ public class StandPicDownLoadTool : MonoBehaviour
             }
             if (Targets.Length > 0 && !Targets.Contains(kv.cn)) continue;
             float t = Time.time;
-            Debug.Log($"¿ªÊ¼ÅÀÈ¡{kv.cn}");
+            Debug.Log($"å¼€å§‹çˆ¬å–{kv.cn}");
             //yield return StartCoroutine(Download(kv.icon, "icon_" + kv.en, IconDir));
             yield return StartCoroutine(Download(getIdByName(kv.cn), kv.cn, Dir));
-            Debug.Log($"{kv.cn}Íê³É!ºÄÊ±{Time.time - t}");
+            Debug.Log($"{kv.cn}å®Œæˆ!è€—æ—¶{Time.time - t}");
         }
-        Debug.Log($"È«²¿ÅÀÈ¡Íê³É£¡");
+        Debug.Log($"å…¨éƒ¨çˆ¬å–å®Œæˆï¼");
     }
 
     IEnumerator Download(string fileName, string name,string dir)
     {
-        string url = $"http://prts.wiki/w/" + UnityEngine.Networking.UnityWebRequest.EscapeURL($"ÎÄ¼ş:Á¢»æ_{name}_1").ToUpper() + ".png";
+        string url = $"http://prts.wiki/w/" + UnityEngine.Networking.UnityWebRequest.EscapeURL($"æ–‡ä»¶:ç«‹ç»˜_{name}_1").ToUpper() + ".png";
         Debug.Log(url);
 
         UnityEngine.Networking.UnityWebRequest wr = UnityEngine.Networking.UnityWebRequest.Get(url);
@@ -77,15 +77,20 @@ public class StandPicDownLoadTool : MonoBehaviour
         {
             var htmlText = (wr.downloadHandler.text);
             Debug.Log(htmlText);
-            int startIndex = htmlText.IndexOf(UnityEngine.Networking.UnityWebRequest.EscapeURL($"Á¢»æ_{name}_1").ToUpper());
+            int startIndex = htmlText.IndexOf(UnityEngine.Networking.UnityWebRequest.EscapeURL($"ç«‹ç»˜_{name}_1").ToUpper());
             Debug.Log(startIndex);
+            if (startIndex < 6)
+            {
+                Debug.LogWarning($"æœªåœ¨é¡µé¢ä¸­æ‰¾åˆ°ç«‹ç»˜_{name}_1ï¼Œè·³è¿‡ä¸‹è½½");
+                yield break;
+            }
             //int index1 = htmlText.LastIndexOf('/', startIndex - 6);
             //int index2 = htmlText.LastIndexOf('/', index1 - 6);
             var next = htmlText.Substring(startIndex - 6, 6);
             Debug.Log(next);
-            var nextUrl = $"http://prts.wiki/images" + next + UnityEngine.Networking.UnityWebRequest.EscapeURL($"Á¢»æ_{name}_1").ToUpper() + ".png";
+            var nextUrl = $"http://prts.wiki/images" + next + UnityEngine.Networking.UnityWebRequest.EscapeURL($"ç«‹ç»˜_{name}_1").ToUpper() + ".png";
             wr = UnityEngine.Networking.UnityWebRequest.Get(nextUrl);
-            Debug.Log($"http://prts.wiki/images" + next + $"Á¢»æ_{name}_1" + ".png");
+            Debug.Log($"http://prts.wiki/images" + next + $"ç«‹ç»˜_{name}_1" + ".png");
             yield return wr.SendWebRequest();
             if (!string.IsNullOrEmpty(wr.error))
             {

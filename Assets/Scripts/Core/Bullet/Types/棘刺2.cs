@@ -77,7 +77,7 @@ namespace Bullets
             go.transform.SetParent(Target.NowGrid.MapGrid.transform);
             go.transform.localPosition = new Vector3(0, Battle.Map.Tiles[Target.NowGrid.X, Target.NowGrid.Y].FarAttackGrid ? -0.25f : 0.15f, 0);
             ShowRange showRange = go.GetComponent<ShowRange>();
-            showRange.targetObject = Battle.Map.Tiles[Target.NowGrid.X, Target.NowGrid.Y].MapGrid.gameObject;
+            showRange.targetTile = Battle.Map.Tiles[Target.NowGrid.X, Target.NowGrid.Y].MapGrid.gameObject;
             showRange.unitUniqueIndex = Battle.AllUnits.IndexOf(Target);
             showRange.useGridPos = Target is not Units.敌人;
             showRange.unitGridPos = Target.GridPos;

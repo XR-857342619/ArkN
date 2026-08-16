@@ -127,7 +127,7 @@ public class Bullet
             newBuff.Index = index;
             newBuff.Id = buffId;
             newBuff.Skill = source;
-            //newBuff.Unit = this;
+            newBuff.Bullet = this;
             newBuff.LastTime = lastTime;
 
             //Debug.Log("Add " + config.Id + " Buff to " + UnitData.Name);

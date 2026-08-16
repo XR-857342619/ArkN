@@ -4,74 +4,75 @@ using UnityEngine;
 using System.Linq;
 
 /// <summary>
-/// µØ¿é¼¼ÄÜ·¶Î§ÏÔÊ¾×é¼ş£¨Ö§³Ö¶àÊµÀı¹²´æ£¬ÊÊÅäµ¥Î»×ø±êÆ«ÒÆ£©
+/// åœ°å—æŠ€èƒ½èŒƒå›´æ˜¾ç¤ºç»„ä»¶ï¼ˆæ”¯æŒå¤šå®ä¾‹å…±å­˜ï¼Œé€‚é…å•ä½åæ ‡åç§»ï¼‰
 /// </summary>
 public class ShowRange : MonoBehaviour
 {
-    // µ¥Î»Ïà¹ØÅäÖÃ£¨Ã¿¸ö×é¼ş¶ÔÓ¦Ò»¸öµ¥Î»µÄ·¶Î§£¬ÊµÏÖ¶àµ¥Î»Çø·Ö£©
-    [Header("µ¥Î»¹ØÁªÅäÖÃ")]
-    public int unitUniqueIndex; // µ¥Î»Î¨Ò»±êÊ¶£¨ÓÃÓÚÇø·Ö²»Í¬µ¥Î»µÄ·¶Î§×é¼ş£©
+    // å•ä½ç›¸å…³é…ç½®ï¼ˆæ¯ä¸ªç»„ä»¶å¯¹åº”ä¸€ä¸ªå•ä½çš„èŒƒå›´ï¼Œå®ç°å¤šå•ä½åŒºåˆ†ï¼‰
+    [Header("å•ä½å…³è”é…ç½®")]
+    public int unitUniqueIndex; // å•ä½å”¯ä¸€æ ‡è¯†ï¼ˆç”¨äºåŒºåˆ†ä¸åŒå•ä½çš„èŒƒå›´ç»„ä»¶ï¼‰
 
-    // Î»ÖÃÓë·¶Î§ºËĞÄÅäÖÃ
-    [Header("Î»ÖÃÓë·¶Î§ÅäÖÃ")]
-    public Vector2 unitWorldPos; // µ¥Î»ÊÀ½ç×ø±ê£¨ĞèÒªÆ«ÒÆÊ±Ê¹ÓÃ£©
-    public Vector2Int unitGridPos; // µ¥Î»Íø¸ñ×ø±ê£¨ÎŞĞèÆ«ÒÆÊ±Ê¹ÓÃ£©
-    public bool useGridPos = false; // ÊÇ·ñÊ¹ÓÃÍø¸ñ×ø±ê£¨true=ÎŞĞèÆ«ÒÆ£¬false=Ğè¼ÆËãÆ«ÒÆ£©
-    public float rangeRadius; // Ô²ĞÎ·¶Î§°ë¾¶£¨>0Ê±ÏÔÊ¾Ô²ĞÎ£©
-    public List<Vector2> polygonRange; // ¶à±ßĞÎ·¶Î§µã¼¯ºÏ£¨Ô²ĞÎÎŞĞ§Ê±ÉúĞ§£©
+    // ä½ç½®ä¸èŒƒå›´æ ¸å¿ƒé…ç½®
+    [Header("ä½ç½®ä¸èŒƒå›´é…ç½®")]
+    public Vector2 unitWorldPos; // å•ä½ä¸–ç•Œåæ ‡ï¼ˆéœ€è¦åç§»æ—¶ä½¿ç”¨ï¼‰
+    public Vector2Int unitGridPos; // å•ä½ç½‘æ ¼åæ ‡ï¼ˆæ— éœ€åç§»æ—¶ä½¿ç”¨ï¼‰
+    public bool useGridPos = false; // æ˜¯å¦ä½¿ç”¨ç½‘æ ¼åæ ‡ï¼ˆtrue=æ— éœ€åç§»ï¼Œfalse=éœ€è®¡ç®—åç§»ï¼‰
+    public float rangeRadius; // åœ†å½¢èŒƒå›´åŠå¾„ï¼ˆ>0æ—¶æ˜¾ç¤ºåœ†å½¢ï¼‰
+    public List<Vector2> polygonRange; // å¤šè¾¹å½¢èŒƒå›´ç‚¹é›†åˆï¼ˆåœ†å½¢æ— æ•ˆæ—¶ç”Ÿæ•ˆï¼‰
 
-    // ·¶Î§ÏÔÊ¾UIÒıÓÃ£¨×ÓÎïÌåSprite£©
-    [Header("·¶Î§ÏÔÊ¾ÒıÓÃ")]
-    public GameObject targetObject;
+    // èŒƒå›´æ˜¾ç¤ºUIå¼•ç”¨ï¼ˆå­ç‰©ä½“Spriteï¼‰
+    [Header("èŒƒå›´æ˜¾ç¤ºå¼•ç”¨")]
+    public GameObject targetTile;
     public float angle;
     public GameObject LineT;
     public GameObject LineL;
     public GameObject LineR;
     public GameObject LineB;
-    public GameObject LineC; // Ô²ĞÎ·¶Î§Ïß
+    public GameObject LineC; // åœ†å½¢èŒƒå›´çº¿
     public GameObject PointTR;
     public GameObject PointBR;
     public GameObject PointBL;
     public GameObject PointTL;
 
-    // ÑÕÉ«×Ô¶¨Òå
-    [Header("ÑÕÉ«×Ô¶¨Òå")]
-    public string colorHex = "#6385FF"; // GRBÊ®Áù½øÖÆÑÕÉ«
-    public float alpha = 0.5f; // Í¸Ã÷¶È£¨0~1£©
+    // é¢œè‰²è‡ªå®šä¹‰
+    [Header("é¢œè‰²è‡ªå®šä¹‰")]
+    public string colorHex = "#6385FF"; // GRBåå…­è¿›åˆ¶é¢œè‰²
+    public float alpha = 0.5f; // é€æ˜åº¦ï¼ˆ0~1ï¼‰
     private Color rangeColor;
 
     public void Init()
     {
-        // ½âÎöÊ®Áù½øÖÆÑÕÉ«
+        // è§£æåå…­è¿›åˆ¶é¢œè‰²
         if (ColorUtility.TryParseHtmlString(colorHex, out rangeColor))
         {
             if (alpha >= 0 && alpha <= 1) rangeColor.a = alpha;
-            else TipManager.Instance.ShowTip("×Ô¶¨Òå¼¼ÄÜ·¶Î§ÑÕÉ«Í¸Ã÷¶ÈÉèÖÃ´íÎó£¡");
+            else TipManager.Instance.ShowTip("è‡ªå®šä¹‰æŠ€èƒ½èŒƒå›´é¢œè‰²é€æ˜åº¦è®¾ç½®é”™è¯¯ï¼");
             SetRangeObjectsColor(rangeColor);
         }
         else
-            TipManager.Instance.ShowTip("×Ô¶¨Òå¼¼ÄÜ·¶Î§ÑÕÉ«½âÎöÊ§°Ü£¡");
-        // ¼ÆËã²¢Ó¦ÓÃÆ«ÒÆ
+            TipManager.Instance.ShowTip("è‡ªå®šä¹‰æŠ€èƒ½èŒƒå›´é¢œè‰²è§£æå¤±è´¥ï¼");
+
+        // è®¡ç®—å¹¶åº”ç”¨åç§»
         ApplyUnitOffset();
-        // ³õÊ¼»¯·¶Î§ÏÔÊ¾
+        // åˆå§‹åŒ–èŒƒå›´æ˜¾ç¤º
         InitRangeDisplay();
     }
 
     /// <summary>
-    /// ¼ÆËãµ¥Î»ÓëµØ¿éÖĞĞÄµÄÆ«ÒÆ²¢Ó¦ÓÃ
+    /// è®¡ç®—å•ä½ä¸åœ°å—ä¸­å¿ƒçš„åç§»å¹¶åº”ç”¨
     /// </summary>
     private void ApplyUnitOffset()
     {
-        if (targetObject == null) return;
+        if (targetTile == null) return;
 
-        // »ñÈ¡µØ¿éÖĞĞÄÊÀ½ç×ø±ê£¨¼ÙÉètargetObjectÎªµØ¿é¸ù½Úµã£©
-        Vector2 plotCenterPos = new Vector2(targetObject.transform.position.x, targetObject.transform.position.z);
-        // È·¶¨µ¥Î»×îÖÕÊÀ½ç×ø±ê
+        // è·å–åœ°å—ä¸­å¿ƒä¸–ç•Œåæ ‡ï¼ˆå‡è®¾targetObjectä¸ºåœ°å—æ ¹èŠ‚ç‚¹ï¼‰
+        Vector2 plotCenterPos = new Vector2(targetTile.transform.position.x, targetTile.transform.position.z);
+        // ç¡®å®šå•ä½æœ€ç»ˆä¸–ç•Œåæ ‡
         Vector2 unitFinalPos = useGridPos ? (Vector2)unitGridPos : unitWorldPos;
-        // ¼ÆËãÆ«ÒÆÁ¿£¨µ¥Î»µ½µØ¿éÖĞĞÄµÄÏòÁ¿£©
+        // è®¡ç®—åç§»é‡ï¼ˆå•ä½åˆ°åœ°å—ä¸­å¿ƒçš„å‘é‡ï¼‰
         Vector2 offset = unitFinalPos - plotCenterPos;
 
-        // ¶ÔËùÓĞ·¶Î§ÏÔÊ¾×ÓÎïÌåÓ¦ÓÃÆ«ÒÆ
+        // å¯¹æ‰€æœ‰èŒƒå›´æ˜¾ç¤ºå­ç‰©ä½“åº”ç”¨åç§»
         ApplyOffsetToSingleObject(LineT, offset);
         ApplyOffsetToSingleObject(LineL, offset);
         ApplyOffsetToSingleObject(LineR, offset);
@@ -84,7 +85,7 @@ public class ShowRange : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸øµ¥¸ö·¶Î§ÏÔÊ¾ÎïÌåÓ¦ÓÃÆ«ÒÆ
+    /// ç»™å•ä¸ªèŒƒå›´æ˜¾ç¤ºç‰©ä½“åº”ç”¨åç§»
     /// </summary>
     private void ApplyOffsetToSingleObject(GameObject obj, Vector2 offset)
     {
@@ -92,22 +93,23 @@ public class ShowRange : MonoBehaviour
         {
             Transform objTrans = obj.transform;
             objTrans.localPosition = new Vector3(
-                objTrans.localPosition.x + offset.x,
+                targetTile.transform.localPosition.x + offset.x,
                 objTrans.localPosition.y,
-                objTrans.localPosition.z + offset.y
+                targetTile.transform.localPosition.z + offset.y
             );
         }
     }
 
     /// <summary>
-    /// ³õÊ¼»¯·¶Î§ÏÔÊ¾£¨Ô²ĞÎ/¶à±ßĞÎ£©
+    /// åˆå§‹åŒ–èŒƒå›´æ˜¾ç¤ºï¼ˆåœ†å½¢/å¤šè¾¹å½¢ï¼‰
     /// </summary>
     private void InitRangeDisplay()
     {
-        // Òş²ØËùÓĞÏÔÊ¾ÎïÌå£¬±ÜÃâ³õÊ¼»ìÂÒ
+        if (targetTile is null) return;
+        // éšè—æ‰€æœ‰æ˜¾ç¤ºç‰©ä½“ï¼Œé¿å…åˆå§‹æ··ä¹±
         //HideAllRangeObjects();
 
-        // 1. Ô²ĞÎ·¶Î§Âß¼­£¨ÓÅÏÈ¼¶£ºÔ²ĞÎ>¶à±ßĞÎ£©
+        // 1. åœ†å½¢èŒƒå›´é€»è¾‘ï¼ˆä¼˜å…ˆçº§ï¼šåœ†å½¢>å¤šè¾¹å½¢ï¼‰
         if (rangeRadius > 0.01f)
         {
             if (LineC != null)
@@ -117,32 +119,32 @@ public class ShowRange : MonoBehaviour
                 HideAllRangeObjects();
             }
         }
-        // 2. ¶à±ßĞÎ·¶Î§Âß¼­
+        // 2. å¤šè¾¹å½¢èŒƒå›´é€»è¾‘
         else if (polygonRange != null && polygonRange.Count > 0)
         {
-            // ¸ù¾İ¶à±ßĞÎ·¶Î§µã£¬ÏÔÊ¾¶ÔÓ¦µÄÏßºÍµã
-            if (polygonRange.Contains(GetRelativePos(0, 1))) LineT.SetActive(false);
-            if (polygonRange.Contains(GetRelativePos(-1, 1))) PointTL.SetActive(false);
-            if (polygonRange.Contains(GetRelativePos(1, 1))) PointTR.SetActive(false);
-            if (polygonRange.Contains(GetRelativePos(0, -1))) LineB.SetActive(false);
-            if (polygonRange.Contains(GetRelativePos(-1, -1))) PointBL.SetActive(false);
-            if (polygonRange.Contains(GetRelativePos(1, -1))) PointBR.SetActive(false);
-            if (polygonRange.Contains(GetRelativePos(-1, 0))) LineL.SetActive(false);
-            if (polygonRange.Contains(GetRelativePos(1, 0))) LineR.SetActive(false);
+            // æ ¹æ®å¤šè¾¹å½¢èŒƒå›´ç‚¹ï¼Œæ˜¾ç¤ºå¯¹åº”çš„çº¿å’Œç‚¹
+            if (polygonRange.Contains(GetRelativePos(0, 1))) LineT?.SetActive(false);
+            if (polygonRange.Contains(GetRelativePos(-1, 1))) PointTL?.SetActive(false);
+            if (polygonRange.Contains(GetRelativePos(1, 1))) PointTR?.SetActive(false);
+            if (polygonRange.Contains(GetRelativePos(0, -1))) LineB?.SetActive(false);
+            if (polygonRange.Contains(GetRelativePos(-1, -1))) PointBL?.SetActive(false);
+            if (polygonRange.Contains(GetRelativePos(1, -1))) PointBR?.SetActive(false);
+            if (polygonRange.Contains(GetRelativePos(-1, 0))) LineL?.SetActive(false);
+            if (polygonRange.Contains(GetRelativePos(1, 0))) LineR?.SetActive(false);
         }
     }
 
     /// <summary>
-    /// »ñÈ¡¡°Ïà¶ÔÓÚµØ¿éÖĞĞÄ¡±µÄ·¶Î§µã£¨Í³Ò»¶à±ßĞÎ·¶Î§ÅĞ¶Ï»ù×¼£©
+    /// è·å–â€œç›¸å¯¹äºåœ°å—ä¸­å¿ƒâ€çš„èŒƒå›´ç‚¹ï¼ˆç»Ÿä¸€å¤šè¾¹å½¢èŒƒå›´åˆ¤æ–­åŸºå‡†ï¼‰
     /// </summary>
     private Vector2 GetRelativePos(int xOffset, int yOffset)
     {
-        Vector3 plotCenter = targetObject.transform.position;
+        Vector3 plotCenter = targetTile.transform.position;
         return new Vector2(plotCenter.x + xOffset, plotCenter.z + yOffset);
     }
 
     /// <summary>
-    /// Òş²ØËùÓĞ·¶Î§ÏÔÊ¾ÎïÌå
+    /// éšè—æ‰€æœ‰èŒƒå›´æ˜¾ç¤ºç‰©ä½“
     /// </summary>
     private void HideAllRangeObjects()
     {
@@ -158,7 +160,7 @@ public class ShowRange : MonoBehaviour
     }
 
     /// <summary>
-    /// ÉèÖÃËùÓĞ·¶Î§ÏÔÊ¾ÎïÌåµÄÑÕÉ«
+    /// è®¾ç½®æ‰€æœ‰èŒƒå›´æ˜¾ç¤ºç‰©ä½“çš„é¢œè‰²
     /// </summary>
     private void SetRangeObjectsColor(Color color)
     {
@@ -174,7 +176,7 @@ public class ShowRange : MonoBehaviour
     }
 
     /// <summary>
-    /// ÉèÖÃµ¥¸öÎïÌåµÄSpriteÑÕÉ«
+    /// è®¾ç½®å•ä¸ªç‰©ä½“çš„Spriteé¢œè‰²
     /// </summary>
     private void SetObjectColor(GameObject obj, Color color)
     {
@@ -187,7 +189,7 @@ public class ShowRange : MonoBehaviour
     }
 
     /// <summary>
-    /// Íâ²¿¸üĞÂ·¶Î§£¨Èçµ¥Î»ÒÆ¶¯ºó£©
+    /// å¤–éƒ¨æ›´æ–°èŒƒå›´ï¼ˆå¦‚å•ä½ç§»åŠ¨åï¼‰
     /// </summary>
     public void UpdateRange(Vector2 newUnitPos, float newRadius = -1, List<Vector2> newPolygon = null)
     {

@@ -410,10 +410,10 @@ namespace Units
                     u.StopUnit = this;
                     StopUnits.Add(u);
                     Vector2 pos;
-                    if (u.Position2 - Position2 == Vector2.zero)
-                        pos = Position2 + (u.Position2 - Position2).normalized * (u.UnitData.Radius + UnitData.Radius);
+                    if ((u.Position2 - Position2).sqrMagnitude < 0.001f)
+                        pos = this.GridPos;
                     else
-                        pos = Vector2.zero;
+                        pos = Position2 + (u.Position2 - Position2).normalized * (u.UnitData.Radius + UnitData.Radius);
                     u.Position = new Vector3(pos.x, Position.y, pos.y);
                 }
             }

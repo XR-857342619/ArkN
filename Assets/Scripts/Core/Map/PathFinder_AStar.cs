@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Ñ°Â·½ÚµãÊı¾İ
+/// å¯»è·¯èŠ‚ç‚¹æ•°æ®
 /// </summary>
 public class PathNode
 {
     public int X, Y;
-    public float G; // ÒÆ¶¯´ú¼Û
-    public float H; // Æô·¢´ú¼Û
-    public float F => G + H; // ×Ü´ú¼Û
-    public PathNode Parent; // ¸¸½Úµã
+    public float G; // ç§»åŠ¨ä»£ä»·
+    public float H; // å¯å‘ä»£ä»·
+    public float F => G + H; // æ€»ä»£ä»·
+    public PathNode Parent; // çˆ¶èŠ‚ç‚¹
 
     public PathNode(int x, int y)
     {
@@ -21,25 +21,25 @@ public class PathNode
 }
 
 /// <summary>
-/// ¶ÀÁ¢Ñ°Â·¹¤¾ßÀà
+/// ç‹¬ç«‹å¯»è·¯å·¥å…·ç±»
 /// </summary>
 public static class AStarPathFinder
 {
-    // ½ÇÉ«°ë¾¶ÅäÖÃ
+    // è§’è‰²åŠå¾„é…ç½®
     private const float CharacterRadius = 0.25f;
-    // ×î´óËÑË÷²½Êı£¬·ÀÖ¹ËÀÑ­»·
+    // æœ€å¤§æœç´¢æ­¥æ•°ï¼Œé˜²æ­¢æ­»å¾ªç¯
     private const int MaxSearchSteps = 10000;
 
-    public const float cornerSmoothDistance = 0.5f; // ¹Õ½Ç¹ı¶É¾àÀë
-    public const int segmentsPerCorner = 3; // Ã¿¸ö¹Õ½ÇµÄ¹ı¶É¶ÎÊı
+    public const float cornerSmoothDistance = 0.5f; // æ‹è§’è¿‡æ¸¡è·ç¦»
+    public const int segmentsPerCorner = 3; // æ¯ä¸ªæ‹è§’çš„è¿‡æ¸¡æ®µæ•°
 
     /// <summary>
-    /// ºËĞÄÑ°Â··½·¨
+    /// æ ¸å¿ƒå¯»è·¯æ–¹æ³•
     /// </summary>
-    /// <param name="map">µØÍ¼Êı¾İÔ´ (Tile[,])</param>
-    /// <param name="start">ÆğÊ¼ÊÀ½ç×ø±ê</param>
-    /// <param name="end">Ä¿±êÊÀ½ç×ø±ê</param>
-    /// <returns>Æ½»¬ºóµÄÊÀ½ç×ø±êÂ·¾¶ÁĞ±í</returns>
+    /// <param name="map">åœ°å›¾æ•°æ®æº (Tile[,])</param>
+    /// <param name="start">èµ·å§‹ä¸–ç•Œåæ ‡</param>
+    /// <param name="end">ç›®æ ‡ä¸–ç•Œåæ ‡</param>
+    /// <returns>å¹³æ»‘åçš„ä¸–ç•Œåæ ‡è·¯å¾„åˆ—è¡¨</returns>
     public static List<Vector3> FindPath<T>(T[,] map, List<Vector3> pathPoints, bool isFly) where T : ITileData
     {
         List<Vector3> finalPath = new List<Vector3>();
@@ -51,41 +51,41 @@ public static class AStarPathFinder
         {
             Vector3 start = pathPoints[i];
             Vector3 end = pathPoints[i + 1];
-            // 1. ×ø±ê×ª»»£ºÊÀ½ç×ø±ê -> µØÍ¼Ë÷Òı
+            // 1. åæ ‡è½¬æ¢ï¼šä¸–ç•Œåæ ‡ -> åœ°å›¾ç´¢å¼•
             int startX = Mathf.RoundToInt(start.x);
             int startY = Mathf.RoundToInt(start.z);
             int endX = Mathf.RoundToInt(end.x);
             int endY = Mathf.RoundToInt(end.z);
 
-            // ±ß½ç¼ì²é
+            // è¾¹ç•Œæ£€æŸ¥
             if (!IsWithinBounds(map, startX, startY) || !IsWithinBounds(map, endX, endY))
             {
-                Debug.LogWarning("Ñ°Â·Ê§°Ü£ºÆğµã»òÖÕµãÔ½½ç");
+                Debug.LogWarning("å¯»è·¯å¤±è´¥ï¼šèµ·ç‚¹æˆ–ç»ˆç‚¹è¶Šç•Œ");
                 //return finalPath;
                 continue;
             }
 
-            // ¼ì²éÆğÖÕµãÊÇ·ñ¿ÉÍ¨ĞĞ
+            // æ£€æŸ¥èµ·ç»ˆç‚¹æ˜¯å¦å¯é€šè¡Œ
             if (!map[startX, startY].Passable || !map[endX, endY].Passable)
             {
-                Debug.LogWarning("Ñ°Â·Ê§°Ü£ºÆğµã»òÖÕµãÊÇÕÏ°­Îï");
+                Debug.LogWarning("å¯»è·¯å¤±è´¥ï¼šèµ·ç‚¹æˆ–ç»ˆç‚¹æ˜¯éšœç¢ç‰©");
                 //return finalPath;
                 continue;
             }
 
-            // 2. Ö´ĞĞ A* ºËĞÄËÑË÷
+            // 2. æ‰§è¡Œ A* æ ¸å¿ƒæœç´¢
             List<PathNode> pathNodes = AStarSearch(map, startX, startY, endX, endY, isFly);
 
             if (pathNodes == null || pathNodes.Count == 0)
                 //return finalPath;
                 continue;
 
-            // 3. ×ª»»ÎªÊÀ½ç×ø±ê (Ô­Ê¼ÕÛÏßÂ·¾¶)
+            // 3. è½¬æ¢ä¸ºä¸–ç•Œåæ ‡ (åŸå§‹æŠ˜çº¿è·¯å¾„)
             rawPath.Clear();
             foreach (var node in pathNodes)
             {
                 Vector3 piont = new Vector3(node.X, 0, node.Y);
-                // ½«Ë÷Òı×ª»ØÊÀ½ç×ø±ê (¼ÙÉè¸ñ×ÓÖĞĞÄ¼´ÕûÊı×ø±ê)
+                // å°†ç´¢å¼•è½¬å›ä¸–ç•Œåæ ‡ (å‡è®¾æ ¼å­ä¸­å¿ƒå³æ•´æ•°åæ ‡)
                 //if (!rawPath.Contains(piont))
                 rawPath.Add(new Vector3(node.X, 0, node.Y));
             }
@@ -93,7 +93,7 @@ public static class AStarPathFinder
             if (rawPath.Count == 0) continue;
 
             smoothPath.Clear();
-            //4.Â·¾¶Æ½»¬(ÊÓÏß¼ì²â)
+            //4.è·¯å¾„å¹³æ»‘(è§†çº¿æ£€æµ‹)
             SmoothPath(rawPath, smoothPath, isFly);
 
             //if (rawPath.Count != 0) smoothPath.RemoveAt(0);
@@ -110,7 +110,7 @@ public static class AStarPathFinder
         //finalPath = ReshapeAndSmooth(finalPath);
         //finalPath = SmoothPathCatmullRom(finalPath);
 
-        // 5. ĞŞÕıÊ×Î²µã (È·±£¾«È·ÆğÖ¹)
+        // 5. ä¿®æ­£é¦–å°¾ç‚¹ (ç¡®ä¿ç²¾ç¡®èµ·æ­¢)
         if (finalPath.Count > 0)
         {
             finalPath[0] = pathPoints[0];
@@ -119,7 +119,7 @@ public static class AStarPathFinder
         }
         else
         {
-            // Èç¹ûÆ½»¬ºóÎª¿Õ£¨ÀıÈçÆğÖÕµãºÜ½ü£©£¬Ö±½ÓÁ¬Ïß
+            // å¦‚æœå¹³æ»‘åä¸ºç©ºï¼ˆä¾‹å¦‚èµ·ç»ˆç‚¹å¾ˆè¿‘ï¼‰ï¼Œç›´æ¥è¿çº¿
             finalPath.Add(pathPoints[0]);
             finalPath.Add(pathPoints[^1]);
         }
@@ -133,7 +133,7 @@ public static class AStarPathFinder
     }
 
     /// <summary>
-    /// A* Ëã·¨ºËĞÄÊµÏÖ
+    /// A* ç®—æ³•æ ¸å¿ƒå®ç°
     /// </summary>
     private static List<PathNode> AStarSearch<T>(T[,] map, int startX, int startY, int endX, int endY, bool isFly) where T : ITileData
     {
@@ -144,7 +144,7 @@ public static class AStarPathFinder
         PathNode endNode = new PathNode(endX, endY);
 
         startNode.G = 0;
-        // Ê¹ÓÃÅ·¼¸ÀïµÃ¾àÀë×÷ÎªÆô·¢º¯Êı
+        // ä½¿ç”¨æ¬§å‡ é‡Œå¾—è·ç¦»ä½œä¸ºå¯å‘å‡½æ•°
         startNode.H = Vector2.Distance(new Vector2(startX, startY), new Vector2(endX, endY));
 
         openList.Add(startNode);
@@ -154,7 +154,7 @@ public static class AStarPathFinder
         {
             searchSteps++;
 
-            // Ñ°ÕÒ F Öµ×îĞ¡µÄ½Úµã
+            // å¯»æ‰¾ F å€¼æœ€å°çš„èŠ‚ç‚¹
             PathNode currentNode = openList[0];
             for (int i = 1; i < openList.Count; i++)
             {
@@ -168,13 +168,13 @@ public static class AStarPathFinder
 
             closedSet.Add(GetNodeKey(currentNode.X, currentNode.Y));
 
-            // µ½´ïÖÕµã
+            // åˆ°è¾¾ç»ˆç‚¹
             if (currentNode.X == endNode.X && currentNode.Y == endNode.Y)
             {
                 return RetracePath(startNode, currentNode);
             }
 
-            // ±éÀú 4 ·½ÏòÁÚ¾Ó
+            // éå† 4 æ–¹å‘é‚»å±…
             for (int x = -1; x <= 1; x++)
             {
                 for (int y = -1; y <= 1; y++)
@@ -183,12 +183,12 @@ public static class AStarPathFinder
                     if (x != 0 && y != 0) continue;
                     //if ((x != 0 || y != 0) && !isFly)
                     //{
-                    //    // ¼ì²éÏàÁÚµÄÁ½¸öÕı½»¸ñ×Ó
-                    //    // Èç¹ûÁ½¸öÓĞÒ»¸öÊÇÕÏ°­Îï£¬Ôò½ûÖ¹Ğ±ÏòÒÆ¶¯
+                    //    // æ£€æŸ¥ç›¸é‚»çš„ä¸¤ä¸ªæ­£äº¤æ ¼å­
+                    //    // å¦‚æœä¸¤ä¸ªæœ‰ä¸€ä¸ªæ˜¯éšœç¢ç‰©ï¼Œåˆ™ç¦æ­¢æ–œå‘ç§»åŠ¨
                     //    if ((!IsWithinBounds(map, currentNode.X + x, currentNode.Y) || !map[currentNode.X + x, currentNode.Y].Passable) &&
                     //        (!IsWithinBounds(map, currentNode.X, currentNode.Y + y) || !map[currentNode.X, currentNode.Y + y].Passable))
                     //    {
-                    //        continue; // Á½¸ö·½Ïò¶¼¶ÂËÀÁË£¬²»ÄÜĞ±×Å×ß
+                    //        continue; // ä¸¤ä¸ªæ–¹å‘éƒ½å µæ­»äº†ï¼Œä¸èƒ½æ–œç€èµ°
                     //    }
                     //}
 
@@ -203,7 +203,7 @@ public static class AStarPathFinder
                     T checkTile = map[checkX, checkY];
                     if ((!checkTile.Passable) && !isFly) continue;
 
-                    // ¼ÆËã´ú¼Û£º»ù´¡ÒÆ¶¯´ú¼Û + µØ¿é¶îÍâ´ú¼Û
+                    // è®¡ç®—ä»£ä»·ï¼šåŸºç¡€ç§»åŠ¨ä»£ä»· + åœ°å—é¢å¤–ä»£ä»·
                     float baseCost = (x != 0 && y != 0) ? 1.414f : 1.0f;
                     float totalCost = baseCost + checkTile.PassCost;
 
@@ -230,11 +230,11 @@ public static class AStarPathFinder
             }
         }
 
-        return null; // Î´ÕÒµ½Â·¾¶
+        return null; // æœªæ‰¾åˆ°è·¯å¾„
     }
 
     /// <summary>
-    /// Â·¾¶»ØËİ
+    /// è·¯å¾„å›æº¯
     /// </summary>
     private static List<PathNode> RetracePath(PathNode startNode, PathNode endNode)
     {
@@ -253,7 +253,7 @@ public static class AStarPathFinder
     }
 
     /// <summary>
-    /// Â·¾¶Æ½»¬ (Ê¹ÓÃ½ºÄÒÌå¼ì²â)
+    /// è·¯å¾„å¹³æ»‘ (ä½¿ç”¨èƒ¶å›Šä½“æ£€æµ‹)
     /// </summary>
     private static void SmoothPath(List<Vector3> rawPath, List<Vector3> smoothPath, bool isFly)
     {
@@ -275,17 +275,17 @@ public static class AStarPathFinder
 
             if (!isFly) hit = HasClearPath(rawPath[lastIndex], rawPath[i]);
 
-            // ³¢ÊÔ´Ó lastIndex Ö±½ÓÁ¬½Óµ½ i
+            // å°è¯•ä» lastIndex ç›´æ¥è¿æ¥åˆ° i
             if (hit.HasValue && !isFly)
             {
-                //// 1. È·ÈÏÆ½»¬Âß¼­ÉúĞ§£ºÕâÀï»á´òÓ¡³ö×èµ²Æ½»¬Â·¾¶µÄÎïÌåÃû³Æ
-                //Debug.Log($"Â·¾¶Æ½»¬ÉúĞ§£¡ÔÚ {rawPath[lastIndex]} -> {rawPath[i]} ´¦±»×èµ²¡£");
-                //Debug.Log($"×èµ²ÎïÌå: <color=red>{hit.Value.collider.name}</color> (Layer: {LayerMask.LayerToName(hit.Value.collider.gameObject.layer)})");
+                //// 1. ç¡®è®¤å¹³æ»‘é€»è¾‘ç”Ÿæ•ˆï¼šè¿™é‡Œä¼šæ‰“å°å‡ºé˜»æŒ¡å¹³æ»‘è·¯å¾„çš„ç‰©ä½“åç§°
+                //Debug.Log($"è·¯å¾„å¹³æ»‘ç”Ÿæ•ˆï¼åœ¨ {rawPath[lastIndex]} -> {rawPath[i]} å¤„è¢«é˜»æŒ¡ã€‚");
+                //Debug.Log($"é˜»æŒ¡ç‰©ä½“: <color=red>{hit.Value.collider.name}</color> (Layer: {LayerMask.LayerToName(hit.Value.collider.gameObject.layer)})");
 
-                // 2. ¿ÉÊÓ»¯£ºÔÚ Scene ÊÓÍ¼ÖĞ»­³öÉäÏß£¬È·ÈÏ×èµ²Î»ÖÃ
+                // 2. å¯è§†åŒ–ï¼šåœ¨ Scene è§†å›¾ä¸­ç”»å‡ºå°„çº¿ï¼Œç¡®è®¤é˜»æŒ¡ä½ç½®
                 Debug.DrawRay(hit.Value.point, hit.Value.normal * 0.5f, Color.red, 5f);
 
-                // ÎŞ·¨Ö±Á¬£¬±£Áô¹Õµã
+                // æ— æ³•ç›´è¿ï¼Œä¿ç•™æ‹ç‚¹
                 //if (lastIndex != i - 1 && !smoothPath.Contains(rawPath[i - 1]))
                 if (lastIndex != i - 1)
                 {
@@ -301,16 +301,16 @@ public static class AStarPathFinder
         }
     }
 
-    // Catmull-Rom Æ½»¬Ëã·¨
+    // Catmull-Rom å¹³æ»‘ç®—æ³•
     private static List<Vector3> SmoothPathCatmullRom(List<Vector3> points)
     {
         List<Vector3> smoothedPath = new List<Vector3>();
         int count = points.Count;
 
-        // ÖÁÉÙĞèÒª2¸öµã
+        // è‡³å°‘éœ€è¦2ä¸ªç‚¹
         if (count < 2) return points;
 
-        // Èç¹ûÖ»ÓĞ2¸öµã£¬Ö±½ÓÁ¬Ïß
+        // å¦‚æœåªæœ‰2ä¸ªç‚¹ï¼Œç›´æ¥è¿çº¿
         if (count == 2)
         {
             smoothedPath.Add(points[0]);
@@ -318,19 +318,19 @@ public static class AStarPathFinder
             return smoothedPath;
         }
 
-        // Catmull-Rom ĞèÒª¼ÆËãÃ¿Ò»¶ÎÖ®¼äµÄ²åÖµ
-        // ¹«Ê½: P(t) = 0.5 * ( (2*P1) + (-P0 + P2) * t + (2*P0 - 5*P1 + 4*P2 - P3) * t^2 + (-P0 + 3*P1 - 3*P2 + P3) * t^3 )
-        // ÆäÖĞ P0, P1, P2, P3 ÊÇÁ¬ĞøµÄ4¸ö¿ØÖÆµã
+        // Catmull-Rom éœ€è¦è®¡ç®—æ¯ä¸€æ®µä¹‹é—´çš„æ’å€¼
+        // å…¬å¼: P(t) = 0.5 * ( (2*P1) + (-P0 + P2) * t + (2*P0 - 5*P1 + 4*P2 - P3) * t^2 + (-P0 + 3*P1 - 3*P2 + P3) * t^3 )
+        // å…¶ä¸­ P0, P1, P2, P3 æ˜¯è¿ç»­çš„4ä¸ªæ§åˆ¶ç‚¹
 
-        // ±éÀúµã£¬´ÓµÚ1¸öµ½µ¹ÊıµÚ2¸ö£¨×÷Îª P1£©
+        // éå†ç‚¹ï¼Œä»ç¬¬1ä¸ªåˆ°å€’æ•°ç¬¬2ä¸ªï¼ˆä½œä¸º P1ï¼‰
         for (int i = 0; i < count - 1; i++)
         {
-            // »ñÈ¡4¸ö¿ØÖÆµã
+            // è·å–4ä¸ªæ§åˆ¶ç‚¹
             Vector3 p0, p1, p2, p3;
 
             if (i == 0)
             {
-                // ÔÚÆğµã£¬P0 ²»´æÔÚ£¬ÎÒÃÇÈÃËüµÈÓÚ P1
+                // åœ¨èµ·ç‚¹ï¼ŒP0 ä¸å­˜åœ¨ï¼Œæˆ‘ä»¬è®©å®ƒç­‰äº P1
                 p0 = points[0];
                 p1 = points[0];
                 p2 = points[1];
@@ -338,7 +338,7 @@ public static class AStarPathFinder
             }
             else if (i == count - 2)
             {
-                // ÔÚÖÕµã£¬P3 ²»´æÔÚ£¬ÎÒÃÇÈÃËüµÈÓÚ P2
+                // åœ¨ç»ˆç‚¹ï¼ŒP3 ä¸å­˜åœ¨ï¼Œæˆ‘ä»¬è®©å®ƒç­‰äº P2
                 p0 = points[i - 1];
                 p1 = points[i];
                 p2 = points[i + 1];
@@ -352,11 +352,11 @@ public static class AStarPathFinder
                 p3 = points[i + 2];
             }
 
-            // Ìí¼ÓÆğÊ¼µã (P1)
+            // æ·»åŠ èµ·å§‹ç‚¹ (P1)
             if (i == 0) smoothedPath.Add(p1);
 
-            // ÔÚ P1 ºÍ P2 Ö®¼ä²åÖµ
-            int segments = 10; // Ã¿Ò»¶ÎÖ®¼äµÄ²åÖµÊıÁ¿
+            // åœ¨ P1 å’Œ P2 ä¹‹é—´æ’å€¼
+            int segments = 10; // æ¯ä¸€æ®µä¹‹é—´çš„æ’å€¼æ•°é‡
             for (int j = 1; j <= segments; j++)
             {
                 float t = (float)j / segments;
@@ -378,7 +378,7 @@ public static class AStarPathFinder
     }
 
     /// <summary>
-    /// ÊÓÏß¼ì²â (ÎïÀíÉäÏß)
+    /// è§†çº¿æ£€æµ‹ (ç‰©ç†å°„çº¿)
     /// </summary>
     private static RaycastHit? HasClearPath(Vector3 start, Vector3 end)
     {
@@ -387,12 +387,12 @@ public static class AStarPathFinder
 
         if (distance < 0.1f) return null;
 
-        // ½ºÄÒÌå¼ì²â£¬È·±£½ÇÉ«²»»á²Á×ÅÇ½×ß
-        // ×¢Òâ£ºÕâÀï¼ÙÉèÕÏ°­ÎïÔÚ Layer "Default" »ò "Wall"
-        // ½¨ÒéÌí¼Ó LayerMask ²ÎÊıÒÔÌá¸ßĞÔÄÜ
+        // èƒ¶å›Šä½“æ£€æµ‹ï¼Œç¡®ä¿è§’è‰²ä¸ä¼šæ“¦ç€å¢™èµ°
+        // æ³¨æ„ï¼šè¿™é‡Œå‡è®¾éšœç¢ç‰©åœ¨ Layer "Default" æˆ– "Wall"
+        // å»ºè®®æ·»åŠ  LayerMask å‚æ•°ä»¥æé«˜æ€§èƒ½
         if (Physics.CapsuleCast(
             start + new Vector3(0, 0.5f, 0),
-            start + Vector3.up, // ´¹Ö±·½ÏòµÄ½ºÄÒÌå
+            start + Vector3.up, // å‚ç›´æ–¹å‘çš„èƒ¶å›Šä½“
             CharacterRadius,
             direction.normalized,
             out RaycastHit hit,
@@ -405,37 +405,37 @@ public static class AStarPathFinder
     }
 
     /// <summary>
-    /// ¶ÔÂ·¾¶µãÓ¦ÓÃ±´Èû¶ûÇúÏßÆ½»¬´¦Àí
+    /// å¯¹è·¯å¾„ç‚¹åº”ç”¨è´å¡å°”æ›²çº¿å¹³æ»‘å¤„ç†
     /// </summary>
     private static List<Vector3> ApplyBezierSmoothing(List<Vector3> originalPoints)
     {
         if (originalPoints.Count < 3)
         {
-            // ÉÙÓÚ3¸öµã£¬ÎŞĞèÆ½»¬´¦Àí
+            // å°‘äº3ä¸ªç‚¹ï¼Œæ— éœ€å¹³æ»‘å¤„ç†
             return new List<Vector3>(originalPoints);
         }
 
         List<Vector3> smoothedPoints = new List<Vector3>();
 
-        // Ìí¼ÓµÚÒ»¸öµã
+        // æ·»åŠ ç¬¬ä¸€ä¸ªç‚¹
         smoothedPoints.Add(originalPoints[0]);
 
-        // ´¦ÀíÖĞ¼äµÄÃ¿¸ö¹Õ½Ç
+        // å¤„ç†ä¸­é—´çš„æ¯ä¸ªæ‹è§’
         for (int i = 1; i < originalPoints.Count - 1; i++)
         {
             Vector3 prevPoint = originalPoints[i - 1];
             Vector3 currentPoint = originalPoints[i];
             Vector3 nextPoint = originalPoints[i + 1];
 
-            // ¼ÆËãµ±Ç°µãÓëÇ°ºóµãµÄ·½Ïò
+            // è®¡ç®—å½“å‰ç‚¹ä¸å‰åç‚¹çš„æ–¹å‘
             Vector3 dirToCurrent = (currentPoint - prevPoint).normalized;
             Vector3 dirFromCurrent = (nextPoint - currentPoint).normalized;
 
-            // ¼ÆËã¹Õ½Ç´¦µÄÆğµãºÍÖÕµãÆ«ÒÆ
+            // è®¡ç®—æ‹è§’å¤„çš„èµ·ç‚¹å’Œç»ˆç‚¹åç§»
             Vector3 startTangent = currentPoint - dirToCurrent * cornerSmoothDistance;
             Vector3 endTangent = currentPoint + dirFromCurrent * cornerSmoothDistance;
 
-            // Ê¹ÓÃ±´Èû¶ûÇúÏßÉú³É¹ı¶Éµã
+            // ä½¿ç”¨è´å¡å°”æ›²çº¿ç”Ÿæˆè¿‡æ¸¡ç‚¹
             for (int j = 1; j <= segmentsPerCorner; j++)
             {
                 float t = j / (float)segmentsPerCorner;
@@ -444,14 +444,14 @@ public static class AStarPathFinder
             }
         }
 
-        // Ìí¼Ó×îºóÒ»¸öµã
+        // æ·»åŠ æœ€åä¸€ä¸ªç‚¹
         smoothedPoints.Add(originalPoints[originalPoints.Count - 1]);
 
         return smoothedPoints;
     }
 
     /// <summary>
-    /// ¼ÆËã¶ş´Î±´Èû¶ûÇúÏßÉÏµÄµã
+    /// è®¡ç®—äºŒæ¬¡è´å¡å°”æ›²çº¿ä¸Šçš„ç‚¹
     /// </summary>
     private static Vector3 CalculateQuadraticBezier(Vector3 start, Vector3 control, Vector3 end, float t)
     {

@@ -1,4 +1,4 @@
-﻿using Buffs;
+using Buffs;
 using Bullets;
 using System;
 using System.Collections.Generic;
@@ -119,7 +119,7 @@ public class Battle
                 if (i >= TeamLimit) continue;
                 Card unitInput = battleConfig.Team.Cards[i];
                 if (ProfessionLimit.Contains(unitInput.UnitData.Profession)) continue;
-                CreatePlayerUnit(unitInput, battleConfig.Team.UnitSkill[i]);
+                CreatePlayerUnit(unitInput, i >= battleConfig.Team.UnitSkill.Count ? 0 : battleConfig.Team.UnitSkill[i]);
             }
             BuildCount = MapData.MaxBuildCount;
         }
@@ -192,12 +192,15 @@ public class Battle
             unit.Refresh();
         }
         BattleManager.Instance.OpDamageInfos.Clear();
-        foreach (var unit in battleConfig.Team.Cards)
+        if (battleConfig.Team != null)
         {
-            OpDamageInfo opDamageInfo = new OpDamageInfo();
-            opDamageInfo.UnitId = unit.UnitId;
-            BattleManager.Instance.OpDamageInfos.Add(opDamageInfo);
+            foreach (var unit in battleConfig.Team.Cards)
+            {
+                OpDamageInfo opDamageInfo = new OpDamageInfo();
+                opDamageInfo.UnitId = unit.UnitId;
+                BattleManager.Instance.OpDamageInfos.Add(opDamageInfo);
             //Debug.Log(unit.UnitId);
+            }
         }
     }
     public void Update()
@@ -403,11 +406,12 @@ public class Battle
         return unit;
     }
 
-    public Units.干员 CreatePlayerUnit(int id)
+    public Units.干员 CreatePlayerUnit(int id, int skill = 0)
     {
         var config = Database.Instance.Get<UnitData>(id);
         var unit = typeof(Battle).Assembly.CreateInstance(nameof(Units) + "." + config.Type) as Units.干员;
         unit.Id = id;
+        unit.MainSkillId = skill;
         //unit.SetDirection(direction);
         unit.Battle = this;
         unit.Init();

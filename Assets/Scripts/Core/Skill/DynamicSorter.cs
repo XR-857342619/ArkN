@@ -7,12 +7,12 @@ using System.Reflection;
 
 public static class SortStrategyFactory
 {
-    // »º´æËùÓĞ¿ÉÓÃµÄ²ßÂÔÀàĞÍ
+    // ç¼“å­˜æ‰€æœ‰å¯ç”¨çš„ç­–ç•¥ç±»å‹
     private static readonly Dictionary<string, Type> _strategyMap = new Dictionary<string, Type>();
 
     static SortStrategyFactory()
     {
-        // ×Ô¶¯É¨Ãè³ÌĞò¼¯ÖĞËùÓĞÊµÏÖ ISortStrategy µÄÀà
+        // è‡ªåŠ¨æ‰«æç¨‹åºé›†ä¸­æ‰€æœ‰å®ç° ISortStrategy çš„ç±»
         var types = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => typeof(ISortStrategy).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
 
@@ -23,16 +23,16 @@ public static class SortStrategyFactory
         }
     }
 
-    // ¸ù¾İÅäÖÃ´´½¨²ßÂÔÊµÀı
+    // æ ¹æ®é…ç½®åˆ›å»ºç­–ç•¥å®ä¾‹
     public static ISortStrategy Create(string strategyName, object[] parameters = null)
     {
         if (!_strategyMap.TryGetValue(strategyName, out var type))
         {
-            Debug.Log($"Î´ÕÒµ½ÅÅĞò²ßÂÔ: {strategyName}");
+            Debug.Log($"æœªæ‰¾åˆ°æ’åºç­–ç•¥: {strategyName}");
             return null;
         }
 
-        // Èç¹ûÓĞ²ÎÊı£¨Èç×Ô¶¨ÒåBuffID£©£¬Ê¹ÓÃ´ø²ÎÊıµÄ¹¹Ôìº¯Êı
+        // å¦‚æœæœ‰å‚æ•°ï¼ˆå¦‚è‡ªå®šä¹‰BuffIDï¼‰ï¼Œä½¿ç”¨å¸¦å‚æ•°çš„æ„é€ å‡½æ•°
         if (parameters != null && parameters.Length > 0)
         {
             return (ISortStrategy)Activator.CreateInstance(type, parameters);
@@ -46,12 +46,12 @@ public class DynamicSorter
 {
     public class SortConfigNode
     {
-        public string Type;           // ²ßÂÔÃû³Æ£¬Èç "Distance"
-        public SortDirection Direction; // ·½Ïò
-        public object[] Parameters;   // ¿ÉÑ¡²ÎÊı£¬ÓÃÓÚ×Ô¶¨Òå²ßÂÔ
+        public string Type;           // ç­–ç•¥åç§°ï¼Œå¦‚ "Distance"
+        public SortDirection Direction; // æ–¹å‘
+        public object[] Parameters;   // å¯é€‰å‚æ•°ï¼Œç”¨äºè‡ªå®šä¹‰ç­–ç•¥
     }
 
-    // 3. ¶¯Ì¬ÅÅĞòÖ´ĞĞÆ÷
+    // 3. åŠ¨æ€æ’åºæ‰§è¡Œå™¨
     public List<Unit> Sort(List<Unit> targets, List<SortConfigNode> configList)
     {
         if (targets.Count == 0) return targets;
@@ -68,14 +68,14 @@ public class DynamicSorter
 
             if (i == 0)
             {
-                // µÚÒ»¼¶
+                // ç¬¬ä¸€çº§
                 orderedQuery = node.Direction == SortDirection.Ascending
                     ? targets.OrderBy(keySelector)
                     : targets.OrderByDescending(keySelector);
             }
             else
             {
-                // ºóĞø¼¶±ğ£¨ÎÈ¶¨ÅÅĞòµÄ¹Ø¼ü£©
+                // åç»­çº§åˆ«ï¼ˆç¨³å®šæ’åºçš„å…³é”®ï¼‰
                 orderedQuery = node.Direction == SortDirection.Ascending
                     ? orderedQuery.ThenBy(keySelector)
                     : orderedQuery.ThenByDescending(keySelector);

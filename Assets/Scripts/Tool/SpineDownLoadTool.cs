@@ -22,12 +22,12 @@ public class SpineDownLoadTool : MonoBehaviour
     {
         A a = JsonHelper.FromJson<A>(TextAsset.text);
 
-        // ´´½¨Ò»¸ö¼¯ºÏÀ´´æ´¢ËùÓĞĞèÒªÏÂÔØµÄ½ÇÉ«Ãû£¬±ÜÃâÖØ¸´
+        // åˆ›å»ºä¸€ä¸ªé›†åˆæ¥å­˜å‚¨æ‰€æœ‰éœ€è¦ä¸‹è½½çš„è§’è‰²åï¼Œé¿å…é‡å¤
         HashSet<string> allCharacters = new HashSet<string>();
 
         foreach (var kv in a.spCharGroups)
         {
-            // ½«¼üºÍÖµÊı×éÖĞµÄËùÓĞÔªËØ¶¼Ìí¼Óµ½¼¯ºÏÖĞ
+            // å°†é”®å’Œå€¼æ•°ç»„ä¸­çš„æ‰€æœ‰å…ƒç´ éƒ½æ·»åŠ åˆ°é›†åˆä¸­
             allCharacters.Add(kv.Key);
             foreach (string character in kv.Value)
             {
@@ -35,22 +35,22 @@ public class SpineDownLoadTool : MonoBehaviour
             }
         }
 
-        // ±éÀúËùÓĞÎ¨Ò»µÄ½ÇÉ«Ãû½øĞĞÏÂÔØ
+        // éå†æ‰€æœ‰å”¯ä¸€çš„è§’è‰²åè¿›è¡Œä¸‹è½½
         foreach (string characterName in allCharacters)
         {
             string path = Dir + characterName;
             if (Directory.Exists(path))
             {
-                Debug.Log(path + " ÒÑ´æÔÚ");
+                Debug.Log(path + " å·²å­˜åœ¨");
                 continue;
             }
             float t = Time.time;
-            Debug.Log($"¿ªÊ¼ÅÀÈ¡{characterName}");
+            Debug.Log($"å¼€å§‹çˆ¬å–{characterName}");
             yield return StartCoroutine(dowloadOne(characterName));
-            Debug.Log($"{characterName}Íê³É!ºÄÊ±{Time.time - t}");
+            Debug.Log($"{characterName}å®Œæˆ!è€—æ—¶{Time.time - t}");
         }
 
-        Debug.Log($"È«²¿ÅÀÈ¡Íê³É£¡");
+        Debug.Log($"å…¨éƒ¨çˆ¬å–å®Œæˆï¼");
     }
 
     IEnumerator dowloadOne(string name)

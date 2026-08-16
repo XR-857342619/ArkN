@@ -17,7 +17,7 @@ public class Preview : MonoBehaviour
     GSlider slider;
     GButton playBtn;
 
-    // @´ód
+    // @å¤§d
     public List<GameObject> enemyList = new List<GameObject>();
     public List<EnemyMovementState> enemyStates = new List<EnemyMovementState>();
 
@@ -41,7 +41,7 @@ public class Preview : MonoBehaviour
         }
     }
 
-    // µĞÈËÒÆ¶¯×´Ì¬Àà
+    // æ•Œäººç§»åŠ¨çŠ¶æ€ç±»
     public class EnemyMovementState
     {
         public int currentPathIndex = 0;
@@ -107,7 +107,7 @@ public class Preview : MonoBehaviour
             {
                 if (Pause) return;
 
-                // ²¨´ÎÉú³ÉÂß¼­
+                // æ³¢æ¬¡ç”Ÿæˆé€»è¾‘
                 if (waveInfo.GapTime == 0 && waveInfo.Count != 0 && time == 0)
                 {
                     for (int j = 0; j < waveInfo.Count; j++)
@@ -126,7 +126,7 @@ public class Preview : MonoBehaviour
                     }
                 }
 
-                // ¸üĞÂËùÓĞµĞÈËµÄÒÆ¶¯
+                // æ›´æ–°æ‰€æœ‰æ•Œäººçš„ç§»åŠ¨
                 for (int k = 0; k < enemyList.Count; k++)
                 {
                     if (enemyList[k] != null)
@@ -135,7 +135,7 @@ public class Preview : MonoBehaviour
                     }
                 }
 
-                // ÇåÀíÒÑÍê³ÉÂ·¾¶µÄµĞÈË
+                // æ¸…ç†å·²å®Œæˆè·¯å¾„çš„æ•Œäºº
                 for (int k = enemyList.Count - 1; k >= 0; k--)
                 {
                     if (enemyList[k] == null || (k < enemyStates.Count && enemyStates[k].isFinished))
@@ -160,7 +160,7 @@ public class Preview : MonoBehaviour
                         playBtn.GetController("button").SetSelectedIndex(1);
                     }
 
-                    // ÇåÀíËùÓĞµĞÈË
+                    // æ¸…ç†æ‰€æœ‰æ•Œäºº
                     for (int k = enemyList.Count - 1; k >= 0; k--)
                     {
                         if (enemyList[k] != null)
@@ -190,7 +190,7 @@ public class Preview : MonoBehaviour
         }
     }
 
-    // ´´½¨µĞÈËÊµÀı
+    // åˆ›å»ºæ•Œäººå®ä¾‹
     void CreateEnemy()
     {
         if (pathinfo == null || pathinfo.Count == 0) return;
@@ -201,10 +201,10 @@ public class Preview : MonoBehaviour
         Debug.Log("Create Enemy");
         enemyList.Add(go);
 
-        // ³õÊ¼»¯µĞÈË×´Ì¬
+        // åˆå§‹åŒ–æ•ŒäººçŠ¶æ€
         EnemyMovementState state = new EnemyMovementState();
 
-        // ÉèÖÃµÚÒ»¸öµãµÄÑÓ³Ù
+        // è®¾ç½®ç¬¬ä¸€ä¸ªç‚¹çš„å»¶è¿Ÿ
         if (pathinfo.Count > 0)
         {
             state.SetDelay(pathinfo[0].Delay);
@@ -213,7 +213,7 @@ public class Preview : MonoBehaviour
         enemyStates.Add(state);
     }
 
-    // ¸üĞÂµĞÈËÒÆ¶¯ - ¸ü¼Ó½¡×³µÄ°æ±¾
+    // æ›´æ–°æ•Œäººç§»åŠ¨ - æ›´åŠ å¥å£®çš„ç‰ˆæœ¬
     void UpdateEnemyMovement(int enemyIndex)
     {
         if (enemyIndex >= enemyList.Count || enemyIndex >= enemyStates.Count) return;
@@ -223,14 +223,14 @@ public class Preview : MonoBehaviour
 
         if (enemyObj == null || state.isFinished) return;
 
-        // ¼ì²éÊÇ·ñÒÑÍê³ÉÂ·¾¶
+        // æ£€æŸ¥æ˜¯å¦å·²å®Œæˆè·¯å¾„
         if (state.currentPathIndex >= pathinfo.Count - 1)
         {
             state.isFinished = true;
             return;
         }
 
-        // ´¦Àíµ±Ç°µãµÄÑÓ³Ù
+        // å¤„ç†å½“å‰ç‚¹çš„å»¶è¿Ÿ
         if (state.isWaiting)
         {
             state.pointDelay.Update(SystemConfig.DeltaTime);
@@ -238,7 +238,7 @@ public class Preview : MonoBehaviour
             {
                 state.isWaiting = false;
 
-                // Èç¹ûÊÇÒş²ØÒÆ¶¯£¬Ö±½ÓÌøµ½ÏÂÒ»¸öµã
+                // å¦‚æœæ˜¯éšè—ç§»åŠ¨ï¼Œç›´æ¥è·³åˆ°ä¸‹ä¸€ä¸ªç‚¹
                 if (state.currentPathIndex < pathinfo.Count &&
                     pathinfo[state.currentPathIndex].HideMove)
                 {
@@ -248,29 +248,29 @@ public class Preview : MonoBehaviour
             }
             else
             {
-                return; // »¹ÔÚµÈ´ıÑÓ³Ù
+                return; // è¿˜åœ¨ç­‰å¾…å»¶è¿Ÿ
             }
         }
 
-        // Õı³£ÒÆ¶¯Âß¼­
+        // æ­£å¸¸ç§»åŠ¨é€»è¾‘
         if (state.currentPathIndex < pathinfo.Count - 1)
         {
             PathPoint currentPoint = pathinfo[state.currentPathIndex];
             PathPoint nextPoint = pathinfo[state.currentPathIndex + 1];
 
-            // ¼ÆËãÒÆ¶¯
+            // è®¡ç®—ç§»åŠ¨
             Vector3 direction = (nextPoint.Pos - enemyObj.transform.position).normalized;
             float distanceToMove = enemy.Speed * 0.5f * SystemConfig.DeltaTime;
 
-            // ¼ÆËãµ½ÏÂÒ»¸öµãµÄ¾àÀë
+            // è®¡ç®—åˆ°ä¸‹ä¸€ä¸ªç‚¹çš„è·ç¦»
             float distanceToNextPoint = Vector3.Distance(enemyObj.transform.position, nextPoint.Pos);
 
-            // Èç¹ûÏÂÒ»²½»á³¬¹ıÏÂÒ»¸öµã£¬ÔòÖ±½ÓÒÆ¶¯µ½ÏÂÒ»¸öµã
+            // å¦‚æœä¸‹ä¸€æ­¥ä¼šè¶…è¿‡ä¸‹ä¸€ä¸ªç‚¹ï¼Œåˆ™ç›´æ¥ç§»åŠ¨åˆ°ä¸‹ä¸€ä¸ªç‚¹
             if (distanceToMove >= distanceToNextPoint)
             {
                 enemyObj.transform.position = nextPoint.Pos;
 
-                // ¸üĞÂ³¯Ïò
+                // æ›´æ–°æœå‘
                 if (state.currentPathIndex < pathinfo.Count - 2)
                 {
                     PathPoint nextNextPoint = pathinfo[state.currentPathIndex + 2];
@@ -278,21 +278,21 @@ public class Preview : MonoBehaviour
                     enemyObj.transform.localScale = new Vector3(scaleX, 1, 1);
                 }
 
-                // ÒÆ¶¯µ½ÏÂÒ»¸öµãºó£¬´¦ÀíÏÂÒ»¸öµãµÄÂß¼­
+                // ç§»åŠ¨åˆ°ä¸‹ä¸€ä¸ªç‚¹åï¼Œå¤„ç†ä¸‹ä¸€ä¸ªç‚¹çš„é€»è¾‘
                 state.currentPathIndex++;
 
-                // ¼ì²éÊÇ·ñµ½´ïÖÕµã
+                // æ£€æŸ¥æ˜¯å¦åˆ°è¾¾ç»ˆç‚¹
                 if (state.currentPathIndex >= pathinfo.Count - 1)
                 {
                     state.isFinished = true;
                     return;
                 }
 
-                // ÉèÖÃÏÂÒ»¸öµãµÄÑÓ³Ù
+                // è®¾ç½®ä¸‹ä¸€ä¸ªç‚¹çš„å»¶è¿Ÿ
                 PathPoint newCurrentPoint = pathinfo[state.currentPathIndex];
                 state.SetDelay(newCurrentPoint.Delay);
 
-                // Èç¹ûÊÇÒş²ØÒÆ¶¯£¬Ö±½Ó´¦Àí
+                // å¦‚æœæ˜¯éšè—ç§»åŠ¨ï¼Œç›´æ¥å¤„ç†
                 if (newCurrentPoint.HideMove && state.isWaiting)
                 {
                     HandleHideMove(enemyIndex);
@@ -300,17 +300,17 @@ public class Preview : MonoBehaviour
             }
             else
             {
-                // Õı³£ÒÆ¶¯
+                // æ­£å¸¸ç§»åŠ¨
                 enemyObj.transform.position += direction * distanceToMove;
 
-                // ¸üĞÂ³¯Ïò
+                // æ›´æ–°æœå‘
                 float scaleX = direction.x > 0 ? 1 : -1;
                 enemyObj.transform.localScale = new Vector3(scaleX, 1, 1);
             }
         }
     }
 
-    // ´¦ÀíÒş²ØÒÆ¶¯
+    // å¤„ç†éšè—ç§»åŠ¨
     void HandleHideMove(int enemyIndex)
     {
         if (enemyIndex >= enemyList.Count || enemyIndex >= enemyStates.Count) return;
@@ -320,24 +320,24 @@ public class Preview : MonoBehaviour
 
         if (enemyObj == null || state.isFinished) return;
 
-        // Ö±½ÓÌøµ½ÏÂÒ»¸öµã
+        // ç›´æ¥è·³åˆ°ä¸‹ä¸€ä¸ªç‚¹
         if (state.currentPathIndex < pathinfo.Count - 1)
         {
             enemyObj.transform.position = pathinfo[state.currentPathIndex + 1].Pos;
             state.currentPathIndex++;
 
-            // ¼ì²éÊÇ·ñµ½´ïÖÕµã
+            // æ£€æŸ¥æ˜¯å¦åˆ°è¾¾ç»ˆç‚¹
             if (state.currentPathIndex >= pathinfo.Count - 1)
             {
                 state.isFinished = true;
                 return;
             }
 
-            // ÉèÖÃÏÂÒ»¸öµãµÄÑÓ³Ù
+            // è®¾ç½®ä¸‹ä¸€ä¸ªç‚¹çš„å»¶è¿Ÿ
             PathPoint newCurrentPoint = pathinfo[state.currentPathIndex];
             state.SetDelay(newCurrentPoint.Delay);
 
-            // Èç¹ûÏÂÒ»¸öµãÒ²ÊÇÒş²ØÒÆ¶¯£¬¼ÌĞø´¦Àí
+            // å¦‚æœä¸‹ä¸€ä¸ªç‚¹ä¹Ÿæ˜¯éšè—ç§»åŠ¨ï¼Œç»§ç»­å¤„ç†
             if (newCurrentPoint.HideMove && state.isWaiting)
             {
                 HandleHideMove(enemyIndex);

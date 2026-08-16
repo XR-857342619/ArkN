@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -184,25 +184,22 @@ public class Unit
         //{
         //    LearnSkill(golbalskill);
         //}
-        // 确保 UnitData.Skills 不为 null
+        // 使用局部列表合并全局技能，避免修改 Database 中共享的 UnitData.Skills 配置
         List<int> skillsList = UnitData.Skills != null ? UnitData.Skills.ToList() : new List<int>();
 
         // 添加全局技能
         skillsList.AddRange(Database.Instance.globalSkills);
 
-        // 将列表转换回数组并赋值给 UnitData.Skills
-        UnitData.Skills = skillsList.ToArray();
-        if (UnitData.Skills != null)
-            for (int i = 0; i < UnitData.Skills.Length; i++)
+        for (int i = 0; i < skillsList.Count; i++)
+        {
+            int skillId = skillsList[i];
+            var skill = LearnSkill(skillId);
+            if (i == 0) FirstSkill = skill;
+            if (skill != null && skill.SkillData.Data?.GetStr("ElementType") is not null)
             {
-                int skillId = UnitData.Skills[i];
-                var skill= LearnSkill(skillId);
-                if (i == 0) FirstSkill = skill;
-                if (skill.SkillData.Data?.GetStr("ElementType") is not null)
-                {
-                    ElementOutBreak.Add(skill);
-                }
+                ElementOutBreak.Add(skill);
             }
+        }
         if (UnitData.LifeTime != 0) LifeTime=new CountDown(UnitData.LifeTime);
         CreateModel();
         //Log.Debug("载入模型");
@@ -533,11 +530,14 @@ public class Unit
             //    Log.Debug("打数溢出");
             if (skill.SkillData.Trigger == triggerEnum)
             {
-                if (skill.SkillData.Trigger != TriggerEnum.元素爆发 || skill.SkillData.Trigger != TriggerEnum.自身元素爆发)
+                if (skill.SkillData.Trigger != TriggerEnum.元素爆发 && skill.SkillData.Trigger != TriggerEnum.自身元素爆发)
                     skill.Start();
                 else
                 {
-                    if (skill.SkillData.Data?.GetStr("ElementType") == Battle.TriggerDatas?.Peek().Skill.SkillData.Data?.GetStr("ElementType") && IfAlive)
+                    var eventSkill = Battle.TriggerDatas != null && Battle.TriggerDatas.Count > 0 ? Battle.TriggerDatas.Peek().Skill : null;
+                    if (eventSkill != null &&
+                        skill.SkillData.Data?.GetStr("ElementType") == eventSkill.SkillData.Data?.GetStr("ElementType") &&
+                        IfAlive)
                         skill.Start();
                 }
             }
@@ -555,6 +555,7 @@ public class Unit
         {
             Debug.Log(skillConfig.Type);
             TipManager.Instance.ShowTip("获取技能类型失败" + skillConfig.Type);
+            return null;
         }
         skill.Unit = this;
         skill.Id = skillId;
@@ -594,72 +595,6 @@ public class Unit
             }
         return skill;
     }
-
-    #region 入梦砖
-    //public void UpdateBuffSuppression()
-    //{
-    //    // 检查单位是否有"BUFF抵挡"效果
-    //    bool hasBuffDefense = Buffs.Any(b => b.BuffData.CancelsCancelableBuffs && !b.IsSuppressed);
-
-    //    //Log.Debug($"单位 {this.UnitData.Id} 是否有BUFF抵挡效果: {hasBuffDefense}");
-
-    //    foreach (var buff in Buffs)
-    //    {
-    //        // 检查BUFF是否应该被抑制
-    //        bool shouldSuppress = hasBuffDefense &&
-    //                             buff.IsCancelable &&
-    //                             buff.OriginalCaster != null &&
-    //                             buff.OriginalCaster.Buffs.Any(b => b.BuffData.MakesBuffsCancelable && !b.IsSuppressed);
-
-    //        // 记录详细信息
-    //        if (buff.IsCancelable && buff.OriginalCaster != null)
-    //        {
-    //            bool casterHasCancelable = buff.OriginalCaster.Buffs.Any(b => b.BuffData.MakesBuffsCancelable && !b.IsSuppressed);
-    //            //Log.Debug($"BUFF {buff.Id} 来自单位 {buff.OriginalCaster.UnitData.Id}, 施加者是否有BUFF可抵挡: {casterHasCancelable}");
-    //        }
-
-    //        // 更新抑制状态
-    //        if (buff.IsSuppressed != shouldSuppress)
-    //        {
-    //            //Log.Debug($"BUFF {buff.Id} 抑制状态变化: {buff.IsSuppressed} -> {shouldSuppress}");
-
-    //            buff.IsSuppressed = shouldSuppress;
-
-    //            // 状态变化时的处理
-    //            if (shouldSuppress)
-    //            {
-    //                //Log.Debug($"BUFF {buff.Id} 被抑制");
-    //                // BUFF刚被抑制，移除其效果
-    //                OnBuffSuppressed(buff);
-    //            }
-    //            else
-    //            {
-    //                //Log.Debug($"BUFF {buff.Id} 恢复");
-    //                // BUFF刚恢复，重新应用效果
-    //                OnBuffRestored(buff);
-    //            }
-    //        }
-    //    }
-    //}
-
-    //// BUFF被抑制时的处理
-    //public void OnBuffSuppressed(Buff buff)
-    //{
-    //    // 移除BUFF的效果（如果是持续性效果）
-    //    // 例如：如果是一个攻击力提升BUFF，需要暂时降低攻击力
-    //    Refresh(); // 重新计算属性
-    //}
-
-    //// BUFF恢复时的处理
-    //public void OnBuffRestored(Buff buff)
-    //{
-    //    // 恢复BUFF的效果
-    //    Refresh(); // 重新计算属性
-    //}
-
-    //// 在每帧更新中调用,此处逻辑在UpdateAction()中,见上文
-
-    #endregion
 
     public Buff AddBuff(int buffId, Skill source, int index, float lastTime = -1.0f)
     {
@@ -1175,10 +1110,9 @@ public class Unit
 
     public void GainChild(int id, int mianSkillId = 0)
     {
-        var unit = Battle.CreatePlayerUnit(id);
+        var unit = Battle.CreatePlayerUnit(id, mianSkillId);
         Children.Add(unit);
-        unit.MainSkillId = mianSkillId;
-        unit.Init();
+        // CreatePlayerUnit 内部已 Init，不要再重复 Init；主技能已在 Init 前传入
         unit.Parent = this;
         unit.UnitModel?.gameObject.SetActive(false);
         BattleUI.UI_Battle.Instance.UpdateUnitsLayout();

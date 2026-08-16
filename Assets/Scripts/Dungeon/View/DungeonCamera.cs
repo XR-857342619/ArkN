@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// µØÀÎÄ£Ê½ÏÂÏà»úĞĞÎª¿ØÖÆ£¬Ğ´µÄºÜËæ±ã
-/// TODO:ÍÏ×§Ê±Ïà»ú»áÕğ¶¯
+/// åœ°ç‰¢æ¨¡å¼ä¸‹ç›¸æœºè¡Œä¸ºæ§åˆ¶ï¼Œå†™çš„å¾ˆéšä¾¿
+/// TODO:æ‹–æ‹½æ—¶ç›¸æœºä¼šéœ‡åŠ¨
 /// </summary>
 public class DungeonCamera : MonoBehaviour
 {
@@ -31,20 +31,20 @@ public class DungeonCamera : MonoBehaviour
         Vector3 moveDir = Vector3.zero;
         if (Input.GetKey(KeyCode.Mouse0))
         {
-            //Ïà»úÎ»ÖÃµÄÆ«ÒÆÁ¿£¨Vector3ÀàĞÍ£¬ÊµÏÖÔ­ÀíÊÇ£ºÏòÁ¿µÄ¼Ó·¨£©
+            //ç›¸æœºä½ç½®çš„åç§»é‡ï¼ˆVector3ç±»å‹ï¼Œå®ç°åŸç†æ˜¯ï¼šå‘é‡çš„åŠ æ³•ï¼‰
             moveDir = (_mouseX * -_mainCamera.transform.right + _mouseY * -_mainCamera.transform.forward);
 
-            //ÏŞÖÆyÖáµÄÆ«ÒÆÁ¿
+            //é™åˆ¶yè½´çš„åç§»é‡
             moveDir.y = 0;
         }
 
         float speed = 0.015f;
-        //Ö÷½Ç±ØĞëÔÚÆÁÄ»ÖĞĞÄ·¶Î§ÄÚ
+        //ä¸»è§’å¿…é¡»åœ¨å±å¹•ä¸­å¿ƒèŒƒå›´å†…
         if (p.x < 0.2f) moveDir.x = -speed;
         if (p.x > 0.8f) moveDir.x = speed;
         if (p.y < 0.2f) moveDir.z = -speed;
         if (p.y > 0.8f ) moveDir.z = speed;
-        //Ïà»ú²»ÄÜ³¬³öµØÀÎÌ«¶à
+        //ç›¸æœºä¸èƒ½è¶…å‡ºåœ°ç‰¢å¤ªå¤š
         if (transform.position.x < 1.2f) moveDir.x = speed;
         if (transform.position.x > dungeon.Tiles.GetLength(0) - 1.2f ) moveDir.x = -speed;
         if (transform.position.z < -2f ) moveDir.z = speed;

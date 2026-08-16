@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -11,14 +11,15 @@ namespace Buffs
         public override void Init()
         {
             base.Init();
-            foreach (Buff buff in Unit.Buffs)
+            //foreach (Buff buff in Unit.Buffs)
+            for (int i = Unit.Buffs.Count; i > 0; i--)
             {
+                Buff buff = Unit.Buffs[i - 1];
+                if (buff.Unit == null) continue;
                 if (buff.Unit.Buffs.Any(x => x is Buff可抵挡))
                 {
-                    if (buff.Duration.value < Duration.value)
-                        buff.Finish();
-                    else
-                        buff.isBlocking = Duration.value - buff.Duration.value;
+                    if (buff.Duration.value < Duration.value) buff.Finish();
+                    else buff.isBlocking = Duration.value - buff.Duration.value;
                 }
             }
         }

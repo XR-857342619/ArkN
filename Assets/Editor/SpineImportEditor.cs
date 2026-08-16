@@ -1,4 +1,4 @@
-﻿using Spine.Unity;
+using Spine.Unity;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +9,7 @@ using UnityEditor;
 using UnityEngine;
 using Spine.Unity.Editor;
 using ExcelDataReader;
+using OfficeOpenXml;
 
 public class SpineImportEditor
 {
@@ -16,7 +17,7 @@ public class SpineImportEditor
     const string unitAnimationPrefab_AssetPath = "Assets/Bundles/Units/";
 
     [MenuItem("Tools/Spine移动信息")]
-    public static async void SpineMoveAnimation()
+    public static void SpineMoveAnimation()
     {
         Dictionary<string, string> dic = new Dictionary<string, string>();
         DirectoryInfo dirInfo = new DirectoryInfo("Assets/Res/Spine/Enemy");
@@ -77,38 +78,73 @@ public class SpineImportEditor
             }
         }
 
-        sb.Clear();
+        // 先读取 Excel 并记录需要回写的移动动画信息（不在这里修改，读取完后用 EPPlus 统一写回）
+        var writeBack = new Dictionary<int, string>();
+        var markMissing = new HashSet<int>();
         IExcelDataReader reader;
         using (FileStream file = new FileStream("Excel/battle.xlsx", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
         {
             reader = ExcelReaderFactory.CreateReader(file);
             var sheet = reader.AsDataSet().Tables["UnitData"];
             //Debug.LogWarning(sheet.Rows[1][62]);
-            for (int i = 176; i < 723; i++)
+            for (int i = 176; i < 723 && i < sheet.Rows.Count; i++)
             {
-                if (dic.ContainsKey((string)sheet.Rows[i][0]))
+                var idCell = sheet.Rows[i][0];
+                string id = idCell == null ? "" : idCell.ToString();
+                if (string.IsNullOrEmpty(id)) continue;
+
+                if (dic.TryGetValue(id, out var animation))
                 {
-                    sb.Append(dic[(string)sheet.Rows[i][0]] + "\r\n");
-                    //Debug.Log((string)sheet.Rows[i][0] + "," + dic[(string)sheet.Rows[i][0]]);
-                    sheet.Rows[i][62] = dic[(string)sheet.Rows[i][0]];
+                    sb.Append(animation + "\r\n");
+                    writeBack[i] = animation;
                 }
                 else
                 {
                     sb.Append("\r\n");
-                    Debug.Log($"未发现模型{ sheet.Rows[i][0]}");
-                    if (!((string)sheet.Rows[i][0]).StartsWith("#"))
+                    Debug.Log($"未发现模型{id}");
+                    if (!id.StartsWith("#"))
                     {
-                        sheet.Rows[i][0] = "#" + (string)sheet.Rows[i][0];
+                        markMissing.Add(i);
                     }
                 }
             }
         }
-        //Debug.Log(sb.ToString());
+
+        // 用 EPPlus 把移动动画列（第 63 列）写回 Excel
+        var excelFile = new FileInfo("Excel/battle.xlsx");
+        if (!excelFile.Exists)
+        {
+            Debug.LogError("Excel/battle.xlsx 不存在，无法写回");
+            return;
+        }
+        using (ExcelPackage package = new ExcelPackage(excelFile))
+        {
+            var worksheet = package.Workbook.Worksheets["UnitData"];
+            if (worksheet == null)
+            {
+                Debug.LogError("Excel/battle.xlsx 中找不到 UnitData 表");
+                return;
+            }
+            foreach (var kv in writeBack)
+            {
+                worksheet.Cells[kv.Key + 1, 63].Value = kv.Value; // ExcelDataReader 行索引从 0 开始，EPPlus 从 1 开始
+            }
+            foreach (var row in markMissing)
+            {
+                var cell = worksheet.Cells[row + 1, 1];
+                if (cell.Value != null && !cell.Value.ToString().StartsWith("#"))
+                {
+                    cell.Value = "#" + cell.Value.ToString();
+                }
+            }
+            package.Save();
+        }
+        AssetDatabase.Refresh();
         UnityEngine.GUIUtility.systemCopyBuffer = sb.ToString();
     }
 
     [MenuItem("Tools/Spine转Prefab")]
-    public static async void SpinePrefab()
+    public static void SpinePrefab()
     {
         DirectoryInfo dirInfo = new DirectoryInfo(unitAnimationResourcePath);
         FileInfo[] files = dirInfo.GetFiles("*_SkeletonData.asset", SearchOption.AllDirectories);

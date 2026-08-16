@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -11,6 +11,8 @@ public class MapManager : MonoBehaviour
     public static MapManager Instance;
 
     public MapGrid[,] Grids;
+
+    private MapGrid[] mapGrids;
 
     bool choose;
     bool brush;
@@ -64,6 +66,12 @@ public class MapManager : MonoBehaviour
 
     public async Task<MapGrid> SelectGrid()
     {
+        // 若上一次等待尚未结束，先取消旧任务，避免旧的等待者永远挂起
+        if (tcs != null && !tcs.Task.IsCompleted)
+        {
+            tcs.TrySetCanceled();
+            choose = false;
+        }
         choose = true;
         tcs = new TaskCompletionSource<MapGrid>();
         var result = await tcs.Task;
@@ -301,6 +309,26 @@ public class MapManager : MonoBehaviour
     public void Build(GridInfo[,] infos)
     {
         //Camera.main.transform.position = new Vector3((infos.GetLength(0) - 1) / 2f, 0.6f * infos.GetLength(0), -3.5f + (infos.GetLength(1) - 1) / 3f);
+        // 清理旧地块：优先按已登记列表销毁，否则遍历子物体兜底
+        if (mapGrids != null)
+        {
+            for (int i = mapGrids.Length - 1; i >= 0; i--)
+            {
+                if (mapGrids[i] != null)
+                    DestroyImmediate(mapGrids[i].gameObject);
+            }
+        }
+        else
+        {
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                var child = transform.GetChild(i);
+                if (child.GetComponent<MapGrid>() != null)
+                    DestroyImmediate(child.gameObject);
+            }
+        }
+
+        mapGrids = new MapGrid[infos.GetLength(0) * infos.GetLength(1)];
         for (int i = 0; i < infos.GetLength(0); i++)
         {
             for (int j = 0; j < infos.GetLength(1); j++)
@@ -315,6 +343,7 @@ public class MapManager : MonoBehaviour
                 mapGrid.FarAttackGrid = g.FarAttack;
                 mapGrid.transform.parent = transform;
                 mapGrid.AutoBuild();
+                mapGrids[i * infos.GetLength(1) + j] = mapGrid;
             }
         }
         init();

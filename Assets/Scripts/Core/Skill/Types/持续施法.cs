@@ -14,7 +14,7 @@ namespace Skills
             base.Update();
             for (int i = LastTarget.Count - 1; i >= 0; i--)
             {
-                if (!CanUseTo(LastTargets[i])) LastTarget.RemoveAt(i);
+                if (!CanUseTo(LastTarget[i])) LastTarget.RemoveAt(i);
             }
             if (LastTarget.Count == 0 || Unit.IfStun)
             {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -92,8 +92,8 @@ public class Skill
     //public int 递归深度 = 1000;
     public bool IsBursting = false;
 
-    //public ExpressionEvaluator tempEvaluator;
-    public UnifiedExpressionEngine tempEvaluator;
+    //public ExpressionEvaluator tempExpressionEngine;
+    public UnifiedExpressionEngine tempExpressionEngine;
 
     public virtual void Init()
     {
@@ -125,14 +125,15 @@ public class Skill
         Reset();
         IsNormalAttack = SkillData.UseType == SkillUseTypeEnum.自动 && SkillData.MaxPower == 0 && SkillData.ModelAnimation != null && SkillData.DamageRate > 0;//4个条件判断技能是否为普攻，判断条件存疑
 
-        // 预编译技能条件表达式
-        if (!string.IsNullOrEmpty(SkillData.SkillCondition))
+        // 预编译技能条件/排序表达式：只要任一表达式存在，就创建引擎供后续 Evaluate/Filter 复用
+        if (!string.IsNullOrEmpty(SkillData.SkillCondition) || !string.IsNullOrEmpty(SkillData.OrderExpression))
         {
             // 传入空列表触发编译（实际执行时不依赖列表数据）
-            //tempEvaluator = new ExpressionEvaluator(Unit, new List<Unit>());
-            tempEvaluator = new UnifiedExpressionEngine(Unit, new List<Unit>());
+            //tempExpressionEngine = new ExpressionEvaluator(Unit, new List<Unit>());
+            tempExpressionEngine = new UnifiedExpressionEngine(Unit, new List<Unit>());
             // 调用Filter触发编译，此时仅会执行到GetCompiledPredicate并缓存
-            tempEvaluator.FilterTargets(SkillData.SkillCondition);
+            if (!string.IsNullOrEmpty(SkillData.SkillCondition))
+                tempExpressionEngine.FilterTargets(SkillData.SkillCondition);
         }
 
         //Waiting.Finish();
@@ -514,7 +515,8 @@ public class Skill
                 LoopStartEffect.Init(Unit, Unit, Unit.Position, Unit.Direction);
             }
             LoopingStart.Set(Unit.UnitModel.GetAnimationDuration(animation[0]));
-            LoopingEnd.Set(Opening.value - Unit.UnitModel.GetAnimationDuration(animation[2]));
+            if (animation.Length > 2)
+                LoopingEnd.Set(Opening.value - Unit.UnitModel.GetAnimationDuration(animation[2]));
         }
         if (SkillData.OverwriteAnimation == null && SkillData.LoopCastEffect != null)
         {
@@ -711,6 +713,7 @@ public class Skill
                     foreach (var p in ps) al.Remove(p);
                     for (int i = 0; i < count; i++)
                     {
+                        if (al.Count == 0) break;
                         var p = al[Battle.Random.Next(0, al.Count)];
                         al.Remove(p);
                         ps.Add(p);
@@ -1154,8 +1157,8 @@ public class Skill
         }
         if (SkillData.SkillCondition is not null && Casting.Finished())
         {
-            var evaluator = new UnifiedExpressionEngine(Unit, tempTargets);
-            tempTargets = evaluator.FilterTargets(SkillData.SkillCondition);
+            //var evaluator = new UnifiedExpressionEngine(Unit, tempTargets);
+            tempTargets = tempExpressionEngine.FilterTargets(SkillData.SkillCondition);
         }
 
         if (SkillData.Id == "萃蔓无敌")
@@ -1359,8 +1362,8 @@ public class Skill
     {
         float orderByExpression = 0;
         if (SkillData.OrderExpression is not null)
-            //orderByExpression = (float) tempEvaluator.EvaluateExpressionWithParameters(SkillData.OrderExpression);
-            orderByExpression = tempEvaluator.Evaluate<float>(SkillData.OrderExpression);
+            //orderByExpression = (float) tempExpressionEngine.EvaluateExpressionWithParameters(SkillData.OrderExpression);
+            orderByExpression = tempExpressionEngine.Evaluate<float>(SkillData.OrderExpression);
 
         float orderByTag = 0;
         if (SkillData.OrderTag is not null)
@@ -1732,7 +1735,7 @@ public class Skill
                 go.transform.SetParent(grid.MapGrid.transform);
                 go.transform.localPosition = new Vector3(0, grid.FarAttackGrid ? -0.25f : 0.15f, 0);
                 ShowRange showRange =go.GetComponent<ShowRange>();
-                showRange.targetObject = grid.MapGrid.gameObject;
+                showRange.targetTile = grid.MapGrid.gameObject;
                 showRange.unitUniqueIndex = Battle.AllUnits.IndexOf(Unit);
                 showRange.useGridPos = Unit is not Units.敌人;
                 showRange.unitGridPos = tile;
@@ -1754,7 +1757,7 @@ public class Skill
             go.transform.SetParent(Unit.NowGrid.MapGrid.transform);
             go.transform.localPosition = new Vector3(0, Battle.Map.Tiles[Unit.NowGrid.X, Unit.NowGrid.Y].FarAttackGrid ? -0.25f : 0.15f, 0);
             ShowRange showRange = go.GetComponent<ShowRange>();
-            showRange.targetObject = Battle.Map.Tiles[Unit.NowGrid.X, Unit.NowGrid.Y].MapGrid.gameObject;
+            showRange.targetTile = Battle.Map.Tiles[Unit.NowGrid.X, Unit.NowGrid.Y].MapGrid.gameObject;
             showRange.unitUniqueIndex = Battle.AllUnits.IndexOf(Unit);
             showRange.useGridPos = Unit is not Units.敌人;
             showRange.unitGridPos = Unit.GridPos;

@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class ResourcesExportTool : MonoBehaviour
 {
-    public bool 场景模式;
+    public bool 鍦烘櫙妯″紡;
     public string Path;
     public string SceneName;
     // Start is called before the first frame update
     void Start()
     {
         ABExportTool.Init();
-        if (场景模式)
+        if (鍦烘櫙妯″紡)
         {
             ABExportTool.CopyFile(Path);
         }

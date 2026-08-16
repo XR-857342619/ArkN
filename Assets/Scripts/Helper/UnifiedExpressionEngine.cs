@@ -9,11 +9,11 @@ using System.Reflection;
 using UnityEngine;
 
 /// <summary>
-/// Í³Ò»±í´ïÊ½ÒıÇæ£¬Ö§³Ö£º
-/// - Ç¿ÀàĞÍ±àÒë£¨»ùÓÚÊµ¼Ê¶ÔÏóÀàĞÍ£¬ÌáÉıĞÔÄÜ£©
-/// - ×Ô¶¨Òå²ÎÊıÃû£¨Ä¬ÈÏ Context / Target£©
-/// - ¹ıÂË¡¢ÊıÑ§¼ÆËã¡¢ÊôĞÔ¸³Öµ
-/// - »º´æ»úÖÆ£¨°üº¬²ÎÊıÃûºÍÀàĞÍ£©
+/// ç»Ÿä¸€è¡¨è¾¾å¼å¼•æ“ï¼Œæ”¯æŒï¼š
+/// - å¼ºç±»å‹ç¼–è¯‘ï¼ˆåŸºäºå®é™…å¯¹è±¡ç±»å‹ï¼Œæå‡æ€§èƒ½ï¼‰
+/// - è‡ªå®šä¹‰å‚æ•°åï¼ˆé»˜è®¤ Context / Targetï¼‰
+/// - è¿‡æ»¤ã€æ•°å­¦è®¡ç®—ã€å±æ€§èµ‹å€¼
+/// - ç¼“å­˜æœºåˆ¶ï¼ˆåŒ…å«å‚æ•°åå’Œç±»å‹ï¼‰
 /// </summary>
 public class UnifiedExpressionEngine
 {
@@ -29,7 +29,7 @@ public class UnifiedExpressionEngine
         _targets = targets;
     }
 
-    // ===== 1. ¹ıÂË£¨Ô­ ExpressionEvaluator ¹¦ÄÜ£© =====
+    // ===== 1. è¿‡æ»¤ï¼ˆåŸ ExpressionEvaluator åŠŸèƒ½ï¼‰ =====
     public List<Unit> FilterTargets(string expression, string contextName = "Unit", string targetName = "Target")
     {
         if (string.IsNullOrEmpty(expression) || _targets == null || _targets.Count == 0)
@@ -49,22 +49,22 @@ public class UnifiedExpressionEngine
         }
         catch (Exception ex)
         {
-            HandleExpressionError(ex, expression, "Ä¿±ê¹ıÂË");
+            HandleExpressionError(ex, expression, "ç›®æ ‡è¿‡æ»¤");
             return new List<Unit>();
         }
     }
 
-    // ===== 2. ÊıÑ§¼ÆËã =====
+    // ===== 2. æ•°å­¦è®¡ç®— =====
     public T Evaluate<T>(string expression, string contextName = "Buff", string targetName = "Target")
     {
         if (string.IsNullOrWhiteSpace(expression))
-            throw new ArgumentException("±í´ïÊ½²»ÄÜÎª¿Õ", nameof(expression));
+            throw new ArgumentException("è¡¨è¾¾å¼ä¸èƒ½ä¸ºç©º", nameof(expression));
 
         try
         {
             var logicOperators = new[] { "&&", "||", "!", "and", "or", "not", "==", "!=", "<", ">", "<=", ">=" };
             if (logicOperators.Any(op => expression.Contains(op)))
-                throw new ArgumentException("ÊıÑ§±í´ïÊ½²»ÄÜ°üº¬Âß¼­ÔËËã·û", nameof(expression));
+                throw new ArgumentException("æ•°å­¦è¡¨è¾¾å¼ä¸èƒ½åŒ…å«é€»è¾‘è¿ç®—ç¬¦", nameof(expression));
 
             var contextType = _context.GetType();
             var targetType = _targets?.FirstOrDefault()?.GetType() ?? typeof(object);
@@ -73,22 +73,22 @@ public class UnifiedExpressionEngine
         }
         catch (Exception ex)
         {
-            HandleExpressionError(ex, expression, "ÊıÑ§¼ÆËã");
+            HandleExpressionError(ex, expression, "æ•°å­¦è®¡ç®—");
             throw;
         }
     }
 
-    // ===== 3. ÊôĞÔ¸³Öµ =====
+    // ===== 3. å±æ€§èµ‹å€¼ =====
     public void ExecuteAssignment(string expression, string contextName = "Buff", string targetName = "Target")
     {
         if (string.IsNullOrWhiteSpace(expression))
-            throw new ArgumentException("±í´ïÊ½²»ÄÜÎª¿Õ", nameof(expression));
+            throw new ArgumentException("è¡¨è¾¾å¼ä¸èƒ½ä¸ºç©º", nameof(expression));
 
         try
         {
             var parts = expression.Split(new[] { '=' }, 2);
             if (parts.Length != 2)
-                throw new FormatException("±í´ïÊ½¸ñÊ½²»ÕıÈ·£¬±ØĞëÊÇ¸³ÖµĞÎÊ½ A = B");
+                throw new FormatException("è¡¨è¾¾å¼æ ¼å¼ä¸æ­£ç¡®ï¼Œå¿…é¡»æ˜¯èµ‹å€¼å½¢å¼ A = B");
 
             var leftExpr = parts[0].Trim();
             var rightExpr = parts[1].Trim();
@@ -108,19 +108,19 @@ public class UnifiedExpressionEngine
         }
         catch (Exception ex)
         {
-            HandleExpressionError(ex, expression, "ÊôĞÔ¸³Öµ");
+            HandleExpressionError(ex, expression, "å±æ€§èµ‹å€¼");
             throw;
         }
     }
 
-    // ÅúÁ¿¸³Öµ
+    // æ‰¹é‡èµ‹å€¼
     public void ExecuteAssignments(IEnumerable<string> expressions, string contextName = "Buff", string targetName = "Target")
     {
         foreach (var expr in expressions)
             ExecuteAssignment(expr, contextName, targetName);
     }
 
-    // ===== ºËĞÄ±àÒë =====
+    // ===== æ ¸å¿ƒç¼–è¯‘ =====
     private Func<T1, T2, TResult> CompileLambda<T1, T2, TResult>(string expression, string param1Name, string param2Name)
     {
         var del = CompileLambdaInternal(expression, typeof(T1), typeof(T2), typeof(TResult), param1Name, param2Name);
@@ -151,7 +151,7 @@ public class UnifiedExpressionEngine
         return compiled;
     }
 
-    // ===== »º´æ¼üÉú³É =====
+    // ===== ç¼“å­˜é”®ç”Ÿæˆ =====
     private string GenerateCacheKey(string expression, params object[] keyParts)
     {
         var normalizedExpr = System.Text.RegularExpressions.Regex.Replace(expression, @"\s+", " ").Trim();
@@ -159,11 +159,11 @@ public class UnifiedExpressionEngine
         return $"{normalizedExpr}_{string.Join("_", parts)}";
     }
 
-    // ===== ÊôĞÔ¸³Öµ¸¨Öú =====
+    // ===== å±æ€§èµ‹å€¼è¾…åŠ© =====
     private void SetPropertyValue(object obj, string propertyPath, object value)
     {
         if (obj == null) throw new ArgumentNullException(nameof(obj));
-        if (string.IsNullOrEmpty(propertyPath)) throw new ArgumentException("ÊôĞÔÂ·¾¶²»ÄÜÎª¿Õ", nameof(propertyPath));
+        if (string.IsNullOrEmpty(propertyPath)) throw new ArgumentException("å±æ€§è·¯å¾„ä¸èƒ½ä¸ºç©º", nameof(propertyPath));
 
         var properties = propertyPath.Split('.');
         object currentObj = obj;
@@ -184,7 +184,7 @@ public class UnifiedExpressionEngine
             }
 
             if (!members.TryGetValue(propName, out var member))
-                throw new ArgumentException($"¶ÔÏó {currentType.Name} Ã»ÓĞÊôĞÔ»ò×Ö¶Î '{propName}'");
+                throw new ArgumentException($"å¯¹è±¡ {currentType.Name} æ²¡æœ‰å±æ€§æˆ–å­—æ®µ '{propName}'");
 
             if (i == properties.Length - 1)
             {
@@ -201,7 +201,7 @@ public class UnifiedExpressionEngine
                     field.SetValue(currentObj, convertedValue);
                 }
                 else
-                    throw new NotSupportedException($"²»Ö§³ÖµÄ³ÉÔ±ÀàĞÍ: {member.GetType().Name}");
+                    throw new NotSupportedException($"ä¸æ”¯æŒçš„æˆå‘˜ç±»å‹: {member.GetType().Name}");
             }
             else
             {
@@ -210,10 +210,10 @@ public class UnifiedExpressionEngine
                 else if (member is FieldInfo field)
                     currentObj = field.GetValue(currentObj);
                 else
-                    throw new NotSupportedException($"²»Ö§³ÖµÄ³ÉÔ±ÀàĞÍ: {member.GetType().Name}");
+                    throw new NotSupportedException($"ä¸æ”¯æŒçš„æˆå‘˜ç±»å‹: {member.GetType().Name}");
 
                 if (currentObj == null)
-                    throw new NullReferenceException($"ÊôĞÔÂ·¾¶ÖĞµÄ¶ÔÏóÎª null: {string.Join(".", properties.Take(i + 1))}");
+                    throw new NullReferenceException($"å±æ€§è·¯å¾„ä¸­çš„å¯¹è±¡ä¸º null: {string.Join(".", properties.Take(i + 1))}");
                 currentType = currentObj.GetType();
             }
         }
@@ -238,7 +238,7 @@ public class UnifiedExpressionEngine
         }
         catch
         {
-            throw new InvalidOperationException($"ÎŞ·¨½«Öµ {value} ×ª»»ÎªÀàĞÍ {targetType.Name}");
+            throw new InvalidOperationException($"æ— æ³•å°†å€¼ {value} è½¬æ¢ä¸ºç±»å‹ {targetType.Name}");
         }
     }
 
@@ -275,8 +275,8 @@ public class UnifiedExpressionEngine
     private void HandleExpressionError(Exception ex, string expression, string operationType)
     {
         var innerException = ex.InnerException ?? ex;
-        Debug.LogError($"{operationType}±í´ïÊ½´íÎó: {innerException.Message}\n±í´ïÊ½: {expression}");
-        TipManager.Instance?.ShowTip($"{operationType}±í´ïÊ½´íÎó: {innerException.Message}\n±í´ïÊ½: {expression}");
+        Debug.LogError($"{operationType}è¡¨è¾¾å¼é”™è¯¯: {innerException.Message}\nè¡¨è¾¾å¼: {expression}");
+        TipManager.Instance?.ShowTip($"{operationType}è¡¨è¾¾å¼é”™è¯¯: {innerException.Message}\nè¡¨è¾¾å¼: {expression}");
     }
 
     public static void ClearCache()

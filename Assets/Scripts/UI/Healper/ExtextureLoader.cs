@@ -15,7 +15,7 @@ public class ExtextureLoader : MonoBehaviour
         {
             if (instance == null)
             {
-                lock (_lock)  // ¼ÓËø·ÀÖ¹²¢·¢´´½¨
+                lock (_lock)  // åŠ é”é˜²æ­¢å¹¶å‘åˆ›å»º
                 {
                     if (instance == null)
                     {
@@ -34,27 +34,27 @@ public class ExtextureLoader : MonoBehaviour
 
     public void LoadLocalTexture(GLoader loader, string localFileName, Action onSuccess = null, Action onFailed = null)
     {
-        string key = $"{localFileName}_{loader.GetHashCode()}";  // Î¨Ò»±êÊ¶
+        string key = $"{localFileName}_{loader.GetHashCode()}";  // å”¯ä¸€æ ‡è¯†
         if (loaderDict.ContainsKey(key))
         {
-            loaderDict.Remove(key);  // ÒÆ³ı¾ÉÒıÓÃ
+            loaderDict.Remove(key);  // ç§»é™¤æ—§å¼•ç”¨
         }
         loaderDict.Add(key, loader);
-        // Æ´³öÕıÈ·µÄ±¾µØÂ·¾¶£¨²»Í¬Æ½Ì¨Â·¾¶¹æÔò²»Ò»Ñù£¬ÕâÃ´Ğ´Í¨ÓÃ£©
+        // æ‹¼å‡ºæ­£ç¡®çš„æœ¬åœ°è·¯å¾„ï¼ˆä¸åŒå¹³å°è·¯å¾„è§„åˆ™ä¸ä¸€æ ·ï¼Œè¿™ä¹ˆå†™é€šç”¨ï¼‰
         string localPath;
-#if UNITY_ANDROID && !UNITY_EDITOR // °²×¿ÊÖ»úÉÏµÄÂ·¾¶
+#if UNITY_ANDROID && !UNITY_EDITOR // å®‰å“æ‰‹æœºä¸Šçš„è·¯å¾„
     localPath = "file://" + Application.streamingAssetsPath + "/" + localFileName;
-#else // Windows/Mac/Unity±à¼­Æ÷ÀïµÄÂ·¾¶
+#else // Windows/Mac/Unityç¼–è¾‘å™¨é‡Œçš„è·¯å¾„
         localPath = Application.streamingAssetsPath + "/" + localFileName;
 #endif
 
-        // µ÷ÓÃ¼ÓÔØĞ­³Ì£¨ÏÂÃæ»áĞ´£©
-        Debug.Log("¼ÓÔØ±¾µØ×ÊÔ´: " + localPath);
+        // è°ƒç”¨åŠ è½½åç¨‹ï¼ˆä¸‹é¢ä¼šå†™ï¼‰
+        Debug.Log("åŠ è½½æœ¬åœ°èµ„æº: " + localPath);
         StartCoroutine(LoadTextureFromPath(loader, localPath, key, onSuccess, onFailed));
     }
 
     /// <summary>
-    /// Í¨ÓÃ¼ÓÔØĞ­³Ì£¨´ÓÂ·¾¶/ÍøÖ·¼ÓÔØÍ¼Æ¬£¬¸øLoaderÏÔÊ¾£©
+    /// é€šç”¨åŠ è½½åç¨‹ï¼ˆä»è·¯å¾„/ç½‘å€åŠ è½½å›¾ç‰‡ï¼Œç»™Loaderæ˜¾ç¤ºï¼‰
     /// </summary>
     private IEnumerator LoadTextureFromPath(GLoader imgLoader, string pathOrUrl, string key, Action onSuccess, Action onFailed)
     {
@@ -62,13 +62,13 @@ public class ExtextureLoader : MonoBehaviour
         {
             yield return webRequest.SendWebRequest();
 
-            // ¼ì²é loader ÊÇ·ñÒÑ±»Ïú»Ù»òÒÆ³ı
+            // æ£€æŸ¥ loader æ˜¯å¦å·²è¢«é”€æ¯æˆ–ç§»é™¤
             if (!loaderDict.TryGetValue(key, out var currentLoader) || currentLoader != imgLoader)
             {
-                Debug.LogWarning("¼ÓÔØÄ¿±êÒÑÊ§Ğ§£¬ÖÕÖ¹´¦Àí");
-                yield break;  // ¼ÓÔØÄ¿±êÒÑÊ§Ğ§£¬ÖÕÖ¹´¦Àí
+                Debug.LogWarning("åŠ è½½ç›®æ ‡å·²å¤±æ•ˆï¼Œç»ˆæ­¢å¤„ç†");
+                yield break;  // åŠ è½½ç›®æ ‡å·²å¤±æ•ˆï¼Œç»ˆæ­¢å¤„ç†
             }
-            loaderDict.Remove(key);  // ÇåÀíÒıÓÃ
+            loaderDict.Remove(key);  // æ¸…ç†å¼•ç”¨
 
             if (webRequest.result == UnityWebRequest.Result.Success)
             {
@@ -77,59 +77,59 @@ public class ExtextureLoader : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"¼ÓÔØÊ§°Ü: {webRequest.error}£¬Â·¾¶: {pathOrUrl}");
-                onFailed?.Invoke();  // Í¨ÖªÍâ²¿´¦ÀíÊ§°Ü
-                                     // imgLoader.texture = ´íÎóÄ¬ÈÏÍ¼;  // ½¨ÒéÉèÖÃÄ¬ÈÏÍ¼
+                Debug.LogError($"åŠ è½½å¤±è´¥: {webRequest.error}ï¼Œè·¯å¾„: {pathOrUrl}");
+                onFailed?.Invoke();  // é€šçŸ¥å¤–éƒ¨å¤„ç†å¤±è´¥
+                                     // imgLoader.texture = é”™è¯¯é»˜è®¤å›¾;  // å»ºè®®è®¾ç½®é»˜è®¤å›¾
             }
         }
     }
 
     private IEnumerator SetTexture(GLoader imgLoader, string pathOrUrl)
     {
-        // µÚÒ»²½£ºÏÔÊ¾¡°¼ÓÔØÖĞ¡±£¨ÓÃÖ®Ç°ÉèµÄÄ¬ÈÏÍ¼£¬»òÕßÊÖ¶¯ÉèÒ»ÕÅ£©
-        //imgLoader.icon = UIConfig.defaultLoadingIcon; // FairyGUI×Ô´øµÄ¼ÓÔØÍ¼±ê
+        // ç¬¬ä¸€æ­¥ï¼šæ˜¾ç¤ºâ€œåŠ è½½ä¸­â€ï¼ˆç”¨ä¹‹å‰è®¾çš„é»˜è®¤å›¾ï¼Œæˆ–è€…æ‰‹åŠ¨è®¾ä¸€å¼ ï¼‰
+        //imgLoader.icon = UIConfig.defaultLoadingIcon; // FairyGUIè‡ªå¸¦çš„åŠ è½½å›¾æ ‡
 
-        // µÚ¶ş²½£ºÓÃUnityµÄ¹¤¾ß¼ÓÔØÍ¼Æ¬£¨±¾µØ/ÍøÂç¶¼ÄÜÓÃ£©
+        // ç¬¬äºŒæ­¥ï¼šç”¨Unityçš„å·¥å…·åŠ è½½å›¾ç‰‡ï¼ˆæœ¬åœ°/ç½‘ç»œéƒ½èƒ½ç”¨ï¼‰
         using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(pathOrUrl))
         {
-            yield return webRequest.SendWebRequest(); // µÈ´ı¼ÓÔØÍê³É
+            yield return webRequest.SendWebRequest(); // ç­‰å¾…åŠ è½½å®Œæˆ
 
-            // µÚÈı²½£ºÅĞ¶Ï¼ÓÔØ³É¹¦»¹ÊÇÊ§°Ü
+            // ç¬¬ä¸‰æ­¥ï¼šåˆ¤æ–­åŠ è½½æˆåŠŸè¿˜æ˜¯å¤±è´¥
             if (webRequest.result == UnityWebRequest.Result.Success)
             {
-                Log.Debug("¼ÓÔØ³É¹¦: " + pathOrUrl);
-                // ¼ÓÔØ³É¹¦£º°ÑUnityµÄÎÆÀí×ª»»³ÉFairyGUIÄÜÊ¶±ğµÄ¸ñÊ½
+                Log.Debug("åŠ è½½æˆåŠŸ: " + pathOrUrl);
+                // åŠ è½½æˆåŠŸï¼šæŠŠUnityçš„çº¹ç†è½¬æ¢æˆFairyGUIèƒ½è¯†åˆ«çš„æ ¼å¼
                 Texture2D unityTexture = DownloadHandlerTexture.GetContent(webRequest);
                 if (unityTexture != null)
                 {
-                    // ÔÚ³¡¾°ÖĞ´´½¨Ò»¸öRawImageÓÃÓÚÔ¤ÀÀ£¨½öµ÷ÊÔÓÃ£©
+                    // åœ¨åœºæ™¯ä¸­åˆ›å»ºä¸€ä¸ªRawImageç”¨äºé¢„è§ˆï¼ˆä»…è°ƒè¯•ç”¨ï¼‰
                     GameObject debugImage = new GameObject("DebugTexturePreview");
                     RawImage rawImage = debugImage.AddComponent<RawImage>();
                     rawImage.texture = unityTexture;
-                    rawImage.rectTransform.sizeDelta = new Vector2(200, 200); // ¹Ì¶¨´óĞ¡
-                    debugImage.transform.SetParent(Camera.main.transform, false); // ÏÔÊ¾ÔÚÏà»úÇ°
+                    rawImage.rectTransform.sizeDelta = new Vector2(200, 200); // å›ºå®šå¤§å°
+                    debugImage.transform.SetParent(Camera.main.transform, false); // æ˜¾ç¤ºåœ¨ç›¸æœºå‰
                     debugImage.transform.localPosition = new Vector3(0, 0, 5);
                 }
-                NTexture fairyTexture = new NTexture(unityTexture); // ×ª¸ñÊ½
+                NTexture fairyTexture = new NTexture(unityTexture); // è½¬æ ¼å¼
 
-                // °Ñ×ª»»ºÃµÄÎÆÀí¸øLoaderÏÔÊ¾
+                // æŠŠè½¬æ¢å¥½çš„çº¹ç†ç»™Loaderæ˜¾ç¤º
                 imgLoader.texture = fairyTexture;
 
-                // £¨¿ÉÑ¡£©ÈÃLoaderÊÊÓ¦Í¼Æ¬´óĞ¡£¨²»È»Í¼Æ¬¿ÉÄÜ±»À­Éì£©
+                // ï¼ˆå¯é€‰ï¼‰è®©Loaderé€‚åº”å›¾ç‰‡å¤§å°ï¼ˆä¸ç„¶å›¾ç‰‡å¯èƒ½è¢«æ‹‰ä¼¸ï¼‰
                 //imgLoader.SetSize(unityTexture.width, unityTexture.height);
             }
             else
             {
-                // ¼ÓÔØÊ§°Ü£ºÏÔÊ¾´íÎóÌáÊ¾£¨±ÈÈçÒ»ÕÅ¡°¼ÓÔØÊ§°Ü¡±µÄÍ¼£©
-                Log.Error("¼ÓÔØÍ¼Æ¬Ê§°Ü£º" + webRequest.error);
-                //imgLoader.icon = UIConfig.defaultErrorIcon; // FairyGUI×Ô´øµÄ´íÎóÍ¼±ê
+                // åŠ è½½å¤±è´¥ï¼šæ˜¾ç¤ºé”™è¯¯æç¤ºï¼ˆæ¯”å¦‚ä¸€å¼ â€œåŠ è½½å¤±è´¥â€çš„å›¾ï¼‰
+                Log.Error("åŠ è½½å›¾ç‰‡å¤±è´¥ï¼š" + webRequest.error);
+                //imgLoader.icon = UIConfig.defaultErrorIcon; // FairyGUIè‡ªå¸¦çš„é”™è¯¯å›¾æ ‡
             }
         }
     }
 
     private void OnDestroy()
     {
-        StopAllCoroutines();  // Í£Ö¹ËùÓĞÎ´Íê³ÉµÄ¼ÓÔØĞ­³Ì
+        StopAllCoroutines();  // åœæ­¢æ‰€æœ‰æœªå®Œæˆçš„åŠ è½½åç¨‹
         loaderDict.Clear();
     }
 }

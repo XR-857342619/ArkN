@@ -39,7 +39,7 @@ public enum AttributeEnum
     IfSleep,
     IfSelectable,
     CanBeHeal,
-    // ¿ÉÒÔ¸ù¾İĞèÒªÌí¼Ó¸ü¶àÊôĞÔ
+    // å¯ä»¥æ ¹æ®éœ€è¦æ·»åŠ æ›´å¤šå±æ€§
 }
 //public interface ITargetSelector
 //{
@@ -69,14 +69,14 @@ public interface IFilterStrategy
 
 public enum SortDirection
 {
-    Ascending,  // ÉıĞò
-    Descending  // ½µĞò
+    Ascending,  // å‡åº
+    Descending  // é™åº
 }
 
 public interface ISortStrategy
 {
     string Name { get; }
-    // ·µ»ØÒ»¸ö Func£¬ÓÃÓÚÌáÈ¡ÅÅĞò¼ü£¨ÀıÈç u => u.Distance£©
+    // è¿”å›ä¸€ä¸ª Funcï¼Œç”¨äºæå–æ’åºé”®ï¼ˆä¾‹å¦‚ u => u.Distanceï¼‰
     Func<Unit, IComparable> GetKeySelector();
 }
 
@@ -109,7 +109,7 @@ public class SkillContext
     public float BaseAttackRange { get; set; }
     public float ExAttackRange { get; set; }
     public SkillTargetFilterEnum targetFilterEnum { get; set; }
-    // ¿ÉÒÔ¸ù¾İĞèÒªÌí¼Ó¸ü¶àÉÏÏÂÎÄĞÅÏ¢
+    // å¯ä»¥æ ¹æ®éœ€è¦æ·»åŠ æ›´å¤šä¸Šä¸‹æ–‡ä¿¡æ¯
 
     public SkillContext(Skill skill)
     {

@@ -321,7 +321,7 @@ public class Database
             var operation = Addressables.LoadAssetAsync<TextAsset>(PathHelper.DataPath + name);
             await operation.Task;
             //var txt = operation.WaitForCompletion().text;
-            string txt = operation.Result?.text;
+            text = operation.Result?.text;
             Addressables.ReleaseInstance(operation);
         }
         if (string.IsNullOrEmpty(text)) return;

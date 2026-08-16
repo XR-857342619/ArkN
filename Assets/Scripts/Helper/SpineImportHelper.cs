@@ -8,11 +8,11 @@ using System.Reflection;
 
 public class SpineImportHelper : MonoBehaviour
 {
-    // ´æ´¢ÒÑ¼ÓÔØµÄ¹Ç÷ÀÊı¾İ×ÊÔ´
+    // å­˜å‚¨å·²åŠ è½½çš„éª¨éª¼æ•°æ®èµ„æº
     public Dictionary<string, SkeletonDataAsset> loadedSkeletons = new Dictionary<string, SkeletonDataAsset>();
     private Material _baseMaterial;
 
-    // µ¥ÀıÊµÀı
+    // å•ä¾‹å®ä¾‹
     private static SpineImportHelper _instance;
     public static SpineImportHelper Instance
     {
@@ -59,13 +59,13 @@ public class SpineImportHelper : MonoBehaviour
             }
             else
             {
-                Debug.LogError("ÕÒ²»µ½Spine Shader: Spine/Skeleton Tint£¬ÇëÈ·±£Spine×ÊÔ´µ¼ÈëÕıÈ·");
+                Debug.LogError("æ‰¾ä¸åˆ°Spine Shader: Spine/Skeleton Tintï¼Œè¯·ç¡®ä¿Spineèµ„æºå¯¼å…¥æ­£ç¡®");
             }
         }
     }
 
     /// <summary>
-    /// ¼ÓÔØSpine×ÊÔ´£¨ÊÊÅäUnity 2021+µÄ¶ş½øÖÆ¼ÓÔØ·½Ê½£©
+    /// åŠ è½½Spineèµ„æºï¼ˆé€‚é…Unity 2021+çš„äºŒè¿›åˆ¶åŠ è½½æ–¹å¼ï¼‰
     /// </summary>
     public void LoadSpineAssets(string key, string texturePath, string atlasTextPath, string skeletonBytePath)
     {
@@ -79,18 +79,18 @@ public class SpineImportHelper : MonoBehaviour
             Init();
             if (_baseMaterial == null)
             {
-                Debug.LogError("»ù´¡²ÄÖÊ³õÊ¼»¯Ê§°Ü£¬ÎŞ·¨¼ÓÔØSpine×ÊÔ´");
+                Debug.LogError("åŸºç¡€æè´¨åˆå§‹åŒ–å¤±è´¥ï¼Œæ— æ³•åŠ è½½Spineèµ„æº");
                 return;
             }
         }
 
         try
         {
-            // ¼ÓÔØÎÆÀí
+            // åŠ è½½çº¹ç†
             Texture2D texture = LoadTexture(texturePath);
             if (texture == null) return;
 
-            // ¼ÓÔØÍ¼¼¯ÎÄ±¾
+            // åŠ è½½å›¾é›†æ–‡æœ¬
             TextAsset atlasText = LoadTextAsset(atlasTextPath);
             if (atlasText == null)
             {
@@ -98,7 +98,7 @@ public class SpineImportHelper : MonoBehaviour
                 return;
             }
 
-            // ¼ÓÔØ¹Ç÷À¶ş½øÖÆÊı¾İ£¨Unity 2021+¼æÈİ·½Ê½£©
+            // åŠ è½½éª¨éª¼äºŒè¿›åˆ¶æ•°æ®ï¼ˆUnity 2021+å…¼å®¹æ–¹å¼ï¼‰
             byte[] skeletonBytes = LoadSkeletonBytes(skeletonBytePath);
             if (skeletonBytes == null)
             {
@@ -107,11 +107,11 @@ public class SpineImportHelper : MonoBehaviour
                 return;
             }
 
-            // ´´½¨Í¼¼¯×Ê²ú
+            // åˆ›å»ºå›¾é›†èµ„äº§
             SpineAtlasAsset atlasAsset = SpineAtlasAsset.CreateRuntimeInstance(
                 atlasText, new[] { texture }, _baseMaterial, true);
 
-            // ¹Ø¼üĞŞ¸´£ºÖ±½ÓÊ¹ÓÃ×Ö½ÚÊı×é´´½¨SkeletonData£¬±ÜÃâÊ¹ÓÃTextAsset
+            // å…³é”®ä¿®å¤ï¼šç›´æ¥ä½¿ç”¨å­—èŠ‚æ•°ç»„åˆ›å»ºSkeletonDataï¼Œé¿å…ä½¿ç”¨TextAsset
             SkeletonData skeletonData = LoadSkeletonDataFromBytes(skeletonBytes, atlasAsset);
             if (skeletonData == null)
             {
@@ -121,15 +121,15 @@ public class SpineImportHelper : MonoBehaviour
                 return;
             }
 
-            // ´´½¨²¢ÅäÖÃSkeletonDataAsset
+            // åˆ›å»ºå¹¶é…ç½®SkeletonDataAsset
             //SkeletonDataAsset skeletonAsset = ScriptableObject.CreateInstance<SkeletonDataAsset>();
             SkeletonDataAsset skeletonAsset = SkeletonDataAsset.CreateRuntimeInstance(atlasText, atlasAsset, true, 0.003f * 0.9f);
-            skeletonAsset.skeletonJSON = new TextAsset(""); // È·±£²»Ê¹ÓÃJSON
+            skeletonAsset.skeletonJSON = new TextAsset(""); // ç¡®ä¿ä¸ä½¿ç”¨JSON
 
             var useBinaryField = typeof(SkeletonDataAsset).GetField("useBinary", BindingFlags.NonPublic | BindingFlags.Instance);
             if (useBinaryField != null)
             {
-                useBinaryField.SetValue(skeletonAsset, true); // ¸æÖª Spine Ê¹ÓÃ¶ş½øÖÆÊı¾İ
+                useBinaryField.SetValue(skeletonAsset, true); // å‘ŠçŸ¥ Spine ä½¿ç”¨äºŒè¿›åˆ¶æ•°æ®
             }
 
             skeletonAsset.atlasAssets = new[] { atlasAsset };
@@ -138,7 +138,7 @@ public class SpineImportHelper : MonoBehaviour
             skeletonAsset.duration = new float[0];
 
             skeletonAsset.InitializeWithData(skeletonData);
-            // Ê¹ÓÃ·´ÉäÉèÖÃÄÚ²¿µÄskeletonData£¨Spine 3.8¼æÈİ£©
+            // ä½¿ç”¨åå°„è®¾ç½®å†…éƒ¨çš„skeletonDataï¼ˆSpine 3.8å…¼å®¹ï¼‰
 
             //var dataField = typeof(SkeletonDataAsset).GetField("skeletonData", BindingFlags.NonPublic | BindingFlags.Instance);
             //if (dataField != null)
@@ -149,28 +149,28 @@ public class SpineImportHelper : MonoBehaviour
             //}
             //else
             //{
-            //    Debug.LogError("ÎŞ·¨ÕÒµ½ skeletonData ×Ö¶Î£¬¿ÉÄÜ Spine °æ±¾²»¼æÈİ£¨½¨Òé¼ì²é Spine ²å¼ş°æ±¾£©");
+            //    Debug.LogError("æ— æ³•æ‰¾åˆ° skeletonData å­—æ®µï¼Œå¯èƒ½ Spine ç‰ˆæœ¬ä¸å…¼å®¹ï¼ˆå»ºè®®æ£€æŸ¥ Spine æ’ä»¶ç‰ˆæœ¬ï¼‰");
             //    Destroy(skeletonAsset);
             //    return;
             //}
         }
         catch (Exception ex)
         {
-            Debug.LogError($"¼ÓÔØSpine×ÊÔ´Ê±·¢Éú´íÎó: {ex.Message}");
-            TipManager.Instance.ShowTip($"¼ÓÔØSpine×ÊÔ´Ê±·¢Éú´íÎó: {ex.Message}");
+            Debug.LogError($"åŠ è½½Spineèµ„æºæ—¶å‘ç”Ÿé”™è¯¯: {ex.Message}");
+            TipManager.Instance.ShowTip($"åŠ è½½Spineèµ„æºæ—¶å‘ç”Ÿé”™è¯¯: {ex.Message}");
             return;
         }
     }
 
     /// <summary>
-    /// Ö±½Ó¼ÓÔØ¹Ç÷À¶ş½øÖÆ×Ö½Ú£¬²»Í¨¹ıTextAsset
+    /// ç›´æ¥åŠ è½½éª¨éª¼äºŒè¿›åˆ¶å­—èŠ‚ï¼Œä¸é€šè¿‡TextAsset
     /// </summary>
     private byte[] LoadSkeletonBytes(string path)
     {
         if (!File.Exists(path))
         {
-            Debug.LogError($"¹Ç÷À¶ş½øÖÆÎÄ¼ş²»´æÔÚ: {path}");
-            TipManager.Instance.ShowTip($"¹Ç÷À¶ş½øÖÆÎÄ¼ş²»´æÔÚ: {path}");
+            Debug.LogError($"éª¨éª¼äºŒè¿›åˆ¶æ–‡ä»¶ä¸å­˜åœ¨: {path}");
+            TipManager.Instance.ShowTip($"éª¨éª¼äºŒè¿›åˆ¶æ–‡ä»¶ä¸å­˜åœ¨: {path}");
             return null;
         }
 
@@ -180,48 +180,48 @@ public class SpineImportHelper : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogError($"¼ÓÔØ¹Ç÷À¶ş½øÖÆÎÄ¼ş´íÎó {path}: {ex.Message}");
-            TipManager.Instance.ShowTip($"¼ÓÔØ¹Ç÷À¶ş½øÖÆÎÄ¼ş´íÎó {path}: {ex.Message}");
+            Debug.LogError($"åŠ è½½éª¨éª¼äºŒè¿›åˆ¶æ–‡ä»¶é”™è¯¯ {path}: {ex.Message}");
+            TipManager.Instance.ShowTip($"åŠ è½½éª¨éª¼äºŒè¿›åˆ¶æ–‡ä»¶é”™è¯¯ {path}: {ex.Message}");
             return null;
         }
     }
 
     /// <summary>
-    /// ´Ó×Ö½ÚÊı×é¼ÓÔØ¹Ç÷ÀÊı¾İ
+    /// ä»å­—èŠ‚æ•°ç»„åŠ è½½éª¨éª¼æ•°æ®
     /// </summary>
     private SkeletonData LoadSkeletonDataFromBytes(byte[] data, SpineAtlasAsset atlasAsset)
     {
         try
         {
-            // »ñÈ¡Í¼¼¯Êı¾İ
+            // è·å–å›¾é›†æ•°æ®
             Atlas atlas = atlasAsset.GetAtlas();
             if (atlas == null)
             {
-                Debug.LogError("Í¼¼¯Êı¾İ»ñÈ¡Ê§°Ü");
-                TipManager.Instance.ShowTip("Í¼¼¯Êı¾İ»ñÈ¡Ê§°Ü");
+                Debug.LogError("å›¾é›†æ•°æ®è·å–å¤±è´¥");
+                TipManager.Instance.ShowTip("å›¾é›†æ•°æ®è·å–å¤±è´¥");
                 return null;
             }
 
-            // Ê¹ÓÃSpineµÄBinarySkeletonLoaderÖ±½Ó¼ÓÔØ×Ö½ÚÊı¾İ
+            // ä½¿ç”¨Spineçš„BinarySkeletonLoaderç›´æ¥åŠ è½½å­—èŠ‚æ•°æ®
             SkeletonBinary binaryLoader = new SkeletonBinary(atlas);
-            binaryLoader.Scale = 1f; // ¸ù¾İĞèÒªµ÷ÕûËõ·Å
+            binaryLoader.Scale = 1f; // æ ¹æ®éœ€è¦è°ƒæ•´ç¼©æ”¾
             return binaryLoader.ReadSkeletonData(new MemoryStream(data));
         }
         catch (Exception ex)
         {
-            Debug.LogError($"½âÎö¹Ç÷À¶ş½øÖÆÊı¾İÊ§°Ü: {ex.Message}");
-            TipManager.Instance.ShowTip($"½âÎö¹Ç÷À¶ş½øÖÆÊı¾İÊ§°Ü: {ex.Message}");
+            Debug.LogError($"è§£æéª¨éª¼äºŒè¿›åˆ¶æ•°æ®å¤±è´¥: {ex.Message}");
+            TipManager.Instance.ShowTip($"è§£æéª¨éª¼äºŒè¿›åˆ¶æ•°æ®å¤±è´¥: {ex.Message}");
             return null;
         }
     }
 
-    // ÆäËû¸¨Öú·½·¨±£³Ö²»±ä...
+    // å…¶ä»–è¾…åŠ©æ–¹æ³•ä¿æŒä¸å˜...
     private Texture2D LoadTexture(string path)
     {
         if (!File.Exists(path))
         {
-            Debug.LogError($"ÎÆÀíÎÄ¼ş²»´æÔÚ: {path}");
-            TipManager.Instance.ShowTip($"ÎÆÀíÎÄ¼ş²»´æÔÚ: {path}");
+            Debug.LogError($"çº¹ç†æ–‡ä»¶ä¸å­˜åœ¨: {path}");
+            TipManager.Instance.ShowTip($"çº¹ç†æ–‡ä»¶ä¸å­˜åœ¨: {path}");
             return null;
         }
 
@@ -237,15 +237,15 @@ public class SpineImportHelper : MonoBehaviour
                 return texture;
             }
 
-            Debug.LogError($"ÎŞ·¨¼ÓÔØÎÆÀí: {path}");
-            TipManager.Instance.ShowTip($"ÎŞ·¨¼ÓÔØÎÆÀí: {path}");
+            Debug.LogError($"æ— æ³•åŠ è½½çº¹ç†: {path}");
+            TipManager.Instance.ShowTip($"æ— æ³•åŠ è½½çº¹ç†: {path}");
             Destroy(texture);
             return null;
         }
         catch (Exception ex)
         {
-            Debug.LogError($"¼ÓÔØÎÆÀí´íÎó {path}: {ex.Message}");
-            TipManager.Instance.ShowTip($"¼ÓÔØÎÆÀí´íÎó {path}: {ex.Message}");
+            Debug.LogError($"åŠ è½½çº¹ç†é”™è¯¯ {path}: {ex.Message}");
+            TipManager.Instance.ShowTip($"åŠ è½½çº¹ç†é”™è¯¯ {path}: {ex.Message}");
             return null;
         }
     }
@@ -254,8 +254,8 @@ public class SpineImportHelper : MonoBehaviour
     {
         if (!File.Exists(path))
         {
-            Debug.LogError($"ÎÄ±¾ÎÄ¼ş²»´æÔÚ: {path}");
-            TipManager.Instance.ShowTip($"ÎÄ±¾ÎÄ¼ş²»´æÔÚ: {path}");
+            Debug.LogError($"æ–‡æœ¬æ–‡ä»¶ä¸å­˜åœ¨: {path}");
+            TipManager.Instance.ShowTip($"æ–‡æœ¬æ–‡ä»¶ä¸å­˜åœ¨: {path}");
             return null;
         }
 
@@ -269,8 +269,8 @@ public class SpineImportHelper : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogError($"¼ÓÔØÎÄ±¾´íÎó {path}: {ex.Message}");
-            TipManager.Instance.ShowTip($"¼ÓÔØÎÄ±¾´íÎó {path}: {ex.Message}");
+            Debug.LogError($"åŠ è½½æ–‡æœ¬é”™è¯¯ {path}: {ex.Message}");
+            TipManager.Instance.ShowTip($"åŠ è½½æ–‡æœ¬é”™è¯¯ {path}: {ex.Message}");
             return null;
         }
     }
@@ -325,20 +325,20 @@ public class SpineImportHelper : MonoBehaviour
 
         if (backData == null && frontData == null)
         {
-            Debug.LogError("Î´ÕÒµ½¶ÔÓ¦¹Ç÷À×ÊÔ´£¬Çë¼ì²é×ÊÔ´Ãû³ÆÊÇ·ñÕıÈ·");
+            Debug.LogError("æœªæ‰¾åˆ°å¯¹åº”éª¨éª¼èµ„æºï¼Œè¯·æ£€æŸ¥èµ„æºåç§°æ˜¯å¦æ­£ç¡®");
             return null;
         }
 
         GameObject targetObject = ResHelper.Instantiate("Assets/Res/Spine/" + (hasBack ? "NewUnit" : "NewEnemy"));
-        // ±éÀúÄ¿±ê¶ÔÏóµÄ×Ó½Úµã
+        // éå†ç›®æ ‡å¯¹è±¡çš„å­èŠ‚ç‚¹
         targetObject.transform.localScale = new Vector3(0.0027f, 0.0027f, 0.0027f);
 
-        Transform shadow = targetObject.transform.GetChild(0); // ¼ÙÉèË÷Òı0ÊÇÒõÓ°
+        Transform shadow = targetObject.transform.GetChild(0); // å‡è®¾ç´¢å¼•0æ˜¯é˜´å½±
         float rootScale = 0.0027f;
 
-        // Ä¿±êÊÀ½ç×ø±ê Y ¹Ì¶¨Îª 0.0001£¨·ÀÖ¹ Z-Fighting£©
+        // ç›®æ ‡ä¸–ç•Œåæ ‡ Y å›ºå®šä¸º 0.0001ï¼ˆé˜²æ­¢ Z-Fightingï¼‰
         float targetWorldY = 0.0001f;
-        float targetWorldZ = hasBack ? -0.2f : 0f; // Unit ĞèÒª Z=-0.2£¬Enemy ĞèÒª Z=0
+        float targetWorldZ = hasBack ? -0.2f : 0f; // Unit éœ€è¦ Z=-0.2ï¼ŒEnemy éœ€è¦ Z=0
 
         shadow.localPosition = new Vector3(0, targetWorldY / rootScale, targetWorldZ / rootScale);
 
@@ -355,27 +355,27 @@ public class SpineImportHelper : MonoBehaviour
             if (!isFrontChild && !isBackChild || isBackChild && !hasBack)
                 continue;
 
-            // 4. ¸³ÖµĞÂµÄ SkeletonDataAsset ²¢³õÊ¼»¯
+            // 4. èµ‹å€¼æ–°çš„ SkeletonDataAsset å¹¶åˆå§‹åŒ–
             sa.skeletonDataAsset = hasBack && isBackChild ? backData : frontData;
             SkeletonDataAsset assetToUse = hasBack && isBackChild ? backData : frontData;
             if (assetToUse == null)
             {
-                Debug.LogError($"ÎŞ·¨Îª×Ó½Úµã {child.name} ÕÒµ½ºÏÊÊµÄSkeletonDataAsset");
+                Debug.LogError($"æ— æ³•ä¸ºå­èŠ‚ç‚¹ {child.name} æ‰¾åˆ°åˆé€‚çš„SkeletonDataAsset");
                 continue;
             }
 
             sa.skeletonDataAsset = assetToUse;
 
-            sa.Initialize(true); // ÖØÖÃ×´Ì¬²¢³õÊ¼»¯ĞÂÊı¾İ
+            sa.Initialize(true); // é‡ç½®çŠ¶æ€å¹¶åˆå§‹åŒ–æ–°æ•°æ®
             sa.skeletonDataAsset.scale = 0.003f * 0.9f;
 
-            //Debug.Log($"ÒÑÌæ»»×Ó½Úµã {child.name} µÄSpine¶¯»­×ÊÔ´: {frontData.name}");
+            //Debug.Log($"å·²æ›¿æ¢å­èŠ‚ç‚¹ {child.name} çš„SpineåŠ¨ç”»èµ„æº: {frontData.name}");
         }
 
         //if (hasBack)
-        //    targetObject.AddComponent<PlayerUnitModel>();
+        //    targetTile.AddComponent<PlayerUnitModel>();
         //else
-        //    targetObject.AddComponent<SpineModel>();
+        //    targetTile.AddComponent<SpineModel>();
 
         return targetObject;
     }

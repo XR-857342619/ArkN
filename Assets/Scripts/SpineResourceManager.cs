@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.AddressableAssets.ResourceLocators; // ÒıÈë IResourceLocator ËùĞèµÄÃüÃû¿Õ¼ä[reference:6]
+using UnityEngine.AddressableAssets.ResourceLocators; // å¼•å…¥ IResourceLocator æ‰€éœ€çš„å‘½åç©ºé—´[reference:6]
 
 public class SpineResourceManager : MonoBehaviour
 {
@@ -32,18 +32,18 @@ public class SpineResourceManager : MonoBehaviour
 
         var keys = new List<string>();
 
-        // ±éÀúËùÓĞÒÑ×¢²áµÄ Resource Locator
+        // éå†æ‰€æœ‰å·²æ³¨å†Œçš„ Resource Locator
         foreach (var locator in Addressables.ResourceLocators)
         {
-            // Ã¿¸ö locator µÄ Keys ÊôĞÔ°üº¬ÁËËüËù¹ÜÀíµÄËùÓĞ×ÊÔ´ Key[reference:7]
+            // æ¯ä¸ª locator çš„ Keys å±æ€§åŒ…å«äº†å®ƒæ‰€ç®¡ç†çš„æ‰€æœ‰èµ„æº Key[reference:7]
             foreach (var key in locator.Keys)
             {
-                // ³¢ÊÔ½« key ×ª»»Îª×Ö·û´®£¬²¢¼ì²é×ÊÔ´ÀàĞÍÊÇ·ñÎª GameObject
+                // å°è¯•å°† key è½¬æ¢ä¸ºå­—ç¬¦ä¸²ï¼Œå¹¶æ£€æŸ¥èµ„æºç±»å‹æ˜¯å¦ä¸º GameObject
                 if (key is string keyStr &&
                    keyStr.StartsWith("Assets/Bundles/Units") &&
                    locator.Locate(key, typeof(GameObject), out var locations))
                 {
-                    // ½øÒ»²½È·±£ÓĞ GameObject ÀàĞÍµÄÎ»ÖÃ
+                    // è¿›ä¸€æ­¥ç¡®ä¿æœ‰ GameObject ç±»å‹çš„ä½ç½®
                     bool hasGameObject = false;
                     foreach (var loc in locations)
                     {
@@ -63,7 +63,7 @@ public class SpineResourceManager : MonoBehaviour
 
         AllSpineKeys = keys;
         IsLoaded = true;
-        Debug.Log($"Í¨¹ı Locator »ñÈ¡µ½ {AllSpineKeys.Count} ¸ö¿ÉÓÃ Spine ×ÊÔ´");
+        Debug.Log($"é€šè¿‡ Locator è·å–åˆ° {AllSpineKeys.Count} ä¸ªå¯ç”¨ Spine èµ„æº");
         OnListLoaded?.Invoke(AllSpineKeys);
     }
 

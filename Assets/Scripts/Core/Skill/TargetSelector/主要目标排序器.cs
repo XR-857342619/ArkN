@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ÖÕµã¾àÀëÅÅĞò : ISortStrategy
+public class ç»ˆç‚¹è·ç¦»æ’åº : ISortStrategy
 {
-    public string Name => "ÖÕµã¾àÀëÅÅĞò";
+    public string Name => "ç»ˆç‚¹è·ç¦»æ’åº";
     public Func<Unit, IComparable> GetKeySelector() => u => u.distanceToFinal();
 }

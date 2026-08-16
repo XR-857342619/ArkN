@@ -45,12 +45,12 @@ public class HalfDownLoadTool : MonoBehaviour
         {
             if (Targets.Length > 0 && !Targets.Contains(kv.cn)) continue;
             float t = Time.time;
-            Debug.Log($"¿ªÊ¼ÅÀÈ¡{kv.cn}");
+            Debug.Log($"å¼€å§‹çˆ¬å–{kv.cn}");
             yield return StartCoroutine(Download(kv.icon, "icon_" + getIdByName(kv.cn), IconDir));
             yield return StartCoroutine(Download(kv.half, "half_" + getIdByName(kv.cn), HalfDir));
-            Debug.Log($"{kv.cn}Íê³É!ºÄÊ±{Time.time - t}");
+            Debug.Log($"{kv.cn}å®Œæˆ!è€—æ—¶{Time.time - t}");
         }
-        Debug.Log($"È«²¿ÅÀÈ¡Íê³É£¡");
+        Debug.Log($"å…¨éƒ¨çˆ¬å–å®Œæˆï¼");
     }
 
     IEnumerator Download(string url, string name,string dir)

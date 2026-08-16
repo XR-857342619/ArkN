@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -89,12 +89,20 @@ public class BattleManager : MonoBehaviour
         Battle.Init(battleConfig);
         await TimeHelper.Instance.WaitAsync(0.1f);
         //AstarPath.active.Scan();
-
-         for (int i = 0; i < battleConfig.Team.Cards.Count; i++)
+        
+        if (battleConfig.Team == null)
         {
-            Card card = battleConfig.Team.Cards[i];
-            await ResHelper.Prepare(Database.Instance.GetIndex<UnitData>(card.UnitId), battleConfig.Team.UnitSkill[i]);
+            TipManager.Instance.ShowTip("确定不携带干员?");
         }
+        else
+        {
+            for (int i = 0; i < battleConfig.Team.Cards.Count; i++)
+            {
+                Card card = battleConfig.Team.Cards[i];
+                await ResHelper.Prepare(Database.Instance.GetIndex<UnitData>(card.UnitId), i >= battleConfig.Team.UnitSkill.Count ? -1 : battleConfig.Team.UnitSkill[i]);
+            }
+        }
+        
         foreach (var wave in mapInfo.WaveInfos)
         {
             if (!string.IsNullOrEmpty(wave.sUnitId))

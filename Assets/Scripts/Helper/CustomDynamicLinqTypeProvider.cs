@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Dynamic.Core.CustomTypeProviders;
 
-// 自定义类型提供器，公开AdditionalTypes
+// 鑷畾涔夌被鍨嬫彁渚涘櫒锛屽叕寮�AdditionalTypes
 public class CustomDynamicLinqTypeProvider : DefaultDynamicLinqCustomTypeProvider
 {
-    // 公开基类的受保护成员AdditionalTypes
+    // 鍏紑鍩虹被鐨勫彈淇濇姢鎴愬憳AdditionalTypes
     public new IList<Type> AdditionalTypes => base.AdditionalTypes;
 }

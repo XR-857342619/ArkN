@@ -33,12 +33,12 @@ namespace DIY
         
         //public Dictionary<string, List<string>> attributeDic = ExcelHelper.dic;
         public Dictionary<string, Dictionary<string, int>> attributes = new Dictionary<string, Dictionary<string, int>>();
-        public string[] unitTypes = new string[] { "ÖĞÁ¢µ¥Î»", "¸ÉÔ±", "µĞÈË" };
+        public string[] unitTypes = new string[] { "ä¸­ç«‹å•ä½", "å¹²å‘˜", "æ•Œäºº" };
         public string[] funPages = new string[] { "UnitData", "SkillData", "BuffData", "ModeifyData" };
         public string[][] attributeNames = new string[][] {
-            new string[] {"Model/Model:string", "Name/Name:string", "Id/Id:string", "Type/Type:string", "Ñª/Hp:int", "·À/Defence:int", "Ä§·À/MagicDefence:int", "¹¥/Attack:int", "²»Õ¼ÓÃµØ°å/NotUseTile:bool" },
-            new string[] {"Model/Model:string", "Name/Name:string", "Id/Id:string", "Type/Type:string", "Ñª/Hp:int", "·À/Defence:int", "Ä§·À/MagicDefence:int", "¹¥/Attack:int", "ÏûºÄ/Cost:int", "×èµ²¸öÊı/StopCount:int", "¹¥»÷¼ä¸ô:AttackGap:float", "¸´»îÊ±¼ä/ResetTime:int"},
-            new string[] { "Model/Model:string", "Name/Name:string", "Id/Id:string", "Type/Type:string", "Ñª/Hp:int", "·À/Defence:int", "Ä§·À/MagicDefence:int", "¹¥/Attack:int", "ÖØÁ¿/Weight:int", "×èµ²¸öÊı/StopCount:int", "¹¥»÷¼ä¸ô:AttackGap:float" }
+            new string[] {"Model/Model:string", "Name/Name:string", "Id/Id:string", "Type/Type:string", "è¡€/Hp:int", "é˜²/Defence:int", "é­”é˜²/MagicDefence:int", "æ”»/Attack:int", "ä¸å ç”¨åœ°æ¿/NotUseTile:bool" },
+            new string[] {"Model/Model:string", "Name/Name:string", "Id/Id:string", "Type/Type:string", "è¡€/Hp:int", "é˜²/Defence:int", "é­”é˜²/MagicDefence:int", "æ”»/Attack:int", "æ¶ˆè€—/Cost:int", "é˜»æŒ¡ä¸ªæ•°/StopCount:int", "æ”»å‡»é—´éš”:AttackGap:float", "å¤æ´»æ—¶é—´/ResetTime:int"},
+            new string[] { "Model/Model:string", "Name/Name:string", "Id/Id:string", "Type/Type:string", "è¡€/Hp:int", "é˜²/Defence:int", "é­”é˜²/MagicDefence:int", "æ”»/Attack:int", "é‡é‡/Weight:int", "é˜»æŒ¡ä¸ªæ•°/StopCount:int", "æ”»å‡»é—´éš”:AttackGap:float" }
         };
         public IReadOnlyList<string> spineList => SpineResourceManager.Instance.AllSpineKeys.AsReadOnly();
 
@@ -157,7 +157,7 @@ namespace DIY
                     front.loop = false;
                     front.AnimationName = "default";
                 }
-                // ¸üĞÂäÖÈ¾Æ÷»º´æ£¬ÒÔÈ·±£ĞÂµÄ GameObject ÕıÈ·ÏÔÊ¾
+                // æ›´æ–°æ¸²æŸ“å™¨ç¼“å­˜ï¼Œä»¥ç¡®ä¿æ–°çš„ GameObject æ­£ç¡®æ˜¾ç¤º
                 _currentWrapper.CacheRenderers();
 
                 m_modeName.m_text.text = model;
@@ -165,7 +165,7 @@ namespace DIY
                 if (m_unitType.selectedIndex != 0)
                     m_unitIcon.url = "ui://Res/" + icon;
                 else
-                    m_unitIcon.url = "ui://Res/Í·Ïñ_×°ÖÃ_ÕÏ°­Îï";
+                    m_unitIcon.url = "ui://Res/å¤´åƒ_è£…ç½®_éšœç¢ç‰©";
                 //}
                 m_HP.m_text.text = selectUnit.Hp.ToString();
                 m_Def.m_text.text = selectUnit.Defence.ToString();
@@ -201,7 +201,7 @@ namespace DIY
             }
             names.RemoveAll(x => todel.Contains(x));
             if (names.Count == 0)
-                m_tip.text = $"{m_tip.text}\n{folder}ÏÂÃ»ÓĞExcelÎÄ¼ş";
+                m_tip.text = $"{m_tip.text}\n{folder}ä¸‹æ²¡æœ‰Excelæ–‡ä»¶";
             m_excels.items = names.ToArray();
             //excelPath = UnityEngine.Application.streamingAssetsPath + "/Excel/" + folder + "/" + names[0];
 #if UNITY_EDITOR
@@ -306,7 +306,7 @@ namespace DIY
                 front.loop = false;
                 front.AnimationName = "default";
             }
-            // ¸üĞÂäÖÈ¾Æ÷»º´æ£¬ÒÔÈ·±£ĞÂµÄ GameObject ÕıÈ·ÏÔÊ¾
+            // æ›´æ–°æ¸²æŸ“å™¨ç¼“å­˜ï¼Œä»¥ç¡®ä¿æ–°çš„ GameObject æ­£ç¡®æ˜¾ç¤º
             _currentWrapper.CacheRenderers();
         }
 
@@ -338,14 +338,14 @@ namespace DIY
                 model.transform.localRotation = Quaternion.Euler(-15, 45, -15);
             }
 
-            // 4. ´´½¨ GoWrapper À´°ü×°Õâ¸ö GameObject
+            // 4. åˆ›å»º GoWrapper æ¥åŒ…è£…è¿™ä¸ª GameObject
             if (_currentWrapper.wrapTarget != null)
             {
                 GameObject.Destroy(_currentWrapper.wrapTarget);
             }
             _currentWrapper.wrapTarget = model;
 
-            // ¸üĞÂäÖÈ¾Æ÷»º´æ£¬ÒÔÈ·±£ĞÂµÄ GameObject ÕıÈ·ÏÔÊ¾
+            // æ›´æ–°æ¸²æŸ“å™¨ç¼“å­˜ï¼Œä»¥ç¡®ä¿æ–°çš„ GameObject æ­£ç¡®æ˜¾ç¤º
             _currentWrapper.CacheRenderers();
         }
 
@@ -375,7 +375,7 @@ namespace DIY
                 if (i.Keys.ToList()[0] == change.Keys.ToList()[0])
                 {
                     flag = false;
-                    m_tip.text = m_tip.text + "\n" + attribute + "ÒÑ¾­Ìí¼Ó¹ı";
+                    m_tip.text = m_tip.text + "\n" + attribute + "å·²ç»æ·»åŠ è¿‡";
                     break;
                 }
             }
@@ -408,7 +408,7 @@ namespace DIY
         {
             GButton button = (GButton)evt.sender;
             string mode = button.GetChild("title").text;
-            bool flag = mode == "±£´æ" ? true : false;
+            bool flag = mode == "ä¿å­˜" ? true : false;
             string sheetName = funPages[pageIndex];
             List<(int row, int col, string data)> dataList = new List<(int row, int col, string data)>();
             int _row = isNew ? lastRow : unitIndexs[m_selectUnitCombobox.items[m_selectUnitCombobox.selectedIndex]];
@@ -437,7 +437,7 @@ namespace DIY
                 if (unitId != m_unitName.m_text.text && unitId != "")
                 {
                     dataList.Add((0, 0, unitId));
-                    m_tip.text = m_tip.text + "\n¼ì²âµ½UnitName±ä¸ü,ÒÑ×Ô¶¯Í¬²½µ½CardData";
+                    m_tip.text = m_tip.text + "\næ£€æµ‹åˆ°UnitNameå˜æ›´,å·²è‡ªåŠ¨åŒæ­¥åˆ°CardData";
                 }
             }
             //if (isNew)
@@ -468,9 +468,9 @@ namespace DIY
             }
             else
             {
-                string newExcelPath = $"{UnityEngine.Application.streamingAssetsPath}/Excel/{folder}/ĞÂµ¥Î»_{m_unitName.m_text.text}.xlsx";
-                dataList.Add((4, 1, $"ĞÂµ¥Î»_{m_unitName.m_text.text}"));
-                m_tip.text = m_tip.text + "\nÁí´æÎªing...";
+                string newExcelPath = $"{UnityEngine.Application.streamingAssetsPath}/Excel/{folder}/æ–°å•ä½_{m_unitName.m_text.text}.xlsx";
+                dataList.Add((4, 1, $"æ–°å•ä½_{m_unitName.m_text.text}"));
+                m_tip.text = m_tip.text + "\nå¦å­˜ä¸ºing...";
                 m_tip.text = m_tip.text + "\n" + ExcelHelper.CreatExcel(newExcelPath, sheetName, dataList,
                     excelPath, unitIndexs[m_selectUnitCombobox.items[m_selectUnitCombobox.selectedIndex]],
                     isOp);

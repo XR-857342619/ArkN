@@ -5,19 +5,19 @@ using System.Linq;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
-#region ÆúÓÃµÄÑ¡ÔñÆ÷
-//public class »ñÈ¡µ¥Î»ËùÔÚµØ¿é : ITargetSelector
+#region å¼ƒç”¨çš„é€‰æ‹©å™¨
+//public class è·å–å•ä½æ‰€åœ¨åœ°å— : ITargetSelector
 //{
 //    public List<Vector3> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config = null)
 //    {
 //        return targets.Where(t => (skill.SkillData.TargetTeam >> t.Team) % 2 == 1).Select(t => new Vector3(t.GridPos.x, 0, t.GridPos.y)).Distinct().ToList();
 //    }
 //}
-//public class »ñÈ¡µ¥Î»ËùÔÚµØ¿é : IFilterStrategy
+//public class è·å–å•ä½æ‰€åœ¨åœ°å— : IFilterStrategy
 //{
-//    public string Name => "»ñÈ¡µ¥Î»ËùÔÚµØ¿é";
+//    public string Name => "è·å–å•ä½æ‰€åœ¨åœ°å—";
 //    public int _targetTeam;
-//    public »ñÈ¡µ¥Î»ËùÔÚµØ¿é(int targetTeam)
+//    public è·å–å•ä½æ‰€åœ¨åœ°å—(int targetTeam)
 //    {
 //        _targetTeam = targetTeam;
 //    }
@@ -28,7 +28,7 @@ using static UnityEngine.GraphicsBuffer;
 //    };
 //}
 
-//public class »ñÈ¡µØ¿éÉÏµÄµ¥Î» : ITargetSelector
+//public class è·å–åœ°å—ä¸Šçš„å•ä½ : ITargetSelector
 //{
 //    public List<Unit> GetTargets(Skill skill, List<Vector3> targets, SelectorConfig config = null)
 //    {
@@ -40,7 +40,7 @@ using static UnityEngine.GraphicsBuffer;
 //        return result.Distinct().ToList();
 //    }
 //}
-//    public class ´Ó¹¥»÷·¶Î§»ñÈ¡µ¥Î» : ITargetSelector
+//    public class ä»æ”»å‡»èŒƒå›´è·å–å•ä½ : ITargetSelector
 //{
 //    //public List<Vector2Int> AttackPoints;
 //    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config = null)
@@ -49,7 +49,7 @@ using static UnityEngine.GraphicsBuffer;
 //        Unit Unit = skill.Unit;
 //        List<Unit> result = new List<Unit>();
 
-//        if (skill.AttackPoints == null && !skill.SkillData.AttackAreaWithMain)//¸ù¾İ¹¥»÷·¶Î§½øĞĞË÷µĞ
+//        if (skill.AttackPoints == null && !skill.SkillData.AttackAreaWithMain)//æ ¹æ®æ”»å‡»èŒƒå›´è¿›è¡Œç´¢æ•Œ
 //        {
 //            result.AddRange(Battle.FindAll(Unit.Position2, skill.SkillData.AttackRange * Unit.AttackRange, config.TargetTeam, !config.DeadFind));
 //        }
@@ -62,12 +62,12 @@ using static UnityEngine.GraphicsBuffer;
 //        return result;
 //    }
 //}
-//public class ´Ó¹¥»÷·¶Î§»ñÈ¡µ¥Î» : IFilterStrategy
+//public class ä»æ”»å‡»èŒƒå›´è·å–å•ä½ : IFilterStrategy
 //{
 //    //public List<Vector2Int> AttackPoints;
-//    public string Name => "´Ó¹¥»÷·¶Î§»ñÈ¡µ¥Î»";
+//    public string Name => "ä»æ”»å‡»èŒƒå›´è·å–å•ä½";
 //    public int _targetTeam;
-//    public ´Ó¹¥»÷·¶Î§»ñÈ¡µ¥Î»(int targetTeam)
+//    public ä»æ”»å‡»èŒƒå›´è·å–å•ä½(int targetTeam)
 //    {
 //        _targetTeam = targetTeam;
 //    }
@@ -81,7 +81,7 @@ using static UnityEngine.GraphicsBuffer;
 //        Unit Unit = skill.Unit;
 //        List<Unit> result = new List<Unit>();
 
-//        if (skill.AttackPoints == null && !skill.SkillData.AttackAreaWithMain)//¸ù¾İ¹¥»÷·¶Î§½øĞĞË÷µĞ
+//        if (skill.AttackPoints == null && !skill.SkillData.AttackAreaWithMain)//æ ¹æ®æ”»å‡»èŒƒå›´è¿›è¡Œç´¢æ•Œ
 //        {
 //            result.AddRange(Battle.FindAll(Unit.Position2, skill.SkillData.AttackRange * Unit.AttackRange, config.TargetTeam, !config.DeadFind));
 //        }
@@ -95,7 +95,7 @@ using static UnityEngine.GraphicsBuffer;
 //    }
 //}
 
-//public class ´Ó¹¥»÷·¶Î§»ñÈ¡µØ¿é : ITargetSelector
+//public class ä»æ”»å‡»èŒƒå›´è·å–åœ°å— : ITargetSelector
 //{
 //    //public List<Vector2Int> AttackPoints;
 //    public List<Vector3> GetTargetsPos(Skill skill, List<Unit> targets, SelectorConfig config = null)
@@ -104,7 +104,7 @@ using static UnityEngine.GraphicsBuffer;
 //        Unit Unit = skill.Unit;
 //        List<Vector3> result = new List<Vector3>();
 
-//        if (skill.AttackPoints == null && !skill.SkillData.AttackAreaWithMain)//¸ù¾İ¹¥»÷·¶Î§½øĞĞË÷µĞ
+//        if (skill.AttackPoints == null && !skill.SkillData.AttackAreaWithMain)//æ ¹æ®æ”»å‡»èŒƒå›´è¿›è¡Œç´¢æ•Œ
 //        {
 //            float attackRange = skill.SkillData.AttackRange * Unit.AttackRange;
 //            result.AddRange(GetTileFromRange(Unit, attackRange));
@@ -139,7 +139,7 @@ using static UnityEngine.GraphicsBuffer;
 //    //}
 //}
 
-//public class »ñÈ¡ÊÂ¼şÄ¿±êµ¥Î» : ITargetSelector
+//public class è·å–äº‹ä»¶ç›®æ ‡å•ä½ : ITargetSelector
 //{
 //    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
 //    {
@@ -150,7 +150,7 @@ using static UnityEngine.GraphicsBuffer;
 //    }
 //}
 
-//public class »ñÈ¡ÊÂ¼şÄ¿±êµØ¿é : ITargetSelector
+//public class è·å–äº‹ä»¶ç›®æ ‡åœ°å— : ITargetSelector
 //{
 //    public List<Vector3> GetTargets(Skill skill, List<Vector3> targets, SelectorConfig config)
 //    {
@@ -161,7 +161,7 @@ using static UnityEngine.GraphicsBuffer;
 //    }
 //}
 
-//public class »ñÈ¡ÊÂ¼şÀ´Ô´µ¥Î» : ITargetSelector
+//public class è·å–äº‹ä»¶æ¥æºå•ä½ : ITargetSelector
 //{
 //    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
 //    {
@@ -172,7 +172,7 @@ using static UnityEngine.GraphicsBuffer;
 //    }
 //}
 
-//public class »ñÈ¡ÊÂ¼şÀ´Ô´µØ¿é : ITargetSelector
+//public class è·å–äº‹ä»¶æ¥æºåœ°å— : ITargetSelector
 //{
 //    public List<Vector3> GetTargets(Skill skill, List<Vector3> targets, SelectorConfig config)
 //    {
@@ -193,7 +193,7 @@ using static UnityEngine.GraphicsBuffer;
 //    public float HighAttribute = -1;
 //    public float LowAttribute = -1;
 //}
-//public class ÒÔÊôĞÔÉ¸Ñ¡µ¥Î» : ITargetSelector
+//public class ä»¥å±æ€§ç­›é€‰å•ä½ : ITargetSelector
 //{
 
 //    public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
@@ -262,9 +262,9 @@ using static UnityEngine.GraphicsBuffer;
 //    public List<Buff> MustNotHaveAnyBuffs = new List<Buff>();
 //    public List<Buff> MustNotHaveAllBuffs = new List<Buff>();
 //}
-public class BuffÉ¸Ñ¡ : IFilterStrategy
+public class Buffç­›é€‰ : IFilterStrategy
 {
-    public string Name => "BuffÉ¸Ñ¡";
+    public string Name => "Buffç­›é€‰";
     
     private readonly int _targetTeam;
     private readonly HashSet<int> _mustHaveAnyBuffIds;
@@ -272,24 +272,24 @@ public class BuffÉ¸Ñ¡ : IFilterStrategy
     private readonly HashSet<int> _mustNotHaveAnyBuffIds;
     private readonly HashSet<int> _mustNotHaveAllBuffIds;
 
-    // Ô¤¼ÆËãµÄÌõ¼ş¼ì²é±êÖ¾
+    // é¢„è®¡ç®—çš„æ¡ä»¶æ£€æŸ¥æ ‡å¿—
     private readonly bool _deadFind;
     private readonly bool _hasMustHaveAny;
     private readonly bool _hasMustHaveAll;
     private readonly bool _hasMustNotHaveAny;
     private readonly bool _hasMustNotHaveAll;
 
-    public BuffÉ¸Ñ¡(SkillContext skillContext, int[] mustHaveAnyBuffIds, int[] mustHaveAllBuffIds, int[] mustNotHaveAnyBuffIds, int[] mustNotHaveAllBuffIds)
+    public Buffç­›é€‰(SkillContext skillContext, int[] mustHaveAnyBuffIds, int[] mustHaveAllBuffIds, int[] mustNotHaveAnyBuffIds, int[] mustNotHaveAllBuffIds)
     {
         _targetTeam = skillContext.TargetTeam;
         _deadFind = skillContext.DeadFind;
-        // Ê¹ÓÃHashSetÌá¸ß²éÑ¯ĞÔÄÜ
+        // ä½¿ç”¨HashSetæé«˜æŸ¥è¯¢æ€§èƒ½
         _mustHaveAnyBuffIds = new HashSet<int>(mustHaveAnyBuffIds ?? Array.Empty<int>());
         _mustHaveAllBuffIds = new HashSet<int>(mustHaveAllBuffIds ?? Array.Empty<int>());
         _mustNotHaveAnyBuffIds = new HashSet<int>(mustNotHaveAnyBuffIds ?? Array.Empty<int>());
         _mustNotHaveAllBuffIds = new HashSet<int>(mustNotHaveAllBuffIds ?? Array.Empty<int>());
 
-        // Ô¤¼ÆËãÌõ¼ş±êÖ¾£¬±ÜÃâÃ¿´Î¼ì²éÊı×é³¤¶È
+        // é¢„è®¡ç®—æ¡ä»¶æ ‡å¿—ï¼Œé¿å…æ¯æ¬¡æ£€æŸ¥æ•°ç»„é•¿åº¦
         _hasMustHaveAny = _mustHaveAnyBuffIds.Count > 0;
         _hasMustHaveAll = _mustHaveAllBuffIds.Count > 0;
         _hasMustNotHaveAny = _mustNotHaveAnyBuffIds.Count > 0;
@@ -299,12 +299,12 @@ public class BuffÉ¸Ñ¡ : IFilterStrategy
     public Func<Unit, bool> GetPredicate() => (unit) =>
     {
         if (!unit.IfAlive && !_deadFind) return false;
-        // »º´æbuff ID ¼¯ºÏ£¬±ÜÃâÃ¿´Î´´½¨ĞÂµÄHashSet
+        // ç¼“å­˜buff ID é›†åˆï¼Œé¿å…æ¯æ¬¡åˆ›å»ºæ–°çš„HashSet
         var buffIdCache = new Dictionary<Unit, HashSet<int>>();
 
         if (!unit.Abnormal) return false;
 
-        // 2. »ñÈ¡»ò´´½¨buff ID»º´æ
+        // 2. è·å–æˆ–åˆ›å»ºbuff IDç¼“å­˜
         if (!buffIdCache.TryGetValue(unit, out var unitBuffIds))
         {
             unitBuffIds = new HashSet<int>(unit.Buffs.Select(b => b.Id));
@@ -313,19 +313,19 @@ public class BuffÉ¸Ñ¡ : IFilterStrategy
 
         if ((_targetTeam >> unit.Team) % 2 == 0) return false;
 
-        // 3. ±ØĞëÓµÓĞÖÁÉÙÒ»¸öbuff
+        // 3. å¿…é¡»æ‹¥æœ‰è‡³å°‘ä¸€ä¸ªbuff
         if (_hasMustHaveAny && !_mustHaveAnyBuffIds.Any(id => unitBuffIds.Contains(id)))
             return false;
 
-        // 4. ±ØĞëÓµÓĞËùÓĞbuff
+        // 4. å¿…é¡»æ‹¥æœ‰æ‰€æœ‰buff
         if (_hasMustHaveAll && !_mustHaveAllBuffIds.All(id => unitBuffIds.Contains(id)))
             return false;
 
-        // 5. ²»ÄÜÓµÓĞÈÎºÎÒ»¸öbuff
+        // 5. ä¸èƒ½æ‹¥æœ‰ä»»ä½•ä¸€ä¸ªbuff
         if (_hasMustNotHaveAny && _mustNotHaveAnyBuffIds.Any(id => unitBuffIds.Contains(id)))
             return false;
 
-        // 6. ²»ÄÜÍ¬Ê±ÓµÓĞËùÓĞbuff
+        // 6. ä¸èƒ½åŒæ—¶æ‹¥æœ‰æ‰€æœ‰buff
         if (_hasMustNotHaveAll && _mustNotHaveAllBuffIds.All(id => unitBuffIds.Contains(id)))
             return false;
 
@@ -347,19 +347,19 @@ public class BuffÉ¸Ñ¡ : IFilterStrategy
 //        HashSet<Buff> targetBuffs = new HashSet<Buff>(targets[i].Buffs);
 //        bool remove = false;
 
-//        // ±ØĞëÓµÓĞÖÁÉÙÒ»¸ö
+//        // å¿…é¡»æ‹¥æœ‰è‡³å°‘ä¸€ä¸ª
 //        if (mustHaveAny.Count > 0 && !mustHaveAny.Any(b => targetBuffs.Contains(b)))
 //            remove = true;
 
-//        // ±ØĞëÓµÓĞËùÓĞ
+//        // å¿…é¡»æ‹¥æœ‰æ‰€æœ‰
 //        else if (mustHaveAll.Count > 0 && mustHaveAll.Any(b => !targetBuffs.Contains(b)))
 //            remove = true;
 
-//        // ²»ÄÜÓµÓĞÈÎºÎÒ»¸ö
+//        // ä¸èƒ½æ‹¥æœ‰ä»»ä½•ä¸€ä¸ª
 //        else if (mustNotHaveAny.Count > 0 && mustNotHaveAny.Any(b => targetBuffs.Contains(b)))
 //            remove = true;
 
-//        // ²»ÄÜÍ¬Ê±ÓµÓĞËùÓĞ£¨ÌØÊâ³¡¾°£©
+//        // ä¸èƒ½åŒæ—¶æ‹¥æœ‰æ‰€æœ‰ï¼ˆç‰¹æ®Šåœºæ™¯ï¼‰
 //        else if (mustNotHaveAll.Count > 0 && mustNotHaveAll.All(b => targetBuffs.Contains(b)))
 //            remove = true;
 
@@ -372,7 +372,7 @@ public partial class SelectorConfig
 {
     public SkillTargetFilterEnum FilterEnum;
 }
-public class Í¨ÓÃÑ¡ÔñÆ÷
+public class é€šç”¨é€‰æ‹©å™¨
 {
 
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
@@ -383,17 +383,17 @@ public class Í¨ÓÃÑ¡ÔñÆ÷
 
         switch (filterEnum)
         {
-            case SkillTargetFilterEnum.ÕÙ»½Îï:
+            case SkillTargetFilterEnum.å¬å”¤ç‰©:
                 targets = targets.Where(t => t != skill.Unit && t.Parent == skill.Unit).ToList();
                 break;
-            case SkillTargetFilterEnum.×Ô¼ºÒÔÍâ:
+            case SkillTargetFilterEnum.è‡ªå·±ä»¥å¤–:
                 targets.Remove(skill.Unit);
                 break;
-            case SkillTargetFilterEnum.½ö×Ô¼º:
+            case SkillTargetFilterEnum.ä»…è‡ªå·±:
                 targets.Clear();
                 targets.Add(skill.Unit);
                 break;
-            case SkillTargetFilterEnum.½öÕÙ»½:
+            case SkillTargetFilterEnum.ä»…å¬å”¤:
                 targets = targets.Where(t => t.Parent == skill.Unit).ToList();
                 break;
         }
@@ -402,14 +402,14 @@ public class Í¨ÓÃÑ¡ÔñÆ÷
     }
 }
 
-public class ³£ÓÃÉ¸Ñ¡Æ÷ : IFilterStrategy
+public class å¸¸ç”¨ç­›é€‰å™¨ : IFilterStrategy
 {
-    public string Name => "³£ÓÃÉ¸Ñ¡Æ÷";
+    public string Name => "å¸¸ç”¨ç­›é€‰å™¨";
 
     private readonly int _targetTeam;
     private readonly SkillTargetFilterEnum _filterEnum;
 
-    public ³£ÓÃÉ¸Ñ¡Æ÷(int targetTeam, int filterEnum)
+    public å¸¸ç”¨ç­›é€‰å™¨(int targetTeam, int filterEnum)
     {
         _targetTeam = targetTeam;
         _filterEnum = (SkillTargetFilterEnum)filterEnum;
@@ -418,16 +418,16 @@ public class ³£ÓÃÉ¸Ñ¡Æ÷ : IFilterStrategy
     {
         //switch (_filterEnum)
         //{
-        //    case SkillTargetFilterEnum.ÕÙ»½Îï:
+        //    case SkillTargetFilterEnum.å¬å”¤ç‰©:
                 
         //        break;
-        //    case SkillTargetFilterEnum.×Ô¼ºÒÔÍâ:
+        //    case SkillTargetFilterEnum.è‡ªå·±ä»¥å¤–:
         //        if (unit == unit.Battle.TriggerDatas.Peek().User) return false;
         //        break;
-        //    case SkillTargetFilterEnum.½ö×Ô¼º:
+        //    case SkillTargetFilterEnum.ä»…è‡ªå·±:
         //        if (unit != unit.Battle.TriggerDatas.Peek().User) return false;
         //        break;
-        //    case SkillTargetFilterEnum.½öÕÙ»½:
+        //    case SkillTargetFilterEnum.ä»…å¬å”¤:
         //        if (unit == null || unit.Parent == null) return false;
         //        if (unit.Parent != unit.Battle.TriggerDatas.Peek().User) return false;
         //        break;
@@ -438,20 +438,20 @@ public class ³£ÓÃÉ¸Ñ¡Æ÷ : IFilterStrategy
 
 public partial class SelectorConfig
 {
-    // ¾àÀë·¶Î§Ä£Ê½
-    public float MinRange = -1;  // ×îĞ¡¾àÀë
-    public float MaxRange = -1;  // ×î´ó¾àÀë
+    // è·ç¦»èŒƒå›´æ¨¡å¼
+    public float MinRange = -1;  // æœ€å°è·ç¦»
+    public float MaxRange = -1;  // æœ€å¤§è·ç¦»
 
-    // ¾«È·¾àÀëÄ£Ê½£¨Óë·¶Î§Ä£Ê½»¥³â£©
+    // ç²¾ç¡®è·ç¦»æ¨¡å¼ï¼ˆä¸èŒƒå›´æ¨¡å¼äº’æ–¥ï¼‰
     public float ExactDistance = -1;
 
-    // Îó²î·¶Î§£¨¿ÉÑ¡£¬Ä¬ÈÏ0.01£©
+    // è¯¯å·®èŒƒå›´ï¼ˆå¯é€‰ï¼Œé»˜è®¤0.01ï¼‰
     public float DistanceEpsilon = 0.01f;
 
-    // ÊÇ·ñÆôÓÃ¾«È·¾àÀëÄ£Ê½
+    // æ˜¯å¦å¯ç”¨ç²¾ç¡®è·ç¦»æ¨¡å¼
     public bool UseExactDistance => ExactDistance >= 0;
 }
-public class ¾àÀëÉ¸Ñ¡
+public class è·ç¦»ç­›é€‰
 {
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
     {
@@ -459,12 +459,12 @@ public class ¾àÀëÉ¸Ñ¡
 
         targets = targets.Where(t => (skill.SkillData.TargetTeam >> t.Team) % 2 == 1).ToList();
 
-        // ¾«È·¾àÀëÄ£Ê½
+        // ç²¾ç¡®è·ç¦»æ¨¡å¼
         if (config.UseExactDistance)
         {
             return FilterByExactDistance(targets, casterPos, config.ExactDistance, config.DistanceEpsilon);
         }
-        // ¾àÀë·¶Î§Ä£Ê½
+        // è·ç¦»èŒƒå›´æ¨¡å¼
         else
         {
             return FilterByDistanceRange(targets, casterPos, config.MinRange, config.MaxRange);
@@ -497,11 +497,11 @@ public class ¾àÀëÉ¸Ñ¡
 
             bool remove = false;
 
-            // ¼ì²é×î´ó¾àÀë
+            // æ£€æŸ¥æœ€å¤§è·ç¦»
             if (maxDistanceSqr >= 0 && distanceSqr > maxDistanceSqr)
                 remove = true;
 
-            // ¼ì²é×îĞ¡¾àÀë
+            // æ£€æŸ¥æœ€å°è·ç¦»
             if (!remove && minDistanceSqr >= 0 && distanceSqr < minDistanceSqr)
                 remove = true;
 
@@ -514,70 +514,70 @@ public class ¾àÀëÉ¸Ñ¡
 public partial class SelectorConfig
 {
     /// <summary>
-    /// ½öµ±ÊäÈëÄ¿±êÁĞ±íÎª¿ÕÊ±²ÅÖ´ĞĞËæ»úÑ¡Ôñ
-    /// true: ÓÃÓÚÉÏÒ»¸öTargetSelectorÊ§°ÜÊ±µÄºó±¸·½°¸
-    /// false: ×ÜÊÇ³¢ÊÔ´ÓÊäÈëÄ¿±êÖĞËæ»úÑ¡Ôñ
+    /// ä»…å½“è¾“å…¥ç›®æ ‡åˆ—è¡¨ä¸ºç©ºæ—¶æ‰æ‰§è¡Œéšæœºé€‰æ‹©
+    /// true: ç”¨äºä¸Šä¸€ä¸ªTargetSelectorå¤±è´¥æ—¶çš„åå¤‡æ–¹æ¡ˆ
+    /// false: æ€»æ˜¯å°è¯•ä»è¾“å…¥ç›®æ ‡ä¸­éšæœºé€‰æ‹©
     /// </summary>
     public bool NeedEmptyTargets = false;
 
     /// <summary>
-    /// Òª»ñÈ¡µÄËæ»úµ¥Î»ÊıÁ¿
+    /// è¦è·å–çš„éšæœºå•ä½æ•°é‡
     /// </summary>
     public int RandomCount = 1;
 }
-public class »ñÈ¡Ëæ»úµ¥Î»
+public class è·å–éšæœºå•ä½
 {
 
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
     {
         if (skill == null || skill.Unit?.Battle == null)
-            throw new ArgumentException("ÎŞĞ§µÄ¼¼ÄÜ»òÕ½¶·ÉÏÏÂÎÄ");
+            throw new ArgumentException("æ— æ•ˆçš„æŠ€èƒ½æˆ–æˆ˜æ–—ä¸Šä¸‹æ–‡");
 
         var random = skill.Unit.Battle.Random;
 
-        // ÑéÖ¤ÅäÖÃ
+        // éªŒè¯é…ç½®
         if (config.RandomCount <= 0)
             return new List<Unit>();
 
         targets = targets.Where(t => (skill.SkillData.TargetTeam >> t.Team) % 2 == 1).ToList();
 
-        // Ä£Ê½1: NeedEmptyTargets = true (Ö»ÔÚÊäÈëÎª¿ÕÊ±Ö´ĞĞ)
+        // æ¨¡å¼1: NeedEmptyTargets = true (åªåœ¨è¾“å…¥ä¸ºç©ºæ—¶æ‰§è¡Œ)
         if (config.NeedEmptyTargets)
         {
-            // ÊäÈëÓĞÄ¿±ê£ºÖ±½Ó·µ»Ø£¬²»×öÈÎºÎ¸ü¸Ä
+            // è¾“å…¥æœ‰ç›®æ ‡ï¼šç›´æ¥è¿”å›ï¼Œä¸åšä»»ä½•æ›´æ”¹
             if (targets.Count > 0)
                 return new List<Unit>(targets);
 
-            // ÊäÈëÎª¿Õ£ºĞèÒªÉú³ÉËæ»úÄ¿±ê
+            // è¾“å…¥ä¸ºç©ºï¼šéœ€è¦ç”Ÿæˆéšæœºç›®æ ‡
             return GetRandomFallbackTargets(skill, config.RandomCount, config, random);
         }
 
-        // Ä£Ê½2: NeedEmptyTargets = false (×ÜÊÇ³¢ÊÔËæ»úÑ¡Ôñ)
-        // Çé¿ö1: Ã»ÓĞ¿ÉÓÃÄ¿±ê
+        // æ¨¡å¼2: NeedEmptyTargets = false (æ€»æ˜¯å°è¯•éšæœºé€‰æ‹©)
+        // æƒ…å†µ1: æ²¡æœ‰å¯ç”¨ç›®æ ‡
         if (targets.Count == 0)
             return new List<Unit>();
 
-        // Çé¿ö2: ¿ÉÓÃÄ¿±êÊıÁ¿ ¡Ü ÅäÖÃÊıÁ¿£¬Ö±½Ó·µ»ØÔ­ÁĞ±í
+        // æƒ…å†µ2: å¯ç”¨ç›®æ ‡æ•°é‡ â‰¤ é…ç½®æ•°é‡ï¼Œç›´æ¥è¿”å›åŸåˆ—è¡¨
         if (targets.Count <= config.RandomCount)
             return new List<Unit>(targets);
 
-        // Çé¿ö3: ¿ÉÓÃÄ¿±êÊıÁ¿ > ÅäÖÃÊıÁ¿£¬Ëæ»úÑ¡Ôñ
+        // æƒ…å†µ3: å¯ç”¨ç›®æ ‡æ•°é‡ > é…ç½®æ•°é‡ï¼Œéšæœºé€‰æ‹©
         return GetRandomTargets(targets, config.RandomCount, random);
     }
 
     /// <summary>
-    /// ´ÓÏÖÓĞÄ¿±êÖĞËæ»úÑ¡ÔñÖ¸¶¨ÊıÁ¿µÄµ¥Î»
+    /// ä»ç°æœ‰ç›®æ ‡ä¸­éšæœºé€‰æ‹©æŒ‡å®šæ•°é‡çš„å•ä½
     /// </summary>
     private List<Unit> GetRandomTargets(List<Unit> targets, int count, System.Random random)
     {
         var result = new List<Unit>(count);
         var availableIndices = new List<int>(targets.Count);
 
-        // ³õÊ¼»¯ËùÓĞ¿ÉÓÃË÷Òı
+        // åˆå§‹åŒ–æ‰€æœ‰å¯ç”¨ç´¢å¼•
         for (int i = 0; i < targets.Count; i++)
             availableIndices.Add(i);
 
-        // Ëæ»úÑ¡Ôñ count ¸öË÷Òı
+        // éšæœºé€‰æ‹© count ä¸ªç´¢å¼•
         for (int i = 0; i < count; i++)
         {
             int randomIndex = random.Next(availableIndices.Count);
@@ -585,7 +585,7 @@ public class »ñÈ¡Ëæ»úµ¥Î»
 
             result.Add(targets[selectedIndex]);
 
-            // ´Ó¿ÉÓÃË÷ÒıÖĞÒÆ³ıÒÑÑ¡ÖĞµÄ
+            // ä»å¯ç”¨ç´¢å¼•ä¸­ç§»é™¤å·²é€‰ä¸­çš„
             availableIndices.RemoveAt(randomIndex);
         }
 
@@ -593,37 +593,37 @@ public class »ñÈ¡Ëæ»úµ¥Î»
     }
 
     /// <summary>
-    /// µ±ÊäÈëÎª¿ÕÊ±£¬´Ó³¡¾°ÖĞ»ñÈ¡Ëæ»úÄ¿±ê£¨ºó±¸·½°¸£©
+    /// å½“è¾“å…¥ä¸ºç©ºæ—¶ï¼Œä»åœºæ™¯ä¸­è·å–éšæœºç›®æ ‡ï¼ˆåå¤‡æ–¹æ¡ˆï¼‰
     /// </summary>
     private List<Unit> GetRandomFallbackTargets(Skill skill, int count, SelectorConfig config, System.Random random)
     {
-        // Í¨³£´Ó³¡¾°ÖĞ»ñÈ¡ËùÓĞºÏ·¨Ä¿±ê
-        // ÕâÀï¼ÙÉè»ñÈ¡ËùÓĞµĞ·½µ¥Î»£¨¾ßÌåÂß¼­ĞèÒª¸ù¾İÒµÎñµ÷Õû£©
+        // é€šå¸¸ä»åœºæ™¯ä¸­è·å–æ‰€æœ‰åˆæ³•ç›®æ ‡
+        // è¿™é‡Œå‡è®¾è·å–æ‰€æœ‰æ•Œæ–¹å•ä½ï¼ˆå…·ä½“é€»è¾‘éœ€è¦æ ¹æ®ä¸šåŠ¡è°ƒæ•´ï¼‰
         //var allValidTargets = skill.Unit.Battle.AllUnits.Where(u => u != skill.Unit && u.IfAlive == config.DeadFind).ToList();
         var allValidTargets = skill.Unit.Battle.AllUnits.Where(u => u != skill.Unit).ToList();
 
-        // Ã»ÓĞ¿ÉÓÃÄ¿±ê
+        // æ²¡æœ‰å¯ç”¨ç›®æ ‡
         if (allValidTargets.Count == 0)
             return new List<Unit>();
 
-        // ¿ÉÓÃÄ¿±êÊıÁ¿ ¡Ü ĞèÇóÊıÁ¿£¬Ö±½Ó·µ»ØËùÓĞ
+        // å¯ç”¨ç›®æ ‡æ•°é‡ â‰¤ éœ€æ±‚æ•°é‡ï¼Œç›´æ¥è¿”å›æ‰€æœ‰
         if (allValidTargets.Count <= count)
             return new List<Unit>(allValidTargets);
 
-        // Ëæ»úÑ¡ÔñÖ¸¶¨ÊıÁ¿
+        // éšæœºé€‰æ‹©æŒ‡å®šæ•°é‡
         return GetRandomTargets(allValidTargets, count, random);
     }
 }
 
-public class »ñÈ¡×ÔÉí×èµ²µ¥Î»
+public class è·å–è‡ªèº«é˜»æŒ¡å•ä½
 {
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
     {
         Unit Unit = skill.Unit;
 
-        if (Unit is Units.¸ÉÔ±)
+        if (Unit is Units.å¹²å‘˜)
             targets.AddRange(Unit.StopUnits);
-        else if (Unit is Units.µĞÈË enemy)
+        else if (Unit is Units.æ•Œäºº enemy)
             targets.Add(enemy.StopUnit);
         
         targets = targets.Where(t => (skill.SkillData.TargetTeam >> t.Team) % 2 == 1).ToList();
@@ -632,7 +632,7 @@ public class »ñÈ¡×ÔÉí×èµ²µ¥Î»
     }
 }
 
-public class »ñÈ¡±»×èµ²µÄµ¥Î»
+public class è·å–è¢«é˜»æŒ¡çš„å•ä½
 {
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
     {
@@ -642,8 +642,8 @@ public class »ñÈ¡±»×èµ²µÄµ¥Î»
         targets = targets.Where(t => (skill.SkillData.TargetTeam >> t.Team) % 2 == 1).ToList();
 
         targets = targets.Where(
-            t => t is Units.¸ÉÔ± && t.StopUnits.Count > 0 ||
-                 t is Units.µĞÈË enemy && enemy.StopUnit is not null)
+            t => t is Units.å¹²å‘˜ && t.StopUnits.Count > 0 ||
+                 t is Units.æ•Œäºº enemy && enemy.StopUnit is not null)
             .Distinct()
             .ToList();
 
@@ -655,7 +655,7 @@ public partial class SelectorConfig
 {
     public Unit BlockerUnit;
 }
-public class »ñÈ¡±»Ö¸¶¨µ¥Î»×èµ²µÄµ¥Î»
+public class è·å–è¢«æŒ‡å®šå•ä½é˜»æŒ¡çš„å•ä½
 {
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
     {
@@ -664,7 +664,7 @@ public class »ñÈ¡±»Ö¸¶¨µ¥Î»×èµ²µÄµ¥Î»
         if (blockerUnit == null)
             return targets;
 
-        targets.AddRange(blockerUnit is Units.µĞÈË enemy ? new List<Unit>() { enemy.StopUnit } : blockerUnit.StopUnits);
+        targets.AddRange(blockerUnit is Units.æ•Œäºº enemy ? new List<Unit>() { enemy.StopUnit } : blockerUnit.StopUnits);
 
         return targets;
     }

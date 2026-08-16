@@ -50,7 +50,7 @@ public class EnemyInfoExcelTool : MonoBehaviour
         }
         UnityEngine.GUIUtility.systemCopyBuffer = sb.ToString();
        // {
-       //     Debug.Log($"输出 {ei.Value[0].enemyData.name.m_value} 基本数据");
+       //     Debug.Log($"杈撳嚭 {ei.Value[0].enemyData.name.m_value} 鍩烘湰鏁版嵁");
        //     foreach (var kv in ei.Value[0].enemyData.attributes)
        //     {
        //         Debug.Log($"{kv.Key},{kv.Value.m_value}");

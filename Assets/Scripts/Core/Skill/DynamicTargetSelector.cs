@@ -14,7 +14,7 @@ public static class TargetSelectorFactory
 
     static TargetSelectorFactory()
     {
-        // ×Ô¶¯É¨Ãè³ÌĞò¼¯ÖĞËùÓĞÊµÏÖ IFilterStrategy µÄÀà
+        // è‡ªåŠ¨æ‰«æç¨‹åºé›†ä¸­æ‰€æœ‰å®ç° IFilterStrategy çš„ç±»
         var filterTypes = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => typeof(IFilterStrategy).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
 
@@ -34,16 +34,16 @@ public static class TargetSelectorFactory
         }
     }
 
-    // ¸ù¾İÅäÖÃ´´½¨²ßÂÔÊµÀı
+    // æ ¹æ®é…ç½®åˆ›å»ºç­–ç•¥å®ä¾‹
     public static ISortStrategy CreateSorter(string strategyName, SkillContext skillContext, object[] parameters = null)
     {
         if (!_sortStrategyMap.TryGetValue(strategyName, out var type))
         {
-            Debug.Log($"Î´ÕÒµ½ÅÅĞò²ßÂÔ: {strategyName}");
+            Debug.Log($"æœªæ‰¾åˆ°æ’åºç­–ç•¥: {strategyName}");
             return null;
         }
 
-        // Èç¹ûÓĞ²ÎÊı£¨Èç×Ô¶¨ÒåBuffID£©£¬Ê¹ÓÃ´ø²ÎÊıµÄ¹¹Ôìº¯Êı
+        // å¦‚æœæœ‰å‚æ•°ï¼ˆå¦‚è‡ªå®šä¹‰BuffIDï¼‰ï¼Œä½¿ç”¨å¸¦å‚æ•°çš„æ„é€ å‡½æ•°
         if (parameters != null && parameters.Length > 0)
         {
             return (ISortStrategy)Activator.CreateInstance(type, skillContext, parameters);
@@ -52,16 +52,16 @@ public static class TargetSelectorFactory
         return (ISortStrategy)Activator.CreateInstance(type, skillContext);
     }
 
-    // ¸ù¾İÅäÖÃ´´½¨²ßÂÔÊµÀı
+    // æ ¹æ®é…ç½®åˆ›å»ºç­–ç•¥å®ä¾‹
     public static IFilterStrategy CreateFilter(string strategyName, SkillContext skillContext, object[] parameters = null)
     {
         if (!_filterStrategyMap.TryGetValue(strategyName, out var type))
         {
-            Debug.Log($"Î´ÕÒµ½É¸Ñ¡²ßÂÔ: {strategyName}");
+            Debug.Log($"æœªæ‰¾åˆ°ç­›é€‰ç­–ç•¥: {strategyName}");
             return null;
         }
 
-        // Èç¹ûÓĞ²ÎÊı£¨Èç×Ô¶¨ÒåBuffID£©£¬Ê¹ÓÃ´ø²ÎÊıµÄ¹¹Ôìº¯Êı
+        // å¦‚æœæœ‰å‚æ•°ï¼ˆå¦‚è‡ªå®šä¹‰BuffIDï¼‰ï¼Œä½¿ç”¨å¸¦å‚æ•°çš„æ„é€ å‡½æ•°
         if (parameters != null && parameters.Length > 0)
         {
             return (IFilterStrategy)Activator.CreateInstance(type, skillContext, parameters);
@@ -76,14 +76,14 @@ public class DynamicTargetSelector
     public class FilterConfigNode
     {
         public string Type;
-        public object[] Parameters;   // ¿ÉÑ¡²ÎÊı£¬ÓÃÓÚ×Ô¶¨Òå²ßÂÔ
+        public object[] Parameters;   // å¯é€‰å‚æ•°ï¼Œç”¨äºè‡ªå®šä¹‰ç­–ç•¥
         public SkillContext SkillContext;
     }
     public class SortConfigNode
     {
-        public string Type;           // ²ßÂÔÃû³Æ£¬Èç "Distance"
-        public SortDirection Direction; // ·½Ïò
-        public object[] Parameters;   // ¿ÉÑ¡²ÎÊı£¬ÓÃÓÚ×Ô¶¨Òå²ßÂÔ
+        public string Type;           // ç­–ç•¥åç§°ï¼Œå¦‚ "Distance"
+        public SortDirection Direction; // æ–¹å‘
+        public object[] Parameters;   // å¯é€‰å‚æ•°ï¼Œç”¨äºè‡ªå®šä¹‰ç­–ç•¥
         public SkillContext SkillContext;
     }
 
@@ -98,13 +98,10 @@ public class DynamicTargetSelector
     public List<Unit> FilterTargets(List<Unit> targets, List<FilterConfigNode> configList)
     {
         if (targets == null || targets.Count == 0) return targets;
+        if (configList == null || configList.Count == 0) return targets;
 
-        // Ó¦ÓÃËùÓĞÉ¸Ñ¡Ìõ¼ş
+        // åº”ç”¨æ‰€æœ‰ç­›é€‰æ¡ä»¶ï¼šæ¯ä¸ªç­›é€‰å™¨åœ¨å‰ä¸€ä¸ªç»“æœä¸Šå åŠ 
         IEnumerable<Unit> filteredUnits = targets;
-
-        if (targets.Count == 0) return targets;
-
-        IEnumerable<Unit> orderedQuery = null;
 
         for (int i = 0; i < configList.Count; i++)
         {
@@ -118,7 +115,7 @@ public class DynamicTargetSelector
 
             var keySelector = filterStrategy.GetPredicate();
 
-            orderedQuery = targets.Where(keySelector);
+            filteredUnits = filteredUnits.Where(keySelector);
         }
 
         var result = filteredUnits.ToList();
@@ -142,14 +139,14 @@ public class DynamicTargetSelector
 
             if (i == 0)
             {
-                // µÚÒ»¼¶
+                // ç¬¬ä¸€çº§
                 orderedQuery = node.Direction == SortDirection.Ascending
                     ? targets.OrderBy(keySelector)
                     : targets.OrderByDescending(keySelector);
             }
             else
             {
-                // ºóĞø¼¶±ğ£¨ÎÈ¶¨ÅÅĞòµÄ¹Ø¼ü£©
+                // åç»­çº§åˆ«ï¼ˆç¨³å®šæ’åºçš„å…³é”®ï¼‰
                 orderedQuery = node.Direction == SortDirection.Ascending
                     ? orderedQuery.ThenBy(keySelector)
                     : orderedQuery.ThenByDescending(keySelector);
