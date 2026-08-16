@@ -564,7 +564,7 @@ MonoBehaviour:
   useGridPos: 0
   rangeRadius: 0
   polygonRange: []
-  targetObject: {fileID: 2271163210724349693}
+  targetTile: {fileID: 0}
   angle: 0
   LineT: {fileID: 4329596671359659345}
   LineL: {fileID: 1542858556488826747}
@@ -576,6 +576,7 @@ MonoBehaviour:
   PointBL: {fileID: 801758041643394332}
   PointTL: {fileID: 30231675215107608}
   colorHex: '#6385FF'
+  alpha: 0.5
 --- !u!1 &4022169519983707838
 GameObject:
   m_ObjectHideFlags: 0

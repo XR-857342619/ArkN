@@ -93,9 +93,9 @@ public class ShowRange : MonoBehaviour
         {
             Transform objTrans = obj.transform;
             objTrans.localPosition = new Vector3(
-                targetTile.transform.localPosition.x + offset.x,
+                objTrans.localPosition.x + offset.x,
                 objTrans.localPosition.y,
-                targetTile.transform.localPosition.z + offset.y
+                objTrans.localPosition.z + offset.y
             );
         }
     }

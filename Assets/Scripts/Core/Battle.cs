@@ -46,7 +46,20 @@ public class Battle
 
     public bool Win;
 
-    public HashSet<Unit>[,] UnitMap;//敌人快速检索缓存
+    // 按团队位掩码分组的空间索引：key = 1 << unit.Team（1=玩家, 2=敌人, 4=中立）
+    public Dictionary<int, HashSet<Unit>[,]> teamMaps = new Dictionary<int, HashSet<Unit>[,]>();
+
+    private float maxUnitRadius = 1f; // 用于九宫格索敌时计算搜索范围
+
+    // 兼容旧调用方：返回敌人空间索引
+    public HashSet<Unit>[,] UnitMap
+    {
+        get
+        {
+            if (teamMaps != null && teamMaps.TryGetValue(2, out var map)) return map;
+            return null;
+        }
+    }
 
     public HashSet<Bullet> Bullets = new HashSet<Bullet>();
 
@@ -158,12 +171,19 @@ public class Battle
             TriggerDatas.Pop();
         }
 
-        UnitMap = new HashSet<Unit>[Map.Tiles.GetLength(0), Map.Tiles.GetLength(1)];
-        for (int i = 0; i < UnitMap.GetLength(0); i++)
-            for (int j = 0; j < UnitMap.GetLength(1); j++)
-            {    
-                UnitMap[i, j] = new HashSet<Unit>();
-            }
+        teamMaps = new Dictionary<int, HashSet<Unit>[,]>();
+        int mapWidth = Map.Tiles.GetLength(0);
+        int mapHeight = Map.Tiles.GetLength(1);
+        foreach (var key in new[] { 1, 2, 4 })
+        {
+            var map = new HashSet<Unit>[mapWidth, mapHeight];
+            for (int i = 0; i < mapWidth; i++)
+                for (int j = 0; j < mapHeight; j++)
+                {
+                    map[i, j] = new HashSet<Unit>();
+                }
+            teamMaps[key] = map;
+        }
 
         //WaveData[] array = Database.Instance.GetAll<WaveData>();
         //for (int id = 0; id < array.Length; id++)
@@ -484,27 +504,40 @@ public class Battle
     {
         var result = new HashSet<Unit>();
         if (Map.Tiles.GetLength(0) <= point.x || Map.Tiles.GetLength(1) <= point.y || point.x < 0 || point.y < 0) return result;
-        if (team % 2 == 1)
+
+        if ((team & 1) != 0 && teamMaps.TryGetValue(1, out var playerMap))
         {
-            var tileUnits = Map.Tiles[point.x, point.y].Units;
-            tileUnits.Sort((a, b) => b.UnitData.NotUseTile.CompareTo(a.UnitData.NotUseTile));
-            tileUnits.Sort((a, b) => b.InputTime.CompareTo(a.InputTime));
-            var target = tileUnits.FirstOrDefault();
-            if (target != null)
+            Unit target = null;
+            foreach (var unit in playerMap[point.x, point.y])
             {
-                if ((!aliveOnly || target.Alive()) && (team >> target.Team) % 2 == 1)
-                    result.Add(target);
+                if ((!aliveOnly || unit.Alive()) && (team & (1 << unit.Team)) != 0)
+                {
+                    if (target == null
+                        || (unit.UnitData.NotUseTile == target.UnitData.NotUseTile && unit.InputTime > target.InputTime)
+                        || (!unit.UnitData.NotUseTile && target.UnitData.NotUseTile)
+                        )
+                        target = unit;
+                }
             }
+            if (target != null)
+                result.Add(target);
         }
-        if ((team >> 1) % 2 == 1)
+        if ((team & 2) != 0 && teamMaps.TryGetValue(2, out var enemyMap))
         {
-            foreach (var unit in UnitMap[point.x, point.y])
+            foreach (var unit in enemyMap[point.x, point.y])
             {
-                if ((!aliveOnly || unit.Alive()) && (team >> unit.Team) % 2 == 1)
+                if ((!aliveOnly || unit.Alive()) && (team & (1 << unit.Team)) != 0)
                     result.Add(unit);
             }
         }
-        //result.RemoveWhere(x => team >> x.Team != 1);
+        if ((team & 4) != 0 && teamMaps.TryGetValue(4, out var neutralMap))
+        {
+            foreach (var unit in neutralMap[point.x, point.y])
+            {
+                if ((!aliveOnly || unit.Alive()) && (team & (1 << unit.Team)) != 0)
+                    result.Add(unit);
+            }
+        }
         return result;
     }
 
@@ -513,88 +546,71 @@ public class Battle
         var result = new HashSet<Unit>();
         foreach (var point in points)
         {
-            var targetPoint = point;
-            if (targetPoint.x < 0 || targetPoint.y < 0 || targetPoint.x >= Map.Tiles.GetLength(0) || targetPoint.y >= Map.Tiles.GetLength(1)) continue;
+            if (point.x < 0 || point.y < 0 || point.x >= Map.Tiles.GetLength(0) || point.y >= Map.Tiles.GetLength(1)) continue;
 
-            if (team  % 2 == 1)
+            if ((team & 1) != 0 && teamMaps.TryGetValue(1, out var playerMap))
             {
-                var tileUnits = Map.Tiles[point.x, point.y].Units;
-                tileUnits.Sort((a, b) => b.UnitData.NotUseTile.CompareTo(a.UnitData.NotUseTile));
-                tileUnits.Sort((a, b) => b.InputTime.CompareTo(a.InputTime));
-                foreach (var unit in tileUnits)
+                foreach (var unit in playerMap[point.x, point.y])
                 {
-                    if ((!aliveOnly || unit.Alive()) && (team >> unit.Team) % 2 == 1)
+                    if ((!aliveOnly || unit.Alive()) && (team & (1 << unit.Team)) != 0)
                         result.Add(unit);
                 }
             }
-            if ((team >> 1) % 2 == 1)
+            if ((team & 2) != 0 && teamMaps.TryGetValue(2, out var enemyMap))
             {
-                foreach (var unit in UnitMap[targetPoint.x, targetPoint.y])
+                foreach (var unit in enemyMap[point.x, point.y])
                 {
-                    if ((!aliveOnly || unit.Alive()) && (team >> unit.Team) % 2 == 1)
+                    if ((!aliveOnly || unit.Alive()) && (team & (1 << unit.Team)) != 0)
                         result.Add(unit);
                 }
             }
-            //if (team  % 2 == 1)
-            //{
-            //    var tileUnits = Map.Tiles[point.x, point.y].Units;
-            //    tileUnits.SortTargets((a, b) => b.UnitData.NotUseTile.CompareTo(a.UnitData.NotUseTile));
-            //    tileUnits.SortTargets((a, b) => b.InputTime.CompareTo(a.InputTime));
-            //    var target = tileUnits.Count > 0 ? tileUnits.First() : null;
-            //    if (target != null)
-            //    {
-            //        if ((!aliveOnly || target.Alive()) && (team >> target.Team) % 2 == 1)
-            //            result.Add(target);
-            //    }
-            //}
-            //if ((team >> 1) % 2 == 1)
-            //{
-            //    foreach (var unit in UnitMap[targetPoint.x, targetPoint.y])
-            //    {
-            //        if ((!aliveOnly || unit.Alive()) && (team >> unit.Team) % 2 == 1)
-            //            result.Add(unit);
-            //    }
-            //}
+            if ((team & 4) != 0 && teamMaps.TryGetValue(4, out var neutralMap))
+            {
+                foreach (var unit in neutralMap[point.x, point.y])
+                {
+                    if ((!aliveOnly || unit.Alive()) && (team & (1 << unit.Team)) != 0)
+                        result.Add(unit);
+                }
+            }
         }
-            return result;
+        return result;
     }
 
     public HashSet<Unit> FindAll(Vector2 pos, float radius, int team, bool aliveOnly = true)
     {
         HashSet<Unit> result = new HashSet<Unit>();
-        if (radius == 0) return result;
-        if (team%2 == 1)
+        if (radius <= 0f) return result;
+
+        int mapWidth = Map.Tiles.GetLength(0);
+        int mapHeight = Map.Tiles.GetLength(1);
+
+        // 九宫格范围：按半径 + 最大单位半径扩大搜索格范围
+        float searchRadius = radius + maxUnitRadius;
+        int minX = Mathf.FloorToInt(pos.x - searchRadius);
+        int maxX = Mathf.CeilToInt(pos.x + searchRadius);
+        int minY = Mathf.FloorToInt(pos.y - searchRadius);
+        int maxY = Mathf.CeilToInt(pos.y + searchRadius);
+
+        foreach (var kv in teamMaps)
         {
-            var units = PlayerUnits.Where(x => !aliveOnly || x.InputTime >= 0).ToList();
-            foreach (var unit in units) //需要优化！
+            if ((team & kv.Key) == 0) continue;
+            var map = kv.Value;
+
+            for (int x = minX; x <= maxX; x++)
             {
-                if ((unit.Position2 - pos).magnitude < radius + unit.UnitData.Radius
-                    ) if ((!aliveOnly || unit.Alive() && (team >> unit.Team) % 2 == 1))
-                        result.Add(unit);
-            }
-            foreach (var unit in PlayerUnits2)
-            {
-                if ((unit.Position2 - pos).magnitude < radius + unit.UnitData.Radius
-                   ) if ((!aliveOnly || unit.Alive() && (team >> unit.Team) % 2 == 1))
-                        result.Add(unit);
-            }
-        }
-        if ((team >> 1) % 2 == 1)
-        {
-            foreach (var unit in Enemys) //需要优化！
-            {
-                if ((unit.Position2 - pos).magnitude < radius + unit.UnitData.Radius) 
-                    if ((!aliveOnly || unit.Alive()) && (team >> unit.Team) % 2 == 1)
-                        result.Add(unit);
-            }
-        }
-        if ((team >> 2) % 2 == 1) //中立单位
-        {
-            foreach (var unit in AllUnits) //需要优化！
-            {
-                if ((unit.Position2 - pos).magnitude < radius + unit.UnitData.Radius)
-                    if ((!aliveOnly || unit.Alive()) && (team >> unit.Team) % 2 == 1)
-                        result.Add(unit);
+                for (int y = minY; y <= maxY; y++)
+                {
+                    if (x < 0 || y < 0 || x >= mapWidth || y >= mapHeight) continue;
+                    foreach (var unit in map[x, y])
+                    {
+                        if ((!aliveOnly || unit.Alive()) && (team & (1 << unit.Team)) != 0)
+                        {
+                            float unitRange = radius + unit.UnitData.Radius;
+                            if ((unit.Position2 - pos).sqrMagnitude < unitRange * unitRange)
+                                result.Add(unit);
+                        }
+                    }
+                }
             }
         }
         return result;
@@ -624,20 +640,36 @@ public class Battle
 
     void updateUnitMap()
     {
-        foreach (var tile in UnitMap)
+        // 清空全部团队空间索引
+        foreach (var kv in teamMaps)
         {
-            tile.Clear();
+            foreach (var tile in kv.Value)
+            {
+                tile.Clear();
+            }
         }
-        foreach (var unit in Enemys)
+
+        maxUnitRadius = 1f;
+        // 统一遍历 AllUnits，按 Team 写入对应团队索引
+        foreach (var unit in AllUnits)
         {
+            if (unit.UnitData.Radius > maxUnitRadius)
+                maxUnitRadius = unit.UnitData.Radius;
+
+            int teamKey = 1 << unit.Team;
+            if (!teamMaps.TryGetValue(teamKey, out var map)) continue;
+
+            int width = map.GetLength(0);
+            int height = map.GetLength(1);
+
             if (unit.UnitData.Size == Vector2Int.zero)
             {
                 for (int i = Mathf.RoundToInt(unit.Position2.x - unit.UnitData.Radius); i <= Mathf.RoundToInt(unit.Position2.x + unit.UnitData.Radius); i++)
                 {
                     for (int j = Mathf.RoundToInt(unit.Position2.y - unit.UnitData.Radius); j <= Mathf.RoundToInt(unit.Position2.y + unit.UnitData.Radius); j++)
                     {
-                        if (i >= 0 && i < UnitMap.GetLength(0) && j >= 0 && j < UnitMap.GetLength(1))
-                            UnitMap[i, j].Add(unit);
+                        if (i >= 0 && i < width && j >= 0 && j < height)
+                            map[i, j].Add(unit);
                     }
                 }
             }
@@ -647,8 +679,8 @@ public class Battle
                 {
                     for (int j = Mathf.RoundToInt(unit.Position2.y); j < Mathf.RoundToInt(unit.Position2.y + unit.UnitData.Size.y); j++)
                     {
-                        if (i >= 0 && i < UnitMap.GetLength(0) && j >= 0 && j < UnitMap.GetLength(1))
-                            UnitMap[i, j].Add(unit);
+                        if (i >= 0 && i < width && j >= 0 && j < height)
+                            map[i, j].Add(unit);
                     }
                 }
             }

@@ -1721,7 +1721,10 @@ public class Skill
     public void ShowUnitAttackArea()
     {
         //Log.Debug("ShowUnitAttackArea");
-        if (AttackPoints.Count > 0)
+        // 显示前先实时刷新一次攻击范围，避免使用单位出生时计算的过期 AttackPoints
+        UpdateAttackPoints();
+
+        if (AttackPoints != null && AttackPoints.Count > 0)
         {
             //Debug.LogWarning("ShowAttackArea");
             foreach (var tile in AttackPoints)
