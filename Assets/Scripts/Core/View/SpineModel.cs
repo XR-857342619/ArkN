@@ -89,7 +89,7 @@ public class SpineModel : UnitModel
             if (!u.Visiable) return;
         }
         SkeletonAnimation.transform.localScale = new Vector3(Unit.ScaleX, 1, 1) * Unit.UnitData.ModelScale;
-        if (Unit.Height > 0) SkeletonAnimation.transform.localPosition = new Vector3(0, Unit.Height*380, Unit.Height * 0.45f);//没什么道理的z轴偏移
+        if (Unit.Height > 0) SkeletonAnimation.transform.localPosition = new Vector3(0, Unit.Height*(isNew ? 380 : 1), Unit.Height * 0.45f);//没什么道理的z轴偏移
         if (Mathf.Abs(Unit.Height - 0) < 0.01f && Unit is Units.干员) SkeletonAnimation.transform.localPosition = new Vector3(0, 0, isNew ? -72 : -0.2f);
         if (Unit.State == StateEnum.Default)
         {

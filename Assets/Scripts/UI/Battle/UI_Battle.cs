@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -356,6 +356,24 @@ namespace BattleUI
             BattleManager.Instance.FinishBattle();
         }
 
+        /// <summary>
+        /// 为待部署区同 Id 分组选择一个显示代表单位。
+        /// 优先选择冷却已结束（可部署）的单位；若全部冷却中，则选择剩余冷却最短的单位。
+        /// </summary>
+        private Units.干员 PickDisplayUnit(IGrouping<int, Units.干员> group)
+        {
+            Units.干员 ready = group.FirstOrDefault(x => x.Reseting.Finished());
+            if (ready != null) return ready;
+
+            Units.干员 best = null;
+            foreach (var unit in group)
+            {
+                if (best == null || unit.Reseting.value < best.Reseting.value)
+                    best = unit;
+            }
+            return best ?? group.FirstOrDefault();
+        }
+
         public void UpdateUnitsLayout()
         {
             //Debug.Log("UpdateUnitsLayout");
@@ -388,7 +406,7 @@ namespace BattleUI
                 //head.width = width;
                 head.GetController("isTmp").selectedIndex = 0;
                 head.touchable = true;
-                head.SetUnit(group.FirstOrDefault());
+                head.SetUnit(PickDisplayUnit(group));
                 
                 m_UnitList.AddChild(head);
                 //m_Builds.AddChild(head);
@@ -410,7 +428,7 @@ namespace BattleUI
                 head.onClick.Set(() => clickUnit(group.FirstOrDefault()));
                 head.draggable = true;
                 head.onDragStart.Set(dragUnit);
-                if (group.FirstOrDefault().UnitData.NotReturn)
+                if (group.Count() > 1)
                 {
                     head.m_count.visible = true;
                     head.m_count.SetVar("n", group.Count().ToString()).FlushVars();

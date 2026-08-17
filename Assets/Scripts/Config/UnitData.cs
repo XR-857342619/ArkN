@@ -28,6 +28,7 @@ public class UnitData : IConfig
       public float Speed;
       public int BuildCountCost;
       public bool NotReturn;
+      public string RedeployPolicy;
       public int Hatred;
       public int Team;
       public string Name;

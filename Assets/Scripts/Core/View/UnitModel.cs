@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +13,32 @@ public class UnitModel:MonoBehaviour
     public virtual void Init(Unit unit)
     {
         transform.position = unit.Position;
+    }
+
+    /// <summary>
+    /// 根据单位所在地块模型的高度，自动对齐模型 Y 轴，避免与地块穿模。
+    /// 参照 NormalModel.AlignHeight() 的实现，默认由 Unit.CreateModel 与单位位置变更时调用。
+    /// </summary>
+    public virtual void AlignHeight()
+    {
+        if (Unit == null || Unit.Battle == null || Unit.Battle.Map == null) return;
+
+        int x = Unit.GridPos.x;
+        int y = Unit.GridPos.y;
+        if (x < 0 || y < 0 || x >= Unit.Battle.Map.Tiles.GetLength(0) || y >= Unit.Battle.Map.Tiles.GetLength(1)) return;
+
+        Tile tile = Unit.Battle.Map.Tiles[x, y];
+        if (tile == null || tile.MapGrid == null) return;
+
+        float offsetY = 0f;
+        GameObject tileModel = tile.MapGrid.go;
+        if (tileModel != null)
+        {
+            offsetY = tileModel.transform.position.y + tileModel.transform.localScale.y / 2f;
+        }
+
+        transform.position = new Vector3(transform.position.x, offsetY + 0.01f, transform.position.z);
+        Unit.Position = new Vector3(Unit.Position.x, transform.position.y, Unit.Position.z);
     }
 
     public virtual Vector3 GetModelPositon()

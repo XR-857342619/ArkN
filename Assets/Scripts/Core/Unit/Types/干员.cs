@@ -1,4 +1,4 @@
-﻿using BattleUI;
+using BattleUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +17,14 @@ namespace Units
         public DirectionEnum Direction_E;
 
         public CountDown Reseting = new CountDown();
+
+        // 再部署策略：默认 / 唯一 / 队列
+        public const string RedeployPolicy_Default = "默认";
+        public const string RedeployPolicy_Unique = "唯一";
+        public const string RedeployPolicy_Queue = "队列";
+
+        /// <summary>当前单位生效的再部署策略；未配置或空值按“默认”处理。</summary>
+        public string RedeployPolicy => string.IsNullOrEmpty(UnitData.RedeployPolicy) ? RedeployPolicy_Default : UnitData.RedeployPolicy;
 
         /// <summary>
         /// 再部署时间
@@ -162,6 +170,7 @@ namespace Units
         {
             UnitModel.gameObject.SetActive(true);
             Position = Battle.Map.Tiles[x, y].Pos;
+            UnitModel?.AlignHeight();
             Direction_E = directionEnum;
             ResetAttackPoint();
         }
@@ -246,13 +255,7 @@ namespace Units
             {
                 if (skill.SkillData.AttackMode != AttackModeEnum.跟随攻击 && skill.SkillData.MaxPower == 0) skill.ResetCooldown(1);
             }
-            foreach (var unit in Battle.PlayerUnits)
-            {
-                if (unit.Id == Id && unit != this)
-                {
-                    unit.Reseting.Set(ResetTime);
-                }
-            }
+            ApplyRedeployPolicyOnDeploy();
 
             foreach (var buff in Buffs)
             {
@@ -298,16 +301,16 @@ namespace Units
         {
             base.Finish(leaveEvent);
             //UnityEngine.Object.Destroy(selfDirection);
-            selfDirection.SetActive(false);
+            selfDirection?.SetActive(false);
             IfAlive = false;
-            UnitModel.gameObject.SetActive(false);
+            UnitModel?.gameObject.SetActive(false);
             BattleUI.UI_Battle.Instance.ReturnUIUnit(this);
             //State = StateEnum.Default;
             SetStatus(StateEnum.Default);
             Direction = new Vector2(1, 0);
             InputTime = -1;
             Battle.Map.Tiles[GridPos.x, GridPos.y].Units.Remove(this);
-            if (!Battle.PlayerUnits.Any(x => x != this && x.Id == Id)) Reseting.Set(ResetTime);
+            ApplyRedeployPolicyOnLeave();
             BuildTime++;
             Battle.BuildCount += UnitData.BuildCountCost;
             if (UnitData.NotReturn)//消耗品
@@ -325,13 +328,17 @@ namespace Units
 
             foreach (干员 unit in Children.Where(x => x is 干员))
             {
+                // 尚未部署的子单位不需要走撤退流程，只清理引用，避免 selfDirection/UnitModel 为空触发 NRE
                 if (unit.InputTime < 0 && !unit.UnitData.NotReturn)
                 {
                     Battle.AllUnits.Remove(unit);
                     Battle.PlayerUnits.Remove(unit);
+                    unit.Children.Clear();
                 }
-                if (!unit.UnitData.NotReturn)
+                else if (!unit.UnitData.NotReturn)
+                {
                     unit.LeaveMap();
+                }
             }
             Children.Clear();
 
@@ -346,20 +353,110 @@ namespace Units
             }
         }
 
+        /// <summary>
+        /// 部署时按再部署策略处理同 Id 待部署单位的冷却。
+        /// 默认：其他待部署单位立即进入冷却。
+        /// 唯一：其他待部署单位不可部署（但不进入倒计时），直到场上单位离场。
+        /// 队列：其他待部署单位保持原状态，各自离场后独立冷却。
+        /// </summary>
+        private void ApplyRedeployPolicyOnDeploy()
+        {
+            switch (RedeployPolicy)
+            {
+                case RedeployPolicy_Unique:
+                    SetOtherReadyCooldown(float.PositiveInfinity);
+                    break;
+                case RedeployPolicy_Queue:
+                    // 队列策略：部署时不改变其他单位的冷却状态
+                    break;
+                default:
+                    SetOtherReadyCooldown(ResetTime);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 离场时按再部署策略处理同 Id 待部署单位的冷却。
+        /// 默认：所有同 Id 待部署单位（含自己）进入冷却。
+        /// 唯一：所有同 Id 待部署单位（含自己）进入冷却。
+        /// 队列：仅自己进入冷却，其他单位保持原状态。
+        /// </summary>
+        private void ApplyRedeployPolicyOnLeave()
+        {
+            if (UnitData.NotReturn) return;
+
+            switch (RedeployPolicy)
+            {
+                case RedeployPolicy_Queue:
+                    Reseting.Set(ResetTime);
+                    break;
+                case RedeployPolicy_Unique:
+                    SetAllReadyCooldown(ResetTime);
+                    break;
+                default:
+                    // 默认策略：其他待部署单位从部署时已开始冷却，这里只让“已结束冷却”的单位重新进入冷却（例如刚撤退的自己）
+                    SetFinishedReadyCooldown(ResetTime);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 设置所有同 Id 未部署单位（含自己）的再部署冷却。
+        /// </summary>
+        private void SetAllReadyCooldown(float time)
+        {
+            foreach (var unit in Battle.PlayerUnits)
+            {
+                if (unit.Id == Id && unit.InputTime < 0)
+                {
+                    unit.Reseting.Set(time);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 仅设置同 Id 未部署单位中“冷却已结束”的单位（含刚离场的自己）进入冷却。
+        /// 默认策略下已处于冷却中的其他单位不会被重置。
+        /// </summary>
+        private void SetFinishedReadyCooldown(float time)
+        {
+            foreach (var unit in Battle.PlayerUnits)
+            {
+                if (unit.Id == Id && unit.InputTime < 0 && unit.Reseting.Finished())
+                {
+                    unit.Reseting.Set(time);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 设置同 Id 其他未部署单位的再部署冷却（不含自己）。
+        /// </summary>
+        private void SetOtherReadyCooldown(float time)
+        {
+            foreach (var unit in Battle.PlayerUnits)
+            {
+                if (unit.Id == Id && unit != this && unit.InputTime < 0)
+                {
+                    unit.Reseting.Set(time);
+                }
+            }
+        }
+
         public override Vector2Int PointWithDirection(Vector2Int point)
         {
             switch (Direction_E)
             {
                 case DirectionEnum.Right:
-                    return(GridPos + point);
+                    return(GridPosFloor + point);
                 case DirectionEnum.Left:
-                    return (GridPos - point);
+                    return (GridPosFloor - point);
                 case DirectionEnum.Up:
-                    return (GridPos + new Vector2Int(point.y, -point.x));
+                    return (GridPosFloor + new Vector2Int(point.y, -point.x));
                 case DirectionEnum.Down:
-                    return (GridPos + new Vector2Int(-point.y, point.x));
+                    return (GridPosFloor + new Vector2Int(-point.y, point.x));
             }
-            return GridPos;
+            return GridPosFloor;
         }
 
         public int GetCost()
@@ -370,9 +467,10 @@ namespace Units
         public bool Useable()
         {
             //return false;
+            bool ResetFinished = RedeployPolicy == RedeployPolicy_Unique ? Reseting.Finished() : true;
             bool coustEnough = Battle.Cost >= GetCost() || BattleManager.Instance.IsInfCost;
             bool buildEnough = Battle.BuildCount >= UnitData.BuildCountCost || BattleManager.Instance.IsInfUnitCount;
-            return coustEnough && buildEnough;
+            return coustEnough && buildEnough && ResetFinished;
             //return BattleManager.Instance.IsInfCost ? true : GetCost() <= Battle.Cost && BattleManager.Instance.IsInfUnitCount ? true : Battle.BuildCount >= UnitData.BuildCountCost;
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,7 +35,7 @@ public class NormalModel : UnitModel
             SetColorFromHex(Color);
             SetAlpha(Alpha);
         }
-        AlignHeight();
+        // AlignHeight 统一由 Unit.CreateModel / 单位位置变更时调用
     }
 
 
@@ -108,26 +108,6 @@ public class NormalModel : UnitModel
         }
         Color current = materialInstance.color;
         materialInstance.color = new Color(current.r, current.g, current.b, alpha);
-    }
-
-    public void AlignHeight()
-    {
-        Debug.Log("AlignHeight called for unit: " + Unit.UnitData.Name + " Y= " + transform.position.y);
-        Tile tile = Unit.Battle.Map.Tiles[Unit.GridPos.x, Unit.GridPos.y];
-        GameObject GOFromTile = tile.MapGrid.go;
-
-        float offSetY = 0f;
-
-        if (GOFromTile != null)
-        {
-            offSetY = GOFromTile.transform.position.y + GOFromTile.transform.localScale.y/2;
-        }
-
-        transform.position = new Vector3(transform.position.x, 0, transform.position.z);
-        transform.position += new Vector3(0, offSetY + 0.01f, 0);
-        Unit.Position = new Vector3(Unit.Position.x, transform.position.y, Unit.Position.z);
-
-        Debug.Log("AlignHeight completed for unit: " + Unit.UnitData.Name + " New Y= " + transform.position.y);
     }
 
     void OnDestroy()

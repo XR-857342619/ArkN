@@ -38,6 +38,13 @@ public class Unit
     public Vector2 Position2 => new(Position.x, Position.z);
 
     public Vector2Int GridPos => new(Mathf.RoundToInt(Position.x), Mathf.RoundToInt(Position.z));
+    //public Vector2Int GridPos => new((int)Position.x, (int)Position.z);
+
+    /// <summary>
+    /// 使用截断（向下取整）语义的格子坐标。
+    /// 攻击范围属于离散地块索引，应使用该坐标，避免 RoundToInt 在单位尚未到达格中心时提前切换到下一格，导致多边形范围整体跳变。
+    /// </summary>
+    public Vector2Int GridPosFloor => new(Mathf.FloorToInt(Position.x), Mathf.FloorToInt(Position.z));
 
     public Vector2 Direction = new(1, 0);
 
@@ -526,8 +533,6 @@ public class Unit
             {
                 skill.RecoverPower(1);
             }
-            //if (triggerEnum == TriggerEnum.打数溢出)
-            //    Log.Debug("打数溢出");
             if (skill.SkillData.Trigger == triggerEnum)
             {
                 if (skill.SkillData.Trigger != TriggerEnum.元素爆发 && skill.SkillData.Trigger != TriggerEnum.自身元素爆发)
@@ -805,6 +810,8 @@ public class Unit
         }
         UnitModel = go.GetComponent<UnitModel>();
         UnitModel.Init(this);
+        // 初始化完成后立即按当前所在地块对齐地面，避免穿模
+        UnitModel.AlignHeight();
     }
 
     public void Heal(DamageInfo heal,bool ifShowHeal)
@@ -1002,7 +1009,8 @@ public class Unit
 
     public virtual Vector2Int PointWithDirection(Vector2Int v2)
     {
-        return GridPos + v2;
+        // 攻击范围点使用截断格坐标，保证范围点与地块索引一致，避免移动中随 RoundToInt 跳变
+        return GridPosFloor + v2;
     }
     public virtual float distanceToFinal()
     {
@@ -1117,50 +1125,4 @@ public class Unit
         unit.UnitModel?.gameObject.SetActive(false);
         BattleUI.UI_Battle.Instance.UpdateUnitsLayout();
     }
-
-    //int GetEnemyStopCost(敌人 enemy)
-    //{
-    //    return enemy.StopCost;
-    //}
-
-    //int GetShieldOrderCount(_IShield shield)
-    //{
-    //    return -shield.OrderCount;
-    //}
-
-    //int GetBuffPriority(Buff buff)
-    //{
-    //    return -buff.BuffData.OrderCount;
-    //}
-    /*
-    int GetHealPriority(IHeal Heal)
-    {
-        return -Heal.HealOrderCount;
-    }
-
-    int GetSelfHealPriority(ISelfHeal selfHeal)
-    {
-        return -selfHeal.HealOrderCount;
-    }
-
-    int GetSelfAfterDamagePriority(ISelfAfterDamage selfAfterDamage)
-    {
-        return -selfAfterDamage.OrderCount;
-    }
-
-    int GetSelfAfterNonDamagePriority(ISelfAfterWithoutDamage selfAfterWithoutDamage)
-    {
-        return -selfAfterWithoutDamage.OrderCount;
-    }
-
-    int GetElementShieldPriority(IElementShield elementShield)
-    {
-        return -elementShield.ElementAbsorbOrderCount;
-    }
-
-    float GetElementValue(新版元素损伤 elementDamage)
-    {
-        return elementDamage.ElementValue;
-    }
-    */
 }

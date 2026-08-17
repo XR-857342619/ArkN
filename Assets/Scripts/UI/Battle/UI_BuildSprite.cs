@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,9 +31,19 @@ namespace BattleUI
             base.OnUpdate();
             //this.width = Screen.width/13 <= 50 ? 50 : Screen.width/13;
             if (Unit == null) return;
-            m_cooldown.selectedIndex = Unit.Reseting.Finished() || BattleManager.Instance.IsNoCD ? 0 : 1;
-            m_bar.value = Unit.Reseting.value;
-            m_resetTime.text = Unit.Reseting.value.ToString("F1");
+            bool cooling = !Unit.Reseting.Finished() && !BattleManager.Instance.IsNoCD;
+            m_cooldown.selectedIndex = cooling ? 1 : 0;
+
+            if (float.IsInfinity(Unit.Reseting.value))
+            {
+                m_cooldown.selectedIndex = 0;
+                //m_canUse.selectedIndex = 0;
+            }
+            else
+            {
+                m_bar.value = Unit.Reseting.value;
+                m_resetTime.text = Unit.Reseting.value.ToString("F1");
+            }
             m_canUse.selectedIndex = Unit.Useable() ? 0 : 1;
             //m_headIcon.m_headIcon.icon = Unit.UnitData.HeadIcon.ToHeadIcon();
         }

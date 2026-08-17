@@ -70,8 +70,11 @@ namespace Units
             Pathfinder.Initialize(this, WaveData);
 
             // 出生位置确定后，立即刷新一次技能攻击范围（base.Init 中技能是在 Position 为 0 时计算的）
-            lastAttackGridPos = GridPos;
+            lastAttackGridPos = GridPosFloor;
             RefreshSkillAttackPoints();
+
+            // 出生位置确定后重新对齐一次地面（base.Init 时 Position 还是 0,0）
+            UnitModel?.AlignHeight();
 
             SetStatus(StateEnum.Idle);
             BattleUI.UI_Battle.Instance.CreateUIUnit(this);
@@ -360,9 +363,9 @@ namespace Units
             Position = target;
 
             // 只有跨过格子边界时才需要刷新攻击范围，同格内移动不刷新
-            if (GridPos != lastAttackGridPos)
+            if (GridPosFloor != lastAttackGridPos)
             {
-                lastAttackGridPos = GridPos;
+                lastAttackGridPos = GridPosFloor;
                 RefreshSkillAttackPoints();
             }
 
