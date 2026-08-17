@@ -205,7 +205,9 @@ namespace Units
             bool coustEnough = Battle.Cost >= GetCost() || BattleManager.Instance.IsInfCost;
             bool buildEnough = Battle.BuildCount > 0 || UnitData.BuildCountCost <= 0 || BattleManager.Instance.IsInfUnitCount;
             bool ResetFinished = Reseting.Finished() || BattleManager.Instance.IsNoCD;
-            return coustEnough && buildEnough && ResetFinished;
+            bool buildCountLimit = UnitData.BuildCountLimit <= 0 || Battle.PlayerUnits.FindAll(x => x.Id == Id && x.InputTime >= 0).Count() < UnitData.BuildCountLimit || BattleManager.Instance.IsInfUnitCount;
+
+            return coustEnough && buildEnough && ResetFinished && buildCountLimit;
             //return GetCost() <= Battle.Cost && Reseting.Finished() && (Battle.BuildCount > 0 || UnitData.BuildCountCost <= 0);
         }
 
@@ -470,7 +472,9 @@ namespace Units
             bool ResetFinished = RedeployPolicy == RedeployPolicy_Unique ? Reseting.Finished() : true;
             bool coustEnough = Battle.Cost >= GetCost() || BattleManager.Instance.IsInfCost;
             bool buildEnough = Battle.BuildCount >= UnitData.BuildCountCost || BattleManager.Instance.IsInfUnitCount;
-            return coustEnough && buildEnough && ResetFinished;
+            bool buildCountLimit = UnitData.BuildCountLimit <= 0 || Battle.PlayerUnits.FindAll(x => x.Id == Id && x.InputTime >= 0).Count() < UnitData.BuildCountLimit || BattleManager.Instance.IsInfUnitCount;
+            
+            return coustEnough && buildEnough && ResetFinished && buildCountLimit;
             //return BattleManager.Instance.IsInfCost ? true : GetCost() <= Battle.Cost && BattleManager.Instance.IsInfUnitCount ? true : Battle.BuildCount >= UnitData.BuildCountCost;
         }
 

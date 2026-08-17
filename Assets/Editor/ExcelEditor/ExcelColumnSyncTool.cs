@@ -20,31 +20,13 @@ public class ExcelColumnSyncTool
     [MenuItem("Tools/Excel列同步/选择基准文件并同步")]
     public static void SyncWithDialog()
     {
-        string basePath = EditorUtility.OpenFilePanel("选择基准 Excel 文件", "Excel", "xlsx");
-        if (string.IsNullOrEmpty(basePath)) return;
-
-        string folder = EditorUtility.OpenFolderPanel("选择要同步的目标文件夹", "Excel", "");
-        if (string.IsNullOrEmpty(folder)) return;
-
-        if (!EditorUtility.DisplayDialog(
-                "确认同步",
-                $"基准文件：\n{basePath}\n\n目标文件夹：\n{folder}\n\n将同步该文件夹下所有 xlsx 的列结构，是否继续？",
-                "继续",
-                "取消"))
-            return;
-
-        try
-        {
-            SyncColumns(basePath, folder);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Excel 列同步失败：{e.Message}\n{e}");
-            EditorUtility.DisplayDialog("同步失败", e.Message, "确定");
-        }
+        ExcelColumnSyncWindow.ShowWindow();
     }
 
-    public static void SyncColumns(string basePath, string targetFolder)
+    /// <summary>
+    /// 同步指定文件夹下所有 xlsx 的指定 sheet 列结构（推荐使用）。
+    /// </summary>
+    public static void SyncColumns(string basePath, string targetFolder, string sheetName)
     {
         var baseFile = new FileInfo(basePath);
         if (!baseFile.Exists)
@@ -64,18 +46,37 @@ public class ExcelColumnSyncTool
             return;
         }
 
-        // 1. 读取基准表的列结构
-        Dictionary<string, List<string>> baseColumns = ReadColumnDefinitions(basePath);
+        // 1. 读取基准表中指定 sheet 的列结构（sheetName 为空时同步全部非 # sheet）
+        Dictionary<string, List<string>> baseColumns = ReadColumnDefinitions(basePath, sheetName);
+        if (baseColumns.Count == 0)
+        {
+            string msg = string.IsNullOrEmpty(sheetName)
+                ? "基准 Excel 中没有可同步的 sheet。"
+                : $"基准 Excel 中不存在 sheet：{sheetName}";
+            EditorUtility.DisplayDialog("提示", msg, "确定");
+            return;
+        }
 
         int successCount = 0;
         var failedFiles = new List<string>();
+        var skippedFiles = new List<string>();
 
         // 2. 逐个同步目标文件
         foreach (string targetPath in targetFiles)
         {
             try
             {
-                SyncOneFile(targetPath, baseColumns, basePath);
+                bool hasSheet = SheetExistsInFile(targetPath, sheetName, baseColumns);
+                if (!hasSheet)
+                {
+                    if (!string.IsNullOrEmpty(sheetName))
+                    {
+                        skippedFiles.Add($"{targetPath}（缺少 sheet: {sheetName}）");
+                        continue;
+                    }
+                }
+
+                SyncOneFile(targetPath, baseColumns, basePath, sheetName);
                 successCount++;
             }
             catch (Exception e)
@@ -87,6 +88,8 @@ public class ExcelColumnSyncTool
 
         AssetDatabase.Refresh();
         string message = $"同步完成：成功 {successCount}/{targetFiles.Count} 个文件。";
+        if (skippedFiles.Count > 0)
+            message += $"\n跳过 {skippedFiles.Count} 个（目标缺少指定 sheet）：\n" + string.Join("\n", skippedFiles.Take(10));
         if (failedFiles.Count > 0)
             message += $"\n失败 {failedFiles.Count} 个：\n" + string.Join("\n", failedFiles.Take(10));
         Debug.Log(message);
@@ -94,9 +97,18 @@ public class ExcelColumnSyncTool
     }
 
     /// <summary>
-    /// 读取基准 Excel 的列结构：sheetName -> 列键列表（跳过 # 开头 sheet 与空字段名列）。
+    /// 兼容旧调用：同步全部 sheet（高风险，不推荐）。
     /// </summary>
-    private static Dictionary<string, List<string>> ReadColumnDefinitions(string excelPath)
+    public static void SyncColumns(string basePath, string targetFolder)
+    {
+        SyncColumns(basePath, targetFolder, null);
+    }
+
+    /// <summary>
+    /// 读取基准 Excel 的列结构：sheetName -> 列键列表（跳过 # 开头 sheet 与空字段名列）。
+    /// sheetName 非空时只读取指定 sheet。
+    /// </summary>
+    private static Dictionary<string, List<string>> ReadColumnDefinitions(string excelPath, string sheetName = null)
     {
         var result = new Dictionary<string, List<string>>();
 
@@ -105,6 +117,7 @@ public class ExcelColumnSyncTool
             foreach (var sheet in package.Workbook.Worksheets)
             {
                 if (sheet.Name.StartsWith("#")) continue;
+                if (!string.IsNullOrEmpty(sheetName) && sheet.Name != sheetName) continue;
 
                 var keys = new List<string>();
                 if (sheet.Dimension != null)
@@ -123,7 +136,7 @@ public class ExcelColumnSyncTool
         return result;
     }
 
-    private static void SyncOneFile(string targetPath, Dictionary<string, List<string>> baseColumns, string basePath)
+    private static void SyncOneFile(string targetPath, Dictionary<string, List<string>> baseColumns, string basePath, string sheetName)
     {
         var targetFile = new FileInfo(targetPath);
         if (!targetFile.Exists) return;
@@ -137,23 +150,21 @@ public class ExcelColumnSyncTool
 
         using (ExcelPackage package = new ExcelPackage(targetFile))
         {
-            // 读取基准文件，仅用于复制缺失列前三行与新建 sheet 表头
+            // 读取基准文件，仅用于复制缺失列前三行与表头
             using (ExcelPackage basePackage = new ExcelPackage(new FileInfo(basePath)))
             {
                 foreach (var kv in baseColumns)
                 {
-                    string sheetName = kv.Key;
+                    string targetSheetName = kv.Key;
                     List<string> baseKeys = kv.Value;
 
-                    var baseSheet = basePackage.Workbook.Worksheets[sheetName];
+                    var baseSheet = basePackage.Workbook.Worksheets[targetSheetName];
                     if (baseSheet == null) continue;
 
-                    var targetSheet = package.Workbook.Worksheets[sheetName];
+                    var targetSheet = package.Workbook.Worksheets[targetSheetName];
                     if (targetSheet == null)
                     {
-                        // 目标缺失该 sheet：新建并复制前三行表头
-                        targetSheet = package.Workbook.Worksheets.Add(sheetName);
-                        CopyHeaderRows(baseSheet, targetSheet, baseKeys);
+                        // 只同步指定 sheet：目标缺失时不新建，避免意外改动其他内容
                         continue;
                     }
 
@@ -242,6 +253,20 @@ public class ExcelColumnSyncTool
 
             if (columnWidths.TryGetValue(currentCol, out double width))
                 sheet.Column(pos).Width = width;
+        }
+    }
+
+    /// <summary>
+    /// 判断目标文件中是否存在指定 sheet。
+    /// sheetName 为空时视为存在（同步全部 sheet 模式）。
+    /// </summary>
+    private static bool SheetExistsInFile(string targetPath, string sheetName, Dictionary<string, List<string>> baseColumns)
+    {
+        if (string.IsNullOrEmpty(sheetName)) return true;
+
+        using (ExcelPackage package = new ExcelPackage(new FileInfo(targetPath)))
+        {
+            return package.Workbook.Worksheets[sheetName] != null;
         }
     }
 
