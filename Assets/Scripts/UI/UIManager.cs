@@ -105,15 +105,15 @@ public class UIManager : MonoBehaviour
             Debug.LogWarning($"Addressables 加载 UI 包失败：{PackageName}，尝试本地回退。\n{e.Message}");
         }
 
-        // 编辑器下回退到 AssetDatabase 直接读取，方便新增包未重新标记时开发调试
+        //编辑器下回退到 AssetDatabase 直接读取，方便新增包未重新标记时开发调试
+#if UNITY_EDITOR
         if (bytes == null)
         {
-#if UNITY_EDITOR
             var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(PathHelper.UIPath + PackageName + "_fui.bytes");
             if (asset != null)
                 bytes = asset.bytes;
-#endif
         }
+#endif
 
         if (bytes == null)
         {

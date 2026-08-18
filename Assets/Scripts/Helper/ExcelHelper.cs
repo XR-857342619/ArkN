@@ -27,8 +27,63 @@ public class ExcelHelper
 
     public static void Export(List<string> ExcelList)
     {
-        ExportClass(ExcelList);
-        ExportData(ExcelList);
+        // 过滤掉无效/旧路径并去重，避免同一 Sheet 被多次导出导致旧数据叠加
+        List<string> effectiveList = FilterAndDeduplicateExcelPaths(ExcelList);
+
+        Debug.Log($"[ExcelHelper] 导表开始，原始路径数：{ExcelList?.Count ?? 0}，有效路径数：{effectiveList.Count}");
+        foreach (string path in effectiveList)
+            Debug.Log($"[ExcelHelper] 导表路径：{path}");
+
+        ExportClass(effectiveList);
+        ExportData(effectiveList);
+    }
+
+    /// <summary>
+    /// 过滤并去重 Excel 路径。
+    /// 编辑器下保留全部可用路径；构建/真机下只保留位于热更目录（AppHotfixResPath）内的 Excel，
+    /// 避免存档中残留的项目开发目录路径（如 D:\UnityWork\zhou-master\Excel）与运行时热更新目录重复导表。
+    /// </summary>
+    private static List<string> FilterAndDeduplicateExcelPaths(List<string> ExcelList)
+    {
+        var result = new List<string>();
+        if (ExcelList == null || ExcelList.Count == 0) return result;
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        string hotfixRoot = null;
+        try
+        {
+            hotfixRoot = Path.GetFullPath(PathHelper.AppHotfixResPath);
+        }
+        catch
+        {
+            hotfixRoot = PathHelper.AppHotfixResPath;
+        }
+
+        foreach (string path in ExcelList)
+        {
+            if (string.IsNullOrEmpty(path) || path.Contains("$")) continue;
+
+            string fullPath;
+            try { fullPath = Path.GetFullPath(path); }
+            catch { fullPath = path; }
+
+            // 构建/真机环境：只保留热更目录下的 Excel；编辑器保留全部
+            if (!Application.isEditor && hotfixRoot != null)
+            {
+                bool inside = fullPath.StartsWith(hotfixRoot.TrimEnd('\\', '/') + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+                              || fullPath.Equals(hotfixRoot, StringComparison.OrdinalIgnoreCase);
+                if (!inside)
+                {
+                    Debug.LogWarning($"[ExcelHelper] 忽略非热更目录 Excel 路径：{path}");
+                    continue;
+                }
+            }
+
+            if (seen.Add(fullPath))
+                result.Add(fullPath);
+        }
+
+        return result;
     }
 
     public static void ExportClass(List<string> ExcelList)

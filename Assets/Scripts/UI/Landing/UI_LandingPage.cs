@@ -16,7 +16,7 @@ namespace LandingUI
         public void SetProgress(float progress, string desc)
         {
             if (m_landingProgress != null)
-                m_landingProgress.value = progress;
+                m_landingProgress.value = m_landingProgress.max * progress;
             if (m_des != null)
                 m_des.text = desc;
         }

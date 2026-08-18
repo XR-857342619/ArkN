@@ -12,7 +12,7 @@
     </text>
     <component id="n3_jdpn" name="landingProgress" src="jdpn1" fileName="LandingProgress.xml" xy="460,880" size="1000,30">
       <gearLook controller="IsLanded" pages="1" values="0,0,0,1" default="1,0,0,1" tween="true"/>
-      <relation target="" sidePair="width-width,height-height,center-center,bottom-bottom"/>
+      <relation target="" sidePair="width-width,center-center,bottom-bottom"/>
       <ProgressBar value="50" max="100"/>
     </component>
     <text id="n4_jdpn" name="des" xy="462,839" size="104,35" fontSize="25" color="#ffffff" text="正在加载">

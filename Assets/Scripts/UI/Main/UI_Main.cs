@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -172,40 +172,69 @@ namespace MainUI
         }
         public void ExccelListClicke(GTreeNode node)
         {
-            GComponent self = node.cell;
-            string data = node.text;
-            int index = self.GetChild("selectBtn").asButton.GetController("button").selectedIndex;
+            if (node == null || node.cell == null) return;
+
             if (node.numChildren > 0)
             {
+                // 文件夹：根据当前子文件状态计算目标状态，避免依赖 GButton 自动切换导致的“多次点击才生效”问题
+                bool allOn = true;
+                for (int i = 0; i < node.numChildren; i++)
+                {
+                    GTreeNode sonNode = node.GetChildAt(i);
+                    if (sonNode == null || sonNode.cell == null) continue;
+                    if (sonNode.cell.GetChild("selectBtn").asButton.GetController("button").selectedIndex != 1)
+                    {
+                        allOn = false;
+                        break;
+                    }
+                }
+
+                int target = allOn ? 0 : 1;
+                node.cell.GetChild("selectBtn").asButton.GetController("button").selectedIndex = target;
+
                 node.expanded = true;
                 for (int i = 0; i < node.numChildren; i++)
                 {
                     GTreeNode sonNode = node.GetChildAt(i);
+                    if (sonNode == null || sonNode.cell == null) continue;
+
                     GComponent obj = sonNode.cell;
-                    obj.GetChild("selectBtn").asButton.GetController("button").selectedIndex = index;
-                    ExccelListClicke(sonNode);
+                    obj.GetChild("selectBtn").asButton.GetController("button").selectedIndex = target;
+
+                    string path = obj.GetChild("path").text;
+                    if (target == 0)
+                    {
+                        if (ExcelList.Contains(path)) ExcelList.Remove(path);
+                    }
+                    else
+                    {
+                        if (!ExcelList.Contains(path)) ExcelList.Add(path);
+                    }
                 }
+                SaveHelper.SaveData();
+                freshNode();
             }
             else
-            { 
+            {
                 GComponent obj = node.cell;
-                int flag = obj.GetChild("selectBtn").asButton.GetController("button").selectedIndex;
-                //Debug.Log("button index:" + flag);
                 string path = obj.GetChild("path").text;
-                if (flag == 0)
+
+                // 文件：根据 ExcelList 当前状态取反，不依赖 GButton 自动切换
+                int target = ExcelList.Contains(path) ? 0 : 1;
+                obj.GetChild("selectBtn").asButton.GetController("button").selectedIndex = target;
+
+                if (target == 0)
                 {
                     if (ExcelList.Contains(path)) ExcelList.Remove(path);
                 }
                 else
-                { 
+                {
                     if (!ExcelList.Contains(path)) ExcelList.Add(path);
                 }
+
                 SaveHelper.SaveData();
+                // 文件点击后刷新所在文件夹的状态
                 freshNode();
-                //foreach (string i in ExcelList)
-                //{
-                //    Debug.Log(i);
-                //}
             }
         }
 
@@ -215,38 +244,37 @@ namespace MainUI
             rootNode.RemoveChildren();
             List<string> ExcelFolderPaths = Database.Instance.GetExcelPathList();
             List<string> ExcelFolderNames = new List<string>();
-            List<string> ExcelFilePaths = new List<string>();
-            List<string> ExcelFileNames = new List<string>();
             ExcelFolderNames.AddRange(ExcelFolderPaths.Select(x => System.IO.Path.GetFileNameWithoutExtension(x)));
 
             for (int i = 0; i < ExcelFolderNames.Count; i++)
             {
-                //Debug.Log(ExcelFolderNames[i]);
                 GTreeNode item_folder = new GTreeNode(true);
                 rootNode.AddChild(item_folder);
-                //Debug.Log(item_folder.level);
                 GComponent obj_folder = item_folder.cell;
                 obj_folder.GetChild("title").text = ExcelFolderNames[i];
-                obj_folder.GetChild("selectBtn").asButton.onClick.Add(() =>
+                // 使用 Set 替换监听，避免重复点击 m_ExportBtn 时累积多个回调导致状态错乱
+                obj_folder.GetChild("selectBtn").asButton.onClick.Set(() =>
                 {
                     ExccelListClicke(item_folder);
                 });
-                ExcelFilePaths.AddRange(Database.Instance.GetExcelFileList(ExcelFolderPaths[i]));
-                ExcelFileNames.AddRange(ExcelFilePaths.Select(x => System.IO.Path.GetFileNameWithoutExtension(x)));
+
+                // 每个文件夹独立保存文件列表，避免跨文件夹累积
+                List<string> ExcelFilePaths = Database.Instance.GetExcelFileList(ExcelFolderPaths[i]);
+                List<string> ExcelFileNames = ExcelFilePaths
+                    .Select(x => System.IO.Path.GetFileNameWithoutExtension(x))
+                    .ToList();
+
                 item_folder.expanded = true;
                 for (int j = 0; j < ExcelFileNames.Count; j++)
                 {
-                    //Debug.Log(ExcelFileNames[j]);
                     GTreeNode item_file = new GTreeNode(false);
                     string path = ExcelFolderPaths[i] + "\\" + ExcelFileNames[j] + ".xlsx";
-                    rootNode.AddChild(item_file);
-                    //Debug.Log(item_folder.GetChildAt(j).level);
+                    // 旧版 FairyGUI 需要节点先加入树后 cell 才可用，因此先 AddChild 再访问 cell
+                    item_folder.AddChild(item_file);
                     GComponent obj_file = item_file.cell;
                     obj_file.GetChild("title").text = ExcelFileNames[j];
                     obj_file.GetChild("path").text = path;
-                    //Debug.Log(obj_file.GetChild("path").text);
-                    //Debug.Log(obj_file.GetChild("title").text);
-                    obj_file.GetChild("selectBtn").asButton.onClick.Add(() =>
+                    obj_file.GetChild("selectBtn").asButton.onClick.Set(() =>
                     {
                         ExccelListClicke(item_file);
                     });
@@ -254,35 +282,39 @@ namespace MainUI
                     {
                         obj_file.GetChild("selectBtn").asButton.GetController("button").selectedIndex = 1;
                     }
-                    item_folder.AddChild(item_file);
-                    rootNode.RemoveChild(item_file);
-
-                    //Debug.Log();
-                    //item_file.text = ExcelFileNames[j];
-                    //Debug.Log(item_file.GetChildAt(0));
                 }
-                ExcelFileNames.Clear();
-                ExcelFilePaths.Clear();
             }
+
+            // 首次构建完成后刷新一次文件夹状态，使文件夹按钮与子 Excel 表格按钮保持一致
+            freshNode();
         }
         public void freshNode()
         {
             for (int i = 0; i < m_ExcelList.rootNode.numChildren; i++)
             {
                 GTreeNode node = m_ExcelList.rootNode.GetChildAt(i);
-                if (node.numChildren > 0)
+                if (node == null || node.numChildren <= 0 || node.cell == null) continue;
+
+                bool anySelected = false;
+                for (int j = 0; j < node.numChildren; j++)
                 {
-                    int flag = 0;
-                    for (int j = 0; j < node.numChildren; j++)
+                    GTreeNode sonNode = node.GetChildAt(j);
+                    if (sonNode == null || sonNode.cell == null) continue;
+                    GComponent obj = sonNode.cell;
+                    if (obj.GetChild("selectBtn").asButton.GetController("button").selectedIndex == 1)
                     {
-                        GTreeNode sonNode = node.GetChildAt(j);
-                        GComponent obj = sonNode.cell;
-                        flag += obj.GetChild("selectBtn").asButton.GetController("button").selectedIndex;
+                        anySelected = true;
+                        break;
                     }
-                    GComponent self = node.cell;
-                    if (flag == 0) self.GetChild("selectBtn").asButton.GetController("button").selectedIndex = 0;
-                    else if (flag == node.numChildren) self.GetChild("selectBtn").asButton.GetController("button").selectedIndex = 1;
                 }
+
+                GComponent self = node.cell;
+                self.GetChild("selectBtn").asButton.GetController("button").selectedIndex = anySelected ? 1 : 0;
+            }
+            Debug.Log("刷新完成");
+            foreach (string path in ExcelList)
+            {
+                Debug.Log("已选择的表格: " + path);
             }
         }
         public void OpenFolderDialog()
