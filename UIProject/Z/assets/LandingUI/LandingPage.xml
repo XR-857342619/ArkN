@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1920,1080">
+  <controller name="IsLanded" pages="0,,1," selected="0"/>
+  <displayList>
+    <graph id="n0_jdpn" name="n0" xy="0,0" size="1920,1080" type="rect" fillColor="#ff333399">
+      <gearLook controller="IsLanded" pages="1" values="0.01,0,0,1" default="1,0,0,1" tween="true"/>
+      <relation target="" sidePair="width-width,height-height,center-center,middle-middle"/>
+    </graph>
+    <text id="n1_jdpn" name="n1" xy="716,417" size="488,129" fontSize="100" color="#ffffff" singleLine="true" text="ArknightN">
+      <gearLook controller="IsLanded" pages="1" values="0,0,0,0" default="1,0,0,0" tween="true"/>
+      <relation target="" sidePair="width-width,height-height,center-center,middle-middle"/>
+    </text>
+    <component id="n3_jdpn" name="landingProgress" src="jdpn1" fileName="LandingProgress.xml" xy="460,880" size="1000,30">
+      <gearLook controller="IsLanded" pages="1" values="0,0,0,1" default="1,0,0,1" tween="true"/>
+      <relation target="" sidePair="width-width,height-height,center-center,bottom-bottom"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <text id="n4_jdpn" name="des" xy="462,839" size="104,35" fontSize="25" color="#ffffff" text="正在加载">
+      <gearLook controller="IsLanded" pages="1" values="0.01,0,0,0" default="1,0,0,0" tween="true"/>
+      <relation target="" sidePair="width-width%,height-height%"/>
+      <relation target="n3_jdpn" sidePair="left-left,bottom-top"/>
+    </text>
+  </displayList>
+</component>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,18 +23,23 @@ public class UIManager : MonoBehaviour
         //Debug.Log("UIManagerInit");
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        // 绑定全部 UI 扩展（仅注册，不在此加载包）
+        LandingUI.LandingUIBinder.BindAll();
         BattleUI.BattleUIBinder.BindAll();
         MainUI.MainUIBinder.BindAll();
         DungeonUI.DungeonUIBinder.BindAll();
         MapBuilderUI.MapBuilderUIBinder.BindAll();
         DIY.DIYBinder.BindAll();
-        LoadPackge("BattleUI");
-        LoadPackge("MainUI");
-        LoadPackge("SkillIcon");
-        LoadPackge("Res");
-        LoadPackge("DungeonUI");
-        LoadPackge("MapBuilderUI");
-        LoadPackge("DIY");
+
+        // 启动阶段只预加载 LandingUI 包，其余 UI 包在 Init 加载流程中分帧加载，避免启动卡顿
+        LoadPackge("LandingUI");
+        //LoadPackge("BattleUI");
+        //LoadPackge("MainUI");
+        //LoadPackge("SkillIcon");
+        //LoadPackge("Res");
+        //LoadPackge("DungeonUI");
+        //LoadPackge("MapBuilderUI");
+        //LoadPackge("DIY");
         //LoadPackge("UnitFace");
         //LoadPackge("UnitPic");
     }
@@ -60,6 +65,11 @@ public class UIManager : MonoBehaviour
         {
             //LoadPackge(packageName);
             view = UIPackage.CreateObjectFromURL(url) as T;
+            if (view == null)
+            {
+                Debug.LogError($"UI 创建失败：{url}，请确认对应 UI 包已加载。");
+                return null;
+            }
             scenes.Add((url), view);
             view.SetSize(GRoot.inst.size.x, GRoot.inst.size.y);
             view.AddRelation(GRoot.inst, RelationType.Size);
@@ -80,8 +90,37 @@ public class UIManager : MonoBehaviour
         if (LoadedPackages.Contains(PackageName))
             return;
         LoadedPackages.Add(PackageName);
-        var operation = Addressables.LoadAssetAsync<TextAsset>(PathHelper.UIPath + PackageName + "_fui");
-        var bytes = operation.WaitForCompletion().bytes;
+
+        byte[] bytes = null;
+
+        // 优先通过 Addressables 加载
+        try
+        {
+            var operation = Addressables.LoadAssetAsync<TextAsset>(PathHelper.UIPath + PackageName + "_fui");
+            operation.WaitForCompletion();
+            bytes = operation.Result != null ? operation.Result.bytes : null;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"Addressables 加载 UI 包失败：{PackageName}，尝试本地回退。\n{e.Message}");
+        }
+
+        // 编辑器下回退到 AssetDatabase 直接读取，方便新增包未重新标记时开发调试
+        if (bytes == null)
+        {
+#if UNITY_EDITOR
+            var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(PathHelper.UIPath + PackageName + "_fui.bytes");
+            if (asset != null)
+                bytes = asset.bytes;
+#endif
+        }
+
+        if (bytes == null)
+        {
+            Debug.LogError($"加载 UI 包失败：{PackageName}，请确认资源已加入 Addressables 并执行 Tools→重新标记。");
+            return;
+        }
+
         UIPackage.AddPackage(bytes, PackageName, load);
     }
 

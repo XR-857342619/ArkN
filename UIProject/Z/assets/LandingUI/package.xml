@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="tpz9wgqf">
+  <resources>
+    <component id="jdpn0" name="LandingPage.xml" path="/" exported="true"/>
+    <component id="jdpn1" name="LandingProgress.xml" path="/"/>
+  </resources>
+  <publish name="" genCode="true"/>
+</packageDescription>
