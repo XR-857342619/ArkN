@@ -1,4 +1,4 @@
-﻿using ExcelDataReader;
+using ExcelDataReader;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,7 +10,8 @@ using System.Linq;
 
 public class ExcelExportEditor
 {
-    static string excelPath = "./Excel/Main";
+    // 导出 Excel 根目录下所有 xlsx（含子目录），参考真机 ExcelHelper 的多 Excel 合并行为
+    static string excelPath = "./Excel";
     static string exportPath = "./Assets/Bundles/Data/";
     static string scriptPath = "./Assets/Scripts/Config/";
 
@@ -46,9 +47,9 @@ public class ExcelExportEditor
     {
         dic.Clear();
         //读取所有表的Id，用于转换索引
-        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx"))
+        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx", SearchOption.AllDirectories))
         {
-            if (path.Contains("$")) continue;
+            if (path.Contains("$") || IsInBackupFolder(path)) continue;
             IExcelDataReader reader;
             using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
@@ -81,9 +82,9 @@ public class ExcelExportEditor
             }
         }
 
-        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx"))
+        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx", SearchOption.AllDirectories))
         {
-            if (path.Contains("$")) continue;
+            if (path.Contains("$") || IsInBackupFolder(path)) continue;
             IExcelDataReader reader;
             using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
@@ -119,11 +120,18 @@ public class ExcelExportEditor
 
     static void ExportData()
     {
-        for (int i = 0; i < dic.Keys.Count; i++)
-            File.Delete(exportPath + dic.Keys.ToList()[i] + ".txt");
-        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx"))
+        Directory.CreateDirectory(exportPath);
+        // 先删除旧数据文件，并确保每个目标文件被清空，避免 Append 时叠加旧数据
+        foreach (string key in dic.Keys)
         {
-            if (path.Contains("$")) continue;
+            string filePath = exportPath + key + ".txt";
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+            using (File.Create(filePath)) { }
+        }
+        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx", SearchOption.AllDirectories))
+        {
+            if (path.Contains("$") || IsInBackupFolder(path)) continue;
             Export(path);
         }
     }
@@ -320,5 +328,18 @@ public class ExcelExportEditor
             Debug.LogError($"type:{type},value:{value}");
             throw e;
         }
+    }
+
+    // 判断文件是否位于 ExcelSyncBackup 备份目录中（递归检查父目录）
+    private static bool IsInBackupFolder(string filePath)
+    {
+        var directory = Path.GetDirectoryName(filePath);
+        while (directory != null)
+        {
+            if (Path.GetFileName(directory).Equals("ExcelSyncBackup", StringComparison.OrdinalIgnoreCase))
+                return true;
+            directory = Path.GetDirectoryName(directory);
+        }
+        return false;
     }
 }

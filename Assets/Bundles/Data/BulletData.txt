@@ -1,4 +1,8 @@
-{"Id":"通用链奶弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Modifys":[22],"Data":{"MoveHeight":0,"MaxLinkNum":4,"SkillId":"通用干员链式弹道索敌","CanBack":"false"}}
+{"Id":"时蒙1子弹","Type":"棘刺2","Model":"midn_attack_01_trail","Speed":10,"Data":{"LifeTime":8,"InitRadius":0.8,"MaxRadius":2.4,"RadiusExponentRate":0.2,"Trigger":1,"MoveHeight":2,"TriggerTimes":-1,"TargetTeam":3,"MaxTargetCount":-1}}
+{"Id":"流涟3子弹","Type":"大飞镖","Model":"midn_skill_01_trail","Speed":5,"Data":{"LiftTime":0,"Radius":0.8,"Trigger":0.02,"MoveHeight":0.5,"TriggerTimes":1,"TargetTeam":3,"MaxTargetCount":-1}}
+{"Id":"萃儿链奶弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Modifys":[26,3],"Data":{"MoveHeight":0,"MaxLinkNum":3,"SkillId":"通用干员链式弹道索敌","CanBack":"false"}}
+{"Id":"萃儿一链奶弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Modifys":[3],"Data":{"MoveHeight":0,"MaxLinkNum":3,"SkillId":"通用干员链式弹道索敌","CanBack":"false"}}
+{"Id":"通用链奶弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Modifys":[26],"Data":{"MoveHeight":0,"MaxLinkNum":4,"SkillId":"通用干员链式弹道索敌","CanBack":"false"}}
 {"Id":"阿米娅子弹","Type":"子弹","Model":"蓝色子弹","Speed":10,"FaceCamera":2}
 {"Id":"抛物线子弹","Type":"子弹","Model":"testBullet","Speed":3,"Data":{"MoveHeight":2}}
 {"Id":"阿米娅强力击子弹","Type":"子弹","Model":"testBullet","Speed":10}
@@ -70,3 +74,7 @@
 {"Id":"炮火先兆者弹道","Type":"延迟打击","Model":"skfire_skill_02_trail1","Speed":10,"FaceCamera":2,"Data":{"delay":2.5}}
 {"Id":"罗1子弹","Type":"逻各斯1技能类子弹","Model":"amiya_attack_01_trail","Speed":5,"FaceCamera":2}
 {"Id":"影哨子弹","Type":"大飞镖","Model":"frostl_attack_01_trail","Speed":10,"Data":{"LifeTime":0,"Radius":1.4,"Trigger":0.02,"MoveHeight":0,"TriggerTimes":1,"TargetTeam":2,"MaxTargetCount":6}}
+{"Id":"CCB链式弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Data":{"MoveHeight":0,"MaxLinkNum":10,"ReductionRate":0.25,"SkillId":"链式弹道索敌","CanBack":"false"}}
+{"Id":"真言天赋弹道","Type":"大飞镖","Model":"frostl_attack_01_trail","Speed":10,"Data":{"LifeTime":99999,"Radius":0.5,"Trigger":0.02,"MoveHeight":2,"TriggerTimes":9999,"TargetTeam":2,"MaxTargetCount":9999}}
+{"Id":"逻附加子弹","Type":"子弹","Model":"common_magic_trail_01","Speed":50,"FaceCamera":2}
+{"Id":"艾拉弹道","Type":"子弹","Model":"angle_skill_01_trail","Speed":200,"FaceCamera":2}

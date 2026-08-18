@@ -1,4 +1,4 @@
-﻿using ExcelDataReader;
+using ExcelDataReader;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -72,8 +72,18 @@ public class ExcelHelper
     }
     static void ExportData(List<string> ExcelList)
     {
-        for (int i = 0; i < dic.Keys.Count; i++)
-            File.Delete(PathHelper.AppHotfixResPath + "/Data/" + dic.Keys.ToList()[i] + ".txt");
+        string dataDir = PathHelper.AppHotfixResPath + "/Data/";
+        Directory.CreateDirectory(dataDir);
+
+        // 先删除旧数据文件，并确保每个目标文件被清空，避免 Append 时叠加旧数据
+        foreach (string key in dic.Keys)
+        {
+            string filePath = dataDir + key + ".txt";
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+            using (File.Create(filePath)) { }
+        }
+
         foreach (var path in ExcelList.ToArray())
         {
             if (path.Contains("$")) continue;

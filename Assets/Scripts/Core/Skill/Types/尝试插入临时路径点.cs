@@ -27,6 +27,7 @@ namespace Skills
         }
         public override void Start()
         {
+            //Debug.Log("尝试插入临时路径点");
             lastTime.Set(lasttime);
             switch (useMod)
             {

@@ -260,8 +260,11 @@ namespace Units
                 return;
             }
 
-            PathWaiting.Set(nowPoint.Delay);
-            if (nowPoint.HideMove)
+            // 等待/隐藏移动应使用“推进后的当前路径点”（即刚到达的下一个路径点）配置，
+            // 否则会错误地使用到达前的旧路径点 Delay，导致等待被推迟到下一段路径。
+            PathPoint waitPoint = NowPathPoint ?? nowPoint;
+            PathWaiting.Set(waitPoint.Delay);
+            if (waitPoint.HideMove)
             {
                 PathDebugger.Log(Owner.UnitData.Id, "隐藏移动");
                 if (PathWaiting.value > 0)

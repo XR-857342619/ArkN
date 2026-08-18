@@ -308,6 +308,9 @@ namespace Units
                 return;
             }
             CheckArrive();
+            // 到达当前路径点后若设置了等待，本帧立即停止移动，等待结束后再继续寻路
+            if (!PathWaiting.Finished())
+                return;
             if (TempPath == null || NeedResetPath)//无路径或因为外力走出了预定路线，重寻路
             {
                 Pathfinder.FindNewPath(OnlyCheckPoint);

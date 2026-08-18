@@ -270,7 +270,8 @@ public class Database
     private void Add<T>(string name) where T : IConfig
     {
 #if UNITY_EDITOR
-        var text = SaveHelper.LoadFile("/Data/" + name + ".txt"); 
+        //var text = SaveHelper.LoadFile("/Data/" + name + ".txt"); 
+        var text = SaveHelper.LoadFile("/Data/" + name + ".txt");
         if (string.IsNullOrEmpty(text))
         {
             //Debug.Log(name + "load from address");

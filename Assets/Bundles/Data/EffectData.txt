@@ -346,3 +346,12 @@
 {"Id":"桃金娘击中","Prefab":"myrtle_attack_01_hit","ScaleXFollow":2,"FaceCamera":60,"LifeTime":5}
 {"Id":"桃金娘抬手","Prefab":"myrtle_attack_01_start","ScaleXFollow":2,"FaceCamera":60,"LifeTime":0.3}
 {"Id":"桃金娘Buff","Prefab":"myrtle_skill_02_buff","ScaleXFollow":2,"FaceCamera":60,"LifeTime":40}
+{"Id":"罗1buff","Prefab":"thorns_skill_03_buff_02","Offset":{"x":0,"y":-0.5,"z":0},"ScaleXFollow":1,"FaceCamera":60}
+{"Id":"m3特效buff1","Prefab":"ghost_skill_02_buff","BindPoint":"F_Weapon_DL_A2","BoneFollow":1,"ParentFollow":2,"ScaleXFollow":1}
+{"Id":"m3特效buff2","Prefab":"ghost_skill_02_buff","BindPoint":"F_Weapon_DR_A2","BoneFollow":1,"ParentFollow":2,"ScaleXFollow":1}
+{"Id":"m3特效buff3","Prefab":"franka_skill_02_buff","BindPoint":"F_Weapon_UL_A2","BoneFollow":1,"ParentFollow":1,"ScaleXFollow":1}
+{"Id":"m3特效buff4","Prefab":"franka_skill_02_buff","BindPoint":"F_Weapon_UR_A2","BoneFollow":1,"ParentFollow":1,"ScaleXFollow":1}
+{"Id":"m3抬手","Prefab":"amiya_skill_03_buff_02","ScaleXFollow":2,"FaceCamera":60,"LifeTime":1}
+{"Id":"地雷范围","Prefab":"skgoat_skill_02_range","ScaleXFollow":1,"FaceCamera":90,"LifeTime":999}
+{"Id":"黑3Buff","Prefab":"ghost_skill_02_buff_02","Offset":{"x":0,"y":-0.4,"z":0},"ScaleXFollow":2,"FaceCamera":60,"LifeTime":40}
+{"Id":"黑3眼buff","Prefab":"ghost_skill_02_buff","BindPoint":"F_R_Eye","BoneFollow":1,"ParentFollow":2,"ScaleXFollow":1}

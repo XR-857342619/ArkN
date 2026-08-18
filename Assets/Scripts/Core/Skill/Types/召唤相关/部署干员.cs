@@ -133,13 +133,13 @@ namespace Skills
             Tile tile = Battle.Map.Tiles[pos.x, pos.y];
             Unit toRemove = null;
             toRemove = tile.Units.Where(x => !x.UnitData.NotUseTile).FirstOrDefault();
-            if (toRemove is not null && toRemove is Units.干员 toRemoveOprator)
+            if (toRemove is not null && toRemove is Units.干员 toRemoveOprator && setMod == "替换")
             //if (toRemove is not null)
                 //toRemoveOprator.LeaveMap();
                 toRemoveOprator.Finish(false); //防止无限递归
             if (tile.CanSet(Operator.UnitData))
             {
-                //Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);
+                Log.Debug("部署干员:" + Operator.UnitData.Name + "于" + pos);
                 //Log.Debug(Operator.Skills.Count());
                 //GameObject go = Operator.UnitModel.gameObject;
                 //go.transform.position = new Vector3(pos.x, 0.5f, pos.z);
@@ -155,7 +155,7 @@ namespace Skills
                     tile.Units.Add(RemovedOperator);
                 if (battleOp is not null)
                     Operator.NowGrid.Units.Add(Operator);
-                //Log.Debug("无法部署干员:" + Operator.UnitData.Name + "于" + pos);
+                Log.Debug("无法部署干员:" + Operator.UnitData.Name + "于" + pos);
                 return;
             }
         }

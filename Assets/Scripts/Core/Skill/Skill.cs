@@ -565,6 +565,7 @@ public class Skill
         }
         else if (!SkillData.NoTargetAlsoUse)
         {
+            //Debug.Log("无可用目标");
             return;
         }
         //走到这里技能就真的用出来了
@@ -572,7 +573,7 @@ public class Skill
         
         if (showRange)
             ShowUnitAttackArea();
-        //Log.Debug(SkillData.Id + "开始使用");
+        //Debug.Log(SkillData.Id + "开始使用");
         //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "使用次数:" + UseCount);
         if (SkillData.ReadyType == SkillReadyEnum.充能释放)
         {
@@ -696,10 +697,7 @@ public class Skill
             }
         }
         if (SkillData.RegetTarget) FindTarget();//对于某些技能，无法攻击到已经离开攻击区域的单位
-        //if (SkillData.Id == "重构体2")
-        //{
-        //    Debug.Log("重构体索敌" + Targets.First().UnitData.Name);
-        //}
+
         if (Targets.Count > 0)
         {
             if (SkillData.AttackPoint)
