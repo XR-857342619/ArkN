@@ -54,7 +54,7 @@ public class ExcelHelper
             // 构建/真机环境：只保留热更目录下的 Excel；编辑器保留全部
             if (!Application.isEditor && hotfixRoot != null)
             {
-                bool inside = fullPath.StartsWith(hotfixRoot.TrimEnd('\\', '/') + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+                bool inside = fullPath.StartsWith(hotfixRoot.TrimEnd('/') + "/", StringComparison.OrdinalIgnoreCase)
                               || fullPath.Equals(hotfixRoot, StringComparison.OrdinalIgnoreCase);
                 if (!inside)
                 {
