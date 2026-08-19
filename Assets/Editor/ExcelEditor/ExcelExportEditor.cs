@@ -60,10 +60,15 @@ public class ExcelExportEditor
                     if (!dic.ContainsKey(sheet.TableName))
                     {
                         List<string> Ids = new List<string>();
+                        // UnitData 的特殊占位行 Id=0 会由 ExportData 置顶到文件首位，这里必须先占索引 0
+                        if (sheet.TableName == "UnitData")
+                            Ids.Add("0");
+
                         for (int i = 3; i < sheet.Rows.Count; i++)
                         {
                             var Id = GetCellString(sheet, i, 0);
                             if (string.IsNullOrEmpty(Id) || Id.StartsWith("#")) continue;
+                            if (sheet.TableName == "UnitData" && Id == "0") continue;
                             Ids.Add(Id);
                         }
                         dic.Add(sheet.TableName, Ids);
@@ -75,6 +80,7 @@ public class ExcelExportEditor
                         {
                             var Id = GetCellString(sheet, i, 0);
                             if (string.IsNullOrEmpty(Id) || Id.StartsWith("#")) continue;
+                            if (sheet.TableName == "UnitData" && Id == "0") continue;
                             Ids.Add(Id);
                         }
                     }
@@ -129,6 +135,13 @@ public class ExcelExportEditor
                 File.Delete(filePath);
             using (File.Create(filePath)) { }
         }
+
+        // UnitData 需要保证 Id=0 的占位行始终位于文件首位（战斗会读取 UnitData[0]）
+        if (dic.ContainsKey("UnitData"))
+        {
+            File.WriteAllText(exportPath + "UnitData.txt", "{\"Id\":\"0\",\"Hp\":1}\n");
+        }
+
         foreach (var path in Directory.GetFiles(excelPath, "*.xlsx", SearchOption.AllDirectories))
         {
             if (path.Contains("$") || IsInBackupFolder(path)) continue;
@@ -150,10 +163,16 @@ public class ExcelExportEditor
                     if (sheet.TableName.StartsWith("#")) continue;
                     StringBuilder sb = new StringBuilder();
                     int cellCount = sheet.Columns.Count;
+                    bool isUnitData = sheet.TableName == "UnitData";
                     for (int i = 3; i < sheet.Rows.Count; i++)
                     {
                         string Id = GetCellString(sheet, i, 0);
                         if (string.IsNullOrEmpty(Id) || Id.StartsWith("#"))
+                        {
+                            continue;
+                        }
+                        // UnitData 的 Id=0 占位行已由 ExportData 置顶，这里忽略 Excel 中的相同内容
+                        if (isUnitData && Id == "0")
                         {
                             continue;
                         }
@@ -334,11 +353,15 @@ public class ExcelExportEditor
     private static bool IsInBackupFolder(string filePath)
     {
         var directory = Path.GetDirectoryName(filePath);
-        while (directory != null)
+        while (!string.IsNullOrEmpty(directory))
         {
             if (Path.GetFileName(directory).Equals("ExcelSyncBackup", StringComparison.OrdinalIgnoreCase))
                 return true;
-            directory = Path.GetDirectoryName(directory);
+
+            // 避免相对路径逐级上升到空字符串时 Path.GetDirectoryName 抛 ArgumentException
+            var parent = Path.GetDirectoryName(directory);
+            if (string.IsNullOrEmpty(parent)) break;
+            directory = parent;
         }
         return false;
     }

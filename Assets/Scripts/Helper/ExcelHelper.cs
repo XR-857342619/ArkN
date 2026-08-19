@@ -103,10 +103,15 @@ public class ExcelHelper
                     if (!dic.ContainsKey(sheet.TableName))
                     {
                         List<string> Ids = new List<string>();
+                        // UnitData 的特殊占位行 Id=0 会由 ExportData 置顶到文件首位，这里必须先占索引 0
+                        if (sheet.TableName == "UnitData")
+                            Ids.Add("0");
+
                         for (int i = 3; i < sheet.Rows.Count; i++)
                         {
                             var Id = GetCellString(sheet, i, 0);
                             if (string.IsNullOrEmpty(Id) || Id.StartsWith("#")) continue;
+                            if (sheet.TableName == "UnitData" && Id == "0") continue;
                             Ids.Add(Id);
                         }
                         dic.Add(sheet.TableName, Ids);
@@ -118,6 +123,7 @@ public class ExcelHelper
                         {
                             var Id = GetCellString(sheet, i, 0);
                             if (string.IsNullOrEmpty(Id) || Id.StartsWith("#")) continue;
+                            if (sheet.TableName == "UnitData" && Id == "0") continue;
                             Ids.Add(Id);
                         }
                     }
@@ -137,6 +143,12 @@ public class ExcelHelper
             if (File.Exists(filePath))
                 File.Delete(filePath);
             using (File.Create(filePath)) { }
+        }
+
+        // UnitData 需要保证 Id=0 的占位行始终位于文件首位（战斗会读取 UnitData[0]）
+        if (dic.ContainsKey("UnitData"))
+        {
+            File.WriteAllText(dataDir + "UnitData.txt", "{\"Id\":\"0\",\"Hp\":1}\n");
         }
 
         foreach (var path in ExcelList.ToArray())
@@ -160,10 +172,16 @@ public class ExcelHelper
                     if (sheet.TableName.StartsWith("#")) continue;
                     StringBuilder sb = new StringBuilder();
                     int cellCount = sheet.Columns.Count;
+                    bool isUnitData = sheet.TableName == "UnitData";
                     for (int i = 3; i < sheet.Rows.Count; i++)
                     {
                         string Id = GetCellString(sheet, i, 0);
                         if (string.IsNullOrEmpty(Id) || Id.StartsWith("#"))
+                        {
+                            continue;
+                        }
+                        // UnitData 的 Id=0 占位行已由 ExportData 置顶，这里忽略 Excel 中的相同内容
+                        if (isUnitData && Id == "0")
                         {
                             continue;
                         }

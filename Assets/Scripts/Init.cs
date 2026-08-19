@@ -82,7 +82,7 @@ public class Init : MonoBehaviour
         for (int i = 0; i < packages.Length; i++)
         {
             float progress = Mathf.Lerp(startProgress, endProgress, packages.Length == 1 ? 1f : (float)i / (packages.Length - 1));
-            landing?.SetProgress(progress, $"正在加载界面 {packages[i]}...");
+            landing?.SetProgress(progress, $"正在加载界面: {packages[i]}...");
 
             UIManager.Instance.LoadPackge(packages[i]);
 
