@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.IO;
 using FairyGUI;
 using UnityEngine;
-using System.Windows.Forms;
 
 namespace MainUI
 {
@@ -127,7 +126,7 @@ namespace MainUI
                 }
                 SaveHelper.SaveData();
             });
-            m_importSpine.onClick.Add(OpenFolderDialog);
+            //m_importSpine.onClick.Add(OpenFolderDialog);
             //GTree exceltree = m_ExcelList;
             //GTreeNode rootNode = exceltree.rootNode;
             //TreeViewInit();
@@ -317,21 +316,21 @@ namespace MainUI
                 Debug.Log("已选择的表格: " + path);
             }
         }
-        public void OpenFolderDialog()
-        {
-            var folderDialog = new FolderBrowserDialog();
-            folderDialog.Description = "选择文件夹";
-            folderDialog.SelectedPath = Path.Combine(UnityEngine.Application.streamingAssetsPath, "Spine").Replace("/", "\\"); // 默认路径
-            //folderDialog.SelectedPath = UnityEngine.Application.dataPath; // 默认路径
-            //folderDialog.SelectedPath = "D:\\UnityWork\\rebuild\\ArknightN_Data\\StreamingAssets"; // 默认路径
-            Debug.Log("默认路径: " + folderDialog.SelectedPath);
+        //public void OpenFolderDialog()
+        //{
+        //    var folderDialog = new FolderBrowserDialog();
+        //    folderDialog.Description = "选择文件夹";
+        //    folderDialog.SelectedPath = Path.Combine(UnityEngine.Application.streamingAssetsPath, "Spine").Replace("/", "\\"); // 默认路径
+        //    //folderDialog.SelectedPath = UnityEngine.Application.dataPath; // 默认路径
+        //    //folderDialog.SelectedPath = "D:\\UnityWork\\rebuild\\ArknightN_Data\\StreamingAssets"; // 默认路径
+        //    Debug.Log("默认路径: " + folderDialog.SelectedPath);
 
-            if (folderDialog.ShowDialog() == DialogResult.OK)
-            {
-                string path = folderDialog.SelectedPath;
-                Debug.Log("文件夹路径: " + path);
-                // 处理路径（例如遍历文件）
-            }
-        }
+        //    if (folderDialog.ShowDialog() == DialogResult.OK)
+        //    {
+        //        string path = folderDialog.SelectedPath;
+        //        Debug.Log("文件夹路径: " + path);
+        //        // 处理路径（例如遍历文件）
+        //    }
+        //}
     }
 }

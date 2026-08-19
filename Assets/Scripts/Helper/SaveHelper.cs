@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -91,27 +91,58 @@ public class SaveHelper
     public static string LoadMap(string fileName)
     {
         string filePath = PathHelper.MapResPath + fileName;
-        if (!File.Exists(filePath))
-        {
-            return string.Empty;
-        }
 
-        try
+#if UNITY_ANDROID
+        // 首次启动复制后，地图已位于持久化路径，优先用 File API 读取，避免主线程自旋阻塞
+        if (File.Exists(filePath))
         {
-            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            try
             {
-                byte[] bytes = new byte[stream.Length];
-                stream.Read(bytes, 0, (int)stream.Length);
-                stream.Close();
-                return Encoding.UTF8.GetString(bytes);
+                return File.ReadAllText(filePath, Encoding.UTF8);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                return string.Empty;
             }
         }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-        }
 
+        // 回退：从 APK 内置 StreamingAssets 读取（仅在持久化文件缺失时同步等待，属低频路径）
+        string packagePath = Application.streamingAssetsPath + fileName;
+        using (UnityWebRequest request = UnityWebRequest.Get(packagePath))
+        {
+            var operation = request.SendWebRequest();
+            while (!operation.isDone) { }
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                return request.downloadHandler.text;
+            }
+            else
+            {
+                Debug.LogError($"LoadMap failed: {request.error}");
+                return string.Empty;
+            }
+        }
+#else
+    // 原有逻辑保持不变
+    if (!File.Exists(filePath))
         return string.Empty;
+
+    try
+    {
+        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+        {
+            byte[] bytes = new byte[stream.Length];
+            stream.Read(bytes, 0, (int)stream.Length);
+            return Encoding.UTF8.GetString(bytes);
+        }
+    }
+    catch (Exception e)
+    {
+        Debug.LogException(e);
+        return string.Empty;
+    }
+#endif
     }
 
     public static void DeleteFile(string fileName)

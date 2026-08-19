@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,6 +35,11 @@ public class Init : MonoBehaviour
         await UnityEngine.AddressableAssets.Addressables.InitializeAsync().Task;
         await Task.Yield();
 
+        // 2.5. 首次启动时复制 StreamingAssets 到持久化路径（Android 必须）
+        landing?.SetProgress(0.05f, "正在复制初始资源...");
+        await RunCopyOnFirstLaunch();
+        await Task.Yield();
+
         // 3. 分帧加载其余 UI 包
         await LoadUiPackages(landing);
 
@@ -58,6 +64,22 @@ public class Init : MonoBehaviour
         await Task.Yield();
 
         var battleUI = UIManager.Instance.ChangeView<MainUI.UI_Main>(MainUI.UI_Main.URL);
+    }
+
+    /// <summary>
+    /// 将 StreamingAssetsCopyUtility.CopyOnFirstLaunch 协程包装为 Task，供 async 流程等待。
+    /// </summary>
+    private static Task RunCopyOnFirstLaunch()
+    {
+        var tcs = new TaskCompletionSource<bool>();
+        Instance.StartCoroutine(CopyWrapper(tcs));
+        return tcs.Task;
+    }
+
+    private static IEnumerator CopyWrapper(TaskCompletionSource<bool> tcs)
+    {
+        yield return StreamingAssetsCopyUtility.CopyOnFirstLaunch();
+        tcs.SetResult(true);
     }
 
     /// <summary>

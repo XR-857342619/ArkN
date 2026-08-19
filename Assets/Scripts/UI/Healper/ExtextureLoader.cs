@@ -41,11 +41,12 @@ public class ExtextureLoader : MonoBehaviour
         }
         loaderDict.Add(key, loader);
         // 拼出正确的本地路径（不同平台路径规则不一样，这么写通用）
+        // 首次启动复制后，安卓上的可写资源位于 AppHotfixResPath（persistentDataPath/产品名/）
         string localPath;
 #if UNITY_ANDROID && !UNITY_EDITOR // 安卓手机上的路径
-    localPath = "file://" + Application.streamingAssetsPath + "/" + localFileName;
+        localPath = "file://" + PathHelper.AppHotfixResPath + "/" + localFileName;
 #else // Windows/Mac/Unity编辑器里的路径
-        localPath = Application.streamingAssetsPath + "/" + localFileName;
+        localPath = PathHelper.AppHotfixResPath + "/" + localFileName;
 #endif
 
         // 调用加载协程（下面会写）

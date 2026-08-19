@@ -6,14 +6,14 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
-using System.Web;
-using System.Windows.Forms;
 using UnityEngine;
 
 namespace DIY
 {
+
     public partial class UI_Main : GComponent
     {
+#if !UNITY_ANDROID
         private GoWrapper _currentWrapper;
 
         public int pageIndex = 0;
@@ -93,7 +93,9 @@ namespace DIY
 #else
                 excelPath = UnityEngine.Application.streamingAssetsPath + "/Excel/" + folder + "/" + m_excels.items[m_excels.selectedIndex];
 #endif
+
                 unitInfos = ExcelHelper.GetUnitList(excelPath);
+
                 lastRow = unitInfos.Values.Last() + 1;
                 searchItem();
                 foreach (var i in unitInfos.Keys)
@@ -183,8 +185,10 @@ namespace DIY
             freshAttribute();
             m_newUnitAttribute.onClick.Add(addAttribute);
 
+
             m_save.onClick.Add(save2Excel);
             m_saveAsNew.onClick.Add(save2Excel);
+
 
             //SpineResourceManager.Instance.LoadAllSpineResources();
         }
@@ -211,7 +215,9 @@ namespace DIY
 #endif
             //Debug.Log(excelPath);
             unitInfos.Clear();
+
             unitInfos = ExcelHelper.GetUnitList(excelPath);
+
             lastRow = unitInfos.Values.Last() + 1;
             searchItem();
             attributes.Clear();
@@ -349,6 +355,7 @@ namespace DIY
             _currentWrapper.CacheRenderers();
         }
 
+
         private void freshAttribute()
         {
             attributes = ExcelHelper.GetAttributes(UnityEngine.Application.streamingAssetsPath + "/Excel/temp.xlsx");
@@ -360,6 +367,7 @@ namespace DIY
             }
             m_selectUnitAttribute.items = tmp.ToArray();
         }
+
         private void addAttribute()
         {
             string attribute = m_selectUnitAttribute.items[m_selectUnitAttribute.selectedIndex];
@@ -404,6 +412,7 @@ namespace DIY
             else
                 return;
         }
+
         private void save2Excel(EventContext evt)
         {
             GButton button = (GButton)evt.sender;
@@ -476,6 +485,7 @@ namespace DIY
                     isOp);
             }
         }
+
         private void saveAsNewExcel()
         {
             
@@ -501,5 +511,7 @@ namespace DIY
                 changeList.Add(i);
             }
         }
+#endif
     }
 }
+

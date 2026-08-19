@@ -38,7 +38,7 @@ public static class PathHelper
 #if UNITY_EDITOR
                 return Application.dataPath+"/Bundles/Data";
 #else
-            return Application.streamingAssetsPath;
+            return AppHotfixResPath;
 #endif
         }
     }
@@ -49,7 +49,7 @@ public static class PathHelper
 #if UNITY_EDITOR
             return Path.GetDirectoryName(Application.dataPath);
 #else
-            return Application.streamingAssetsPath;
+            return AppHotfixResPath;
 #endif
         }
     }

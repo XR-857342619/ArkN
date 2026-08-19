@@ -155,7 +155,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.Myacg.ArknightR
+    Android: com.None.ArknightN
     Standalone: com.None.ArknightN
   buildNumber:
     Standalone: 0

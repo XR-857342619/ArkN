@@ -5,17 +5,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
-using UnityEditor;
-using System.Linq;
-using System.Data;
+
+#if !UNITY_ANDROID
 using OfficeOpenXml;
-using Excel;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using System.Security;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
-using static EnemyInfoExcelTool;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
+#endif
+
 
 
 public class ExcelHelper
@@ -354,6 +348,8 @@ public class ExcelHelper
             throw e;
         }
     }
+
+#if !UNITY_ANDROID
     public static string CreatExcel(string path, string sheetName, List<(int row, int col, string data)> datas,string sourceExcel = "", int sourceRow = 0, bool isOp = false)
     {
         string tempPath = Application.streamingAssetsPath + "/Excel/temp.xlsx";
@@ -460,6 +456,9 @@ public class ExcelHelper
             return $"写入失败\n{e.Message}\n{path}可能被占用";
         }
     }
+
+
+
     public static (int row, int col) GetCellPos(string path, string sheetName, string name, string id)
     {
         try
@@ -606,6 +605,8 @@ public class ExcelHelper
         }
         return attributes;
     }
+
+
     public static void CreateNewExcel(string path, string sheetName, List<(int row, int col, string data)> datas)
     {
         
@@ -663,4 +664,6 @@ public class ExcelHelper
             }
         }
     }
+
+#endif
 }
