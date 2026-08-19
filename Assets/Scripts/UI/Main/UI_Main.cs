@@ -200,7 +200,9 @@ namespace MainUI
                     GComponent obj = sonNode.cell;
                     obj.GetChild("selectBtn").asButton.GetController("button").selectedIndex = target;
 
-                    string path = obj.GetChild("path").text;
+                    // 实际路径存储在节点 data 中，避免显示短路径导致逻辑读取错误
+                    string path = sonNode.data as string;
+                    if (string.IsNullOrEmpty(path)) continue;
                     if (target == 0)
                     {
                         if (ExcelList.Contains(path)) ExcelList.Remove(path);
@@ -216,7 +218,9 @@ namespace MainUI
             else
             {
                 GComponent obj = node.cell;
-                string path = obj.GetChild("path").text;
+                // 实际路径存储在节点 data 中，path 文本仅用于显示短路径
+                string path = node.data as string;
+                if (string.IsNullOrEmpty(path)) return;
 
                 // 文件：根据 ExcelList 当前状态取反，不依赖 GButton 自动切换
                 int target = ExcelList.Contains(path) ? 0 : 1;
@@ -251,6 +255,8 @@ namespace MainUI
                 rootNode.AddChild(item_folder);
                 GComponent obj_folder = item_folder.cell;
                 obj_folder.GetChild("title").text = ExcelFolderNames[i];
+                // 文件夹节点显示完整绝对路径，便于定位
+                obj_folder.GetChild("path").text = PathHelper.NormalizeAppPath(ExcelFolderPaths[i]);
                 // 使用 Set 替换监听，避免重复点击 m_ExportBtn 时累积多个回调导致状态错乱
                 obj_folder.GetChild("selectBtn").asButton.onClick.Set(() =>
                 {
@@ -267,12 +273,15 @@ namespace MainUI
                 for (int j = 0; j < ExcelFileNames.Count; j++)
                 {
                     GTreeNode item_file = new GTreeNode(false);
-                    string path = ExcelFolderPaths[i] + "\\" + ExcelFileNames[j] + ".xlsx";
+                    // 统一保存为规范化绝对路径，避免 data.sav 中路径缺少 /storage/emulated/0 前缀
+                    string path = PathHelper.NormalizeAppPath(System.IO.Path.Combine(ExcelFolderPaths[i], ExcelFileNames[j] + ".xlsx"));
                     // 旧版 FairyGUI 需要节点先加入树后 cell 才可用，因此先 AddChild 再访问 cell
                     item_folder.AddChild(item_file);
+                    // 完整路径存入节点 data，path 文本仅显示短路径，逻辑读取统一走 data
+                    item_file.data = path;
                     GComponent obj_file = item_file.cell;
                     obj_file.GetChild("title").text = ExcelFileNames[j];
-                    obj_file.GetChild("path").text = path;
+                    obj_file.GetChild("path").text = GetShortExcelDisplayPath(path);
                     obj_file.GetChild("selectBtn").asButton.onClick.Set(() =>
                     {
                         ExccelListClicke(item_file);
@@ -286,6 +295,21 @@ namespace MainUI
 
             // 首次构建完成后刷新一次文件夹状态，使文件夹按钮与子 Excel 表格按钮保持一致
             freshNode();
+        }
+
+        /// <summary>
+        /// 生成树状视图中显示的短路径（如 Main/battle.xlsx），不影响实际存储的完整路径。
+        /// </summary>
+        private static string GetShortExcelDisplayPath(string fullPath)
+        {
+            if (string.IsNullOrEmpty(fullPath)) return fullPath;
+
+            string normalized = fullPath.Replace('\\', '/');
+            int idx = normalized.IndexOf("/Excel/", System.StringComparison.OrdinalIgnoreCase);
+            if (idx >= 0)
+                return normalized.Substring(idx + "/Excel/".Length);
+
+            return System.IO.Path.GetFileName(fullPath);
         }
         public void freshNode()
         {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -89,15 +89,24 @@ public class GameData
         else
         {
             List<string> toRemove = new List<string>();
+            List<string> fixedList = new List<string>();
             foreach (var item in instance.ExcelList)
             {
-                if (!System.IO.File.Exists(item))
+                // 规范化路径，修复 Android 上缺少 /storage/emulated/0 前缀的情况
+                string normalized = PathHelper.NormalizeAppPath(item);
+                if (!System.IO.File.Exists(normalized))
                 {
                     //Debug.Log("删除无效的Excel文件路径：" + item);
                     toRemove.Add(item);
                 }
+                else
+                {
+                    fixedList.Add(normalized);
+                }
             }
             instance.ExcelList.RemoveAll(x => toRemove.Contains(x));
+            for (int i = 0; i < fixedList.Count; i++)
+                instance.ExcelList[i] = fixedList[i];
             ExcelList = instance.ExcelList;
             //Debug.Log("读取ExcelList成功");
             //foreach (var item in ExcelList)

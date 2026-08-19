@@ -25,7 +25,7 @@
     <text id="n7_6ew9" name="title" xy="127,0" size="124,75" fontSize="30" vAlign="middle" autoSize="none" singleLine="true" text="">
       <relation target="n5_6ew9" sidePair="left-right"/>
     </text>
-    <text id="n9_ip2q" name="path" xy="264,0" size="919,75" fontSize="30" color="#999999" vAlign="middle" autoSize="none" singleLine="true" text="">
+    <text id="n9_ip2q" name="path" xy="264,0" size="919,75" fontSize="30" color="#999999" vAlign="middle" autoSize="none" singleLine="true" autoClearText="true" text="1111111">
       <relation target="n7_6ew9" sidePair="left-right"/>
     </text>
   </displayList>

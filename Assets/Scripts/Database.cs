@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -412,8 +412,9 @@ public class Database
     }
     public List<string> GetExcelPathList()
     {
-        //获取全部Excel文件夹的路径
-        var path = PathHelper.ExcelResPath + "\\Excel\\";
+        //获取全部Excel文件夹的路径（使用 Path.Combine 保证跨平台路径分隔符正确）
+        var path = Path.Combine(PathHelper.ExcelResPath, "Excel");
+        if (!Directory.Exists(path)) return new List<string>();
         List<string> paths = Directory.GetDirectories(path).ToList();
         return paths;
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -309,7 +309,7 @@ namespace MainUI
             //List<string> excelNeeds = new List<string>();
             List<string> excelNames = new List<string>();
             excelNames = GameData.Instance.ExcelList.Select(x => 
-                System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(x)) + "\\" + System.IO.Path.GetFileName(x)
+                System.IO.Path.GetFileName(System.IO.Path.GetDirectoryName(x)) + "/" + System.IO.Path.GetFileName(x)
                 ).ToList();
             if (index == 0)
             {
@@ -417,7 +417,7 @@ namespace MainUI
                 for (int j = 0; j < ExcelFileNames.Count; j++)
                 {
                     GTreeNode item_file = new GTreeNode(false);
-                    string path = ExcelFolderNames[i] + "\\" + ExcelFileNames[j] + ".xlsx";
+                    string path = ExcelFolderNames[i] + "/" + ExcelFileNames[j] + ".xlsx";
                     rootNode.AddChild(item_file);
                     //Debug.Log(item_folder.GetChildAt(j).level);
                     GComponent obj_file = item_file.cell;
@@ -428,7 +428,7 @@ namespace MainUI
                     {
                         ExccelListClicke(item_file);
                     });
-                    if (ExcelList.Contains(ExcelFolderNames[i] + "\\" + ExcelFileNames[j] + ".xlsx"))
+                    if (ExcelList.Contains(ExcelFolderNames[i] + "/" + ExcelFileNames[j] + ".xlsx"))
                     {
                         obj_file.GetChild("selectBtn").asButton.GetController("button").selectedIndex = 1;
                     }
