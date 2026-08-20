@@ -281,8 +281,8 @@ public class Buff筛选 : IFilterStrategy
 
     public Buff筛选(SkillContext skillContext, int[] mustHaveAnyBuffIds, int[] mustHaveAllBuffIds, int[] mustNotHaveAnyBuffIds, int[] mustNotHaveAllBuffIds)
     {
-        _targetTeam = skillContext.TargetTeam;
-        _deadFind = skillContext.DeadFind;
+        _targetTeam = skillContext?.TargetTeam ?? 0;
+        _deadFind = skillContext?.DeadFind ?? false;
         // 使用HashSet提高查询性能
         _mustHaveAnyBuffIds = new HashSet<int>(mustHaveAnyBuffIds ?? Array.Empty<int>());
         _mustHaveAllBuffIds = new HashSet<int>(mustHaveAllBuffIds ?? Array.Empty<int>());
@@ -451,8 +451,46 @@ public partial class SelectorConfig
     // 是否启用精确距离模式
     public bool UseExactDistance => ExactDistance >= 0;
 }
-public class 距离筛选
+public class 距离筛选 : IFilterStrategy
 {
+    public string Name => "距离筛选";
+
+    private readonly SkillContext _skillContext;
+    private readonly float _minRange;
+    private readonly float _maxRange;
+    private readonly float _exactDistance;
+    private readonly float _distanceEpsilon;
+
+    public 距离筛选(SkillContext skillContext, float minDistance = -1, float maxDistance = -1, float exactDistance = -1, float distanceEpsilon = 0.01f)
+    {
+        _skillContext = skillContext;
+        _minRange = minDistance;
+        _maxRange = maxDistance;
+        _exactDistance = exactDistance;
+        _distanceEpsilon = distanceEpsilon;
+    }
+
+    public Func<Unit, bool> GetPredicate()
+    {
+        return unit =>
+        {
+            if (unit == null || _skillContext?.Caster == null) return false;
+            var casterPos = _skillContext.Caster.Position;
+            var distanceSqr = (unit.Position - casterPos).sqrMagnitude;
+
+            if (_exactDistance >= 0)
+            {
+                var targetSqr = _exactDistance * _exactDistance;
+                var epsilonSqr = _distanceEpsilon * _distanceEpsilon;
+                return Mathf.Abs(distanceSqr - targetSqr) <= epsilonSqr;
+            }
+
+            if (_maxRange >= 0 && distanceSqr > _maxRange * _maxRange) return false;
+            if (_minRange >= 0 && distanceSqr < _minRange * _minRange) return false;
+            return true;
+        };
+    }
+
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
     {
         Vector3 casterPos = skill.Unit.Position;
@@ -525,8 +563,32 @@ public partial class SelectorConfig
     /// </summary>
     public int RandomCount = 1;
 }
-public class 获取随机单位
+public class 获取随机单位 : ISelectorStrategy
 {
+    public string Name => "获取随机单位";
+
+    public List<Unit> GetTargets(SkillContext context, Dictionary<string, object> data)
+    {
+        if (context?.Caster?.Battle == null) return new List<Unit>();
+
+        var count = data.GetInt("Count", data.GetInt("RandomCount", 1));
+        if (count <= 0) return new List<Unit>();
+
+        var team = data.GetInt("Team", context.TargetTeam);
+        var candidates = context.Caster.Battle.AllUnits?.Where(u => (team & (1 << u.Team)) != 0).ToList() ?? new List<Unit>();
+        if (candidates.Count <= count) return candidates;
+
+        var random = context.Caster.Battle.Random;
+        var pool = new List<Unit>(candidates);
+        var result = new List<Unit>(count);
+        while (result.Count < count && pool.Count > 0)
+        {
+            var index = random.Next(pool.Count);
+            result.Add(pool[index]);
+            pool.RemoveAt(index);
+        }
+        return result;
+    }
 
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
     {
@@ -615,8 +677,23 @@ public class 获取随机单位
     }
 }
 
-public class 获取自身阻挡单位
+public class 获取自身阻挡单位 : ISelectorStrategy
 {
+    public string Name => "获取自身阻挡单位";
+
+    public List<Unit> GetTargets(SkillContext context, Dictionary<string, object> data)
+    {
+        if (context?.Caster == null) return new List<Unit>();
+
+        var unit = context.Caster;
+        var targets = new List<Unit>();
+        if (unit is Units.干员) targets.AddRange(unit.StopUnits);
+        else if (unit is Units.敌人 enemy) targets.Add(enemy.StopUnit);
+
+        var team = data.GetInt("Team", context.TargetTeam);
+        return targets.Where(t => (team & (1 << t.Team)) != 0).ToList();
+    }
+
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
     {
         Unit Unit = skill.Unit;
@@ -632,8 +709,24 @@ public class 获取自身阻挡单位
     }
 }
 
-public class 获取被阻挡的单位
+public class 获取被阻挡的单位 : ISelectorStrategy
 {
+    public string Name => "获取被阻挡的单位";
+
+    public List<Unit> GetTargets(SkillContext context, Dictionary<string, object> data)
+    {
+        if (context?.Caster?.Battle == null) return new List<Unit>();
+
+        var team = data.GetInt("Team", context.TargetTeam);
+        var all = context.Caster.Battle.AllUnits ?? new List<Unit>();
+        return all.Where(t =>
+                t is Units.干员 && t.StopUnits.Count > 0 ||
+                t is Units.敌人 enemy && enemy.StopUnit is not null)
+            .Where(t => (team & (1 << t.Team)) != 0)
+            .Distinct()
+            .ToList();
+    }
+
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
     {
         if (targets.Count == 0)
@@ -655,8 +748,29 @@ public partial class SelectorConfig
 {
     public Unit BlockerUnit;
 }
-public class 获取被指定单位阻挡的单位
+public class 获取被指定单位阻挡的单位 : ISelectorStrategy
 {
+    public string Name => "获取被指定单位阻挡的单位";
+
+    public List<Unit> GetTargets(SkillContext context, Dictionary<string, object> data)
+    {
+        if (context?.Caster == null) return new List<Unit>();
+
+        var team = data.GetInt("Team", context.TargetTeam);
+        Unit blockerUnit = context.Caster;
+
+        if (blockerUnit is Units.敌人 enemy)
+        {
+            if (enemy.StopUnit == null) return new List<Unit>();
+            return (team & (1 << enemy.StopUnit.Team)) != 0 ? new List<Unit> { enemy.StopUnit } : new List<Unit>();
+        }
+
+        return blockerUnit.StopUnits
+            .Where(t => (team & (1 << t.Team)) != 0)
+            .Select(t => (Unit)t)
+            .ToList();
+    }
+
     public List<Unit> GetTargets(Skill skill, List<Unit> targets, SelectorConfig config)
     {
         Unit blockerUnit = config.BlockerUnit;

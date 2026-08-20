@@ -554,12 +554,35 @@ public class Unit
         var s = Skills.Find(x => x.Id == skillId);
         if (s != null) return s;
         var skillConfig = Database.Instance.Get<SkillData>(skillId);
-        var skill = typeof(Unit).Assembly.CreateInstance(nameof(Skills) + "." + skillConfig.Type) as Skill;
+        SkillJsonData jsonConfig = null;
+        if (skillConfig == null || skillConfig.Type == "Json")
+        {
+            jsonConfig = Database.Instance.Get<SkillJsonData>(skillId);
+            if (jsonConfig == null && skillConfig != null)
+            {
+                jsonConfig = Database.Instance.Get<SkillJsonData>(skillConfig.Id);
+            }
+        }
+        else if (jsonConfig == null && skillConfig != null && string.IsNullOrEmpty(skillConfig.Type))
+        {
+            jsonConfig = Database.Instance.Get<SkillJsonData>(skillConfig.Id);
+        }
+
+        Skill skill = null;
+        if (jsonConfig != null || (skillConfig != null && skillConfig.Type == "Json"))
+        {
+            skill = new JsonSkill();
+        }
+        else if (skillConfig != null)
+        {
+            skill = typeof(Unit).Assembly.CreateInstance(nameof(Skills) + "." + skillConfig.Type) as Skill;
+        }
 
         if (skill == null)
         {
-            Debug.Log(skillConfig.Type);
-            TipManager.Instance.ShowTip("获取技能类型失败" + skillConfig.Type);
+            var typeName = skillConfig?.Type ?? "null";
+            Debug.Log(typeName);
+            TipManager.Instance.ShowTip("获取技能类型失败" + typeName);
             return null;
         }
         skill.Unit = this;
@@ -588,12 +611,12 @@ public class Unit
         }
         else
             Skills.Add(skill);
-        if (skillConfig.Skills != null)
+        if (skillConfig?.Skills != null)
             foreach (var id in skillConfig.Skills)
             {
                 LearnSkill(id, skill);
             }
-        if (skillConfig.ExSkills != null)
+        if (skillConfig?.ExSkills != null)
             foreach (var id in skillConfig.ExSkills)
             {
                 LearnSkill(id, skill);

@@ -20,9 +20,8 @@ namespace Skills
             base.Init();
             lifeTime = SkillData.Data.GetFloat("持续",0);
         }
-        public override void Start()
+        public override void SpSkillEffect()
         {
-            //base.Start();
             //FindTarget();
             //Debug.Log(Targets?.First()?.Position);
             //Debug.Log(SkillData.Id + "start");

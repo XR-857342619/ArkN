@@ -20,7 +20,7 @@ namespace Skills
             base.Init();
             lifeTime = SkillData.Data.GetFloat("持续", 0);
         }
-        public override void Start()
+        public override void SpSkillEffect()
         {
             //base.Start();
             //Debug.Log(SkillData.Id + " 部署装置开始");
