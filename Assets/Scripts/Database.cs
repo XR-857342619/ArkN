@@ -37,6 +37,7 @@ public class Database
             AddAsync<UnitData>("UnitData"),
             //AddAsync<MapData>("MapData"),
             AddAsync<SkillData>("SkillData"),
+            AddAsync<SkillJsonData>("SkillJson"),
             AddAsync<BuffData>("BuffData"),
             AddAsync<BulletData>("BulletData"),
             //AddAsync<WaveData>("WaveData"),
@@ -70,6 +71,7 @@ public class Database
             Add<UnitData>("UnitData");
             //Add<MapData>("MapData");
             Add<SkillData>("SkillData");
+            Add<SkillJsonData>("SkillJson");
             Add<BuffData>("BuffData");
             Add<BulletData>("BulletData");
             //Add<WaveData>("WaveData");

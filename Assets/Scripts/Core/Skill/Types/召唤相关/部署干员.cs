@@ -39,9 +39,8 @@ namespace Skills
                 if (!Enum.TryParse(SkillData.Data.GetStr("方向"), out direction))
                     direction = DirectionEnum.Right;
         }
-        public override void Start()
+        public override void SpSkillEffect()
         {
-            //base.Start();
             posList = GetPosList();
             if (posList.Count == 0)
             {

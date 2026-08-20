@@ -67,6 +67,15 @@ public interface IFilterStrategy
     Func<Unit, bool> GetPredicate();
 }
 
+/// <summary>
+/// 主动产生候选目标的选择器策略。JsonSkill 的 SelectorNode 可同时使用 ISelectorStrategy 与 IFilterStrategy。
+/// </summary>
+public interface ISelectorStrategy
+{
+    string Name { get; }
+    List<Unit> GetTargets(SkillContext context, Dictionary<string, object> data);
+}
+
 public enum SortDirection
 {
     Ascending,  // 升序
@@ -101,7 +110,11 @@ public interface IExecutor
 public class SkillContext
 {
     public Unit Caster { get; set; }
+    public Skill Skill { get; set; }
     public List<Unit> Targets { get; set; }
+    public List<Vector3> TargetPositions { get; set; }
+    public Dictionary<string, object> Parameters { get; set; }
+    public DamageInfo CurrentDamage { get; set; }
     public int TargetTeam { get; set; }
     public bool DeadFind { get; set; }
     public List<Vector2Int> BaseAttackPoints { get; set; }
@@ -119,7 +132,9 @@ public class SkillContext
         this.Targets = skill.Targets;
         this.TargetTeam = skill.SkillData.TargetTeam;
         this.DeadFind = skill.SkillData.DeadFind;
-        this.BaseAttackPoints = skill.AttackPoints;
+        this.BaseAttackPoints = skill.AttackPoints == null
+            ? new List<Vector2Int>()
+            : new List<Vector2Int>(skill.AttackPoints);
         this.BaseAttackPoints.RemoveAll(v => exAttackPoints.Contains(v));
         this.ExAttackPoints = skill.ExAttackPoints;
         this.BaseAttackRange = skill.Unit.AttackRange;

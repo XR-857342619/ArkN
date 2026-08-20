@@ -22,12 +22,8 @@ namespace Skills
             base.Init();
             r = SkillData.Data.GetFloat("半径", 0);
         }
-        public override void Start()
+        public override void SpSkillEffect()
         {
-            //base.Start();
-            //FindTarget();
-            //Debug.Log(Targets?.FirstOrDefault()?.Position);
-            //Debug.Log(SkillData.Id + "start");
             pos = GetPos();
             if (pos == new Vector2Int(int.MaxValue, int.MaxValue)) return;
 
@@ -38,6 +34,7 @@ namespace Skills
             tilesPos.AddRange(GetTilesFromAttackPoints(new Vector2Int(pos.x, pos.y)));
 
             List<Tile> tiles = GetTile(pos, tilesPos, Database.Instance.Get<UnitData>(unitId), count);
+            Debug.Log($"tiles.Count: {tiles.Count}");
 
             for (int i = 0; i < tiles.Count; i++)
             {

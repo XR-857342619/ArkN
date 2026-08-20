@@ -18,7 +18,7 @@ public static class SortStrategyFactory
 
         foreach (var type in types)
         {
-            var instance = (ISortStrategy)Activator.CreateInstance(type);
+            var instance = (ISortStrategy)CreateDefaultInstance(type);
             _strategyMap[instance.Name] = type;
         }
     }
@@ -40,6 +40,30 @@ public static class SortStrategyFactory
 
         return (ISortStrategy)Activator.CreateInstance(type);
     }
+
+    private static object CreateDefaultInstance(Type type)
+    {
+        try
+        {
+            return Activator.CreateInstance(type);
+        }
+        catch (MissingMethodException)
+        {
+            var ctor = type.GetConstructors()
+                .OrderByDescending(c => c.GetParameters().Length)
+                .FirstOrDefault();
+            if (ctor == null) throw;
+
+            var parameters = ctor.GetParameters();
+            var args = new object[parameters.Length];
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                args[i] = JsonConfigHelper.GetDefault(parameters[i].ParameterType);
+            }
+
+            return Activator.CreateInstance(type, args);
+        }
+    }
 }
 
 public class DynamicSorter
@@ -54,7 +78,7 @@ public class DynamicSorter
     // 3. 动态排序执行器
     public List<Unit> Sort(List<Unit> targets, List<SortConfigNode> configList)
     {
-        if (targets.Count == 0) return targets;
+        if (targets == null || targets.Count == 0) return targets;
 
         IOrderedEnumerable<Unit> orderedQuery = null;
 
@@ -76,6 +100,43 @@ public class DynamicSorter
             else
             {
                 // 后续级别（稳定排序的关键）
+                orderedQuery = node.Direction == SortDirection.Ascending
+                    ? orderedQuery.ThenBy(keySelector)
+                    : orderedQuery.ThenByDescending(keySelector);
+            }
+        }
+
+        return orderedQuery?.ToList() ?? targets;
+    }
+
+    /// <summary>
+    /// JsonSkill 使用的 JSON SorterNode 排序入口。
+    /// </summary>
+    public List<Unit> Sort(List<Unit> targets, List<SorterNode> configList, SkillContext context)
+    {
+        if (targets == null || targets.Count == 0) return targets;
+        if (configList == null || configList.Count == 0) return targets;
+
+        IOrderedEnumerable<Unit> orderedQuery = null;
+
+        for (int i = 0; i < configList.Count; i++)
+        {
+            var node = configList[i];
+            if (node == null) continue;
+
+            var strategy = TargetSelectorFactory.CreateSorterFromData(node.Type, context, node.Data);
+            if (strategy == null) continue;
+
+            var keySelector = strategy.GetKeySelector();
+
+            if (i == 0)
+            {
+                orderedQuery = node.Direction == SortDirection.Ascending
+                    ? targets.OrderBy(keySelector)
+                    : targets.OrderByDescending(keySelector);
+            }
+            else
+            {
                 orderedQuery = node.Direction == SortDirection.Ascending
                     ? orderedQuery.ThenBy(keySelector)
                     : orderedQuery.ThenByDescending(keySelector);
