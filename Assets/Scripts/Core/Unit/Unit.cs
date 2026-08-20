@@ -844,6 +844,36 @@ public class Unit
 
     public void Damage(DamageInfo damageInfo)
     {
+        Unit attacker = damageInfo.GetSourceUnit();
+        Unit target = damageInfo.Target;
+
+        if (damageInfo.EnableWeakness && attacker != null && target != null &&(damageInfo.DamageType == DamageTypeEnum.Normal || damageInfo.DamageType == DamageTypeEnum.Magic))
+        {
+            // 获取原始攻击力（从攻击者的当前攻击力，已包含属性加成）
+            float baseAtk = attacker.Attack;
+            // 或者使用 damageInfo.Attack（前提是它是未受修饰的原始值）
+
+            float rate = damageInfo.DamageRate; 
+            float defIgnore = damageInfo.DefIgnore;
+            float defIgnoreRate = damageInfo.DefIgnoreRate;
+            float minRate = damageInfo.MinDamageRate;
+
+            // 计算理论物理伤害（仅考虑防御，忽略所有其他效果）
+            float physical = CalculateTheoreticalDamage(attacker, target, baseAtk, rate, DamageTypeEnum.Normal, defIgnore, defIgnoreRate, minRate);
+
+
+            // 计算理论法术伤害
+            float magical = CalculateTheoreticalDamage(attacker, target, baseAtk, rate, DamageTypeEnum.Magic, defIgnore, defIgnoreRate, minRate);
+
+
+            const float EPSILON = 0.001f;
+            if (Math.Abs(physical - magical) > EPSILON)
+            {
+                damageInfo.DamageType = (physical > magical) ? DamageTypeEnum.Normal : DamageTypeEnum.Magic;
+            }
+            
+        }
+
         //beAttacked.Add(0.5f);
         float damage = damageInfo.Attack * damageInfo.DamageRate;
         if (damageInfo.DamageType == DamageTypeEnum.Normal) damage *= (1+NormalDamageReceiveRate);
@@ -939,6 +969,23 @@ public class Unit
                 var magDefence = Mathf.Max(0, Mathf.Min(100, MagicDefence * (1 - defIgnoreRate)) - defIgnore);
                 damage = Mathf.Max(damage * minDamageRate, damage * (100 - magDefence) / 100);
                 break;
+        }
+        return damage;
+    }
+
+    float CalculateTheoreticalDamage(Unit attacker, Unit target, float attack, float rate, DamageTypeEnum type, float defIgnore, float defIgnoreRate, float minRate)
+
+    {
+        float damage = attack * rate;
+        if (type == DamageTypeEnum.Normal)
+        {
+            float defence = Mathf.Max(0, target.Defence * (1 - defIgnoreRate) - defIgnore);
+            damage = Mathf.Max(damage * minRate, damage - defence);
+        }
+        else if (type == DamageTypeEnum.Magic)
+        {
+            float magDefence = Mathf.Max(0, Mathf.Min(100, target.MagicDefence * (1 - defIgnoreRate)) - defIgnore);
+            damage = Mathf.Max(damage * minRate, damage * (100 - magDefence) / 100);
         }
         return damage;
     }

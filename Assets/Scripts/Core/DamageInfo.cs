@@ -18,6 +18,7 @@ public class DamageInfo
     public bool Avoid;
     public bool Block;
     public float MinDamageRate;
+    public bool EnableWeakness { get; set; } = false;
 
     public Unit GetSourceUnit()
     {
