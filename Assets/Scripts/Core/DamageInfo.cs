@@ -12,13 +12,14 @@ public class DamageInfo
     public float Attack;
     public DamageTypeEnum DamageType;
     public float DamageRate = 1;
+    public float BasicDamage;
+    public float ExpectedDamage;
     public float FinalDamage;
     public float DefIgnore;
     public float DefIgnoreRate;
     public bool Avoid;
     public bool Block;
     public float MinDamageRate;
-    public bool EnableWeakness { get; set; } = false;
 
     public Unit GetSourceUnit()
     {

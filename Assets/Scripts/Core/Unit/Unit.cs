@@ -867,121 +867,53 @@ public class Unit
 
     public void Damage(DamageInfo damageInfo)
     {
-        Unit attacker = damageInfo.GetSourceUnit();
-        Unit target = damageInfo.Target;
+        basicDamageCalculation(damageInfo);
+        basicDamageCalculation(damageInfo, true);
 
-        if (damageInfo.EnableWeakness && attacker != null && target != null &&(damageInfo.DamageType == DamageTypeEnum.Normal || damageInfo.DamageType == DamageTypeEnum.Magic))
-        {
-            // 获取原始攻击力（从攻击者的当前攻击力，已包含属性加成）
-            float baseAtk = attacker.Attack;
-            // 或者使用 damageInfo.Attack（前提是它是未受修饰的原始值）
-
-            float rate = damageInfo.DamageRate; 
-            float defIgnore = damageInfo.DefIgnore;
-            float defIgnoreRate = damageInfo.DefIgnoreRate;
-            float minRate = damageInfo.MinDamageRate;
-
-            // 计算理论物理伤害（仅考虑防御，忽略所有其他效果）
-            float physical = CalculateTheoreticalDamage(attacker, target, baseAtk, rate, DamageTypeEnum.Normal, defIgnore, defIgnoreRate, minRate);
-
-
-            // 计算理论法术伤害
-            float magical = CalculateTheoreticalDamage(attacker, target, baseAtk, rate, DamageTypeEnum.Magic, defIgnore, defIgnoreRate, minRate);
-
-
-            const float EPSILON = 0.001f;
-            if (Math.Abs(physical - magical) > EPSILON)
-            {
-                damageInfo.DamageType = (physical > magical) ? DamageTypeEnum.Normal : DamageTypeEnum.Magic;
-            }
-            
-        }
-
-        //beAttacked.Add(0.5f);
-        float damage = damageInfo.Attack * damageInfo.DamageRate;
-        if (damageInfo.DamageType == DamageTypeEnum.Normal) damage *= (1+NormalDamageReceiveRate);
-        if (damageInfo.DamageType == DamageTypeEnum.Magic) damage *= (1+MagicDamageReceiveRate);
-        if (damageInfo.DamageType == DamageTypeEnum.Element) damage *= (1+ElementDamageReceiveRate);
-        damage = damageWithDefence(damage, damageInfo.DamageType,damageInfo.DefIgnore, damageInfo.DefIgnoreRate,damageInfo.MinDamageRate);
-        //Debug.Log("伤害" + damage);
-        damageInfo.FinalDamage = damage * (1+DamageReceiveRate);
-        //Debug.Log("结算易伤伤害" + damageInfo.FinalDamage);
-        float damageEx = damageInfo.Attack;
-        damageEx = damageWithDefence(damageEx, damageInfo.DamageType, 0, 0, damageInfo.MinDamageRate);
-        if (damage > damageEx * 1.5f) UnitModel.ShowCrit(damageInfo);
         if (AllBlock > 0 && Battle.Random.NextDouble() < AllBlock) damageInfo.Avoid = true;
         if (damageInfo.DamageType == DamageTypeEnum.Normal && Block > 0 && Battle.Random.NextDouble() < Block) damageInfo.Avoid = true;
         if (damageInfo.DamageType == DamageTypeEnum.Magic && MagBlock > 0 && Battle.Random.NextDouble() < MagBlock) damageInfo.Avoid = true;
         //Debug.Log(damageInfo.FinalDamage);
-        if (!damageInfo.Avoid)
+
+        ApplyDamageModification(damageInfo);
+
+        if (damageInfo.FinalDamage > damageInfo.ExpectedDamage * 1.5f) UnitModel.ShowCrit(damageInfo);
+
+        Hp -= damageInfo.FinalDamage;
+
+        if (Hp <= 0)
         {
-            
-            foreach (var shield in DamageRewrites.ToArray())
+            Battle.TriggerDatas.Push(new TriggerData()
             {
-                shield.DamageRewrite(damageInfo);
-            }
-            //Debug.Log(damageInfo.FinalDamage);
-            //Debug.Log(Hp);
-            
-            Hp -= damageInfo.FinalDamage;
-            
-            if (Hp <= 0)
-            {
-                Battle.TriggerDatas.Push(new TriggerData()
-                {
-                    Target = this,
-                });
-                Trigger(TriggerEnum.致命);
+                Target = this,
+            });
+            Trigger(TriggerEnum.致命);
 
-                Battle.TriggerDatas.Pop();
-            }
-            
-
-            //Debug.Log(Hp);
-            //致命事件过后，如果血量依旧低于0，则判定单位死亡
-            if (Hp <= 0)
-            {
-                Hp = 0;
-                DoDie(damageInfo);
-            }
-            Unit unit = damageInfo.GetSourceUnit();
-            if (unit is Units.干员 && damageInfo.GetSourceUnit() != damageInfo.Target)
-            {
-                //干员 oprator = unit as 干员;
-                while (unit.Parent != null)
-                {
-                    unit = unit.Parent as 干员;
-                    //Log.Debug(unit.UnitData.Name);
-                }
-                //Debug.Log(oprator.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
-                OpDamageInfo opDamageInfo = BattleManager.Instance.OpDamageInfos.Find(x => x.UnitId == unit.UnitData.Id);
-                if (damageInfo.DamageType == DamageTypeEnum.Normal)
-                {
-                    opDamageInfo.NomalDamage += damageInfo.FinalDamage;
-                    opDamageInfo.TotalDamage += damageInfo.FinalDamage;
-                }
-                else if (damageInfo.DamageType == DamageTypeEnum.Magic)
-                {
-                    opDamageInfo.MagicDamage += damageInfo.FinalDamage;
-                    opDamageInfo.TotalDamage += damageInfo.FinalDamage;
-                }
-                else if (damageInfo.DamageType == DamageTypeEnum.Real || damageInfo.DamageType == DamageTypeEnum.Element)
-                {
-                    opDamageInfo.RealDamage += damageInfo.FinalDamage;
-                    opDamageInfo.TotalDamage += damageInfo.FinalDamage;
-                }
-                else
-                    Debug.LogError("未知伤害类型,不计入统计");
-            }
-            //Debug.Log(unit.UnitData.Id + damageInfo.DamageType.ToString() + "伤害" + damageInfo.FinalDamage);
+            Battle.TriggerDatas.Pop();
         }
-        //if (!UnitModel.isOriginalColor())
-        //    UnitModel.ResetColor();
+
+
+        //Debug.Log(Hp);
+        //致命事件过后，如果血量依旧低于0，则判定单位死亡
+        if (Hp <= 0)
+        {
+            Hp = 0;
+            DoDie(damageInfo);
+        }
+        Unit unit = damageInfo.GetSourceUnit();
+
+        UpdateOpDamageInfo(damageInfo);
     }
 
-    float damageWithDefence(float damage,DamageTypeEnum damageType,float defIgnore, float defIgnoreRate,float minDamageRate)
+    public float basicDamageCalculation(DamageInfo damageInfo, bool isExpect = false)
     {
-        switch (damageType)
+        float damage = damageInfo.Attack * damageInfo.DamageRate;
+        
+        float defIgnore = isExpect ? 0 : damageInfo.DefIgnore;
+        float defIgnoreRate = isExpect ? 0 : damageInfo.DefIgnoreRate;
+        float minDamageRate = damageInfo.MinDamageRate;
+
+        switch (damageInfo.DamageType)
         {
             case DamageTypeEnum.Normal:
                 var defence = Mathf.Max(0, Defence * (1 - defIgnoreRate) - defIgnore);
@@ -993,24 +925,80 @@ public class Unit
                 damage = Mathf.Max(damage * minDamageRate, damage * (100 - magDefence) / 100);
                 break;
         }
+
+        if (isExpect) damageInfo.ExpectedDamage = damage;
+        else damageInfo.BasicDamage = damage;
+
         return damage;
     }
 
-    float CalculateTheoreticalDamage(Unit attacker, Unit target, float attack, float rate, DamageTypeEnum type, float defIgnore, float defIgnoreRate, float minRate)
-
+    public float ApplyDamageModification(DamageInfo damageInfo)
     {
-        float damage = attack * rate;
-        if (type == DamageTypeEnum.Normal)
+        if (damageInfo.Avoid)
         {
-            float defence = Mathf.Max(0, target.Defence * (1 - defIgnoreRate) - defIgnore);
-            damage = Mathf.Max(damage * minRate, damage - defence);
+            damageInfo.ExpectedDamage = 0;
+            damageInfo.FinalDamage = 0;
+            return 0;
         }
-        else if (type == DamageTypeEnum.Magic)
+
+        float basicDamage = damageInfo.BasicDamage;
+        float finalDamage = basicDamage;
+
+        switch (damageInfo.DamageType)
         {
-            float magDefence = Mathf.Max(0, Mathf.Min(100, target.MagicDefence * (1 - defIgnoreRate)) - defIgnore);
-            damage = Mathf.Max(damage * minRate, damage * (100 - magDefence) / 100);
+            case DamageTypeEnum.Normal:
+                finalDamage = basicDamage * (1 + NormalDamageReceiveRate);
+                break;
+            case DamageTypeEnum.Magic:
+                finalDamage = basicDamage * (1 + MagicDamageReceiveRate);
+                break;
+            case DamageTypeEnum.Element:
+                finalDamage = basicDamage * (1 + ElementDamageReceiveRate);
+                break;
         }
-        return damage;
+
+        finalDamage *= (1 + DamageReceiveRate);
+
+        damageInfo.FinalDamage = finalDamage;
+
+        foreach (var shield in DamageRewrites.ToArray())
+        {
+            shield.DamageRewrite(damageInfo);
+        }
+
+        return damageInfo.FinalDamage;
+    }
+
+    public void UpdateOpDamageInfo(DamageInfo damageInfo)
+    {
+        if (damageInfo.FinalDamage < 0) return;
+
+        Unit unit = damageInfo.GetSourceUnit();
+        if (unit is Units.干员 && damageInfo.GetSourceUnit() != damageInfo.Target)
+        {
+            while (unit.Parent != null)
+            {
+                unit = unit.Parent as 干员;
+            }
+            OpDamageInfo opDamageInfo = BattleManager.Instance.OpDamageInfos.Find(x => x.UnitId == unit.UnitData.Id);
+            if (damageInfo.DamageType == DamageTypeEnum.Normal)
+            {
+                opDamageInfo.NomalDamage += damageInfo.FinalDamage;
+                opDamageInfo.TotalDamage += damageInfo.FinalDamage;
+            }
+            else if (damageInfo.DamageType == DamageTypeEnum.Magic)
+            {
+                opDamageInfo.MagicDamage += damageInfo.FinalDamage;
+                opDamageInfo.TotalDamage += damageInfo.FinalDamage;
+            }
+            else if (damageInfo.DamageType == DamageTypeEnum.Real || damageInfo.DamageType == DamageTypeEnum.Element)
+            {
+                opDamageInfo.RealDamage += damageInfo.FinalDamage;
+                opDamageInfo.TotalDamage += damageInfo.FinalDamage;
+            }
+            else
+                Debug.LogError("未知伤害类型,不计入统计");
+        }
     }
 
     public Skill GetNowUseingSkill()

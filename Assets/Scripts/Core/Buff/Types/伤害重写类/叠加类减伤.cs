@@ -11,8 +11,8 @@ namespace Buffs
     {
         // 从原减伤类复制过来的字段
         private int buffId = -1;
-        private float rate;
-        private float reducePerLevel; // 单层减伤比例
+        private float ratePerLevel; // 单层减伤比例
+        private float basicRate;
 
         // 叠加特有字段
         public int Level;
@@ -24,7 +24,8 @@ namespace Buffs
             base.Init();
 
             // 读取基础减伤配置（与原减伤相同）
-            rate = BuffData.Data.GetFloat("Rate");
+            ratePerLevel = BuffData.Data.GetFloat("RatePerLevel");
+            basicRate = BuffData.Data.GetFloat("BasicRate",0);
             string buffName = BuffData.Data.GetStr("TargetBuffNeed");
             if (!string.IsNullOrEmpty(buffName))
                 buffId = Database.Instance.GetIndex<BuffData>(buffName);
@@ -34,7 +35,7 @@ namespace Buffs
             AddValue = BuffData.Data.GetInt("AddValue", 1);
 
             Level = 1;
-            reducePerLevel = 1f - rate;
+            //reducePerLevel = 1f - rate;
         }
 
         public override void Reset()
@@ -127,11 +128,7 @@ namespace Buffs
                     return;
             }
 
-            float totalReduce = reducePerLevel * Level;
-            if (totalReduce > 1f) totalReduce = 1f;
-            float finalRate = 1f - totalReduce;
-
-            damageInfo.DamageRate *= finalRate;
+            damageInfo.DamageRate *= (basicRate + ratePerLevel * Level);
         }
     }
 }
