@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// 伤害效果器：对 context.Targets 造成伤害。
-/// Data: DamageRate, DamageBase, DamageType, DamageCount, AreaRange
+/// Data: DamageRate, DamageBase, DamageType
 /// </summary>
 public class DamageEffect : ISkillEffect
 {

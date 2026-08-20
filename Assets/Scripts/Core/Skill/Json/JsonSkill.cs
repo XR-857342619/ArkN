@@ -164,6 +164,7 @@ public class JsonSkill : Skill
         }
 
         Dispatch(SkillEffectTrigger.OnCast, CreateContext());
+        SpSkillEffect();
 
         if (SkillData.BurstCount > 0)
         {

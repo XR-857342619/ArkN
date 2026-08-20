@@ -29,7 +29,9 @@ public class BulletEffect : ISkillEffect
             {
                 var pos = data.ContainsKey("TargetPos")
                     ? ParseVector3(data["TargetPos"])
-                    : context.Caster.Position + (Vector3)context.Caster.Direction;
+                    : context.TargetPositions != null && context.TargetPositions.Count > 0
+                        ? context.TargetPositions[0]
+                        : context.Caster.Position + (Vector3)context.Caster.Direction;
                 context.Caster.Battle.CreateBullet(bulletId, startPos, pos, null, context.Skill);
             }
             else

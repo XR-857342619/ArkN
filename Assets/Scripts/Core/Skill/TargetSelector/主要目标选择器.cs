@@ -406,33 +406,41 @@ public class 常用筛选器 : IFilterStrategy
 {
     public string Name => "常用筛选器";
 
+    private readonly Unit _caster;
     private readonly int _targetTeam;
     private readonly SkillTargetFilterEnum _filterEnum;
 
-    public 常用筛选器(int targetTeam, int filterEnum)
+    public 常用筛选器(int targetTeam, int filterEnum) : this(null, targetTeam, filterEnum)
     {
+    }
+
+    public 常用筛选器(SkillContext skillContext, int targetTeam, int filterEnum)
+    {
+        _caster = skillContext?.Caster;
         _targetTeam = targetTeam;
         _filterEnum = (SkillTargetFilterEnum)filterEnum;
     }
+
     public Func<Unit, bool> GetPredicate() => (unit) =>
     {
-        //switch (_filterEnum)
-        //{
-        //    case SkillTargetFilterEnum.召唤物:
-                
-        //        break;
-        //    case SkillTargetFilterEnum.自己以外:
-        //        if (unit == unit.Battle.TriggerDatas.Peek().User) return false;
-        //        break;
-        //    case SkillTargetFilterEnum.仅自己:
-        //        if (unit != unit.Battle.TriggerDatas.Peek().User) return false;
-        //        break;
-        //    case SkillTargetFilterEnum.仅召唤:
-        //        if (unit == null || unit.Parent == null) return false;
-        //        if (unit.Parent != unit.Battle.TriggerDatas.Peek().User) return false;
-        //        break;
-        //}
-        return true;
+        if (unit == null) return false;
+
+        if ((_targetTeam >> unit.Team) % 2 == 0) return false;
+        if (_caster == null) return true;
+
+        switch (_filterEnum)
+        {
+            case SkillTargetFilterEnum.召唤物:
+                return unit != _caster && unit.Parent == _caster;
+            case SkillTargetFilterEnum.自己以外:
+                return unit != _caster;
+            case SkillTargetFilterEnum.仅自己:
+                return unit == _caster;
+            case SkillTargetFilterEnum.仅召唤:
+                return unit.Parent == _caster;
+            default:
+                return true;
+        }
     };
 }
 

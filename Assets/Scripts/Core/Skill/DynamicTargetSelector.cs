@@ -225,18 +225,20 @@ public class DynamicTargetSelector
 
         List<Unit> result = null;
 
-        if (selectors != null)
+        if (selectors == null || selectors.Count == 0)
         {
-            foreach (var node in selectors)
-            {
-                if (node == null) continue;
-                result = ApplySelectorNode(context, result, node);
-            }
+            return new List<Unit>();
+        }
+
+        foreach (var node in selectors)
+        {
+            if (node == null) continue;
+            result = ApplySelectorNode(context, result, node);
         }
 
         if (result == null)
         {
-            result = context.Caster.Battle.AllUnits?.ToList() ?? new List<Unit>();
+            return new List<Unit>();
         }
 
         result = SortTargets(result, sorters, context);

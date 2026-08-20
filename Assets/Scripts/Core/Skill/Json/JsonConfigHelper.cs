@@ -87,14 +87,14 @@ public static class JsonConfigHelper
             return targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
         }
 
-        if (targetType.IsInstanceOfType(raw))
-        {
-            return raw;
-        }
-
         if (targetType == typeof(object))
         {
             return raw is JValue jv ? jv.Value : raw is JToken jt ? jt.ToObject<object>() : raw;
+        }
+
+        if (targetType.IsInstanceOfType(raw))
+        {
+            return raw;
         }
 
         if (targetType.IsEnum)

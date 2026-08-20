@@ -11,6 +11,9 @@ public class EffectDispatcher
     private readonly Dictionary<SkillEffectTrigger, List<EffectNode>> _triggerMap =
         new Dictionary<SkillEffectTrigger, List<EffectNode>>();
 
+    private readonly Dictionary<string, ISkillEffect> _effectCache =
+        new Dictionary<string, ISkillEffect>();
+
     public void Build(List<EffectNode> effects)
     {
         _triggerMap.Clear();
@@ -49,7 +52,7 @@ public class EffectDispatcher
 
         foreach (var node in list)
         {
-            var effect = SkillEffectFactory.Create(node.Type);
+            var effect = GetOrCreateEffect(node.Type);
             if (effect == null)
             {
                 Debug.LogWarning($"EffectDispatcher 未找到效果器: {node.Type}");
@@ -66,6 +69,25 @@ public class EffectDispatcher
             }
         }
     }
+
+    private ISkillEffect GetOrCreateEffect(string effectType)
+    {
+        if (string.IsNullOrEmpty(effectType)) return null;
+
+        if (_effectCache.TryGetValue(effectType, out var cached))
+        {
+            return cached;
+        }
+
+        var effect = SkillEffectFactory.Create(effectType);
+        if (effect != null)
+        {
+            _effectCache[effectType] = effect;
+        }
+
+        return effect;
+    }
+
 
     public bool HasTrigger(SkillEffectTrigger trigger)
     {

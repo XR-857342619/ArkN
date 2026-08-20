@@ -569,9 +569,15 @@ public class Unit
         }
 
         Skill skill = null;
-        if (jsonConfig != null || (skillConfig != null && skillConfig.Type == "Json"))
+        if (jsonConfig != null)
         {
             skill = new JsonSkill();
+        }
+        else if (skillConfig != null && skillConfig.Type == "Json")
+        {
+            Debug.LogError($"技能 {skillConfig.Id} 配置为 JsonSkill，但未找到对应的 SkillJsonData");
+            TipManager.Instance.ShowTip($"JsonSkill 配置缺失：{skillConfig.Id}");
+            return null;
         }
         else if (skillConfig != null)
         {
@@ -593,8 +599,8 @@ public class Unit
         }
         catch (Exception e)
         {
-            Debug.Log(skillConfig.Id+"技能初始化失败");
-            TipManager.Instance.ShowTip(skillConfig.Id+"技能初始化失败"+e.Message);
+            Debug.Log(skillConfig?.Id + "技能初始化失败");
+            TipManager.Instance.ShowTip(skillConfig?.Id + "技能初始化失败" + e.Message);
             Log.Error(e);
         }
         if (parent != null) skill.Parent = parent;
