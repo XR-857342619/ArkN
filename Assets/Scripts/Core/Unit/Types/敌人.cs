@@ -301,20 +301,55 @@ namespace Units
             // 先更新临时路径点（到期的点会被移除并触发重寻路）
             Pathfinder.UpdateTempPoints(SystemConfig.DeltaTime);
 
-            if (!PathWaiting.Finished() && tmpPathPointList.Count == 0)
+            // 补充规则：等待计时在向临时点移动/等待期间继续倒计时。
+            if (tmpPathPointList.Count > 0 || Pathfinder.TempPointWaiting)
+            {
+                PathWaiting.Update(SystemConfig.DeltaTime);
+            }
+
+            // 普通路径点等待：只有没有临时路径点插入时才执行。
+            if (!PathWaiting.Finished() && tmpPathPointList.Count == 0 && !Pathfinder.TempPointWaiting)
             {
                 if (AnimationName == GetMoveAnimation()) SetStatus(StateEnum.Idle);
                 PathWaiting.Update(SystemConfig.DeltaTime + WaitTimeEx);
                 return;
             }
+
+            // 等待临时路径点到期。
+            if (Pathfinder.TempPointWaiting)
+            {
+                if (NeedResetPath)
+                {
+                    Pathfinder.TempPointWaiting = false;
+                }
+                else
+                {
+                    if (AnimationName == GetMoveAnimation()) SetStatus(StateEnum.Idle);
+                    return;
+                }
+
+                // 临时点到期后，若原路径点等待仍有剩余，则原地继续等待。
+                if (!PathWaiting.Finished() && tmpPathPointList.Count == 0)
+                {
+                    if (AnimationName == GetMoveAnimation()) SetStatus(StateEnum.Idle);
+                    return;
+                }
+            }
+
             CheckArrive();
-            // 到达当前路径点后若设置了等待，本帧立即停止移动，等待结束后再继续寻路
-            if (!PathWaiting.Finished())
+
+            // CheckArrive 可能刚到达临时路径点，本帧不再继续移动。
+            if (Pathfinder.TempPointWaiting)
+            {
+                if (AnimationName == GetMoveAnimation()) SetStatus(StateEnum.Idle);
                 return;
+            }
+
             if (TempPath == null || NeedResetPath)//无路径或因为外力走出了预定路线，重寻路
             {
                 Pathfinder.FindNewPath(OnlyCheckPoint);
             }
+
             if (Unbalance || !Visiable) return;//失衡状态下不许主动移动
             if (StopUnit != null)
             {
@@ -332,11 +367,9 @@ namespace Units
                 }
                 return;
             }
+
             AnimationName = GetMoveAnimation();
             AnimationSpeed = 1;
-
-            //if (IsCanArrive(Position, NextPathPoint))
-
 
             var delta = TempTarget - Position;
             if (delta != Vector3.zero) Direction = new Vector2(delta.x, delta.z);
@@ -346,7 +379,7 @@ namespace Units
             else
             {
                 bool success = false;
-                for (int i = currentPathIndex+1; i < PathPoints.Count; i++)
+                for (int i = currentPathIndex + 1; i < PathPoints.Count; i++)
                 {
                     PathPoint point = Pathfinder.GetPoint(i);
                     if (point == null) continue;
@@ -449,6 +482,29 @@ namespace Units
         {
             return StopUnit != null;
         }
+
+        public override void UpdatePush()
+        {
+            bool wasUnbalanced = Unbalance;
+            base.UpdatePush();
+            // 失衡（被推拉）期间，每帧检查是否经过了下一未到达检查点中心。
+            if (wasUnbalanced || Unbalance)
+            {
+                Pathfinder.MarkCheckpointsReachedAtPosition(Position);
+            }
+        }
+
+        /// <summary>
+        /// 传送完成后调用：检查传送目标是否正好是下一未到达检查点，
+        /// 然后无论是否命中都进入重寻路流程。
+        /// </summary>
+        public void AfterTeleport(Vector3 pos)
+        {
+            Pathfinder.MarkCheckpointsReachedAtPosition(pos);
+            NeedResetPath = true;
+            OnlyCheckPoint = true;
+        }
+
 
         protected override void RecoverBalance()
         {

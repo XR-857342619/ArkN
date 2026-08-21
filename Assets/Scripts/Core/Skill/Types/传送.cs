@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -66,14 +66,16 @@ namespace Skills
                 if (target is Units.敌人 enemy)
                 {
                     if (useMod == "Force")
+                    {
                         enemy.Position = pos;
+                        enemy.AfterTeleport(pos);
+                    }
                     else if (useMod == "IfCanArrvie")
                     {
                         if (enemy.IsCanArrive(enemy.Position, pos))
                         {
-                            enemy.NeedResetPath = true;
-                            enemy.OnlyCheckPoint = true;
                             enemy.Position = pos;
+                            enemy.AfterTeleport(pos);
                         }
                     }
                     else if (useMod == ">limitDistance")
@@ -81,9 +83,8 @@ namespace Skills
                         var dis = Vector3.Distance(enemy.Position, pos);
                         if (dis >= distanceLimit)
                         {
-                            enemy.NeedResetPath = true;
-                            enemy.OnlyCheckPoint = true;
                             enemy.Position = pos;
+                            enemy.AfterTeleport(pos);
                         }
                     }
                     else if (useMod == "<limitDistance")
@@ -91,13 +92,13 @@ namespace Skills
                         var dis = Vector3.Distance(enemy.Position, pos);
                         if (dis <= distanceLimit)
                         {
-                            enemy.NeedResetPath = true;
-                            enemy.OnlyCheckPoint = true;
                             enemy.Position = pos;
+                            enemy.AfterTeleport(pos);
                         }
                     }
                 }
             }
+
             base.Cast();
         }
 

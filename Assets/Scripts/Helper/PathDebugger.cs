@@ -14,7 +14,7 @@ public static class PathDebugger
     public static bool Enabled = true;
 
     /// <summary>是否输出路径点日志。日志较多，建议按需打开。</summary>
-    public static bool LogEnabled = false;
+    public static bool LogEnabled = true;
 
     /// <summary>是否使用 Gizmos 绘制（Scene 视图可见）。</summary>
     public static bool DrawEnabled = true;

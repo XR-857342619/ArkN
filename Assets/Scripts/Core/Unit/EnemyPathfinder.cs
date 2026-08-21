@@ -49,6 +49,9 @@ namespace Units
         /// <summary>当前已经走到 TempPath 的第几个点。</summary>
         public int TempIndex;
 
+        /// <summary>已到达临时路径点，正在等待该临时路径点到期。</summary>
+        public bool TempPointWaiting;
+
         /// <summary>技能插入的临时路径点。</summary>
         public List<PathPoint> tmpPathPointList = new List<PathPoint>();
 
@@ -104,6 +107,7 @@ namespace Units
             tmpPathPointLastList.Clear();
             TempPath = null;
             TempIndex = 0;
+            TempPointWaiting = false;
 
             if (waveData == null)
             {
@@ -120,7 +124,19 @@ namespace Units
                 return;
             }
 
-            PathPoints.AddRange(pathInfo.Path);
+            // 深拷贝路径点，保证同波次敌人各自维护独立寻路状态，互不干扰。
+            foreach (var point in pathInfo.Path)
+            {
+                PathPoints.Add(new PathPoint
+                {
+                    Pos = point.Pos,
+                    Delay = point.Delay,
+                    CheckPoint = point.CheckPoint,
+                    HideMove = point.HideMove,
+                    IsArrive = point.IsArrive,
+                    IsTemp = point.IsTemp,
+                });
+            }
 
             // 首尾固定为 CheckPoint，保证至少有两个检查点，避免 NowCheckPoint 越界。
             PathPoints[0].CheckPoint = true;
@@ -136,6 +152,7 @@ namespace Units
             Owner.ScaleX = Owner.TargetScaleX = (NextPathPoint != null && (NextPathPoint.Pos.x - Owner.Position.x) > 0) ? 1 : -1;
 
             PathDebugger.LogPath(Owner.UnitData.Id, "初始化路径点", PathPoints.Select(x => x.Pos).ToList());
+            PathDebugger.LogPath(Owner.UnitData.Id, "当前路径全部检查点", PathPoints.FindAll(x => x.CheckPoint).Select(x => x.Pos).ToList());
         }
 
         /// <summary>
@@ -146,7 +163,8 @@ namespace Units
         public PathPoint GetPoint(int index)
         {
             // 有临时路径点时，临时路径点优先级最高。
-            PathPoint tmpCheckPoint = tmpPathPointList.FirstOrDefault(x => !x.IsArrive);
+            // 多个临时路径点按插入顺序的逆序（最近插入的优先）逐个经过。
+            PathPoint tmpCheckPoint = tmpPathPointList.LastOrDefault(x => !x.IsArrive);
             if (tmpCheckPoint != null)
                 return tmpCheckPoint;
 
@@ -230,7 +248,15 @@ namespace Units
 
             PathDebugger.Log(Owner.UnitData.Id, $"到达路径点 {nowPoint.Pos}，IsTemp={nowPoint.IsTemp}，CheckPoint={nowPoint.CheckPoint}");
 
-            if (!nowPoint.IsTemp)
+            if (nowPoint.IsTemp)
+            {
+                // 到达临时路径点：原地等待该临时点到期，不推进原始路径点。
+                TempPath = null;
+                TempIndex = 0;
+                TempPointWaiting = true;
+                return;
+            }
+
             {
                 currentPathIndex++;
                 nowPoint.IsArrive = true;
@@ -299,51 +325,173 @@ namespace Units
         }
 
         /// <summary>
+        /// 重寻路后按当前位置刷新 CheckPoint 下标。
+        /// 传送/推拉/重寻路技能会把敌人移出原路径，原 currentCheckIndex 可能已过期，
+        /// 导致 FindNewPath 寻路到已经经过的检查点。
+        /// </summary>
+        private void RefreshCheckPointIndexAfterReset()
+        {
+            if (CheckPoints == null || CheckPoints.Count == 0) return;
+
+            // currentPathIndex 是路径推进进度的权威下标。
+            // 先找到最后一个路径下标不超过 currentPathIndex 的检查点，作为“上一个已到达检查点”。
+            int reachedIndex = 0;
+            for (int i = 0; i < CheckPoints.Count; i++)
+            {
+                int checkPathIndex = PathPoints.IndexOf(CheckPoints[i]);
+                if (checkPathIndex >= 0 && checkPathIndex <= currentPathIndex)
+                {
+                    reachedIndex = i;
+                }
+            }
+
+            currentCheckIndex = Mathf.Clamp(reachedIndex, 0, CheckPoints.Count - 1);
+
+            int pathIndex = PathPoints.IndexOf(CheckPoints[currentCheckIndex]);
+            if (pathIndex < 0) pathIndex = currentPathIndex;
+
+            currentPathIndex = pathIndex;
+            for (int i = 0; i <= currentPathIndex; i++)
+                PathPoints[i].IsArrive = true;
+        }
+
+        /// <summary>
+        /// 外部位置变化（推拉/传送）后，检查敌人是否已经位于下一个未到达检查点中心。
+        /// 若已经到达，则更新检查点状态并继续检测下一个，直到不满足距离条件或所有检查点均已到达。
+        /// </summary>
+        public void MarkCheckpointsReachedAtPosition(Vector3 position)
+        {
+            if (CheckPoints == null || CheckPoints.Count == 0) return;
+
+            int loopGuard = 0;
+            while (loopGuard++ < CheckPoints.Count)
+            {
+                PathPoint next = NextCheckPoint;
+                if (next == null || next.IsArrive) break;
+
+                if ((next.Pos - position).sqrMagnitude <= 敌人.TempArriveDistance)
+                {
+                    MarkCheckPointArrived(next);
+                    continue;
+                }
+
+                break;
+            }
+        }
+
+        private void MarkCheckPointArrived(PathPoint checkpoint)
+        {
+            int checkIndex = CheckPoints.IndexOf(checkpoint);
+            if (checkIndex < 0) return;
+
+            int pathIndex = PathPoints.IndexOf(checkpoint);
+            if (pathIndex >= 0 && pathIndex >= currentPathIndex)
+            {
+                for (int i = currentPathIndex; i <= pathIndex && i < PathPoints.Count; i++)
+                {
+                    PathPoints[i].IsArrive = true;
+                }
+
+                currentPathIndex = Mathf.Min(pathIndex + 1, PathPoints.Count - 1);
+            }
+
+            checkpoint.IsArrive = true;
+            currentCheckIndex = Mathf.Clamp(checkIndex + 1, 0, CheckPoints.Count - 1);
+
+            PathDebugger.Log(Owner.UnitData.Id, $"外部位移经过检查点 {checkpoint.Pos}");
+        }
+
+        /// <summary>
         /// 重新计算“当前位置 -> 下一路径点”的临时路径。
         /// </summary>
         public void FindNewPath(bool onlyCheckPoint)
         {
-            Vector3 start = Owner.Position;
-            PathPoint nextPoint = NextPathPoint;
-            Vector3 end = nextPoint != null ? nextPoint.Pos : start;
-
-            PathDebugger.Log(Owner.UnitData.Id, $"开始寻路: start={start} end={end} onlyCheckPoint={onlyCheckPoint}");
+            // 重寻路（传送/推拉/地块变更）后，若处于 OnlyCheckPoint 模式，
+            // 需要根据当前位置重新定位“下一个未到达的 CheckPoint”，避免退回已经经过的检查点。
+            if (NeedResetPath && OnlyCheckPoint)
+            {
+                RefreshCheckPointIndexAfterReset();
+            }
 
             Vector3 offset = new Vector3(Owner.WaveData.OffsetX, 0, Owner.WaveData.OffetsetY);
 
-            bool sameGrid = Mathf.RoundToInt(start.x) == Mathf.RoundToInt(end.x)
-                            && Mathf.RoundToInt(start.z) == Mathf.RoundToInt(end.z);
-
-            if (sameGrid || Owner.Height > 0)
+            while (true)
             {
-                // 同一格或飞行单位：直接连线即可，不需要 A*
-                TempPath = new List<Vector3> { start - offset, end - offset };
-            }
-            else
-            {
-                // 地面单位：A* 寻路
-                TempPath = AStarPathFinder.FindPath(Owner.Battle.Map.Tiles, new List<Vector3> { start - offset, end - offset }, false);
-            }
+                Vector3 start = Owner.Position;
+                PathPoint nextPoint = NextPathPoint;
+                Vector3 end = nextPoint != null ? nextPoint.Pos : start;
 
-            // 极端情况保护：A* 失败返回空路径时，退化为两点直线，避免 TempTarget 越界。
-            if (TempPath == null || TempPath.Count == 0)
-            {
-                Debug.LogWarning($"[EnemyPathfinder] A* 返回空路径，退化为直线。start={start} end={end}");
-                TempPath = new List<Vector3> { start - offset, end - offset };
+                PathDebugger.Log(Owner.UnitData.Id, $"开始寻路: start={start} end={end} onlyCheckPoint={onlyCheckPoint}");
+
+                bool sameGrid = Mathf.RoundToInt(start.x) == Mathf.RoundToInt(end.x)
+                                && Mathf.RoundToInt(start.z) == Mathf.RoundToInt(end.z);
+
+                if (sameGrid || Owner.Height > 0)
+                {
+                    // 同一格或飞行单位：直接连线即可，不需要 A*
+                    TempPath = new List<Vector3> { start - offset, end - offset };
+                }
+                else
+                {
+                    // 地面单位：A* 寻路
+                    TempPath = AStarPathFinder.FindPath(Owner.Battle.Map.Tiles, new List<Vector3> { start - offset, end - offset }, false);
+                }
+
+                if (TempPath != null && TempPath.Count > 0)
+                {
+                    // 把 offset 加回去，让临时路径回到世界坐标
+                    for (int i = 0; i < TempPath.Count; i++)
+                    {
+                        TempPath[i] += offset;
+                    }
+
+                    TempIndex = 0;
+                    NeedResetPath = false;
+
+                    PathDebugger.DrawPath(TempPath, Color.yellow, 1f);
+                    PathDebugger.LogPath(Owner.UnitData.Id, "临时路径", TempPath);
+                    return;
+                }
+
+                // A* 无法生成有效临时路径。
+                if (nextPoint == null)
+                {
+                    Debug.LogWarning($"[EnemyPathfinder] A* 返回空路径且无下一路径点。start={start}");
+                    TempPath = new List<Vector3> { start - offset, end - offset };
+                    for (int i = 0; i < TempPath.Count; i++)
+                    {
+                        TempPath[i] += offset;
+                    }
+                    TempIndex = 0;
+                    NeedResetPath = false;
+                    return;
+                }
+
+                if (nextPoint.IsTemp)
+                {
+                    // 临时插入的检查点不可达：无视该检查点，继续尝试下一个检查点。
+                    Debug.LogWarning($"[EnemyPathfinder] 临时路径点不可达，已忽略: {nextPoint.Pos}");
+                    int tmpIndex = tmpPathPointList.IndexOf(nextPoint);
+                    if (tmpIndex >= 0)
+                    {
+                        tmpPathPointList.RemoveAt(tmpIndex);
+                        if (tmpIndex < tmpPathPointLastList.Count)
+                            tmpPathPointLastList.RemoveAt(tmpIndex);
+                    }
+                    nextPoint.IsArrive = true;
+                    nextPoint.CheckPoint = false;
+                    nextPoint.IsTemp = false;
+                    continue;
+                }
+
+                // 原路径包含的检查点不可达：直接传送至该检查点，并开始下一轮寻路。
+                Debug.LogWarning($"[EnemyPathfinder] 原路径点不可达，传送至该点: {nextPoint.Pos}");
+                Owner.Position = nextPoint.Pos;
+                OnArriveAtPathPoint();
+                continue;
             }
-
-            // 把 offset 加回去，让临时路径回到世界坐标
-            for (int i = 0; i < TempPath.Count; i++)
-            {
-                TempPath[i] += offset;
-            }
-
-            TempIndex = 0;
-            NeedResetPath = false;
-
-            PathDebugger.DrawPath(TempPath, Color.yellow, 1f);
-            PathDebugger.LogPath(Owner.UnitData.Id, "临时路径", TempPath);
         }
+
 
         /// <summary>
         /// 尝试插入一个临时路径点（例如技能生成的地块）。
@@ -363,7 +511,6 @@ namespace Units
                 if (index >= 0 && index < tmpPathPointLastList.Count)
                 {
                     tmpPathPointLastList[index].value += time;
-                    PathWaiting.Finish();
                 }
                 PathDebugger.Log(Owner.UnitData.Id, $"更新已存在的临时路径点: {pos} +{time}s");
                 return true;
@@ -382,6 +529,8 @@ namespace Units
             tmpPathPointList.Add(tmpPoint);
             tmpPathPointLastList.Add(new CountDown(time));
 
+            // 新临时点插入后立即以该点为目标（LIFO），并结束可能在旧临时点的等待。
+            TempPointWaiting = false;
             OnlyCheckPoint = true;
             FindNewPath(OnlyCheckPoint);
 

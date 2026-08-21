@@ -541,7 +541,7 @@ public class Skill
     {
         if (!Useable())
         {
-            Debug.Log(SkillData.Id + "不可用");
+            //Debug.Log(SkillData.Id + "不可用");
             return;
         }
         if (Targets.Count == 0)
@@ -562,7 +562,7 @@ public class Skill
         }
         else if (!SkillData.NoTargetAlsoUse)
         {
-            Debug.Log(SkillData.Id + "无可用目标");
+            //Debug.Log(SkillData.Id + "无可用目标");
             return;
         }
         //走到这里技能就真的用出来了
@@ -570,7 +570,7 @@ public class Skill
         
         if (showRange)
             ShowUnitAttackArea();
-        Debug.Log(SkillData.Id + "开始使用");
+        //Debug.Log(SkillData.Id + "开始使用");
         //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "使用次数:" + UseCount);
         if (SkillData.ReadyType == SkillReadyEnum.充能释放)
         {
@@ -673,7 +673,7 @@ public class Skill
             Power -= MaxPower;
         }
 
-        Debug.Log(SkillData.Id + "生效");
+        //Debug.Log(SkillData.Id + "生效");
 
         //if (SkillData.PowerUseType == PowerRecoverTypeEnum.攻击 && IsNormalAttack)//有动作有伤害的技能视为普攻，用于消耗弹药
         if (SkillData.PowerUseType == PowerRecoverTypeEnum.攻击)//有动作有伤害的技能视为普攻，用于消耗弹药
@@ -726,7 +726,7 @@ public class Skill
                 if (SkillData.Bullet == null) foreach (var t in a) removeBuff(t);
             }
         }
-        Debug.Log($"{SkillData.Name}的特殊效果开始生效");
+        //Debug.Log($"{SkillData.Name}的特殊效果开始生效");
         SpSkillEffect();
 
         CastExSkill();

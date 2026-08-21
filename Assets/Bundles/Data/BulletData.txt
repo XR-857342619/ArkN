@@ -78,3 +78,12 @@
 {"Id":"真言天赋弹道","Type":"大飞镖","Model":"frostl_attack_01_trail","Speed":10,"Data":{"LifeTime":99999,"Radius":0.5,"Trigger":0.02,"MoveHeight":2,"TriggerTimes":9999,"TargetTeam":2,"MaxTargetCount":9999}}
 {"Id":"逻附加子弹","Type":"子弹","Model":"common_magic_trail_01","Speed":50,"FaceCamera":2}
 {"Id":"艾拉弹道","Type":"子弹","Model":"angle_skill_01_trail","Speed":200,"FaceCamera":2}
+{"Id":"测试弩箭","Type":"冲击波","Model":"platnm_attack_01_trail","Speed":2}
+{"Id":"M3链式弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":5,"EffectBase":1,"Data":{"MoveHeight":0,"MaxLinkNum":4,"SkillId":"干员链式弹道索敌","ReductionRate":0.1,"CanBack":"false"}}
+{"Id":"逻附加子弹","Type":"子弹","Model":"common_magic_trail_01","Speed":50,"FaceCamera":2}
+{"Id":"烛煌弹道","Type":"子弹","Model":"skfire_skill_02_trail","Speed":50,"FaceCamera":2}
+{"Id":"真言2链式弹道","Type":"链式弹道","Model":"common_magic_trail_01","Speed":10,"EffectBase":1,"Data":{"MoveHeight":0,"MaxLinkNum":4,"ReductionRate":0,"SkillId":"真言链式弹道索敌","CanBack":"false"}}
+{"Id":"真言3链式弹道","Type":"链式弹道","Model":"common_magic_trail_01","Speed":10,"EffectBase":1,"Data":{"MoveHeight":0,"MaxLinkNum":2,"ReductionRate":0,"SkillId":"真言链式弹道索敌","CanBack":"false"}}
+{"Id":"魂灵之影","Type":"子弹","Model":"aglina_attack_01_trail","Speed":20,"FaceCamera":2}
+{"Id":"维什戴尔2","Type":"子弹","Model":"aglina_attack_01_trail","Speed":10,"FaceCamera":2,"Data":{"MoveHeight":5}}
+{"Id":"艾拉弹道","Type":"子弹","Model":"angle_skill_01_trail","Speed":200,"FaceCamera":2}
