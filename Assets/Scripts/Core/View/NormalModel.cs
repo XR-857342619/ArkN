@@ -26,6 +26,7 @@ public class NormalModel : UnitModel
         this.Unit = unit;
         string Color = unit.UnitData.Ablititys.GetStr("Color");
         float Alpha = unit.UnitData.Ablititys.GetFloat("Alpha");
+        float Size = unit.UnitData.Ablititys.GetFloat("Size",1f);
         //Debug.Log(Color + "," + Alpha);
         //gameObject.SetActive(false);
         Animator?.Play(Unit.AnimationName[0]);
@@ -35,6 +36,7 @@ public class NormalModel : UnitModel
             SetColorFromHex(Color);
             SetAlpha(Alpha);
         }
+        transform.localScale = new Vector3(Size, 1, Size);
         // AlignHeight 统一由 Unit.CreateModel / 单位位置变更时调用
     }
 

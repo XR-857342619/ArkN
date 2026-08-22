@@ -91,18 +91,6 @@ public class MapManager : MonoBehaviour
         Action = null;
     }
 
-
-    //StartEndModifier startEndModifier = new StartEndModifier()
-    //{
-    //    exactStartPoint = StartEndModifier.Exactness.ClosestOnNode,
-    //    exactEndPoint = StartEndModifier.Exactness.ClosestOnNode,
-    //};
-    //RaycastModifier raycastModifier = new RaycastModifier()
-    //{
-    //    useGraphRaycasting = true,
-    //    useRaycasting = false,
-    //    //thickRaycastRadius = 0.25f
-    //};
     LineRenderer Line;
     Pool<Transform> Pool = new Pool<Transform>();
     List<Transform> Sphere = new List<Transform>();
@@ -138,45 +126,6 @@ public class MapManager : MonoBehaviour
             List<Vector3> rawPath = points.Select(x => x.Pos).ToList();
             List<Vector3> pathPoints = AStarPathFinder.FindPath(Grids, rawPath, fly);
 
-            //if (!fly)
-            //{
-            //    //// 处理非飞行路径
-            //    //for (int i = 0; i < points.Count - 1; i++)
-            //    //{
-            //    //    PathPoint point = points[i];
-            //    //    if (points[i].HideMove)
-            //    //    {
-            //    //        pathPoints.Add(points[i].Pos);
-            //    //        pathPoints.Add(points[i + 1].Pos);
-            //    //    }
-            //    //    //else
-            //    //    //{
-            //    //    //    //var p = ABPath.Construct(points[i].Pos, points[i + 1].Pos);
-            //    //    //    //AstarPath.StartPath(p);
-            //    //    //    //p.BlockUntilCalculated();
-
-            //    //    //    //startEndModifier.Apply(p);
-
-            //    //    //    //if (p.vectorPath.Count > 0 && (points[i].DirectMove || points[i].HideMove))
-            //    //    //    //    raycastModifier.Apply(p);
-
-            //    //    //    //pathPoints.AddRange(p.vectorPath);
-            //    //    //    List<Vector3> p = new List<Vector3>();
-            //    //    //    p.AddRange(AStarPathFinder.FindPath(Grids, point.Pos, points[i + 1].Pos));
-            //    //    //    //if (p.Count > 2)
-            //    //    //    pathPoints.AddRange(p);
-            //    //    //}
-            //    //}
-            //}
-            //else
-            //{
-            //    // 处理飞行路径
-            //    pathPoints.AddRange(points.Select(x => x.Pos));
-            //}
-
-            // 应用贝塞尔曲线平滑处理
-            //List<Vector3> smoothedPoints = ApplyBezierSmoothing(pathPoints);
-
             // 调整Y轴高度
             for (int i = 0; i < pathPoints.Count; i++)
             {
@@ -193,61 +142,6 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    ///// <summary>
-    ///// 对路径点应用贝塞尔曲线平滑处理
-    ///// </summary>
-    //private List<Vector3> ApplyBezierSmoothing(List<Vector3> originalPoints)
-    //{
-    //    if (originalPoints.Count < 3)
-    //    {
-    //        // 少于3个点，无需平滑处理
-    //        return new List<Vector3>(originalPoints);
-    //    }
-
-    //    List<Vector3> smoothedPoints = new List<Vector3>();
-
-    //    // 添加第一个点
-    //    smoothedPoints.Add(originalPoints[0]);
-
-    //    // 处理中间的每个拐角
-    //    for (int i = 1; i < originalPoints.Count - 1; i++)
-    //    {
-    //        Vector3 prevPoint = originalPoints[i - 1];
-    //        Vector3 currentPoint = originalPoints[i];
-    //        Vector3 nextPoint = originalPoints[i + 1];
-
-    //        // 计算当前点与前后点的方向
-    //        Vector3 dirToCurrent = (currentPoint - prevPoint).normalized;
-    //        Vector3 dirFromCurrent = (nextPoint - currentPoint).normalized;
-
-    //        // 计算拐角处的起点和终点偏移
-    //        Vector3 startTangent = currentPoint - dirToCurrent * cornerSmoothDistance;
-    //        Vector3 endTangent = currentPoint + dirFromCurrent * cornerSmoothDistance;
-
-    //        // 使用贝塞尔曲线生成过渡点
-    //        for (int j = 1; j <= segmentsPerCorner; j++)
-    //        {
-    //            float t = j / (float)segmentsPerCorner;
-    //            Vector3 bezierPoint = CalculateQuadraticBezier(startTangent, currentPoint, endTangent, t);
-    //            smoothedPoints.Add(bezierPoint);
-    //        }
-    //    }
-
-    //    // 添加最后一个点
-    //    smoothedPoints.Add(originalPoints[originalPoints.Count - 1]);
-
-    //    return smoothedPoints;
-    //}
-
-    ///// <summary>
-    ///// 计算二次贝塞尔曲线上的点
-    ///// </summary>
-    //private Vector3 CalculateQuadraticBezier(Vector3 start, Vector3 control, Vector3 end, float t)
-    //{
-    //    float u = 1 - t;
-    //    return u * u * start + 2 * u * t * control + t * t * end;
-    //}
-
     public void AutoBuild()
     {
         var mapRoot = GameObject.Find("S_playground");
@@ -261,47 +155,6 @@ public class MapManager : MonoBehaviour
             gr.Y = (int)(t.transform.position.z);
             gr.FarAttackGrid = gr.transform.localPosition.y != 0;
             gr.CanMove = !gr.FarAttackGrid;
-            //Transform t1 = null;
-            //if (t.childCount == 0)
-            //{
-            //    var g = new GameObject("tile" + i);
-            //    g.transform.parent = transform;
-            //    t.transform.parent = g.transform;
-            //    var gr = t.GetComponent<MapGrid>();
-            //    if (gr != null) DestroyImmediate(gr);
-            //    t1 = t;
-            //    t = g.transform;
-            //    t.transform.position = t1.transform.position+new Vector3(0,0.5f,0);
-            //    t1.transform.localPosition = new Vector3(0, -0.5f, 0);
-            //}
-            //else
-            //{
-            //    t1 = t.GetChild(0).transform;
-            //}
-            //var grid = t.GetComponent<MapGrid>();
-            //if (grid == null) grid = t.gameObject.AddComponent<MapGrid>();
-            //grid.AutoBuild();
-            //grid.X = Mathf.RoundToInt( t.transform.position.x);
-            //grid.Y = Mathf.RoundToInt(t.transform.position.z);
-            //t.name = "Grid:" + grid.X + "," + grid.Y + "," + grid.MapUnitId;
-            //t.position = new Vector3(grid.X, t.transform.position.y, grid.Y);
-            //var texName = t1.GetComponent<Renderer>().sharedMaterial.mainTexture.name;
-            ////根据贴图名自动匹配
-            //switch (texName)
-            //{
-            //    case "caution_000":
-            //        grid.CanBuildUnit = false;
-            //        break;
-            //    case "stone_000":
-            //        //grid.
-            //        break;
-            //    case "stone_002":
-            //        grid.FarAttackGrid = true;
-            //        break;
-            //    default:
-            //        Debug.Log($"未自动设置的贴图名:{texName}");
-            //        break;
-            //}
         }
         Debug.Log("自动设置地图信息完成");
     }

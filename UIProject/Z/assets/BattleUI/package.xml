@@ -21,9 +21,7 @@
     <image id="kbte3z" name="图层 1.png" path="/"/>
     <component id="kbte40" name="CostBar.xml" path="/"/>
     <component id="h4sa41" name="BattleUnit.xml" path="/" exported="true"/>
-    <component id="h4sa42" name="Hp1.xml" path="/"/>
-    <component id="h4sa43" name="SK0.xml" path="/"/>
-    <component id="h4sa45" name="Hp2.xml" path="/"/>
+    <component id="h4sa43" name="CommonBar.xml" path="/"/>
     <image id="h4sa46" name="n37.png" path="/"/>
     <component id="kbte47" name="SkillUsePanel.xml" path="/"/>
     <component id="kbte48" name="MainSkillInfo.xml" path="/"/>

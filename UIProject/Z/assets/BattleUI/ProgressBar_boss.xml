@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="744,155" extention="ProgressBar">
+  <controller name="type" exported="true" pages="0,,1," selected="1"/>
   <displayList>
+    <graph id="n5_f5hu" name="n1" xy="111,73" size="521,9" alpha="0.5" type="rect" fillColor="#ff999999">
+      <gearDisplay controller="type" pages="1"/>
+      <gearColor controller="type" pages="1" values="#999999" default="#cc3300"/>
+    </graph>
     <image id="n0_hwog" name="n0" src="hwogsn" fileName="sprite_enemy_boss_avatar_bg.png" xy="0,0" size="744,155">
+      <gearDisplay controller="type" pages="0"/>
       <relation target="" sidePair="width-width,height-height"/>
     </image>
-    <graph id="n1_hwog" name="bar" xy="111,73" size="521,9" type="rect" fillColor="#ffcc3300"/>
-    <image id="n2_hwog" name="n2" src="hwogsl" fileName="sprite_enemy_boss_hp_hit_effect.png" xy="102,64"/>
-    <image id="n3_hwog" name="n3" src="hwogsm" fileName="sprite_enemy_boss_hud_large.png" xy="342,52"/>
+    <graph id="n1_hwog" name="bar" xy="111,73" size="521,9" type="rect" fillColor="#ffccff00">
+      <gearColor controller="type" pages="1" values="#ccff00" default="#cc3300"/>
+    </graph>
+    <image id="n2_hwog" name="n2" src="hwogsl" fileName="sprite_enemy_boss_hp_hit_effect.png" xy="102,64">
+      <gearDisplay controller="type" pages="0"/>
+    </image>
+    <image id="n3_hwog" name="n3" src="hwogsm" fileName="sprite_enemy_boss_hud_large.png" xy="342,52">
+      <gearDisplay controller="type" pages="0"/>
+    </image>
     <text id="n4_hwog" name="title" xy="367,84" size="10,42" fontSize="30" color="#ffffff" align="center" vAlign="middle" strokeColor="#000000" singleLine="true" autoClearText="true" text="">
+      <gearDisplay controller="type" pages="0"/>
       <relation target="" sidePair="center-center%"/>
     </text>
   </displayList>

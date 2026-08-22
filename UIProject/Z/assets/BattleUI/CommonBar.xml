@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="114,8" extention="ProgressBar">
+  <controller name="useControl" exported="true" pages="11,,17,,12,,0,,13,,14,,10,,1," selected="7">
+    <remark page="0" value="红"/>
+    <remark page="1" value="橙"/>
+    <remark page="2" value="黄"/>
+    <remark page="3" value="绿"/>
+    <remark page="4" value="蓝"/>
+    <remark page="5" value="紫"/>
+    <remark page="6" value="粉"/>
+    <remark page="7" value="使用"/>
+  </controller>
+  <controller name="ShowDetail" exported="true" pages="0,,1," selected="1"/>
+  <displayList>
+    <graph id="n31_h4sa" name="n31" xy="0,0" size="114,8" type="rect" lineSize="0" fillColor="#7f000000">
+      <relation target="" sidePair="width-width%,height-height%"/>
+    </graph>
+    <graph id="n35_h4sa" name="bar" xy="0,0" size="114,8" type="rect" lineSize="0" fillColor="#ffffcc00">
+      <gearColor controller="useControl" pages="11,17,12,13,14,10,1" values="#ff0000|#ff9900|#ffff00|#66ccff|#ff00ff|#ff99ff|#ffcc00" default="#ccff00"/>
+    </graph>
+    <text id="n36_f5hu" name="title" xy="52,-19" size="10,29" fontSize="20" color="#ffffff" strokeColor="#000000" text="">
+      <gearDisplay controller="ShowDetail" pages="1"/>
+      <relation target="" sidePair="center-center%"/>
+    </text>
+  </displayList>
+  <ProgressBar/>
+</component>

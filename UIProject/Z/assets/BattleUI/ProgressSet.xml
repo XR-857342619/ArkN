@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="50,50">
-  <controller name="BarType" exported="true" pages="0,,1,,2,,3,,4,,5,,6,,7,,8," selected="0"/>
+  <controller name="BarType" exported="true" pages="0,,1,,2,,3,,4,,5,,6,,7,,8,,9," selected="9">
+    <remark page="0" value="三角"/>
+    <remark page="1" value="入梦"/>
+    <remark page="2" value="恐惧"/>
+    <remark page="3" value="元素"/>
+    <remark page="4" value="Boss"/>
+    <remark page="5" value="技力"/>
+    <remark page="6" value="干员血条"/>
+    <remark page="7" value="敌方血条"/>
+    <remark page="8" value="弹药"/>
+    <remark page="9" value="圆"/>
+  </controller>
   <displayList>
     <component id="n0_p78x" name="n0" src="hwogsk" fileName="ProgressBar_shield.xml" xy="0,0">
       <gearDisplay controller="BarType" pages="0"/>
@@ -36,6 +47,10 @@
     </component>
     <component id="n8_p78x" name="n8" src="p78xto" fileName="ProgressBar_hunter.xml" xy="0,0">
       <gearDisplay controller="BarType" pages="8"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n9_f5hu" name="n9" src="kbte3p" fileName="circleBar.xml" xy="12,12" pivot="0.5,0.5" size="25,25">
+      <gearDisplay controller="BarType" pages="9"/>
       <ProgressBar value="50" max="100"/>
     </component>
   </displayList>

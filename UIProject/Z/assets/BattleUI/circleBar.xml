@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="100,100" extention="ProgressBar">
   <displayList>
-    <image id="n25_hwog" name="n25" src="hwogsu" fileName="sprite_respawn_ring.png" xy="0,0" visible="false"/>
-    <image id="n22_hwog" name="bar" src="hwogst" fileName="sprite_respawn_cd.png" xy="-6,-6" fillMethod="radial360" fillAmount="72"/>
+    <image id="n25_hwog" name="n25" src="hwogsu" fileName="sprite_respawn_ring.png" xy="0,0" aspect="true" visible="false">
+      <relation target="" sidePair="width-width,height-height"/>
+    </image>
+    <image id="n22_hwog" name="bar" src="hwogst" fileName="sprite_respawn_cd.png" xy="-6,-6" aspect="true" fillMethod="radial360" fillAmount="72">
+      <relation target="" sidePair="width-width,height-height"/>
+    </image>
   </displayList>
   <ProgressBar reverse="true"/>
 </component>
