@@ -15,10 +15,19 @@ using UnityEngine;
 /// - 过滤、数学计算、属性赋值
 /// - 缓存机制（包含参数名和类型）
 /// </summary>
+public enum NumericChangeMode
+{
+    Add,
+    Set,
+    Max,
+}
+
 public class UnifiedExpressionEngine
 {
     private static readonly Dictionary<string, Delegate> _compiledExpressions = new Dictionary<string, Delegate>();
     private static readonly Dictionary<Type, Dictionary<string, MemberInfo>> _memberCache = new Dictionary<Type, Dictionary<string, MemberInfo>>();
+    private static readonly Dictionary<string, Func<object, float>> _numericGetterCache = new Dictionary<string, Func<object, float>>();
+    private static readonly Dictionary<string, Action<object, float>> _numericSetterCache = new Dictionary<string, Action<object, float>>();
 
     private readonly object _context;
     private readonly List<Unit> _targets;
@@ -118,6 +127,98 @@ public class UnifiedExpressionEngine
     {
         foreach (var expr in expressions)
             ExecuteAssignment(expr, contextName, targetName);
+    }
+
+    // ===== 4. 数值变化类 Buff 专用：无反射的成员读取与修改 =====
+    public float GetNumericValue(object target, string memberPath)
+    {
+        if (target == null) throw new ArgumentNullException(nameof(target));
+        if (string.IsNullOrEmpty(memberPath)) throw new ArgumentException("成员路径不能为空", nameof(memberPath));
+
+        var key = target.GetType().FullName + "|" + memberPath;
+        if (!_numericGetterCache.TryGetValue(key, out var getter))
+        {
+            getter = CompileNumericGetter(target.GetType(), memberPath);
+            _numericGetterCache[key] = getter;
+        }
+
+        return getter(target);
+    }
+
+    public void ApplyNumericChange(object target, string memberPath, float value, NumericChangeMode mode)
+    {
+        if (target == null) throw new ArgumentNullException(nameof(target));
+        if (string.IsNullOrEmpty(memberPath)) throw new ArgumentException("成员路径不能为空", nameof(memberPath));
+
+        var key = target.GetType().FullName + "|" + memberPath + "|" + mode;
+        if (!_numericSetterCache.TryGetValue(key, out var setter))
+        {
+            setter = CompileNumericSetter(target.GetType(), memberPath, mode);
+            _numericSetterCache[key] = setter;
+        }
+
+        setter(target, value);
+    }
+
+    private Func<object, float> CompileNumericGetter(Type targetType, string memberPath)
+    {
+        var targetParam = Expression.Parameter(typeof(object), "target");
+        var typedTarget = Expression.Convert(targetParam, targetType);
+        var member = BuildMemberExpression(typedTarget, memberPath);
+        var body = Expression.Convert(member, typeof(float));
+
+        return Expression.Lambda<Func<object, float>>(body, targetParam).Compile();
+    }
+
+    private Action<object, float> CompileNumericSetter(Type targetType, string memberPath, NumericChangeMode mode)
+    {
+        var targetParam = Expression.Parameter(typeof(object), "target");
+        var valueParam = Expression.Parameter(typeof(float), "value");
+        var typedTarget = Expression.Convert(targetParam, targetType);
+        var member = BuildMemberExpression(typedTarget, memberPath);
+
+        Expression valueExpr;
+        switch (mode)
+        {
+            case NumericChangeMode.Set:
+                valueExpr = Expression.Convert(valueParam, member.Type);
+                break;
+            case NumericChangeMode.Add:
+                valueExpr = Expression.Convert(
+                    Expression.Add(Expression.Convert(member, typeof(float)), valueParam),
+                    member.Type);
+                break;
+            case NumericChangeMode.Max:
+                var current = Expression.Convert(member, typeof(float));
+                var max = Expression.Condition(
+                    Expression.GreaterThan(current, valueParam),
+                    current,
+                    valueParam);
+                valueExpr = Expression.Convert(max, member.Type);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+        }
+
+        var assign = Expression.Assign(member, valueExpr);
+        return Expression.Lambda<Action<object, float>>(assign, targetParam, valueParam).Compile();
+    }
+
+    private Expression BuildMemberExpression(Expression instance, string memberPath)
+    {
+        Expression current = instance;
+            var parts = memberPath.Split('.');
+
+
+        for (int i = 0; i < parts.Length; i++)
+        {
+            if (string.IsNullOrEmpty(parts[i]))
+                throw new ArgumentException($"成员路径非法: {memberPath}", nameof(memberPath));
+
+            current = Expression.PropertyOrField(current, parts[i]);
+        }
+
+        return current;
     }
 
     // ===== 核心编译 =====
@@ -280,8 +381,8 @@ public class UnifiedExpressionEngine
     }
 
     public static void ClearCache()
-    {
         _compiledExpressions.Clear();
         _memberCache.Clear();
-    }
+        _numericGetterCache.Clear();
+        _numericSetterCache.Clear();
 }

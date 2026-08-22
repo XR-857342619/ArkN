@@ -7,7 +7,7 @@ namespace Buffs
     /// <summary>
     /// 可叠加减伤（独立实现，不依赖原减伤类）
     /// </summary>
-    public class 叠加类减伤 : Buff, IDamageModify
+    public class 叠加类减伤 : MultiLevelBuff, IDamageModify
     {
         // 从原减伤类复制过来的字段
         private int buffId = -1;
@@ -15,13 +15,13 @@ namespace Buffs
         private float basicRate;
 
         // 叠加特有字段
-        public int Level;
-        public int MaxLevel;
+        //public int Level;
+        //public int MaxLevel;
         public int AddValue;
 
         public override void Init()
         {
-            IsMultiLevel = true;
+            //IsMultiLevel = true;
             base.Init();
 
             // 读取基础减伤配置（与原减伤相同）

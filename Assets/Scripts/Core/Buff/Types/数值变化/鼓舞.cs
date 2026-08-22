@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +8,14 @@ namespace Buffs
 {
     public class 鼓舞 : Buff
     {
-        protected string[] names;
+        private string[] names;
+        private UnifiedExpressionEngine engine;
+
         public override void Init()
         {
             base.Init();
+            engine = new UnifiedExpressionEngine(this);
+
             var datas = BuffData.Data.GetArray("t");
             names = new string[datas.Length];
             for (int i = 0; i < datas.Length; i++)
@@ -24,38 +28,19 @@ namespace Buffs
         {
             for (int i = 0; i < names.Length; i++)
             {
-                string fieldName = (string)names[i];
-                var field = Unit.GetType().GetField(fieldName);
-                if (field == null)
-                {
-                    Log.Debug($"{Unit.UnitData.Id} 没有 属性 {fieldName}");
-                    continue;
-                }
-                float baseValue = (float)field.GetValue(Unit);
-                field.SetValue(Unit, baseValue + GetValue(i));
-                UnityEngine.Debug.Log($"{Unit.UnitData.Id}的{names[i]}变成{field.GetValue(Unit)}");
+                engine.ApplyNumericChange(Unit, names[i], GetValue(i), NumericChangeMode.Add);
             }
         }
 
         public override void ApplyToBullet()
         {
-            Log.Debug("开始应用数值变化buff");
             for (int i = 0; i < names.Length; i++)
             {
-                string fieldName = (string)names[i];
-                var field = Bullet.GetType().GetField(fieldName);
-                if (field == null)
-                {
-                    Log.Debug($"{Bullet.BulletData.Id} 没有 属性 {fieldName}");
-                    continue;
-                }
-                float baseValue = (float)field.GetValue(Bullet);
-                field.SetValue(Bullet, baseValue + GetValue(i));
-                Log.Debug($"{Bullet.BulletData.Id}的{names[i]}变成{field.GetValue(Bullet)}");
+                engine.ApplyNumericChange(Bullet, names[i], GetValue(i), NumericChangeMode.Add);
             }
         }
 
-        protected virtual float GetValue(int i)
+        private float GetValue(int i)
         {
             return Skill.SkillData.GetBuffData(Index)[i] * Skill.Unit.Attack;
         }

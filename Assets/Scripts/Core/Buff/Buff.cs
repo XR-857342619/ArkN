@@ -24,7 +24,6 @@ public class Buff
 
     public Buff RelayBuff;
     public bool Dead;
-    public bool IsMultiLevel = false;
 
     public float isBlocking = -1.0f;
 

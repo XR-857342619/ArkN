@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,20 +6,31 @@ using System.Threading.Tasks;
 
 namespace Buffs
 {
-    public class 数值变化叠加 : 数值变化
+    public class 数值变化叠加 : MultiLevelBuff
     {
-        public int Level;
-        public int MaxLevel;
+        private string[] names;
+        private UnifiedExpressionEngine engine;
+
+        //public int Level;
+        //public int MaxLevel;
         public int AddValue;
 
         public override void Init()
         {
-            IsMultiLevel = true;
+            //IsMultiLevel = true;
             base.Init();
+            engine = new UnifiedExpressionEngine(this);
+
+            var datas = BuffData.Data.GetArray("t");
+            names = new string[datas.Length];
+            for (int i = 0; i < datas.Length; i++)
+            {
+                names[i] = Convert.ToString(datas[i]);
+            }
+
             Level = 1;
             MaxLevel = BuffData.Data.GetInt("MaxLevel");
             AddValue = BuffData.Data.GetInt("AddValue", 1);
-            Log.Debug(BuffData.Id + "Init");
         }
 
         public override void Reset()
@@ -31,14 +42,18 @@ namespace Buffs
 
         public override void ApplyToUnit()
         {
-            Log.Debug("数值变化可叠加Apply");
-            base.ApplyToUnit();
+            for (int i = 0; i < names.Length; i++)
+            {
+                engine.ApplyNumericChange(Unit, names[i], GetValue(i), NumericChangeMode.Add);
+            }
         }
 
         public override void ApplyToBullet()
         {
-            Log.Debug("数值变化可叠加Apply");
-            base.ApplyToBullet();
+            for (int i = 0; i < names.Length; i++)
+            {
+                engine.ApplyNumericChange(Bullet, names[i], GetValue(i), NumericChangeMode.Add);
+            }
         }
 
         public override void Update()
@@ -48,20 +63,28 @@ namespace Buffs
                 Buffs.Buff抵挡 blockbuff = (Buffs.Buff抵挡)Unit.Buffs.Find(x => x is Buffs.Buff抵挡);
                 blockbuff.AddBuff(new object[] { Id, Skill, Index, isBlocking });
                 Finish();
+                return;
             }
 
             if (Skill.SkillData.BuffRely)//单位离开技能范围，或施法者死亡时，buff自动消失
             {
-                if (!Skill.Unit.Alive() || (Skill.SkillData.OpenTime > 0 && Skill.Opening.Finished() || (Skill.SkillData.UseType != SkillUseTypeEnum.被动 && !Skill.GetAttackTarget().Contains(Unit))))
+                if (!Skill.Unit.Alive() ||
+                    (Skill.SkillData.OpenTime > 0 && Skill.Opening.Finished()) ||
+                    (Skill.SkillData.UseType != SkillUseTypeEnum.被动 && !Skill.GetAttackTarget().Contains(Unit)))
                 {
                     Finish();
+                    return;
                 }
             }
 
             if (BuffData.RelyBuff != null)
             {
                 if (RelayBuff == null) RelayBuff = Unit.Buffs.FirstOrDefault(x => x.Id == BuffData.RelyBuff.Value);
-                if (RelayBuff == null || RelayBuff.Dead) Finish();
+                if (RelayBuff == null || RelayBuff.Dead)
+                {
+                    Finish();
+                    return;
+                }
             }
 
             if (BuffData.Resist)
@@ -72,7 +95,10 @@ namespace Buffs
                     Duration.Update(SystemConfig.DeltaTime / Unit.Resist);
             }
             else
+            {
                 Duration.Update(SystemConfig.DeltaTime);
+            }
+
             if (Duration.Finished())
             {
                 if (Level > 1)
@@ -81,7 +107,9 @@ namespace Buffs
                     updateLastTime();
                 }
                 else
+                {
                     Finish();
+                }
             }
         }
 
@@ -91,9 +119,9 @@ namespace Buffs
             base.Finish();
         }
 
-        protected override float GetValue(int i)
+        private float GetValue(int i)
         {
-            return base.GetValue(i) * Level;
+            return Skill.SkillData.GetBuffData(Index)[i] * Level;
         }
     }
 }

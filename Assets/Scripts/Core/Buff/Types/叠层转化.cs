@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace Buffs
 {
-    public class 叠层转化 : Buff
+    public class 叠层转化 : MultiLevelBuff
     {
-        public int Level;
-        public int MaxLevel;
+        //public int Level;
+        //public int MaxLevel;
         public string BuffID;
         public float Lasting;
 
         public override void Init()
         {
-            IsMultiLevel = true;
+            //IsMultiLevel = true;
             base.Init();
             Level = 1;
             MaxLevel = BuffData.Data.GetInt("MaxLevel", 1);

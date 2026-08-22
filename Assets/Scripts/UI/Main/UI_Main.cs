@@ -93,6 +93,7 @@ namespace MainUI
                     }
                     ExcelHelper.Export(ExcelList);
                     Database.Instance.Clear();
+                    UnifiedExpressionEngine.ClearCache();
                     await Database.Instance.Init();
                     GameData.Instance.RefreshCardData();
                     TipManager.Instance.ShowTip("导表结束");

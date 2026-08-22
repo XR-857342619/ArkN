@@ -264,8 +264,16 @@ namespace BattleUI
                 else
                 {
                     var buff = (Buff)binding.Source;
-                    max = binding.BuffMax;
-                    value = buff.Dead || buff.Duration.value <= 0 ? 0f : buff.Duration.value;
+                    if (buff is MultiLevelBuff multiLevelBuff)
+                    {
+                        max = multiLevelBuff.MaxLevel > 0 ? multiLevelBuff.MaxLevel : 1f;
+                        value = multiLevelBuff.Dead || multiLevelBuff.Level <= 0 ? 0f : multiLevelBuff.Level;
+                    }
+                    else
+                    {
+                        max = buff.Duration.value > 0 ? buff.Duration.value : 1f;
+                        value = buff.Dead || buff.Duration.value <= 0 ? 0f : buff.Duration.value;
+                    }
                 }
 
                 view.bar.max = max;

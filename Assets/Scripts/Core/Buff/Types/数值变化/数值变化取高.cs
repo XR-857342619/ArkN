@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,24 +6,29 @@ using System.Threading.Tasks;
 
 namespace Buffs
 {
-    public class 数值变化取高:数值变化
+    public class 数值变化取高 : Buff
     {
+        private string[] names;
+        private UnifiedExpressionEngine engine;
+
+        public override void Init()
+        {
+            base.Init();
+            engine = new UnifiedExpressionEngine(this);
+
+            var datas = BuffData.Data.GetArray("t");
+            names = new string[datas.Length];
+            for (int i = 0; i < datas.Length; i++)
+            {
+                names[i] = Convert.ToString(datas[i]);
+            }
+        }
+
         public override void ApplyToUnit()
         {
             for (int i = 0; i < names.Length; i++)
             {
-                string fieldName = (string)names[i];
-                var field = Unit.GetType().GetField(fieldName);
-                if (field == null)
-                {
-                    Log.Debug($"{Unit.UnitData.Id} 没有 属性 {fieldName}");
-                    continue;
-                }
-                float baseValue = (float)field.GetValue(Unit);
-                var targetValue = GetValue(i);
-                if (baseValue < targetValue)
-                    field.SetValue(Unit, targetValue);
-                //UnityEngine.Debug.Log($"{Unit.UnitData.Id}的{names[i]}变成{field.GetValue(Unit)}");
+                engine.ApplyNumericChange(Unit, names[i], GetValue(i), NumericChangeMode.Max);
             }
         }
 
@@ -31,19 +36,13 @@ namespace Buffs
         {
             for (int i = 0; i < names.Length; i++)
             {
-                string fieldName = (string)names[i];
-                var field = Bullet.GetType().GetField(fieldName);
-                if (field == null)
-                {
-                    Log.Debug($"{Bullet.BulletData.Id} 没有 属性 {fieldName}");
-                    continue;
-                }
-                float baseValue = (float)field.GetValue(Bullet);
-                var targetValue = GetValue(i);
-                if (baseValue < targetValue)
-                    field.SetValue(Bullet, targetValue);
-                //UnityEngine.Debug.Log($"{Bullet.BulletData.Id}的{names[i]}变成{field.GetValue(Bullet)}");
+                engine.ApplyNumericChange(Bullet, names[i], GetValue(i), NumericChangeMode.Max);
             }
+        }
+
+        private float GetValue(int i)
+        {
+            return Skill.SkillData.GetBuffData(Index)[i];
         }
     }
 }

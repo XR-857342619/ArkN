@@ -22,6 +22,7 @@ public class BattleManager : MonoBehaviour
         }
     }
     private static BattleManager instance;
+    private static int battleExitCounter = 0;
 
     public Battle Battle;
 
@@ -157,6 +158,13 @@ public class BattleManager : MonoBehaviour
     {
         ReSetPreviwSetting();
         battleTcs?.TrySetResult(true);
+
+        battleExitCounter++;
+        if (battleExitCounter >= 5)
+        {
+            battleExitCounter = 0;
+            UnifiedExpressionEngine.ClearCache();
+        }
     }
     public void ReSetPreviwSetting()
     {
@@ -170,4 +178,3 @@ public class BattleManager : MonoBehaviour
         IsInfUnitCount = false;
     }
 }
-
