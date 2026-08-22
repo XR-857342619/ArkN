@@ -36,7 +36,8 @@ public class UnitData : IConfig
       public string HitPointName;
       public int[] Skills;
       public int[] MainSkill;
-      public int HpBarType;
+      public string HpBarType;
+      public string SpBarType;
       public float Height;
       public string[] CanSetPos;
       public int StopCount;

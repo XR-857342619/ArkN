@@ -5,21 +5,21 @@ using FairyGUI.Utils;
 
 namespace BattleUI
 {
-    public partial class UI_Hp2 : GProgressBar
+    public partial class UI_ProgressBar_boss : GProgressBar
     {
-        public Controller m_ShowDetail;
-        public const string URL = "ui://vp312gabh4sa45";
+        public Controller m_type;
+        public const string URL = "ui://vp312gabhwogsq";
 
-        public static UI_Hp2 CreateInstance()
+        public static UI_ProgressBar_boss CreateInstance()
         {
-            return (UI_Hp2)UIPackage.CreateObject("BattleUI", "Hp2");
+            return (UI_ProgressBar_boss)UIPackage.CreateObject("BattleUI", "ProgressBar_boss");
         }
 
         public override void ConstructFromXML(XML xml)
         {
             base.ConstructFromXML(xml);
 
-            m_ShowDetail = GetControllerAt(0);
+            m_type = GetControllerAt(0);
             Init();
         }
         partial void Init();

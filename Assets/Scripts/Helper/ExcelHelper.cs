@@ -183,7 +183,7 @@ public class ExcelHelper
                             {
                                 continue;
                             }
-                            sb.Append($"\"{fieldName}\":{Convert(fieldType, fieldValue)},");
+                            sb.Append($"\"{fieldName}\":{Convert(fieldType, fieldValue, fileName, sheet.TableName, fieldName)},");
                         }
                         sb.Remove(sb.Length - 1, 1);
                         sb.Append("}\n");
@@ -223,7 +223,7 @@ public class ExcelHelper
     }
     static StringBuilder sbCache = new StringBuilder();
 
-    private static string Convert(string type, string value)
+    private static string Convert(string type, string value, string path, string sheetName, string fieldName)
     {
         try
         {
@@ -332,9 +332,10 @@ public class ExcelHelper
         }
         catch (Exception e)
         {
+            Debug.LogError($"导表于{path}中的{sheetName}的{fieldName}字段发生错误");
             Debug.LogError(e);
             Debug.Log(e.Message);
-            TipManager.Instance.ShowTip("导表错误:"+e.Message);
+            TipManager.Instance.ShowTip($"导表错误{e.Message}于{path}中的{sheetName}的{fieldName}字段");
             throw e;
         }
     }

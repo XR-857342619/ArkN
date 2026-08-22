@@ -15,9 +15,9 @@ namespace BattleUI
             UIObjectFactory.SetPackageItemExtension(UI_DamageInfoItem.URL, typeof(UI_DamageInfoItem));
             UIObjectFactory.SetPackageItemExtension(UI_GiveUP.URL, typeof(UI_GiveUP));
             UIObjectFactory.SetPackageItemExtension(UI_BattleUnit.URL, typeof(UI_BattleUnit));
-            UIObjectFactory.SetPackageItemExtension(UI_SK0.URL, typeof(UI_SK0));
-            UIObjectFactory.SetPackageItemExtension(UI_Hp2.URL, typeof(UI_Hp2));
+            UIObjectFactory.SetPackageItemExtension(UI_CommonBar.URL, typeof(UI_CommonBar));
             UIObjectFactory.SetPackageItemExtension(UI_ProgressBar_shield.URL, typeof(UI_ProgressBar_shield));
+            UIObjectFactory.SetPackageItemExtension(UI_ProgressBar_boss.URL, typeof(UI_ProgressBar_boss));
             UIObjectFactory.SetPackageItemExtension(UI_ElementBar.URL, typeof(UI_ElementBar));
             UIObjectFactory.SetPackageItemExtension(UI_Head.URL, typeof(UI_Head));
             UIObjectFactory.SetPackageItemExtension(UI_BattleLeft.URL, typeof(UI_BattleLeft));

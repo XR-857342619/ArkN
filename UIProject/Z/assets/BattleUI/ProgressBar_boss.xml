@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="744,155" extention="ProgressBar">
-  <controller name="type" exported="true" pages="0,,1," selected="1"/>
+  <controller name="type" exported="true" pages="0,血量,1,技力,18,使用" selected="1"/>
   <displayList>
     <graph id="n5_f5hu" name="n1" xy="111,73" size="521,9" alpha="0.5" type="rect" fillColor="#ff999999">
       <gearDisplay controller="type" pages="1"/>
@@ -11,7 +11,7 @@
       <relation target="" sidePair="width-width,height-height"/>
     </image>
     <graph id="n1_hwog" name="bar" xy="111,73" size="521,9" type="rect" fillColor="#ffccff00">
-      <gearColor controller="type" pages="1" values="#ccff00" default="#cc3300"/>
+      <gearColor controller="type" pages="1,18" values="#ccff00|#ffcc00" default="#cc3300"/>
     </graph>
     <image id="n2_hwog" name="n2" src="hwogsl" fileName="sprite_enemy_boss_hp_hit_effect.png" xy="102,64">
       <gearDisplay controller="type" pages="0"/>

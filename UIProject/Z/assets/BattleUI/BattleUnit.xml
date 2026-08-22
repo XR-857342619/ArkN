@@ -2,7 +2,7 @@
 <component size="119,158" pivot="0.5,0.82" anchor="true">
   <controller name="readyControl" pages="0,,1,,2," selected="0"/>
   <controller name="skillCount" pages="0,,1," selected="0"/>
-  <controller name="hpType" pages="2,,0,,11,,12,,3," selected="1">
+  <controller name="hpType" pages="2,无,0,小型,11,Boss,12,精英,3,大型" selected="0">
     <remark page="0" value="无"/>
     <remark page="1" value="小型"/>
     <remark page="2" value="Boss"/>
@@ -11,13 +11,14 @@
   </controller>
   <controller name="showBuffInfo" pages="0,,1," selected="0"/>
   <controller name="isPreview" pages="0,,1," selected="0"/>
-  <controller name="spType" pages="0,,1,,2," selected="1">
+  <controller name="spType" pages="0,无,1,小型,2,大型" selected="2">
     <remark page="0" value="无"/>
     <remark page="1" value="小型"/>
     <remark page="2" value="大型"/>
   </controller>
   <displayList>
     <component id="n65_f5hu" name="hp" src="h4sa43" fileName="CommonBar.xml" xy="2,142" group="n63_f5hu" controller="useControl,13,ShowDetail,0">
+      <gearDisplay controller="hpType" pages="0"/>
       <ProgressBar value="50" max="100"/>
     </component>
     <component id="n48_hwog" name="bigHp" src="hwogsq" fileName="ProgressBar_boss.xml" xy="-312,68" group="n63_f5hu">
@@ -33,7 +34,7 @@
       <gearDisplay controller="spType" pages="1"/>
       <ProgressBar value="50" max="100"/>
     </component>
-    <component id="n64_f5hu" name="bigSp" src="hwogsq" fileName="ProgressBar_boss.xml" xy="-312,75" controller="type,1">
+    <component id="n64_f5hu" name="bigSp" src="hwogsq" fileName="ProgressBar_boss.xml" xy="-312,77" controller="type,1">
       <gearDisplay controller="spType" pages="2"/>
       <ProgressBar value="50" max="100"/>
     </component>
@@ -55,8 +56,8 @@
       <gearXY controller="hpType" default="35,65"/>
       <ProgressBar value="50" max="100"/>
     </component>
-    <list id="n45_hwog" name="progressList" xy="93,32" size="75,149" layout="flow_vt" selectionMode="none" scroll="both" margin="0,30,0,0" lineGap="25" colGap="5" lineItemCount="4" defaultItem="ui://vp312gabp78xtn" autoItemSize="true" align="center" renderOrder="arch" autoClearItems="true" scrollItemToViewOnClick="false">
-      <gearXY controller="hpType" pages="2,3" values="93,-9|237,-10" default="93,32"/>
+    <list id="n45_hwog" name="progressList" xy="93,-8" size="75,149" layout="flow_vt" selectionMode="none" scroll="both" margin="0,30,0,0" lineGap="25" colGap="5" lineItemCount="4" defaultItem="ui://vp312gabp78xtn" autoItemSize="true" align="center" renderOrder="descent" autoClearItems="true" scrollItemToViewOnClick="false">
+      <gearXY controller="hpType" pages="2,0,3" values="93,-8|93,-8|237,-10" default="93,32"/>
       <relation target="" sidePair="middle-middle%,left-right%"/>
       <item controllers="BarType,0"/>
       <item controllers="BarType,1"/>

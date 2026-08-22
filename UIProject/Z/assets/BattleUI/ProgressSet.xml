@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="50,50">
-  <controller name="BarType" exported="true" pages="0,,1,,2,,3,,4,,5,,6,,7,,8,,9," selected="9">
+  <controller name="BarType" exported="true" pages="0,三角,1,入梦,2,恐惧,3,元素,4,Boss,5,技力,6,蓝,7,橙,8,弹药,9,圆" selected="6">
     <remark page="0" value="三角"/>
     <remark page="1" value="入梦"/>
     <remark page="2" value="恐惧"/>
@@ -33,16 +33,8 @@
       <gearDisplay controller="BarType" pages="4"/>
       <ProgressBar value="50" max="100"/>
     </component>
-    <component id="n5_p78x" name="n5" src="h4sa43" fileName="SK0.xml" xy="0,21" pivot="0.5,0.5" size="50,8">
+    <component id="n5_p78x" name="n5" src="h4sa43" fileName="CommonBar.xml" xy="0,21" pivot="0.5,0.5" size="50,8">
       <gearDisplay controller="BarType" pages="5"/>
-      <ProgressBar value="50" max="100"/>
-    </component>
-    <component id="n6_p78x" name="n6" src="h4sa45" fileName="Hp2.xml" xy="0,21" pivot="0.5,0.5" size="50,8">
-      <gearDisplay controller="BarType" pages="6"/>
-      <ProgressBar value="50" max="100"/>
-    </component>
-    <component id="n7_p78x" name="n7" src="h4sa42" fileName="Hp1.xml" xy="0,21" pivot="0.5,0.5" size="50,8">
-      <gearDisplay controller="BarType" pages="7"/>
       <ProgressBar value="50" max="100"/>
     </component>
     <component id="n8_p78x" name="n8" src="p78xto" fileName="ProgressBar_hunter.xml" xy="0,0">
@@ -51,6 +43,14 @@
     </component>
     <component id="n9_f5hu" name="n9" src="kbte3p" fileName="circleBar.xml" xy="12,12" pivot="0.5,0.5" size="25,25">
       <gearDisplay controller="BarType" pages="9"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n12_f5hu" name="n6" src="h4sa43" fileName="CommonBar.xml" xy="0,21" pivot="0.5,0.5" size="50,8" controller="useControl,13">
+      <gearDisplay controller="BarType" pages="6"/>
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n13_f5hu" name="n7" src="h4sa43" fileName="CommonBar.xml" xy="0,21" pivot="0.5,0.5" size="50,8" controller="useControl,17">
+      <gearDisplay controller="BarType" pages="7"/>
       <ProgressBar value="50" max="100"/>
     </component>
   </displayList>
