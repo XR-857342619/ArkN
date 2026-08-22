@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="50,50">
-  <controller name="BarType" exported="true" pages="0,三角,1,入梦,2,恐惧,3,元素,4,Boss,5,技力,6,蓝,7,橙,8,弹药,9,圆" selected="6">
+  <controller name="BarType" exported="true" pages="0,三角,1,入梦,2,恐惧,3,元素,4,Boss,5,绿,6,蓝,7,橙,8,弹药,9,圆" selected="9">
     <remark page="0" value="三角"/>
     <remark page="1" value="入梦"/>
     <remark page="2" value="恐惧"/>

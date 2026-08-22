@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -24,6 +24,7 @@ public class Buff
 
     public Buff RelayBuff;
     public bool Dead;
+    public bool IsMultiLevel = false;
 
     public float isBlocking = -1.0f;
 
@@ -52,6 +53,8 @@ public class Buff
         //if (Unit is null && Bullet is not null) ShowEffect();
 
         if (Unit is null) return;
+
+        RegisterProgressBarIfNeeded();
         // 范围需求
         if (BuffData.RoundNeed == 1)
         {
@@ -79,6 +82,18 @@ public class Buff
             Finish();
         }
     }
+
+
+        private void RegisterProgressBarIfNeeded()
+        {
+            if (Unit == null || BuffData?.Data == null) return;
+
+            string barType = BuffData.Data.GetStr("绑定进度条");
+            if (!string.IsNullOrEmpty(barType))
+            {
+                UnitProgressBarManager.Instance.RegisterBuff(Unit, this, barType);
+            }
+        }
 
     public bool Enable()
     {

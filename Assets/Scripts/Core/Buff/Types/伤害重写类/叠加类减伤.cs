@@ -21,6 +21,7 @@ namespace Buffs
 
         public override void Init()
         {
+            IsMultiLevel = true;
             base.Init();
 
             // 读取基础减伤配置（与原减伤相同）

@@ -443,6 +443,8 @@ public class Unit
         }
         Refresh();
         PushBuffs.Clear();
+
+            UnitProgressBarManager.Instance.ClearUnit(this);
     }
 
     protected void UpdateSkills()

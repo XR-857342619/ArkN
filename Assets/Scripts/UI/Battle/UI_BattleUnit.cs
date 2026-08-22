@@ -20,6 +20,15 @@ namespace BattleUI
         public GProgressBar hpBar;
         public GProgressBar spBar;
 
+        private readonly List<ProgressBarBindingView> progressBarViews = new List<ProgressBarBindingView>();
+
+        private sealed class ProgressBarBindingView
+        {
+            public ProgressBarBinding binding;
+            public UI_ProgressSet item;
+            public GProgressBar bar;
+        }
+
         partial void Init()
         {
             touchable = false;
@@ -29,6 +38,7 @@ namespace BattleUI
         {
             this.Unit = unit;
             unit.uiUnit = this;
+
 
             ApplyHpBar(unit.UnitData.HpBarType, GameData.Instance.showHP, ref hpBar);
             ApplySpBar(unit.UnitData.SpBarType, false, ref spBar);
@@ -69,6 +79,7 @@ namespace BattleUI
             FlushElementBar();
             FlushHpBar();
             FlushSpBar();
+            FlushProgressList();
         }
 
         private void FlushElementBar()
@@ -164,6 +175,118 @@ namespace BattleUI
                 m_skillCount.selectedIndex = 0;
             }
         }
+        /// <summary>
+        /// 从 UnitProgressBarManager 读取绑定信息，并刷新 m_progressList。
+        /// 绑定关系由 Skill/Buff 基类注册，这里只负责 UI 显示。
+        /// </summary>
+        private void FlushProgressList()
+        {
+            IReadOnlyList<ProgressBarBinding> bindings = UnitProgressBarManager.Instance.GetBindings(Unit);
+
+            if (bindings == null || bindings.Count == 0)
+            {
+                if (m_progressList.numItems != 0)
+                    m_progressList.RemoveChildrenToPool();
+
+                progressBarViews.Clear();
+                return;
+            }
+
+            if (progressBarViews.Count != bindings.Count)
+            {
+                RebuildProgressBarViews(bindings);
+            }
+            else
+            {
+                for (int i = 0; i < progressBarViews.Count; i++)
+                    progressBarViews[i].binding = bindings[i];
+            }
+
+            UpdateProgressBarViews();
+        }
+
+        private void RebuildProgressBarViews(IReadOnlyList<ProgressBarBinding> bindings)
+        {
+            m_progressList.RemoveChildrenToPool();
+            progressBarViews.Clear();
+
+            for (int i = 0; i < bindings.Count; i++)
+            {
+                ProgressBarBinding binding = bindings[i];
+                UI_ProgressSet item = m_progressList.AddItemFromPool() as UI_ProgressSet;
+                GProgressBar bar = null;
+
+                if (item != null)
+                {
+                    item.m_BarType.selectedPage = binding.BarType;
+                    bar = GetVisibleProgressBar(item);
+                }
+
+                progressBarViews.Add(new ProgressBarBindingView
+                {
+                    binding = binding,
+                    item = item,
+                    bar = bar,
+                });
+            }
+        }
+
+        private void UpdateProgressBarViews()
+        {
+            for (int i = 0; i < progressBarViews.Count; i++)
+            {
+                ProgressBarBindingView view = progressBarViews[i];
+                ProgressBarBinding binding = view.binding;
+                if (binding == null || view.item == null) continue;
+
+                if (view.item.m_BarType.selectedPage != binding.BarType)
+                {
+                    view.item.m_BarType.selectedPage = binding.BarType;
+                    view.bar = GetVisibleProgressBar(view.item);
+                }
+
+                if (view.bar == null)
+                {
+                    view.bar = GetVisibleProgressBar(view.item);
+                    if (view.bar == null) continue;
+                }
+
+                float max;
+                float value;
+
+                if (binding.IsSkill)
+                {
+                    var skill = (Skill)binding.Source;
+                    float maxPower = skill.MaxPower;
+                    max = maxPower > 0 ? maxPower : 1f;
+                    value = skill.Power - maxPower * Mathf.FloorToInt(skill.Power / maxPower);
+                }
+                else
+                {
+                    var buff = (Buff)binding.Source;
+                    max = binding.BuffMax;
+                    value = buff.Dead || buff.Duration.value <= 0 ? 0f : buff.Duration.value;
+                }
+
+                view.bar.max = max;
+                view.bar.value = value;
+            }
+        }
+
+        private GProgressBar GetVisibleProgressBar(UI_ProgressSet item)
+        {
+            for (int i = 0; i < item.numChildren; i++)
+            {
+                GObject child = item.GetChildAt(i);
+                if (child != null && child.visible && child is GProgressBar bar)
+                {
+                    return bar;
+                }
+            }
+
+            return null;
+        }
+
 
         private void UpdateProgress(GProgressBar bar, CountDown lifeTime, float maxHp, float hp)
         {

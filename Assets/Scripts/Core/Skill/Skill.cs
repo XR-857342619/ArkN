@@ -133,9 +133,23 @@ public class Skill
                 tempExpressionEngine.FilterTargets(SkillData.SkillCondition);
         }
 
+            RegisterProgressBarIfNeeded();
+
         //Waiting.Finish();
         //Debug.Log(SkillData.Id + "初始化完成");
     }
+
+
+        private void RegisterProgressBarIfNeeded()
+        {
+            if (Unit == null || SkillData?.Data == null) return;
+
+            string barType = SkillData.Data.GetStr("绑定进度条");
+            if (!string.IsNullOrEmpty(barType))
+            {
+                UnitProgressBarManager.Instance.RegisterSkill(Unit, this, barType);
+            }
+        }
 
     public Skill GetFinalParent()
     {
@@ -1835,4 +1849,3 @@ public class Skill
     }
 
 }
-

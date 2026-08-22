@@ -14,6 +14,7 @@ namespace Buffs
 
         public override void Init()
         {
+            IsMultiLevel = true;
             base.Init();
             Level = 1;
             MaxLevel = BuffData.Data.GetInt("MaxLevel");
