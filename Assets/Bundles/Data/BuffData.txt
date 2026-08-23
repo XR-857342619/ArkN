@@ -325,7 +325,7 @@
 {"Id":"红豆刀特效","Type":"普通Buff","LastingEffect":337}
 {"Id":"风笛3buff","Type":"数值变化","LastingEffect":21,"Data":{"t":["AttackRate","DefenceRate","StopCountAdd","AttackGapRate"]}}
 {"Id":"伊内丝部署标记","Type":"普通Buff"}
-{"Id":"测试buff","Type":"数值变化依表达式","LastTime":5,"Data":{"Expression":"Buff.Skill.SkillData.DamageRate = Buff.Duration.value","绑定进度条":"圆环"}}
+{"Id":"测试buff","Type":"数值变化依表达式","LastTime":5,"Data":{"Expression":"Buff.Skill.SkillData.DamageRate = Buff.Duration.value","绑定进度条":"圆"}}
 {"Id":"CCB加攻速","Type":"数值变化","LastingEffect":21,"Data":{"t":["AgiAddFin"]}}
 {"Id":"CCB叠层","Type":"叠层转化","Data":{"maxLevel":3,"BuffId":"隐身","LastTime":5,"绑定进度条":"恐惧"}}
 {"Id":"逻各斯附加","Type":"普通Buff","UnSourceCheck":1}

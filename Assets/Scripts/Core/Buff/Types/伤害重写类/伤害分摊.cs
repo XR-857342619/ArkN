@@ -73,7 +73,7 @@ namespace Buffs
                     damageInfo.FinalDamage *= (1 - shareRate);
                     foreach (Unit unit in shareList)
                     {
-                        if (unit == Unit) continue;
+                        //if (unit == Unit) continue;
                         unit.Damage(new DamageInfo()
                         {
                             DamageRate = 1,

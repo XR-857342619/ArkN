@@ -51,11 +51,13 @@ namespace Skills
             if (caster == null || string.IsNullOrEmpty(unitId)) return;
 
             List<Vector2Int> posList = GetPosList(caster);
+            
             if (posList.Count == 0)
             {
                 Log.Debug(SkillData.Id + "无法获取到召唤位置");
                 return;
             }
+            Debug.Log($"获取到召唤位置: {string.Join(", ", posList)}");
 
             for (int i = 0; i < posList.Count; i++)
             {
@@ -140,6 +142,7 @@ namespace Skills
 
             var unit = Battle.CreateEnemy(summonWaveInfo);
             if (unit == null) return;
+            Debug.Log($"召唤单位 {unit.UnitData.Id} 到位置 {pos.x}, {pos.y}");
 
             unit.Position = new Vector3(pos.x, tile.Pos.y, pos.y);
             if (caster is Units.敌人 parent)

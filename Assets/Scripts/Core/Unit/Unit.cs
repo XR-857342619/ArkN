@@ -591,19 +591,21 @@ public class Unit
         {
             var typeName = skillConfig?.Type ?? "null";
             Debug.Log(typeName);
-            TipManager.Instance.ShowTip("获取技能类型失败" + typeName);
+            TipManager.Instance.ShowTip($"获取技能类型失败于{UnitData.Name}/{UnitData.Id} {typeName}");
             return null;
         }
         skill.Unit = this;
         skill.Id = skillId;
+
+        if (UnitData.Id == "0") Debug.Log($"LearnSkill {skill.SkillData.Id} for {UnitData.Name}/{UnitData.Id}");
         try
         {
             skill.Init();
         }
         catch (Exception e)
         {
-            Debug.Log(skillConfig?.Id + "技能初始化失败");
-            TipManager.Instance.ShowTip(skillConfig?.Id + "技能初始化失败" + e.Message);
+            Debug.Log($"{skillConfig?.Id}技能初始化失败于{UnitData.Name}/{UnitData.Id} {e.Message}");
+            TipManager.Instance.ShowTip($"{skillConfig?.Id}技能初始化失败于{UnitData.Name}/{UnitData.Id} {e.Message}");
             Log.Error(e);
         }
         if (parent != null) skill.Parent = parent;

@@ -28,7 +28,7 @@ namespace Buffs
             base.Reset();
             level++;
 
-            Log.Debug("叠层转化buff升级到" + level + "最大层数为" + maxLevel);
+            //Log.Debug("叠层转化buff升级到" + level + "最大层数为" + maxLevel);
 
             if (level >= maxLevel && maxLevel != 0)
             {
