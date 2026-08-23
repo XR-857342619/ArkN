@@ -227,7 +227,7 @@ namespace BattleUI
                     else
                     {
                         item.m_BarType.selectedPage = binding.BarType;
-                        bar = GetVisibleProgressBar(item);
+                        bar = GetProgressBarByPage(item, item.m_BarType.selectedIndex);
                     }
                 }
 
@@ -252,12 +252,12 @@ namespace BattleUI
                 if (view.item.m_BarType.selectedPage != binding.BarType)
                 {
                     view.item.m_BarType.selectedPage = binding.BarType;
-                    view.bar = GetVisibleProgressBar(view.item);
+                    view.bar = GetProgressBarByPage(view.item, view.item.m_BarType.selectedIndex);
                 }
 
                 if (view.bar == null)
                 {
-                    view.bar = GetVisibleProgressBar(view.item);
+                    view.bar = GetProgressBarByPage(view.item, view.item.m_BarType.selectedIndex);
                     if (view.bar == null) continue;
                 }
 
@@ -292,18 +292,12 @@ namespace BattleUI
         }
 
 
-        private GProgressBar GetVisibleProgressBar(UI_ProgressSet item)
+        private GProgressBar GetProgressBarByPage(UI_ProgressSet item, int pageIndex)
         {
-            for (int i = 0; i < item.numChildren; i++)
-            {
-                GObject child = item.GetChildAt(i);
-                if (child != null && child.visible && child is GProgressBar bar)
-                {
-                    return bar;
-                }
-            }
+            if (item == null || pageIndex < 0) return null;
 
-            return null;
+            GObject child = item.GetChild("n" + pageIndex);
+            return child as GProgressBar;
         }
 
 

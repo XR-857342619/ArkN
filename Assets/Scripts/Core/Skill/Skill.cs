@@ -1519,7 +1519,7 @@ public class Skill
         Battle.TriggerDatas.Pop();
         //target.beAttacked.Add(1f);
         //if (beAttacked.Update(SystemConfig.DeltaTime) && UnitModel.isOriginalColor())
-        target.beAttacked.Add(0.15f);
+            target.beAttacked.Set(0.15f);
         target.UnitModel?.SetColor(Color.red);
         //else if (beAttacked.Finished() && !UnitModel.isOriginalColor())
         //    //else
