@@ -12,7 +12,19 @@ public class UnitModel:MonoBehaviour
 
     public virtual void Init(Unit unit)
     {
-        transform.position = unit.Position;
+        Unit = unit;
+        transform.position = unit.Position + GetModelOffset(unit);
+    }
+
+    protected Vector3 GetModelOffset(Unit unit)
+    {
+        if (unit == null || unit.UnitData == null) return Vector3.zero;
+        return unit.UnitData.ModelOffset;
+    }
+
+    protected Vector3 GetModelOffset()
+    {
+        return GetModelOffset(Unit);
     }
 
     /// <summary>
@@ -37,8 +49,9 @@ public class UnitModel:MonoBehaviour
             offsetY = tileModel.transform.position.y + tileModel.transform.localScale.y / 2f;
         }
 
-        transform.position = new Vector3(transform.position.x, offsetY + 0.01f, transform.position.z);
-        Unit.Position = new Vector3(Unit.Position.x, transform.position.y, Unit.Position.z);
+        Vector3 logicalPos = new Vector3(Unit.Position.x, offsetY + 0.01f, Unit.Position.z);
+        Unit.Position = logicalPos;
+        transform.position = logicalPos + GetModelOffset();
     }
 
     public virtual Vector3 GetModelPositon()
@@ -128,4 +141,3 @@ public class UnitModel:MonoBehaviour
 
     }
 }
-

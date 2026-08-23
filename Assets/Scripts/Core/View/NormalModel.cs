@@ -45,7 +45,7 @@ public class NormalModel : UnitModel
     private void LateUpdate()
     {
         if (Unit == null) return;
-        transform.position = Unit.Position;
+            transform.position = Unit.Position + Unit.UnitData.ModelOffset;
         transform.localEulerAngles = new Vector3(0, Vector2.SignedAngle(Unit.Direction, Vector2.right), 0);
         if (Animator != null && Unit.AnimationName != null)
         {

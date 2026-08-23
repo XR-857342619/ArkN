@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -95,7 +95,7 @@ public class SpineModel : UnitModel
         {
             return;
         }
-        transform.position = Unit.Position;
+            transform.position = Unit.Position + Unit.UnitData.ModelOffset;
 
         if (nowAnimations!=Unit.GetAnimation())
         {
@@ -251,4 +251,3 @@ public class SpineModel : UnitModel
         SkeletonAnimation.gameObject.SetActive(true);
     }
 }
-

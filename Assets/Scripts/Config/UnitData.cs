@@ -5,6 +5,7 @@ public class UnitData : IConfig
       public bool Test;
       public string Model;
       public float ModelScale;
+      public UnityEngine.Vector3 ModelOffset;
       public string engName;
       public int Upgrade;
       public int Level;
