@@ -788,7 +788,7 @@ public class Unit
             else if (state == StateEnum.Move)
                 AnimationName = GetMoveAnimation();
             else if (state == StateEnum.Start)
-                AnimationName = Unit.StartAnimation;
+                AnimationName = StartAnimation;
             else if (state == StateEnum.Die)
                 AnimationName = GetDieAnimation();
             AnimationSpeed = 1;

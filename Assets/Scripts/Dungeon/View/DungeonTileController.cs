@@ -75,7 +75,7 @@ public class DungeonTileController : MonoBehaviour,IPointerClickHandler
     {
         TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
         var SkeletonAnimation = enemyModel.GetComponentInChildren<Spine.Unity.SkeletonAnimation>();
-        SkeletonAnimation.state.SetAnimation(0, Unit.DieAnimation[0], false).Complete += ((x) =>
+        SkeletonAnimation.state.SetAnimation(0, "Die", false).Complete += ((x) =>
         {
             tcs.SetResult(true);
         });
