@@ -14,7 +14,7 @@ namespace Modifys
             Buff buff = unit.Buffs.FirstOrDefault(x => x.Id == ModifyData.Buff);
             if (buff is null) return count;
             if (!(buff is Buffs.数值变化叠加 b)) return count;
-            return b.Level + count;
+            return b.level + count;
         }
     }
 }

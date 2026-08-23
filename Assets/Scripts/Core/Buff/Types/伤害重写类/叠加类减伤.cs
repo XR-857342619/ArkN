@@ -15,8 +15,8 @@ namespace Buffs
         private float basicRate;
 
         // 叠加特有字段
-        //public int Level;
-        //public int MaxLevel;
+        //public int level;
+        //public int maxLevel;
         public int AddValue;
 
         public override void Init()
@@ -32,10 +32,10 @@ namespace Buffs
                 buffId = Database.Instance.GetIndex<BuffData>(buffName);
 
             // 读取叠加配置
-            MaxLevel = BuffData.Data.GetInt("MaxLevel", 0);
+            maxLevel = BuffData.Data.GetInt("maxLevel", 0);
             AddValue = BuffData.Data.GetInt("AddValue", 1);
 
-            Level = 1;
+            level = 1;
             //reducePerLevel = 1f - rate;
         }
 
@@ -44,9 +44,9 @@ namespace Buffs
             base.Reset();
             if (Dead) return;
 
-            Level += AddValue;
-            if (MaxLevel > 0 && Level > MaxLevel)
-                Level = MaxLevel;
+            level += AddValue;
+            if (maxLevel > 0 && level > maxLevel)
+                level = maxLevel;
 
             updateLastTime(); // 重置持续时间
         }
@@ -100,9 +100,9 @@ namespace Buffs
 
             if (Duration.Finished())
             {
-                if (Level > 1)
+                if (level > 1)
                 {
-                    Level--;
+                    level--;
                     updateLastTime();
                 }
                 else
@@ -114,7 +114,7 @@ namespace Buffs
 
         public override void Finish()
         {
-            Level = 0;
+            level = 0;
             base.Finish();
         }
 
@@ -129,7 +129,7 @@ namespace Buffs
                     return;
             }
 
-            damageInfo.DamageRate *= (basicRate + ratePerLevel * Level);
+            damageInfo.DamageRate *= (basicRate + ratePerLevel * level);
         }
     }
 }

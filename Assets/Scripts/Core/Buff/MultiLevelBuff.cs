@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class MultiLevelBuff : Buff
 {
-    public int Level;
-    public int MaxLevel;
+    public int level;
+    public int maxLevel;
 }

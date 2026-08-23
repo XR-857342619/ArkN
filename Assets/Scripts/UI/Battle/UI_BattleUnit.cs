@@ -218,8 +218,17 @@ namespace BattleUI
 
                 if (item != null)
                 {
-                    item.m_BarType.selectedPage = binding.BarType;
-                    bar = GetVisibleProgressBar(item);
+                    if (!item.m_BarType.HasPage(binding.BarType))
+                    {
+                        TipManager.Instance.ShowTip($"ProgressSet 不存在页面: {binding.BarType}");
+                        m_progressList.RemoveChildToPool(item);
+                        item = null;
+                    }
+                    else
+                    {
+                        item.m_BarType.selectedPage = binding.BarType;
+                        bar = GetVisibleProgressBar(item);
+                    }
                 }
 
                 progressBarViews.Add(new ProgressBarBindingView
@@ -230,6 +239,7 @@ namespace BattleUI
                 });
             }
         }
+
 
         private void UpdateProgressBarViews()
         {
@@ -266,12 +276,12 @@ namespace BattleUI
                     var buff = (Buff)binding.Source;
                     if (buff is MultiLevelBuff multiLevelBuff)
                     {
-                        max = multiLevelBuff.MaxLevel > 0 ? multiLevelBuff.MaxLevel : 1f;
-                        value = multiLevelBuff.Dead || multiLevelBuff.Level <= 0 ? 0f : multiLevelBuff.Level;
+                        max = multiLevelBuff.maxLevel > 0 ? multiLevelBuff.maxLevel : 1f;
+                        value = multiLevelBuff.Dead || multiLevelBuff.level <= 0 ? 0f : multiLevelBuff.level;
                     }
                     else
                     {
-                        max = buff.Duration.value > 0 ? buff.Duration.value : 1f;
+                        max = buff.Duration.maxValue > 0 ? buff.Duration.maxValue : 1f;
                         value = buff.Dead || buff.Duration.value <= 0 ? 0f : buff.Duration.value;
                     }
                 }
@@ -280,6 +290,7 @@ namespace BattleUI
                 view.bar.value = value;
             }
         }
+
 
         private GProgressBar GetVisibleProgressBar(UI_ProgressSet item)
         {

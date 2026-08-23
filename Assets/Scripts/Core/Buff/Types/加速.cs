@@ -17,7 +17,7 @@ namespace Buffs
         public override void Init()
         {
             base.Init();
-            MaxLevel = BuffData.Data.GetInt("MaxLevel");
+            MaxLevel = BuffData.Data.GetInt("maxLevel");
             rate = BuffData.Data.GetFloat("Rate");
             damageRate = BuffData.Data.GetFloat("DamageRate");
             triggerTime = BuffData.Data.GetFloat("Trigger");

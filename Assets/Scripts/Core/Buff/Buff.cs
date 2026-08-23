@@ -90,7 +90,8 @@ public class Buff
             string barType = BuffData.Data.GetStr("绑定进度条");
             if (!string.IsNullOrEmpty(barType))
             {
-                UnitProgressBarManager.Instance.RegisterBuff(Unit, this, barType);
+                Debug.Log($"Registering buff {BuffData.Id} to progress bar {barType} for unit {Unit.UnitData.Id}");
+            UnitProgressBarManager.Instance.RegisterBuff(Unit, this, barType);
             }
         }
 

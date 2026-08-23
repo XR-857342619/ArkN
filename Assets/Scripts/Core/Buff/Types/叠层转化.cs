@@ -8,8 +8,8 @@ namespace Buffs
 {
     public class 叠层转化 : MultiLevelBuff
     {
-        //public int Level;
-        //public int MaxLevel;
+        //public int level;
+        //public int maxLevel;
         public string BuffID;
         public float Lasting;
 
@@ -17,8 +17,8 @@ namespace Buffs
         {
             //IsMultiLevel = true;
             base.Init();
-            Level = 1;
-            MaxLevel = BuffData.Data.GetInt("MaxLevel", 1);
+            level = 1;
+            maxLevel = BuffData.Data.GetInt("maxLevel", 1);
             BuffID = BuffData.Data.GetStr("BuffId");
             Lasting = BuffData.Data.GetFloat("LastTime", 0);
         }
@@ -26,11 +26,11 @@ namespace Buffs
         public override void Reset()
         {
             base.Reset();
-            Level++;
+            level++;
 
-            Log.Debug("叠层转化buff升级到" + Level + "最大层数为" + MaxLevel);
+            Log.Debug("叠层转化buff升级到" + level + "最大层数为" + maxLevel);
 
-            if (Level > MaxLevel && MaxLevel != 0)
+            if (level >= maxLevel && maxLevel != 0)
             {
                 Unit.AddBuff(Database.Instance.GetIndex<BuffData>(BuffID), Skill, 0, Lasting);
                 Finish();

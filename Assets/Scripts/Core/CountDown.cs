@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 public class CountDown
 {
     public float value;
+    public float maxValue;
 
     public CountDown(float value = 0)
     {
         this.value = value;
+        this.maxValue = value;
     }
 
     public bool Update(float time)
@@ -30,10 +32,18 @@ public class CountDown
     public void Set(float value)
     {
         this.value = value;
+        this.maxValue = value;
     }
     public void Add(float value)
     {
-        this.value += value;
+        if (this.value + value > maxValue)
+        {
+            this.value = maxValue;
+        }
+        else
+        {
+            this.value += value;
+        }
     }
     public void Finish()
     {

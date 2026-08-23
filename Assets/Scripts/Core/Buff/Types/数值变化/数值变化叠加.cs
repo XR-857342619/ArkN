@@ -11,8 +11,8 @@ namespace Buffs
         private string[] names;
         private UnifiedExpressionEngine engine;
 
-        //public int Level;
-        //public int MaxLevel;
+        //public int level;
+        //public int maxLevel;
         public int AddValue;
 
         public override void Init()
@@ -28,16 +28,16 @@ namespace Buffs
                 names[i] = Convert.ToString(datas[i]);
             }
 
-            Level = 1;
-            MaxLevel = BuffData.Data.GetInt("MaxLevel");
+            level = 1;
+            maxLevel = BuffData.Data.GetInt("maxLevel");
             AddValue = BuffData.Data.GetInt("AddValue", 1);
         }
 
         public override void Reset()
         {
             base.Reset();
-            Level += AddValue;
-            if (Level > MaxLevel && MaxLevel != 0) Level = MaxLevel;
+            level += AddValue;
+            if (level > maxLevel && maxLevel != 0) level = maxLevel;
         }
 
         public override void ApplyToUnit()
@@ -101,9 +101,9 @@ namespace Buffs
 
             if (Duration.Finished())
             {
-                if (Level > 1)
+                if (level > 1)
                 {
-                    Level--;
+                    level--;
                     updateLastTime();
                 }
                 else
@@ -115,13 +115,13 @@ namespace Buffs
 
         public override void Finish()
         {
-            Level = 0;
+            level = 0;
             base.Finish();
         }
 
         private float GetValue(int i)
         {
-            return Skill.SkillData.GetBuffData(Index)[i] * Level;
+            return Skill.SkillData.GetBuffData(Index)[i] * level;
         }
     }
 }

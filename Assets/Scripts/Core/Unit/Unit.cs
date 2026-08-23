@@ -15,8 +15,8 @@ public class Unit
     public UnitData UnitData => Database.Instance.Get<UnitData>(Id);
     public int Id;
 
-    public string[] StartAnimation => UnitData.StartAnimation.Length > 0 ? UnitData.StartAnimation : new string[] { "Start" };
-    public string[] DieAnimation => UnitData.DieAnimation.Length > 0 ? UnitData.DieAnimation : new string[] { "Die" };
+    public string[] StartAnimation => (UnitData.StartAnimation is null || !(UnitData.StartAnimation?.Length > 0)) ? new string[] { "Start" } : UnitData.StartAnimation;
+    public string[] DieAnimation => (UnitData.DieAnimation is null || !(UnitData.DieAnimation?.Length > 0)) ? new string[] { "Die" } : UnitData.DieAnimation;
 
     public bool Abnormal;
 

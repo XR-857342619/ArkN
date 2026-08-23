@@ -43,8 +43,8 @@ namespace Bullets
             //}
             maxTargetCount = BulletData.Data.GetInt("MaxTargetCount",-1);
             countLimit = maxTargetCount != -1;
-            Debug.Log("maxTargetCount:" + maxTargetCount);
-            Debug.Log("countLimit:" + countLimit);
+            //Debug.Log("maxTargetCount:" + maxTargetCount);
+            //Debug.Log("countLimit:" + countLimit);
             if (BulletData.Data.TryGetValue("TriggerTimes", out tmp))
             {
                 //Debug.Log("触发次数:" + tmp);
