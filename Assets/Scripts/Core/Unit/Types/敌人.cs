@@ -226,6 +226,7 @@ namespace Units
 
         public void Jump(float distance)
         {
+            if (!Pathfinder.HasPath) return;
             if (StopUnit != null) StopUnit.RemoveStop(this);
             if (TempPath == null) Pathfinder.FindNewPath(OnlyCheckPoint);
             List<Vector3> points = new List<Vector3>();
@@ -298,6 +299,12 @@ namespace Units
 
         private new void UpdateMove()
         {
+            if (!Pathfinder.HasPath)
+            {
+                if (AnimationName == GetMoveAnimation()) SetStatus(StateEnum.Idle);
+                return;
+            }
+
             // 先更新临时路径点（到期的点会被移除并触发重寻路）
             Pathfinder.UpdateTempPoints(SystemConfig.DeltaTime);
 

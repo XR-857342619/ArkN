@@ -40,6 +40,9 @@ namespace Units
         /// <summary>因外力/传送导致偏离原路线，需要重新调用 FindNewPath。</summary>
         public bool NeedResetPath;
 
+        /// <summary>是否存在有效路径。无路径时敌人原地不动，不进行寻路。</summary>
+        public bool HasPath;
+
         /// <summary>当前路径点等待计时。</summary>
         public CountDown PathWaiting = new CountDown();
 
@@ -100,6 +103,7 @@ namespace Units
             currentCheckIndex = 0;
             OnlyCheckPoint = false;
             NeedResetPath = false;
+            HasPath = false;
             PathWaiting = new CountDown();
             PathPoints.Clear();
             CheckPoints.Clear();
@@ -111,7 +115,7 @@ namespace Units
 
             if (waveData == null)
             {
-                Debug.LogError("[EnemyPathfinder] Initialize: waveData 为空，无法初始化路径。");
+                HasPath = false;
                 return;
             }
 
@@ -120,7 +124,7 @@ namespace Units
                 pathInfo = Owner.Battle.MapData.PathInfos.Find(x => x.Name == waveData.Path);
             if (pathInfo == null || pathInfo.Path == null || pathInfo.Path.Count == 0)
             {
-                Debug.LogError($"[EnemyPathfinder] Initialize: 找不到波次路径 {waveData.Path}。");
+                HasPath = false;
                 return;
             }
 
@@ -149,6 +153,7 @@ namespace Units
             Owner.Position = new Vector3(Owner.Position.x, Owner.Battle.Map.Tiles[Owner.GridPos.x, Owner.GridPos.y].Pos.y, Owner.Position.z);
             PathWaiting.Set(PathPoints[0].Delay);
 
+            HasPath = true;
             Owner.ScaleX = Owner.TargetScaleX = (NextPathPoint != null && (NextPathPoint.Pos.x - Owner.Position.x) > 0) ? 1 : -1;
 
             PathDebugger.LogPath(Owner.UnitData.Id, "初始化路径点", PathPoints.Select(x => x.Pos).ToList());
@@ -406,6 +411,8 @@ namespace Units
         /// </summary>
         public void FindNewPath(bool onlyCheckPoint)
         {
+            if (!HasPath) return;
+
             // 重寻路（传送/推拉/地块变更）后，若处于 OnlyCheckPoint 模式，
             // 需要根据当前位置重新定位“下一个未到达的 CheckPoint”，避免退回已经经过的检查点。
             if (NeedResetPath && OnlyCheckPoint)
@@ -498,6 +505,7 @@ namespace Units
         /// </summary>
         public bool TryAddTempPoint(Vector3 pos, float time)
         {
+            if (!HasPath) return false;
             if (!IsCanArrive(Owner.Position, pos))
             {
                 PathDebugger.Log(Owner.UnitData.Id, $"临时路径点不可达: {pos}");
