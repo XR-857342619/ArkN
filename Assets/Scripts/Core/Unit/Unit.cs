@@ -11,11 +11,12 @@ using static UnityEngine.GraphicsBuffer;
 
 public class Unit
 {
-    public static string[] StartAnimation = new string[] { "Start" };
-    public static string[] DieAnimation = new string[] { "Die" };
     public Battle Battle;
     public UnitData UnitData => Database.Instance.Get<UnitData>(Id);
     public int Id;
+
+    public string[] StartAnimation => UnitData.StartAnimation.Length > 0 ? UnitData.StartAnimation : new string[] { "Start" };
+    public string[] DieAnimation => UnitData.DieAnimation.Length > 0 ? UnitData.DieAnimation : new string[] { "Die" };
 
     public bool Abnormal;
 

@@ -65,6 +65,7 @@ public class Skill
     public float MaxPowerBase;
     public int PowerCount;
     public int UseCount;
+    public int AnimationIndex;
 
     Effect ReadyEffect;
 
@@ -602,8 +603,15 @@ public class Skill
         }
         else
         {
-            var animation = SkillData.ModelAnimation;
-            if (SkillData.ModelAnimationDown != null && Unit is Units.干员 u && u.Direction_E == DirectionEnum.Up) animation = SkillData.ModelAnimationDown;
+            int animIndex = AnimationIndex % SkillData.ModelAnimation.Length;
+            AnimationIndex++;
+
+            var animation = new[] { SkillData.ModelAnimation[animIndex] };
+            if (SkillData.ModelAnimationDown != null && Unit is Units.干员 u && u.Direction_E == DirectionEnum.Up)
+            {
+                int downIndex = SkillData.ModelAnimationDown.Length > 0 ? animIndex % SkillData.ModelAnimationDown.Length : 0;
+                animation = new[] { SkillData.ModelAnimationDown[downIndex] };
+            }
             var duration = GetSkillDelay(SkillData.OverwriteAnimation == null ? animation : SkillData.OverwriteAnimation, Unit.GetAnimation(), out float fullDuration, out float beginDuration);
             //.SkeletonAnimation.skeleton.data.Animations.Find(x => x.Name == "Attack");
             if (SkillData.AnimationTime != null) duration = SkillData.AnimationTime.Value;
