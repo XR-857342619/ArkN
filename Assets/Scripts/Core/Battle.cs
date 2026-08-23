@@ -374,6 +374,7 @@ public class Battle
         if (unitData ==null) return null;
         var unit = typeof(Battle).Assembly.CreateInstance(nameof(Units) + "." + unitData.Type) as Unit;
         unit.Id = Database.Instance.GetIndex(unitData);
+        if (unit.Id == 0) return null;
         unit.Battle = this;
         unit.Position = pos;
         unit.Direction = direction;
@@ -414,6 +415,7 @@ public class Battle
         var unit = typeof(Battle).Assembly.CreateInstance(nameof(Units) + "." + config.Type) as Units.干员;
         //unit.dircectAssetAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "ShowDirection");
         unit.Id = Database.Instance.GetIndex<UnitData>(config);
+        if (unit.Id == 0) return null;
         unit.Card = card;
         unit.MainSkillId = skill;
         //unit.SetDirection(direction);
@@ -452,6 +454,7 @@ public class Battle
         }
         var unit = typeof(Battle).Assembly.CreateInstance(nameof(Units) + "." + config.Type) as Units.敌人;
         unit.Id = Database.Instance.GetIndex<UnitData>(waveConfig.sUnitId);
+        if (unit.Id == 0) return null;
         unit.WaveData = waveConfig;
         unit.Battle = this;
         unit.Init();

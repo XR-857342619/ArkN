@@ -184,6 +184,7 @@ public class Unit
 
     public virtual void Init()
     {
+        if (UnitData.Id == "0") return;
         baseAttributeInit();
         AnimationName = UnitData.DefaultAnimation;
         if (UnitData.IgnoreBuff != null) IgnoreBuffs.AddRange(UnitData.IgnoreBuff);
