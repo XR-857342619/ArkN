@@ -381,8 +381,10 @@ public class UnifiedExpressionEngine
     }
 
     public static void ClearCache()
+    {
         _compiledExpressions.Clear();
         _memberCache.Clear();
         _numericGetterCache.Clear();
         _numericSetterCache.Clear();
+    }
 }
