@@ -27,5 +27,13 @@ public static class PosHelper
     {
         return new Vector3(self.x, 0, self.y);
     }
+    public static Vector2Int ToV2Int(this Vector2 self)
+    {
+        return new Vector2Int(Mathf.RoundToInt(self.x), Mathf.RoundToInt(self.y));
+    }
+    public static Vector2Int ToV2Int(this Vector3 self)
+    {
+        return new Vector2Int(Mathf.RoundToInt(self.x), Mathf.RoundToInt(self.z));
+    }
 }
 

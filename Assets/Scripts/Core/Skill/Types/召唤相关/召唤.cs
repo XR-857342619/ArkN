@@ -32,6 +32,8 @@ namespace Skills
             targetPos = SkillData.Data.GetStr("召唤位置", "");
             setMod = SkillData.Data.GetStr("部署模式", "追加");
 
+            if (setMod == "位移") count = 1;
+
             if (Unit is Units.敌人 parent && parent.WaveData != null)
             {
                 summonWaveInfo = JsonHelper.Clone(parent.WaveData);
@@ -61,8 +63,10 @@ namespace Skills
 
             for (int i = 0; i < posList.Count; i++)
             {
-                if (i >= count) break;
-                SpawnEnemy(caster, posList[i]);
+                for (int j = 0; j < count; j++)
+                {
+                    SpawnEnemy(caster, GetRandomPositions(posList[i]));
+                }
             }
         }
 
@@ -91,60 +95,39 @@ namespace Skills
                     return AttackPoints != null ? new List<Vector2Int>(AttackPoints) : new List<Vector2Int>();
 
                 default:
-                    return GetRandomPositions(caster);
+                    return new List<Vector2Int> { caster.GridPos };
             }
         }
 
-        private List<Vector2Int> GetRandomPositions(Unit caster)
+        private Vector2 GetRandomPositions(Vector2Int pos)
         {
-            var result = new List<Vector2Int>();
-            for (int i = 0; i < 4; i++)
-            {
-                float x = Battle.NextFloat(caster.GridPos.x - range, caster.GridPos.x + range);
-                float y = Battle.NextFloat(caster.GridPos.y - range, caster.GridPos.y + range);
-                result.Add(new Vector2Int(Mathf.RoundToInt(x), Mathf.RoundToInt(y)));
-            }
-            return result;
+            float x = Battle.NextFloat(pos.x - range, pos.x + range);
+            float y = Battle.NextFloat(pos.y - range, pos.y + range);
+            return new Vector2(x, y);
         }
 
-        private void SpawnEnemy(Unit caster, Vector2Int pos)
+        private void SpawnEnemy(Unit caster, Vector2 pos)
         {
-            Tile tile = Battle.Map.Tiles[pos.x, pos.y];
+            //Tile tile = Battle.Map.Tiles[pos.x, pos.y];
 
             if (setMod == "替换")
             {
-                Unit old = tile.Units.FirstOrDefault(x => x is Units.敌人 && x.UnitData.Id == unitId);
-                if (old != null)
+                Unit old = Battle.FindAll(pos.ToV2Int(), 2).FirstOrDefault(x => x is Units.敌人 && x.UnitData.Id == unitId);
+                if (old is not null)
                 {
                     old.Finish(true);
                 }
             }
             else if (setMod == "位移")
             {
-                var enemyCaster = caster as Units.敌人;
-                Unit existing;
-                if (enemyCaster != null)
-                {
-                    existing = Battle.AllUnits.FirstOrDefault(x => x.UnitData.Id == unitId && x.Parent == enemyCaster);
-                }
-                else
-                {
-                    existing = Battle.AllUnits.FirstOrDefault(x => x.UnitData.Id == unitId && x is Units.敌人 e && string.IsNullOrEmpty(e.WaveData?.Path));
-                }
-
-                if (existing is Units.敌人 existingEnemy)
-                {
-                    existingEnemy.Position = new Vector3(pos.x, existingEnemy.Position.y, pos.y);
-                    existingEnemy.NeedResetPath = true;
-                    return;
-                }
+                caster.Position = pos;
             }
 
             var unit = Battle.CreateEnemy(summonWaveInfo);
             if (unit == null) return;
             Debug.Log($"召唤单位 {unit.UnitData.Id} 到位置 {pos.x}, {pos.y}");
 
-            unit.Position = new Vector3(pos.x, tile.Pos.y, pos.y);
+            unit.Position = new Vector3(pos.x, caster.Position.y, pos.y);
             if (caster is Units.敌人 parent)
             {
                 unit.currentPathIndex = parent.currentPathIndex;

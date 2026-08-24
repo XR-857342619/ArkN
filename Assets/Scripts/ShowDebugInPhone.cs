@@ -145,48 +145,18 @@ public class ShowDebugInPhone : MonoBehaviour
 
     void OnGUI()
     {
-        GUILayout.BeginHorizontal();
+        const float buttonHeight = 120f;
+        float panelWidth = Mathf.Min(700f, Screen.width);
+        float panelHeight = Mathf.Min(600f, Screen.height);
 
-        if (GUILayout.Button(">>Open", GUILayout.Height(150), GUILayout.Width(150)))
-        {
-            open = !open;
-        }
+        int shownCount = (showLog ? 1 : 0) + (showError ? 1 : 0) + (showWarning ? 1 : 0);
+        float scrollHeight = shownCount > 0
+            ? Mathf.Max(80f, (panelHeight - buttonHeight - 40f) / shownCount)
+            : 0f;
 
-        if (open)
-        {
-            if (GUILayout.Button("清理", GUILayout.Height(150), GUILayout.Width(150)))
-            {
-                lock (logLock)
-                {
-                    logDatas.Clear();
-                    errorDatas.Clear();
-                    warningDatas.Clear();
-                }
-            }
-
-            if (GUILayout.Button("显示log日志:" + showLog, GUILayout.Height(150), GUILayout.Width(200)))
-            {
-                showLog = !showLog;
-                if (open)
-                    open = !open;
-            }
-
-            if (GUILayout.Button("显示error日志:" + showError, GUILayout.Height(150), GUILayout.Width(200)))
-            {
-                showError = !showError;
-                if (open)
-                    open = !open;
-            }
-
-            if (GUILayout.Button("显示warning日志:" + showWarning, GUILayout.Height(150), GUILayout.Width(200)))
-            {
-                showWarning = !showWarning;
-                if (open)
-                    open = !open;
-            }
-        }
-
-        GUILayout.EndHorizontal();
+        // 整个调试 UI 固定在屏幕左下角。
+        GUILayout.BeginArea(new Rect(0f, Screen.height - panelHeight, panelWidth, panelHeight));
+        GUILayout.BeginVertical();
 
         if (showLog)
         {
@@ -197,7 +167,7 @@ public class ShowDebugInPhone : MonoBehaviour
             }
 
             GUI.color = Color.white;
-            uiLog = GUILayout.BeginScrollView(uiLog);
+            uiLog = GUILayout.BeginScrollView(uiLog, GUILayout.Width(panelWidth - 20f), GUILayout.Height(scrollHeight));
             foreach (var va in logs)
             {
                 va.Show();
@@ -214,7 +184,7 @@ public class ShowDebugInPhone : MonoBehaviour
             }
 
             GUI.color = Color.red;
-            uiError = GUILayout.BeginScrollView(uiError);
+            uiError = GUILayout.BeginScrollView(uiError, GUILayout.Width(panelWidth - 20f), GUILayout.Height(scrollHeight));
             foreach (var va in errors)
             {
                 va.Show();
@@ -231,13 +201,60 @@ public class ShowDebugInPhone : MonoBehaviour
             }
 
             GUI.color = Color.yellow;
-            uiWarning = GUILayout.BeginScrollView(uiWarning);
+            uiWarning = GUILayout.BeginScrollView(uiWarning, GUILayout.Width(panelWidth - 20f), GUILayout.Height(scrollHeight));
             foreach (var va in warnings)
             {
                 va.Show();
             }
             GUILayout.EndScrollView();
         }
+
+        // 按钮统一放在左下角区域的最底部。
+        GUILayout.FlexibleSpace();
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button(open ? ">>Close" : ">>Open", GUILayout.Height(buttonHeight), GUILayout.Width(100f)))
+        {
+            open = !open;
+        }
+
+        if (open)
+        {
+            if (GUILayout.Button("清理", GUILayout.Height(buttonHeight), GUILayout.Width(100f)))
+            {
+                lock (logLock)
+                {
+                    logDatas.Clear();
+                    errorDatas.Clear();
+                    warningDatas.Clear();
+                }
+            }
+
+            if (GUILayout.Button("log:" + showLog, GUILayout.Height(buttonHeight), GUILayout.Width(140f)))
+            {
+                showLog = !showLog;
+                if (open)
+                    open = !open;
+            }
+
+            if (GUILayout.Button("error:" + showError, GUILayout.Height(buttonHeight), GUILayout.Width(140f)))
+            {
+                showError = !showError;
+                if (open)
+                    open = !open;
+            }
+
+            if (GUILayout.Button("warning:" + showWarning, GUILayout.Height(buttonHeight), GUILayout.Width(140f)))
+            {
+                showWarning = !showWarning;
+                if (open)
+                    open = !open;
+            }
+        }
+
+        GUILayout.EndHorizontal();
+        GUILayout.EndVertical();
+        GUILayout.EndArea();
     }
 #endif
 }
