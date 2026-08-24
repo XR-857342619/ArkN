@@ -25,7 +25,6 @@ namespace Skills
             unitId = SkillData.Data.GetStr("召唤物ID");
             if (string.IsNullOrEmpty(unitId))
                 unitId = SkillData.Data.GetStr("UnitId");
-            if (string.IsNullOrEmpty(unitId)) return;
 
             range = SkillData.Data.GetFloat("范围", SkillData.Data.GetFloat("Range", 0f));
             count = SkillData.Data.GetInt("数量", SkillData.Data.GetInt("Count", 1));
@@ -33,6 +32,7 @@ namespace Skills
             setMod = SkillData.Data.GetStr("部署模式", "追加");
 
             if (setMod == "位移") count = 1;
+            if (string.IsNullOrEmpty(unitId) && setMod != "位移") return;
 
             if (Unit is Units.敌人 parent && parent.WaveData != null)
             {
@@ -50,7 +50,7 @@ namespace Skills
             base.Effect(target);
 
             var caster = Unit;
-            if (caster == null || string.IsNullOrEmpty(unitId)) return;
+            if (caster == null || (string.IsNullOrEmpty(unitId) && setMod != "位移")) return;
 
             List<Vector2Int> posList = GetPosList(caster);
             
@@ -120,7 +120,10 @@ namespace Skills
             }
             else if (setMod == "位移")
             {
-                caster.Position = pos;
+                if (caster is 敌人) caster.Position = pos;
+                var V2Int = pos.ToV2Int();
+                if (caster is 干员 op) op.ChangePos(V2Int.x, V2Int.y, op.Direction_E);
+                return;
             }
 
             var unit = Battle.CreateEnemy(summonWaveInfo);
