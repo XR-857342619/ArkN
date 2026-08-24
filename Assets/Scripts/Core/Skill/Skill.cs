@@ -577,8 +577,6 @@ public class Skill
         //走到这里技能就真的用出来了
         UseCount++;
         
-        if (showRange)
-            ShowUnitAttackArea();
         //Debug.Log(SkillData.Id + "开始使用");
         //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "使用次数:" + UseCount);
         if (SkillData.ReadyType == SkillReadyEnum.充能释放)
@@ -1118,7 +1116,6 @@ public class Skill
         //Debug.Log("开始获取目标");
         if (showRange)
         {
-            HideUnitAttackArea();
             //Debug.Log("展示");
             ShowUnitAttackArea();
         }
@@ -1733,6 +1730,7 @@ public class Skill
 
     public void ShowUnitAttackArea()
     {
+        HideUnitAttackArea();
         //Log.Debug("ShowUnitAttackArea");
         // 显示前先实时刷新一次攻击范围，避免使用单位出生时计算的过期 AttackPoints
         UpdateAttackPoints();

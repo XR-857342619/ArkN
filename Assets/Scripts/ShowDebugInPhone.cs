@@ -1,39 +1,47 @@
-﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using UnityEngine;
+
+
+
 public class logdata
 {
     public string output = "";
     public string stack = "";
+
     public static logdata Init(string o, string s)
     {
-        logdata log = new logdata();
-        log.output = o;
-        log.stack = s;
-        return log;
+        return new logdata
+        {
+            output = o,
+            stack = s
+        };
     }
-    public void Show(/*bool showstack*/)
+
+    public void Show()
     {
         GUILayout.Label(output);
-        //if (showstack)
         GUILayout.Label(stack);
     }
 }
+
 /// <summary>
 /// 手机调试脚本
 /// 本脚本挂在一个空对象或转换场景时不删除的对象便可
-/// 错误和异常输出日记路径 Application.persistentDataPath
+/// 错误和异常输出日记路径 Application.persistentDataPath/outLog.txt
 /// </summary>
 public class ShowDebugInPhone : MonoBehaviour
 {
+#if UNITY_ANDROID
+    const int MaxLogCount = 300;
 
-    List<logdata> logDatas = new List<logdata>();//log链表
-    List<logdata> errorDatas = new List<logdata>();//错误和异常链表
-    List<logdata> warningDatas = new List<logdata>();//警告链表
+    readonly List<logdata> logDatas = new List<logdata>();
+    readonly List<logdata> errorDatas = new List<logdata>();
+    readonly List<logdata> warningDatas = new List<logdata>();
+    readonly Queue<string> writeQueue = new Queue<string>();
+    readonly object logLock = new object();
 
-    static List<string> mWriteTxt = new List<string>();
     Vector2 uiLog;
     Vector2 uiError;
     Vector2 uiWarning;
@@ -41,128 +49,195 @@ public class ShowDebugInPhone : MonoBehaviour
     bool showLog = false;
     bool showError = false;
     bool showWarning = false;
-    private string outpath;
+
+    string outpath;
+    StreamWriter writer;
+
     void Start()
     {
-        //Application.persistentDataPath Unity中只有这个路径是既能够读也能够写的。
-        //Debug.Log(Application.persistentDataPath);
-        outpath = Application.persistentDataPath + "/outLog.txt";
-        //每次启动客户端删除以前保存的Log
-        if (System.IO.File.Exists(outpath))
+        // Application.persistentDataPath 是运行时唯一既可读又可写的路径。
+        outpath = Path.Combine(Application.persistentDataPath, "outLog.txt");
+
+        // 每次启动客户端删除以前保存的 Log。
+        if (File.Exists(outpath))
         {
             File.Delete(outpath);
         }
-        //转换场景不删除
-        Application.DontDestroyOnLoad(gameObject);
+
+        writer = new StreamWriter(outpath, true, new UTF8Encoding(false))
+        {
+            AutoFlush = true
+        };
+
+        // 转换场景不删除。
+        DontDestroyOnLoad(gameObject);
     }
+
     void OnEnable()
     {
-        //注册log监听
-        Application.RegisterLogCallback(HangleLog);
+        // 推荐使用 logMessageReceivedThreaded 替代已过时的 RegisterLogCallback。
+        Application.logMessageReceivedThreaded += HandleLog;
     }
 
     void OnDisable()
     {
-        // Remove callback when object goes out of scope
-        //当对象超出范围，删除回调。
-        Application.RegisterLogCallback(null);
+        Application.logMessageReceivedThreaded -= HandleLog;
     }
-    void HangleLog(string logString, string stackTrace, LogType type)
+
+    void OnDestroy()
     {
-        switch (type)
+        if (writer != null)
         {
-            case LogType.Log:
-                logDatas.Add(logdata.Init(logString, stackTrace));
-                break;
-            case LogType.Error:
-            case LogType.Exception:
-                errorDatas.Add(logdata.Init(logString, stackTrace));
-                mWriteTxt.Add(logString);
-                mWriteTxt.Add(stackTrace);
-                break;
-            case LogType.Warning:
-                warningDatas.Add(logdata.Init(logString, stackTrace));
-                break;
+            writer.Dispose();
+            writer = null;
         }
     }
-    void Update()
+
+    void HandleLog(string logString, string stackTrace, LogType type)
     {
-        //由于写入文件的操做必须在主线程中完成，因此在Update中才给你写入文件。
-        if (errorDatas.Count > 0)
+        logdata data = logdata.Init(logString, stackTrace);
+
+        // logMessageReceivedThreaded 可能来自非主线程，需要加锁保护集合。
+        lock (logLock)
         {
-            string[] temp = mWriteTxt.ToArray();
-            foreach (string t in temp)
+            switch (type)
             {
-                using (StreamWriter writer = new StreamWriter(outpath, true, Encoding.UTF8))
-                {
-                    writer.WriteLine(t);
-                }
-                mWriteTxt.Remove(t);
+                case LogType.Log:
+                    AddLog(logDatas, data);
+                    break;
+
+                case LogType.Error:
+                case LogType.Exception:
+                    AddLog(errorDatas, data);
+                    writeQueue.Enqueue(logString);
+                    writeQueue.Enqueue(stackTrace);
+                    break;
+
+                case LogType.Warning:
+                    AddLog(warningDatas, data);
+                    break;
             }
         }
     }
+
+    static void AddLog(List<logdata> list, logdata data)
+    {
+        list.Add(data);
+        if (list.Count > MaxLogCount)
+        {
+            list.RemoveRange(0, list.Count - MaxLogCount);
+        }
+    }
+
+    void Update()
+    {
+        if (writer == null) return;
+
+        // 写文件统一放在主线程 Update 中，避免多线程同时写文件。
+        lock (logLock)
+        {
+            while (writeQueue.Count > 0)
+            {
+                writer.WriteLine(writeQueue.Dequeue());
+            }
+        }
+    }
+
     void OnGUI()
     {
         GUILayout.BeginHorizontal();
+
         if (GUILayout.Button(">>Open", GUILayout.Height(150), GUILayout.Width(150)))
+        {
             open = !open;
+        }
+
         if (open)
         {
             if (GUILayout.Button("清理", GUILayout.Height(150), GUILayout.Width(150)))
             {
-                logDatas = new List<logdata>();
-                errorDatas = new List<logdata>();
-                warningDatas = new List<logdata>();
+                lock (logLock)
+                {
+                    logDatas.Clear();
+                    errorDatas.Clear();
+                    warningDatas.Clear();
+                }
             }
+
             if (GUILayout.Button("显示log日志:" + showLog, GUILayout.Height(150), GUILayout.Width(200)))
             {
                 showLog = !showLog;
-                if (open == true)
+                if (open)
                     open = !open;
             }
+
             if (GUILayout.Button("显示error日志:" + showError, GUILayout.Height(150), GUILayout.Width(200)))
             {
                 showError = !showError;
-                if (open == true)
+                if (open)
                     open = !open;
             }
+
             if (GUILayout.Button("显示warning日志:" + showWarning, GUILayout.Height(150), GUILayout.Width(200)))
             {
                 showWarning = !showWarning;
-                if (open == true)
+                if (open)
                     open = !open;
             }
         }
+
         GUILayout.EndHorizontal();
+
         if (showLog)
         {
+            logdata[] logs;
+            lock (logLock)
+            {
+                logs = logDatas.ToArray();
+            }
+
             GUI.color = Color.white;
             uiLog = GUILayout.BeginScrollView(uiLog);
-            foreach (var va in logDatas)
+            foreach (var va in logs)
             {
                 va.Show();
             }
             GUILayout.EndScrollView();
         }
+
         if (showError)
         {
+            logdata[] errors;
+            lock (logLock)
+            {
+                errors = errorDatas.ToArray();
+            }
+
             GUI.color = Color.red;
             uiError = GUILayout.BeginScrollView(uiError);
-            foreach (var va in errorDatas)
+            foreach (var va in errors)
             {
                 va.Show();
             }
             GUILayout.EndScrollView();
         }
+
         if (showWarning)
         {
+            logdata[] warnings;
+            lock (logLock)
+            {
+                warnings = warningDatas.ToArray();
+            }
+
             GUI.color = Color.yellow;
             uiWarning = GUILayout.BeginScrollView(uiWarning);
-            foreach (var va in warningDatas)
+            foreach (var va in warnings)
             {
                 va.Show();
             }
             GUILayout.EndScrollView();
         }
     }
+#endif
 }
