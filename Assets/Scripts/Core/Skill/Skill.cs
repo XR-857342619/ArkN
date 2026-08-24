@@ -134,7 +134,7 @@ public class Skill
                 tempExpressionEngine.FilterTargets(SkillData.SkillCondition);
         }
 
-            RegisterProgressBarIfNeeded();
+        RegisterProgressBarIfNeeded();
 
         //Waiting.Finish();
         //Debug.Log(SkillData.Id + "初始化完成");
@@ -240,15 +240,9 @@ public class Skill
         {
             Cast();
         }
-        //if (Bursting.value != 0) Debug.Log("Bursting:"+Bursting.value);
-        //if (Bursting.Update(SystemConfig.DeltaTime))
         if (BurstGap.Update(SystemConfig.DeltaTime) && IsBursting)
         ////if (IsBursting)
         {
-            //BurstGap.Update(SystemConfig.DeltaTime);
-            //Log.Debug("连击延迟" + BurstGap.value + "秒");
-            //Debug.Log("连击延迟" + BurstGap.value + "秒");
-            //if (BurstGap.Finished())
             Burst();
         }
 
@@ -260,8 +254,6 @@ public class Skill
             }
         }
         Waiting.Update(SystemConfig.DeltaTime);
-        //BurstGap.Update(SystemConfig.DeltaTime);
-        //Debug.Log(Waiting.value);
     }
 
     //与ready不同的是，被动技能也会受此函数影响
@@ -276,6 +268,8 @@ public class Skill
         }
         if (SkillData.StopBreak && Unit.IfStoped()) return false;
         if (!Cooldown.Finished()) return false;
+
+        if (SkillData.SelfHpLess != 0 && Unit.Hp / Unit.MaxHp > SkillData.SelfHpLess) return false;
 
         if (SkillData.OpenDisable && !Unit.MainSkill.Opening.Finished()) return false;
         if (SkillData.EnableBuff != null && !SkillData.EnableBuff.All(x => Unit.Buffs.Any(y => y.Id == x)))
@@ -616,6 +610,7 @@ public class Skill
             //.SkeletonAnimation.skeleton.data.Animations.Find(x => x.Name == "Attack");
             if (SkillData.AnimationTime != null) duration = SkillData.AnimationTime.Value;
             float attackSpeed = 1f / Unit.Agi * 100;//攻速影响冷却时间
+            float animSpeed = 1f / attackSpeed;
             if (SkillData.AttackMode == AttackModeEnum.固定间隔) attackSpeed = 1;
             ResetCooldown(attackSpeed);
             //float aniSpeed = 1;//动画表现上的攻速
@@ -637,10 +632,12 @@ public class Skill
             Unit.AnimationName = animation;
             Unit.AttackingSkill = this;
             //Debug.Log(SkillData.ModelAnimation);
+            if (fullDuration > 0)
+                animSpeed *= (beginDuration + fullDuration) / fullDuration;
             if (SkillData.OverwriteAnimation == null)
             {
                 Unit.UnitModel?.BreakAnimation();//防止覆盖动画被打断
-                Unit.AnimationSpeed = 1 / attackSpeed * (beginDuration + fullDuration) / fullDuration;
+                Unit.AnimationSpeed = float.IsNaN(animSpeed) || float.IsInfinity(animSpeed) ? 1f : animSpeed;
             }
             duration = (duration + beginDuration) * fullDuration / (beginDuration + fullDuration);
             //Debug.Log(duration);
@@ -1186,12 +1183,6 @@ public class Skill
             tempTargets = tempExpressionEngine.FilterTargets(SkillData.SkillCondition);
         }
 
-        if (SkillData.Id == "萃蔓无敌")
-        {
-            //Debug.Log(SkillData.Id);
-            Log.Debug(Unit.UnitData.Id + "获取到目标：" + string.Join(" ", tempTargets.Select(x => x.UnitData.Name)));
-        }
-
         orderTargets(tempTargets);
 
         return tempTargets;
@@ -1201,9 +1192,6 @@ public class Skill
     {
         //List<>
         targets.RemoveAll(x => !CanUseTo(x));
-
-        if (SkillData.Id == "萃蔓无敌")
-            Log.Debug("获取到目标：" + string.Join(" ", tempTargets.Select(x => x.UnitData.Name)));
 
         if (targets.Count > 0)
         {

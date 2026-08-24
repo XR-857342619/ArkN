@@ -83,6 +83,10 @@ public class SpineModel : UnitModel
 
     protected virtual void updateState()
     {
+        if (float.IsNaN(Unit.AnimationSpeed) || float.IsInfinity(Unit.AnimationSpeed))
+        {
+            Debug.LogError($"{Unit.UnitData.Id} AnimationSpeed异常: {Unit.AnimationSpeed}, Animation: {string.Join(",", Unit.GetAnimation())}");
+        }
         if (Unit is Units.敌人 u)
         {
             gameObject.SetActive(u.Visiable);
