@@ -164,9 +164,10 @@ namespace MainUI
             m_ShowHp.selected = GameData.Instance.showHP;
             m_Name.text = GameData.Instance.Name;
             m_Version.text = UnityEngine.Application.version;
-            if (gameData.Teams[0].Cards.Count > 0)
+            var cards = gameData?.Teams[0]?.Cards ?? new List<Card>();
+            if (cards.Count > 0)
             {
-                string picName = Database.Instance.Get<UnitData>(gameData.Teams[0].Cards[0].UnitId).StandPic;
+                string picName = Database.Instance.Get<UnitData>(cards[0].UnitId).StandPic;
                 m_standPic.texture = new NTexture(ResHelper.GetAsset<Texture>(PathHelper.StandPicPath + picName));
             }
         }

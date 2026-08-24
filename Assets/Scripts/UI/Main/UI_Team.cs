@@ -28,7 +28,9 @@ namespace MainUI
                 teamUnits[i].onClick.Add(() =>
                 {
                     var selectTeam = UIManager.Instance.ChangeView<UI_TeamSelect>(UI_TeamSelect.URL);
-                    selectTeam.ChangeUnit(gameData.Teams[TeamIndex], teamUnits[k].Card);
+                    var team = gameData.Teams[TeamIndex];
+                    //var team = gameData?.Teams[TeamIndex] is null ? new Team() : gameData.Teams[TeamIndex];
+                    selectTeam.ChangeUnit(team, teamUnits[k].Card);
                 });
             }
 
@@ -50,7 +52,8 @@ namespace MainUI
             m_quickTeam.onClick.Add(() =>
             {
                 var selectTeam = UIManager.Instance.ChangeView<UI_TeamSelect>(UI_TeamSelect.URL);
-                selectTeam.QuickSelect(gameData.Teams[TeamIndex]);
+                var team = gameData?.Teams[TeamIndex] is null ? new Team() : gameData.Teams[TeamIndex];
+                selectTeam.QuickSelect(team);
             });
             m_right.onClick.Add(() =>
             {
@@ -95,15 +98,17 @@ namespace MainUI
 
         public void Flush()
         {
+            var cards = gameData?.Teams[TeamIndex]?.Cards ?? new List<Card>();
             for (int i = 0; i < teamBtns.Length; i++)
             {
                 teamBtns[i].selected = i != TeamIndex;
             }
             for (int i = 0; i < teamUnits.Length; i++)
             {
-                if (i < gameData.Teams[TeamIndex].Cards.Count)
+                
+                if (i < cards.Count)
                 {
-                    teamUnits[i].SetCard(gameData.Teams[TeamIndex].Cards[i], gameData.Teams[TeamIndex].UnitSkill[i]);
+                    teamUnits[i].SetCard(cards[i], gameData.Teams[TeamIndex].UnitSkill[i]);
                 }
                 else
                 {

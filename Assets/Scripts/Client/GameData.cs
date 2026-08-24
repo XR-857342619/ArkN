@@ -64,19 +64,10 @@ public class GameData
 
         if (instance.Teams[0] == null)
         {
-            //for (int i = 0; i < Instance.Teams.Length; i++)
-            //{
-            //    //instance.Teams[i] = new Team();
-            //    //foreach (var unitId in Database.Instance.GetAll<SystemData>()[0].StartUnits)
-            //    //{
-            //    //    var card = Cards.Find(x => x.Id == unitId);
-            //    //    instance.Teams[i].Cards.Add(card);
-            //    //    if (card.UnitData.MainSkill == null)
-            //    //        instance.Teams[i].UnitSkill.Add(0);
-            //    //    else
-            //    //        instance.Teams[i].UnitSkill.Add(card.UnitData.MainSkill.Length - 1);
-            //    //}
-            //}
+            for (int i = 0; i < Instance.Teams.Length; i++)
+            {
+                instance.Teams[i] = new Team();
+            }
             //MainPageUnitId = Cards[0].UnitId;
             Name = "玩家名字";
             SaveHelper.SaveData();

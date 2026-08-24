@@ -52,7 +52,7 @@ namespace MainUI
                 }
                 else
                 {
-                    int index = baseTeam.Cards.IndexOf(baseCard);
+                    int index = baseTeam?.Cards?.IndexOf(baseCard) ?? -1;
                     if (NowTeam.Count == 0)
                     {
                         if (index != -1)
@@ -75,7 +75,7 @@ namespace MainUI
                         }
                         else
                         {
-                            baseTeam.Cards.Add( NowTeam[0]);
+                            baseTeam.Cards.Add(NowTeam[0]);
                             baseTeam.UnitSkill.Add(NowSkill[0]);
                         }
                     }
@@ -128,7 +128,7 @@ namespace MainUI
             baseCard = card;
             NowTeam.Clear();
             NowSkill.Clear();
-            int index = team.Cards.IndexOf(card);
+            int index = team?.Cards?.IndexOf(card) ?? -1;
             if (index != -1)//-1表示新增卡
             {
                 NowTeam.Add(card);
@@ -171,9 +171,12 @@ namespace MainUI
 
                 if (m_quick.selectedIndex == 0)//单选模式下 剔除已在队里的卡
                 {
-                    foreach (var card in baseTeam.Cards)
+                    if (baseTeam?.Cards is not null)
                     {
-                        if (card != baseCard) cards.Remove(card);
+                        foreach (var card in baseTeam.Cards)
+                        {
+                            if (card != baseCard) cards.Remove(card);
+                        }
                     }
                 }
 

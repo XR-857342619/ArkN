@@ -132,6 +132,7 @@
     <image id="ndp9tw" name="specialized_glow_1.png" path="/"/>
     <image id="ndp9tx" name="specialized_glow_2.png" path="/"/>
     <image id="ndp9ty" name="specialized_glow_3.png" path="/"/>
+    <component id="lfentz" name="Component1.xml" path="/"/>
   </resources>
   <publish name="" genCode="true"/>
 </packageDescription>

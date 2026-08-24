@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1024,1024">
+  <displayList>
+    <component id="n0_lfen" name="n0" src="p78xtn" fileName="ProgressSet.xml" xy="55,280"/>
+    <component id="n1_lfen" name="n1" src="p78xtn" fileName="ProgressSet.xml" xy="205,280" controller="BarType,1"/>
+    <component id="n2_lfen" name="n2" src="p78xtn" fileName="ProgressSet.xml" xy="505,280" controller="BarType,3"/>
+    <component id="n3_lfen" name="n3" src="p78xtn" fileName="ProgressSet.xml" xy="355,280" controller="BarType,2"/>
+    <component id="n4_lfen" name="n4" src="p78xtn" fileName="ProgressSet.xml" xy="655,280" controller="BarType,4"/>
+    <component id="n5_lfen" name="n5" src="p78xtn" fileName="ProgressSet.xml" xy="55,448" controller="BarType,5"/>
+    <component id="n6_lfen" name="n6" src="p78xtn" fileName="ProgressSet.xml" xy="205,448" controller="BarType,6"/>
+    <component id="n7_lfen" name="n7" src="p78xtn" fileName="ProgressSet.xml" xy="355,448" controller="BarType,7"/>
+    <component id="n8_lfen" name="n8" src="p78xtn" fileName="ProgressSet.xml" xy="505,448" controller="BarType,8"/>
+    <component id="n9_lfen" name="n9" src="p78xtn" fileName="ProgressSet.xml" xy="655,448" controller="BarType,9"/>
+    <component id="n10_lfen" name="n10" src="hwogsq" fileName="ProgressBar_boss.xml" xy="300,561">
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n11_lfen" name="n11" src="hwogsr" fileName="ProgressBar_boss_small.xml" xy="228,624">
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n12_lfen" name="n12" src="h4sa43" fileName="CommonBar.xml" xy="55,635" controller="useControl,11">
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n13_lfen" name="n13" src="hwogsq" fileName="ProgressBar_boss.xml" xy="300,677" controller="type,1">
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n19_lfen" name="n19" src="h4sa43" fileName="CommonBar.xml" xy="55,983" controller="useControl,10">
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n20_lfen" name="n20" src="h4sa43" fileName="CommonBar.xml" xy="55,925" controller="useControl,14">
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n21_lfen" name="n21" src="h4sa43" fileName="CommonBar.xml" xy="55,867" controller="useControl,13">
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n22_lfen" name="n22" src="h4sa43" fileName="CommonBar.xml" xy="55,809" controller="useControl,0">
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n23_lfen" name="n23" src="h4sa43" fileName="CommonBar.xml" xy="55,751" controller="useControl,12">
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <component id="n24_lfen" name="n24" src="h4sa43" fileName="CommonBar.xml" xy="55,693" controller="useControl,17">
+      <ProgressBar value="50" max="100"/>
+    </component>
+  </displayList>
+</component>
