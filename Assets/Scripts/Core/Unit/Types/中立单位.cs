@@ -32,9 +32,9 @@ namespace Units
             }
         }
 
-        public override void Init()
+        public override void Init(bool isTmp = false)
         {
-            base.Init();
+            base.Init(isTmp);
             if (UnitData.MainSkill != null)
                 MainSkill = LearnSkill(UnitData.MainSkill[0], null);
             BattleUI.UI_Battle.Instance.CreateUIUnit(this);

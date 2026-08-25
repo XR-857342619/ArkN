@@ -58,9 +58,9 @@ namespace Units
         /// <summary>上次刷新技能攻击范围时所在的格子，用于避免同格内每帧无意义刷新。</summary>
         private Vector2Int lastAttackGridPos = new Vector2Int(int.MinValue, int.MinValue);
 
-        public override void Init()
+        public override void Init(bool isTmp = false)
         {
-            base.Init();
+            base.Init(isTmp);
             InputTime = Battle.Tick;
             StopCost = 1;
             if (UnitData.StopCount != 0) StopCost = UnitData.StopCount;

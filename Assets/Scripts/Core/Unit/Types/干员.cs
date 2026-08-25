@@ -44,9 +44,9 @@ namespace Units
         public GameObject selfDirection = null;
         public GameObject dircectAssetAsset = null;
 
-        public override void Init()
+        public override void Init(bool isTmp = false)
         {
-            base.Init();
+            base.Init(isTmp);
             if (UnitData.MainSkill != null)
             {
                 MainSkillId = MainSkillId >　UnitData.MainSkill.Length - 1 ? 0 : MainSkillId;

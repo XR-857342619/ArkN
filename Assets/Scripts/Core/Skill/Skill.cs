@@ -111,7 +111,7 @@ public class Skill
             UpdateAttackPoints();
         }
         showRange = SkillData.Data.GetBool("ShowRange");
-        //Debug.Log(SkillData.Id + showRange);
+        //Debug.Log(SkillData.Id + doNotShowRange);
         showBar = SkillData.Data?.GetStr("ShowBar")?? "";
 
         //filter = new SkillTargetFilter(Unit, Targets);
@@ -1757,7 +1757,7 @@ public class Skill
                 showRange.unitWorldPos = new Vector2(Unit.Position.x%1 + tile.x, Unit.Position.z%1 + tile.y);
                 showRange.colorHex = SkillData.Data.GetStr("Color", "#6385FF");
                 showRange.alpha = SkillData.Data.GetFloat("Alpha", 1.0f);
-                //showRange.rangeRadius = SkillData.AttackRange;
+                //doNotShowRange.rangeRadius = SkillData.AttackRange;
                 showRange.polygonRange = AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();
                 showRange.Init();
                 //go.IfHeal(ifHeal);
@@ -1780,7 +1780,7 @@ public class Skill
             showRange.colorHex = SkillData.Data.GetStr("Color", "#6385FF");
             showRange.alpha = SkillData.Data.GetFloat("Alpha", 1.0f);
             showRange.rangeRadius = SkillData.AttackRange;
-            //showRange.polygonRange = AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();    
+            //doNotShowRange.polygonRange = AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();    
             showRange.Init();
             tiles.Add(go);
         }

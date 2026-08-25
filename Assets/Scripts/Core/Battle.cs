@@ -80,7 +80,7 @@ public class Battle
 
         RuleUnit = new Unit();
         RuleUnit.Battle = this;
-        RuleUnit.Init();
+        RuleUnit.Init(true);
         //RuleUnit.LearnSkill(0, null);//神经损伤
         foreach (var contracrId in battleConfig.Contracts)
         {

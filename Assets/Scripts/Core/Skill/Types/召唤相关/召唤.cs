@@ -14,6 +14,7 @@ namespace Skills
         float range;
         float speed;
         float updateTime;
+        float tickTime;
         int count;
 
         string unitId;
@@ -32,6 +33,7 @@ namespace Skills
 
             isArrive = false;
             isMoving = false;
+            tickTime = 0f;
 
             unitId = SkillData.Data.GetStr("召唤物ID");
             if (string.IsNullOrEmpty(unitId))
@@ -41,7 +43,7 @@ namespace Skills
             count = SkillData.Data.GetInt("数量", SkillData.Data.GetInt("Count", 1));
             targetPos = SkillData.Data.GetStr("召唤位置", "");
             setMod = SkillData.Data.GetStr("部署模式", "追加");
-            speed = SkillData.Data.GetFloat("位移速度", 0f)/2;
+            speed = SkillData.Data.GetFloat("位移速度", 0f);
 
             if (setMod == "位移") count = 1;
             if (string.IsNullOrEmpty(unitId) && setMod != "位移") return;
@@ -55,14 +57,14 @@ namespace Skills
                 summonWaveInfo = new WaveInfo();
             }
             summonWaveInfo.sUnitId = unitId;
-            Debug.Log($"技能 {SkillData.Id} 初始化召唤物 {unitId}，范围 {range}，数量 {count}，位置模式 {targetPos}，部署模式 {setMod}");
+            //Debug.Log($"技能 {SkillData.Id} 初始化召唤物 {unitId}，范围 {range}，数量 {count}，位置模式 {targetPos}，部署模式 {setMod}");
         }
 
         public override void Update()
         {
             if (isMoving)
             {
-                Debug.Log($"技能 {SkillData.Id} 正在移动单位 {Unit.UnitData.Id}，当前位置 {Unit.Position}, 目标方向 {direction}");
+                //Debug.Log($"技能 {SkillData.Id} 正在移动单位 {Unit.UnitData.Id}，当前位置 {Unit.Position}, 目标方向 {direction}");
                 Moveing(moveTarget, direction, ref isArrive);
                 if (isArrive)
                 {
@@ -172,14 +174,15 @@ namespace Skills
         public void Moveing(Vector3 pos, Vector3 direction, ref bool isArrive)
         {
             Unit.BreakAllCast();
-            if ((Unit.Position-pos).sqrMagnitude < 0.01f)
+            if ((Unit.Position-pos).sqrMagnitude < 0.01f || tickTime >= updateTime * SkillData.OpenTime)
             {
                 isArrive = true;
                 Unit.Position = pos;
                 if (Unit is 干员 op) op.ChangePos(pos.ToV2Int().x, pos.ToV2Int().y, op.Direction_E);
                 return;
             }
-            Unit.Position += direction * speed * Time.deltaTime;
+            Unit.Position += direction * speed * SystemConfig.DeltaTime;
+            tickTime += SystemConfig.DeltaTime;
         }
 
         public override void UpdateOpening()
@@ -204,6 +207,8 @@ namespace Skills
             base.Finish();
             isMoving = false;
             isArrive = false;
+            tickTime = 0f;
+            updateTime = 0f;
         }
     }
 }

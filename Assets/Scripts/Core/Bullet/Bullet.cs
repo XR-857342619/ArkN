@@ -46,7 +46,12 @@ public class Bullet
         }
         Modifies.Sort((x, y) => x.OrderCode.CompareTo(y.OrderCode));
         SpeedBase = 1;
+        SpeedRate = SpeedAdd = 0;
         AttackBase = 1;
+        AttackRate = AttackAdd = AttackRateFin = AttackAddFin = 0;
+
+        Speed = 1;
+        Attack = 1;
     }
 
     public virtual void CreateModel()
@@ -59,6 +64,7 @@ public class Bullet
     public virtual void Update()
     {
         UpdateBulletAttr();
+        //Debug.Log($"弹道 {BulletData.Id} 属性更新: 速度={BulletData.Speed}*{Speed}, 攻击={Attack}");
     }
 
     public virtual void Finish()
@@ -91,6 +97,8 @@ public class Bullet
 
     public virtual void UpdateBulletAttr()
     {
+        SpeedAdd = SpeedRate = 0;
+        AttackAdd = AttackRate = AttackAddFin = AttackRateFin = 0;
         foreach (var buff in Buffs)
         {
             if (buff.Enable()) buff.ApplyToBullet();

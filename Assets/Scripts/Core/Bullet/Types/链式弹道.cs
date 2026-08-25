@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Bullets
@@ -21,15 +23,24 @@ namespace Bullets
         private Vector3 startPositionCache;
         private bool isInitialized;
         private bool isDirectHit; // 标记是否为直接命中（起点终点相同）
+        private bool isFinished;
+        private Skill skill;
+
+        private bool showRange;
+        private string color;
+        private float alpha;
 
         // 属性
         public int LinkNum => linkNum;
         public float reductionRate;
         //public float ReductionRate => reductionRate;
+        List<GameObject> tiles = new List<GameObject>();
 
         public override void Init()
         {
             base.Init();
+
+            isFinished = false;
 
             // 检查起点和终点是否相同
             isDirectHit = Vector3.Distance(StartPosition, GetTargetPos(Target)) < Mathf.Epsilon;
@@ -52,6 +63,10 @@ namespace Bullets
             canBack = BulletData.Data.GetBool("CanBack");
             skillId = BulletData.Data.GetStr("SkillId");
 
+            showRange = BulletData.Data.GetBool("DoNotShowRange");
+            color = BulletData.Data.GetStr("Color");
+            alpha = BulletData.Data.GetFloat("Alpha", 1f);
+
             // 设置目标位置
             TargetPos = GetTargetPos(Target);
 
@@ -69,21 +84,25 @@ namespace Bullets
             BulletModel.transform.localScale = new Vector3(scaleX, 1, 1);
 
             // 创建临时单位用于索敌
-            CreateTempUnit();
+            skill = CreateTempUnit();
 
             // 如果是直接命中，立即处理命中逻辑
 
             isInitialized = true;
+
+            ShowRangeInit(color, alpha, skill);
         }
 
-        private void CreateTempUnit()
+        private Skill CreateTempUnit()
         {
             //tempUnit = Battle.CreateTempUnit(Position, new Vector2(0,1));
             tempUnit = new Unit();
+            tempUnit.Id = Skill.Unit.Id;
             tempUnit.Battle = Battle;
-            tempUnit.Init();
+            tempUnit.Init(true);
+            tempUnit.AttackRange = 1;
             tempUnit.Position = Skill.Unit.Position;
-            if (tempUnit == null) return;
+            if (tempUnit == null) return null;
 
             var skillData = Database.Instance.GetIndex<SkillData>(skillId);
             if (skillData != -1)
@@ -91,19 +110,20 @@ namespace Bullets
                 findTargetSkill = tempUnit.LearnSkill(skillData);
                 findTargetSkill.Init();
             }
+            Debug.Log("临时单位索敌半径"+tempUnit.AttackRange);
+            return findTargetSkill;
         }
 
         public override void Update()
         {
+            if (isFinished) return;
             base.Update();
             if (isDirectHit)
             {
                 HandleDirectHit();
+                if (isFinished) return;
             }
             if (!isInitialized) return;
-
-            // 如果是直接命中，已经处理过了，不需要更新
-            //if (isDirectHit) return;
 
             tickTime += SystemConfig.DeltaTime;
 
@@ -130,8 +150,17 @@ namespace Bullets
             else
             {
                 Position = CalculatePositionAtTime(tickTime);
+                if (isFinished) return;
                 if (BulletData.FaceCamera == 2)
                     Direction = CalculatePositionAtTime(tickTime + SystemConfig.DeltaTime) - Position;
+            }
+
+            if (tiles.Count == 0)
+                return;
+            if (showRange)
+            {
+                ShowRange range = tiles[0].GetComponent<ShowRange>();
+                range.UpdateRange(this.Position.ToV2(), 2.5f);
             }
         }
 
@@ -159,6 +188,7 @@ namespace Bullets
             // 检查是否到达目标
             if (time > totalTime)
             {
+                Debug.Log($"弹道到达目标位置: {TargetPos}");
                 HandleTargetReached(position);
             }
 
@@ -242,6 +272,8 @@ namespace Bullets
             findTargetSkill.UpdateAttackPoints();
             findTargetSkill.FindTarget();
 
+            Debug.Log($"下一目标: {(findTargetSkill.Targets.Count > 0 ? findTargetSkill.Targets[0].UnitData.Id : "无")}");
+
             if (maxLinkNum > 0 && findTargetSkill.Targets.Count > 0)
             {
                 Unit nextTarget = null;
@@ -249,6 +281,7 @@ namespace Bullets
                 if (!canBack)
                 {
                     nextTarget = findTargetSkill.Targets.Find(x => x.Alive() && !usedTargets.Contains(x));
+                    Debug.Log($"寻找下一个目标 (不允许回跳): {(nextTarget != null ? nextTarget.UnitData.Id : "无")} 位置: {nextTarget?.Position}");
                 }
                 else
                 {
@@ -296,12 +329,42 @@ namespace Bullets
                 Battle.AllUnits.Remove(tempUnit);
                 tempUnit = null;
             }
+
+            foreach (var tile in tiles)
+            {
+                UnityEngine.Object.Destroy(tile);
+            }
+            tiles.Clear();
         }
 
         public override void Finish()
         {
+            if (isFinished) return;
+            isFinished = true;
             CleanUp();
             base.Finish();
+        }
+
+        public void ShowRangeInit(string color, float alpha, Skill skill)
+        {
+            var tileAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "ShowRange");
+            GameObject go = UnityEngine.Object.Instantiate(tileAsset);
+            go.transform.SetParent(Skill.Unit.NowGrid.MapGrid.transform);
+            go.transform.localPosition = new Vector3(0, Battle.Map.Tiles[Target.NowGrid.X, Target.NowGrid.Y].FarAttackGrid ? -0.25f : 0.15f, 0);
+            ShowRange showRange = go.GetComponent<ShowRange>();
+            showRange.targetTile = Battle.Map.Tiles[Skill.Unit.NowGrid.X, Skill.Unit.NowGrid.Y].MapGrid.gameObject;
+            showRange.unitUniqueIndex = Battle.AllUnits.IndexOf(Target);
+            showRange.useGridPos = false;
+            showRange.unitGridPos = Position.ToV2Int();
+            //doNotShowRange.unitGridPos = Skill.Unit.GridPos;
+            showRange.unitWorldPos = Position.ToV2();
+            showRange.colorHex = String.IsNullOrEmpty(color) ? "#6385FF" : color;
+            showRange.alpha = alpha;
+            showRange.rangeRadius = skill.SkillData.AreaRange;
+            showRange.polygonRange = skill.AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();
+            //doNotShowRange.polygonRange = AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();    
+            showRange.Init();
+            tiles.Add(go);
         }
     }
 }

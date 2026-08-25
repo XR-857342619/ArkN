@@ -182,10 +182,11 @@ public class Unit
     //public Dictionary<string, (float, float, float)> progressBarData = new Dictionary<string, (float, float, float)>();
     private bool isRefreshing = false;
 
-    public virtual void Init()
+    public virtual void Init(bool isTmp = false)
     {
-        if (UnitData.Id == "0") return;
+        if (UnitData.Id == "0") isTmp = true;
         baseAttributeInit();
+        if (isTmp) return;
         AnimationName = UnitData.DefaultAnimation;
         if (UnitData.IgnoreBuff != null) IgnoreBuffs.AddRange(UnitData.IgnoreBuff);
         Team = UnitData.Team;
@@ -493,6 +494,12 @@ public class Unit
         if (Position.z > Battle.Map.maxZ + 0.5f) Position.z = Battle.Map.maxZ + 0.4999f;
 
         if (Height > 0) return;
+        
+        if (GridPos.x > Battle.Map.maxX) Position.x = Battle.Map.maxX + 0.4999f;
+        if (GridPos.x < Battle.Map.minX) Position.x = Battle.Map.minX - 0.4999f;
+        if (GridPos.y > Battle.Map.maxZ) Position.z = Battle.Map.maxZ + 0.4999f;
+        if (GridPos.y < Battle.Map.minZ) Position.z = Battle.Map.minZ - 0.4999f;
+        
         var tile = Battle.Map.Tiles[GridPos.x, GridPos.y];
 
         if (tile.FarAttackGrid)

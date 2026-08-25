@@ -28,6 +28,8 @@ namespace Bullets
         object tmp;
         bool countLimit = false;
         bool startAttack = false;
+
+        string exTarget;
         public override void Init()
         {
             base.Init();
@@ -42,14 +44,11 @@ namespace Bullets
             
             maxTargetCount = BulletData.Data.GetInt("MaxTargetCount",-1);
             countLimit = maxTargetCount != -1;
-            //Debug.Log("maxTargetCount:" + maxTargetCount);
-            //Debug.Log("countLimit:" + countLimit);
+
             triggerTimes = BulletData.Data.GetInt("TriggerTimes",-1);
-            //Debug.Log("高度:" + moveHeight);
-            //if (maxTargetCount != -1)
-            //countLimit = true;
-            //if (BulletData.Data.TryGetValue("AttackGap", out tmp))
-            //    attackGap = Convert.ToSingle(tmp);
+
+            exTarget = BulletData.Data.GetStr("ExTarget");
+
             if (moveHeight == 0 && BulletData.FaceCamera == 2) Direction = TargetPos - this.Position;
             if (BulletData.FaceCamera == 1) BulletModel.transform.eulerAngles = new Vector3(60, 0, 0);
             float scaleX = 1;
@@ -59,10 +58,14 @@ namespace Bullets
         }
         public override void Update()
         {
+            if (arrive) return;
             base.Update();
             tickTime += SystemConfig.DeltaTime;
+            
             if (Target.Alive())
                 TargetPos = GetTargetPos(Target);
+            else arrive = true;
+
             if (!arrive)
             {
                 if (moveHeight == 0)
@@ -81,14 +84,12 @@ namespace Bullets
                         Direction = getPosOfTime(tickTime + SystemConfig.DeltaTime) - Position;
                 }
             }
-            ////if (DamagedUnits.Count > 0 && TriggerTime.Finished())
-            //if (TriggerTime.Finished())
-            //{
-            //    TriggerTime.Set(BulletData.Data.GetFloat("Trigger"));
-            //}
+
+            if ((Position - TargetPos).sqrMagnitude < 0.001f) arrive = true;
+
             int team = targetTeam == -1 ? Skill.SkillData.TargetTeam : targetTeam;
             var targets = Battle.FindAll(Position.ToV2(), radius, team);
-            targets.UnionWith(Battle.FindAll(Position, radius, 7).Where(x => x.UnitData.Name == Skill.SkillData.Data.GetStr("ExTarget")));
+            if (!string.IsNullOrEmpty(exTarget)) targets.UnionWith(Battle.FindAll(Position, radius, 7).Where(x => x.UnitData.Name == exTarget));
             if (targets.Count > 0 && !startAttack)
             {
                 TriggerTime.Set(_triggerTime);

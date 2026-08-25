@@ -12,26 +12,33 @@ namespace Bullets
         HashSet<Unit> DamagedUnits = new HashSet<Unit>();
         //HashSet<Unit> damageUnits = new HashSet<Unit>();
 
-        bool arrive;
-        CountDown LifeTime = new CountDown();
-        CountDown TriggerTime = new CountDown();
-        float radius;
-        float _lifeTime;
-        float _triggerTime;
+        private bool arrive;
+        private CountDown LifeTime = new CountDown();
+        private CountDown TriggerTime = new CountDown();
+        public float radius;
+        private float _lifeTime;
+        private float _triggerTime;
 
-        float InitRadius;
-        float MaxRadius;
-        float RadiusExponentRate;
+        private float InitRadius;
+        private float MaxRadius;
+        private float RadiusExponentRate;
 
-        float moveHeight;//0:直线 1:抛物线 2.瞬移 3.静止
-        float tickTime;
-        int targetTeam = -1;
-        int maxTargetCount = -1;
-        int triggerTimes = -1;
+        private float moveHeight;//0:直线 1:抛物线 2.瞬移 3.静止
+        private float tickTime;
+
+        private float alpha;
+
+        private int targetTeam;
+        private int maxTargetCount;
+        private int triggerTimes;
         //float attackGap = -1;
-        object tmp;
-        bool countLimit = false;
-        bool startAttack = false;
+
+        private bool countLimit = false;
+        private bool startAttack = false;
+        private bool doNotShowRange = false;
+
+        private string color;
+
         List<GameObject> tiles = new List<GameObject>();
         public override void Init()
         {
@@ -46,29 +53,16 @@ namespace Bullets
             InitRadius = BulletData.Data.GetFloat("InitRadius");
             RadiusExponentRate = BulletData.Data.GetFloat("RadiusExponentRate",0);
             radius = InitRadius;
-            //if (BulletData.Data.TryGetValue("TargetTeam", out tmp))
-            //    targetTeam = Convert.ToInt32(tmp);
-            targetTeam = BulletData.Data.GetInt("TargetTeam", Skill.SkillData.TargetTeam);
-            //if (BulletData.Data.TryGetValue("MaxTargetCount", out tmp))
-            //{
-            //    countLimit = true;
-            //    maxTargetCount = Convert.ToInt32(tmp);
-            //}
+
+            targetTeam = BulletData.Data.GetInt("TargetTeam", -1);
+            if (targetTeam == -1) targetTeam = Skill.SkillData.TargetTeam;
             maxTargetCount = BulletData.Data.GetInt("MaxTargetCount", -1);
-            //Debug.Log("maxTargetCount:" + maxTargetCount);
-            //Debug.Log("countLimit:" + countLimit);
-            //if (BulletData.Data.TryGetValue("TriggerTimes", out tmp))
-            //{
-            //    //Debug.Log("触发次数:" + tmp);
-            //    //Debug.Log(tmp is int);
-            //    triggerTimes = Convert.ToInt32(tmp);
-            //}
             triggerTimes = BulletData.Data.GetInt("TriggerTimes", -1);
-            //Debug.Log("高度:" + moveHeight);
-            //if (maxTargetCount != -1)
-            //countLimit = true;
-            //if (BulletData.Data.TryGetValue("AttackGap", out tmp))
-            //    attackGap = Convert.ToSingle(tmp);
+
+            doNotShowRange = BulletData.Data.GetBool("DoNotShowRange");
+            color = BulletData.Data.GetStr("Color");
+            alpha = BulletData.Data.GetFloat("Alpha", 1f);
+
             if (moveHeight == 0 && BulletData.FaceCamera == 2) Direction = TargetPos - this.Position;
             if (BulletData.FaceCamera == 1) BulletModel.transform.eulerAngles = new Vector3(60, 0, 0);
             float scaleX = 1;
@@ -76,40 +70,23 @@ namespace Bullets
             if (BulletData.ScaleX == 2) scaleX = Skill.Unit.ScaleX;
             BulletModel.transform.localScale = new Vector3(scaleX, 1, 1);
 
-            var tileAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "ShowRange");
-            GameObject go = UnityEngine.Object.Instantiate(tileAsset);
-            go.transform.SetParent(Target.NowGrid.MapGrid.transform);
-            go.transform.localPosition = new Vector3(0, Battle.Map.Tiles[Target.NowGrid.X, Target.NowGrid.Y].FarAttackGrid ? -0.25f : 0.15f, 0);
-            ShowRange showRange = go.GetComponent<ShowRange>();
-            showRange.targetTile = Battle.Map.Tiles[Target.NowGrid.X, Target.NowGrid.Y].MapGrid.gameObject;
-            showRange.unitUniqueIndex = Battle.AllUnits.IndexOf(Target);
-            showRange.useGridPos = Target is not Units.敌人;
-            showRange.unitGridPos = Target.GridPos;
-            showRange.unitWorldPos = new Vector2(Position.x, Position.z);
-            //showRange.colorHex = SkillData.Data.GetStr("Color", "#6385FF");
-            //showRange.alpha = SkillData.Data.GetFloat("Alpha", 1.0f);
-            showRange.rangeRadius = radius;
-            //showRange.polygonRange = AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();    
-            showRange.Init();
-            tiles.Add(go);
+            if (!doNotShowRange) ShowRangeInit(color, alpha);
         }
         public override void Update()
         {
+            if (arrive) return;
             base.Update();
             if (radius < MaxRadius)
                 radius += RadiusExponentRate * SystemConfig.DeltaTime;
             tickTime += SystemConfig.DeltaTime;
 
             //Log.Debug(radius);
-
-            foreach (var tile in tiles)
-            {
-                ShowRange range = tile.GetComponent<ShowRange>();
-                range.UpdateRange(this.Position, radius);
-            }
+            
 
             if (Target.Alive())
                 TargetPos = GetTargetPos(Target);
+            else arrive = true;
+
             if (!arrive)
             {
                 if (moveHeight == 0)
@@ -128,13 +105,21 @@ namespace Bullets
                         Direction = getPosOfTime(tickTime + SystemConfig.DeltaTime) - Position;
                 }
             }
+            //Debug.Log($"弹道 {BulletData.Id} 更新范围: 位置={this.Position}, 半径={radius}");
+            if (!doNotShowRange)
+            {
+                ShowRange range = tiles[0].GetComponent<ShowRange>();
+                range.UpdateRange(this.Position.ToV2(), radius);
+            }
+
+            if ((Position-TargetPos).sqrMagnitude < 0.001f) arrive = true;
             ////if (DamagedUnits.Count > 0 && TriggerTime.Finished())
             //if (TriggerTime.Finished())
             //{
             //    TriggerTime.Set(BulletData.Data.GetFloat("Trigger"));
             //}
-            int team = targetTeam == -1 ? Skill.SkillData.TargetTeam : targetTeam;
-            var targets = Battle.FindAll(Position.ToV2(), radius, team);
+            
+            var targets = Battle.FindAll(Position.ToV2(), radius, targetTeam);
             targets.UnionWith(Battle.FindAll(Position, Skill.SkillData.AreaRange, 7).Where(x => x.UnitData.Name == Skill.SkillData.Data.GetStr("ExTarget")));
             if (targets.Count > 0 && !startAttack)
             {
@@ -155,7 +140,7 @@ namespace Bullets
             {
                 if (!DamagedUnits.Contains(t))
                 {
-                    //Debug.Log("击中:" + t.UnitData.Id);
+                    Debug.Log("击中:" + t.UnitData.Id);
                     if (countLimit && maxTargetCount == 0)
                         break;
                     DamagedUnits.Add(t);
@@ -220,6 +205,27 @@ namespace Bullets
                 UnityEngine.Object.Destroy(tile);
             }
             tiles.Clear();
+        }
+
+        public void ShowRangeInit(string color, float alpha)
+        {
+            var tileAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "ShowRange");
+            GameObject go = UnityEngine.Object.Instantiate(tileAsset);
+            go.transform.SetParent(Skill.Unit.NowGrid.MapGrid.transform);
+            go.transform.localPosition = new Vector3(0, Battle.Map.Tiles[Target.NowGrid.X, Target.NowGrid.Y].FarAttackGrid ? -0.25f : 0.15f, 0);
+            ShowRange showRange = go.GetComponent<ShowRange>();
+            showRange.targetTile = Battle.Map.Tiles[Skill.Unit.NowGrid.X, Skill.Unit.NowGrid.Y].MapGrid.gameObject;
+            showRange.unitUniqueIndex = Battle.AllUnits.IndexOf(Target);
+            showRange.useGridPos = false;
+            showRange.unitGridPos = Position.ToV2Int();
+            //doNotShowRange.unitGridPos = Skill.Unit.GridPos;
+            showRange.unitWorldPos = Position.ToV2();
+            showRange.colorHex = String.IsNullOrEmpty(color) ? "#6385FF" : color;
+            showRange.alpha = alpha;
+            showRange.rangeRadius = radius;
+            //doNotShowRange.polygonRange = AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();    
+            showRange.Init();
+            tiles.Add(go);
         }
     }
 }

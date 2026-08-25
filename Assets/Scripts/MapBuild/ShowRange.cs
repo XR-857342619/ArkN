@@ -40,6 +40,26 @@ public class ShowRange : MonoBehaviour
     public float alpha = 0.5f; // 透明度（0~1）
     private Color rangeColor;
 
+    Dictionary<GameObject, Vector3> baseLocalPositions = new Dictionary<GameObject, Vector3>();
+
+    void Awake()
+    {
+        SaveBasePosition(LineT);
+        SaveBasePosition(LineL);
+        SaveBasePosition(LineR);
+        SaveBasePosition(LineB);
+        SaveBasePosition(LineC);
+        SaveBasePosition(PointTR);
+        SaveBasePosition(PointBR);
+        SaveBasePosition(PointBL);
+        SaveBasePosition(PointTL);
+    }
+
+    void SaveBasePosition(GameObject obj)
+    {
+        if (obj != null)
+            baseLocalPositions[obj] = obj.transform.localPosition;
+    }
     public void Init()
     {
         // 解析十六进制颜色
@@ -72,6 +92,8 @@ public class ShowRange : MonoBehaviour
         // 计算偏移量（单位到地块中心的向量）
         Vector2 offset = unitFinalPos - plotCenterPos;
 
+        //Debug.Log($"单位偏移量: {offset} (单位位置: {unitFinalPos}, 地块中心: {plotCenterPos})");
+
         // 对所有范围显示子物体应用偏移
         ApplyOffsetToSingleObject(LineT, offset);
         ApplyOffsetToSingleObject(LineL, offset);
@@ -89,15 +111,19 @@ public class ShowRange : MonoBehaviour
     /// </summary>
     private void ApplyOffsetToSingleObject(GameObject obj, Vector2 offset)
     {
-        if (obj != null)
-        {
-            Transform objTrans = obj.transform;
-            objTrans.localPosition = new Vector3(
-                objTrans.localPosition.x + offset.x,
-                objTrans.localPosition.y,
-                objTrans.localPosition.z + offset.y
-            );
-        }
+        //Debug.Log($"位置: {targetTile.transform.position} {offset}");
+        if (obj == null) return;
+
+        if (!baseLocalPositions.TryGetValue(obj, out Vector3 basePos))
+            basePos = obj.transform.localPosition;
+
+        Transform objTrans = obj.transform;
+        obj.transform.localPosition = new Vector3(
+            basePos.x + offset.x,
+            basePos.y,
+            basePos.z + offset.y
+        );
+
     }
 
     /// <summary>
