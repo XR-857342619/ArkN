@@ -13,9 +13,11 @@ namespace Bullets
         //HashSet<Unit> damageUnits = new HashSet<Unit>();
 
         bool arrive;
-        CountDown LifeTime;
+        CountDown LifeTime = new CountDown();
         CountDown TriggerTime = new CountDown();
         float radius;
+        float _lifeTime;
+        float _triggerTime;
 
         float moveHeight;//0:直线 1:抛物线 2.瞬移 3.静止
         float tickTime;
@@ -32,25 +34,17 @@ namespace Bullets
             if (Target.Alive())
                 TargetPos = GetTargetPos(Target);
             moveHeight = BulletData.Data.GetFloat("MoveHeight");
-            LifeTime = new CountDown(BulletData.Data.GetFloat("_lifeTime"));
+            _lifeTime = BulletData.Data.GetFloat("LifeTime",0);
+            LifeTime.Set(_lifeTime);
+            _triggerTime = BulletData.Data.GetFloat("Trigger");
             radius = BulletData.Data.GetFloat("Radius");
-            if (BulletData.Data.TryGetValue("TargetTeam", out tmp))
-                targetTeam = Convert.ToInt32(tmp);
-            //if (BulletData.Data.TryGetValue("MaxTargetCount", out tmp))
-            //{
-            //    countLimit = true;
-            //    maxTargetCount = Convert.ToInt32(tmp);
-            //}
+            targetTeam = BulletData.Data.GetInt("TargetTeam", Skill.SkillData.TargetTeam);
+            
             maxTargetCount = BulletData.Data.GetInt("MaxTargetCount",-1);
             countLimit = maxTargetCount != -1;
             //Debug.Log("maxTargetCount:" + maxTargetCount);
             //Debug.Log("countLimit:" + countLimit);
-            if (BulletData.Data.TryGetValue("TriggerTimes", out tmp))
-            {
-                //Debug.Log("触发次数:" + tmp);
-                //Debug.Log(tmp is int);
-                triggerTimes = Convert.ToInt32(tmp);
-            }
+            triggerTimes = BulletData.Data.GetInt("TriggerTimes",-1);
             //Debug.Log("高度:" + moveHeight);
             //if (maxTargetCount != -1)
             //countLimit = true;
@@ -97,7 +91,7 @@ namespace Bullets
             targets.UnionWith(Battle.FindAll(Position, radius, 7).Where(x => x.UnitData.Name == Skill.SkillData.Data.GetStr("ExTarget")));
             if (targets.Count > 0 && !startAttack)
             {
-                TriggerTime.Set(BulletData.Data.GetFloat("Trigger"));
+                TriggerTime.Set(_triggerTime);
                 startAttack = true;
             }
             if (TriggerTime.Update(SystemConfig.DeltaTime))
@@ -107,7 +101,7 @@ namespace Bullets
                     triggerTimes--;
                 }
                 DamagedUnits.Clear();
-                TriggerTime.Set(BulletData.Data.GetFloat("Trigger"));
+                TriggerTime.Set(_triggerTime);
             }
             //Debug.Log("target team:" + team);
             foreach (var t in targets)
@@ -136,11 +130,11 @@ namespace Bullets
                     //Log.Debug(t.UnitData.Name);
                 }
             }
-            if (LifeTime.Update(SystemConfig.DeltaTime))
+            if (LifeTime.Update(SystemConfig.DeltaTime) && _lifeTime!=0)
             {
                 Finish();
             }
-            if (arrive && BulletData.Data.GetFloat("_lifeTime")==0)
+            if (arrive && _lifeTime==0)
             {
                 Finish();
             }

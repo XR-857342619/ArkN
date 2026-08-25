@@ -821,6 +821,7 @@ public class Skill
             Effect(target);
         }
         //Debug.Log(LastTargets.Count + "个目标");
+        SpSkillEffect();
         BurstCount--;
         if (BurstCount > 0)
             BurstGap.Set(SkillData.BurstDelay);

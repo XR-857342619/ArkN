@@ -12,15 +12,26 @@ namespace Skills
     {
         WaveInfo summonWaveInfo;
         float range;
+        float speed;
+        float updateTime;
         int count;
 
         string unitId;
         string targetPos;
         string setMod;
 
+        bool isArrive;
+        bool isMoving;
+
+        Vector3 direction;
+        Vector3 moveTarget;
+
         public override void Init()
         {
             base.Init();
+
+            isArrive = false;
+            isMoving = false;
 
             unitId = SkillData.Data.GetStr("召唤物ID");
             if (string.IsNullOrEmpty(unitId))
@@ -30,6 +41,7 @@ namespace Skills
             count = SkillData.Data.GetInt("数量", SkillData.Data.GetInt("Count", 1));
             targetPos = SkillData.Data.GetStr("召唤位置", "");
             setMod = SkillData.Data.GetStr("部署模式", "追加");
+            speed = SkillData.Data.GetFloat("位移速度", 0f)/2;
 
             if (setMod == "位移") count = 1;
             if (string.IsNullOrEmpty(unitId) && setMod != "位移") return;
@@ -44,6 +56,21 @@ namespace Skills
             }
             summonWaveInfo.sUnitId = unitId;
             Debug.Log($"技能 {SkillData.Id} 初始化召唤物 {unitId}，范围 {range}，数量 {count}，位置模式 {targetPos}，部署模式 {setMod}");
+        }
+
+        public override void Update()
+        {
+            if (isMoving)
+            {
+                Debug.Log($"技能 {SkillData.Id} 正在移动单位 {Unit.UnitData.Id}，当前位置 {Unit.Position}, 目标方向 {direction}");
+                Moveing(moveTarget, direction, ref isArrive);
+                if (isArrive)
+                {
+                    isMoving = false;
+                    isArrive = false;
+                }
+            }
+            base.Update();
         }
 
         public override void SpSkillEffect()
@@ -122,9 +149,11 @@ namespace Skills
             }
             else if (setMod == "位移")
             {
-                if (caster is 敌人) caster.Position = pos;
-                var V2Int = pos.ToV2Int();
-                if (caster is 干员 op) op.ChangePos(V2Int.x, V2Int.y, op.Direction_E);
+                if (speed == 0) return;
+                isMoving = true;
+                direction = (pos.ToV3() - Unit.Position).normalized;
+                moveTarget = pos.ToV3();
+                updateTime = Vector3.Distance(pos.ToV3(), Unit.Position) / speed / SkillData.OpenTime;
                 return;
             }
 
@@ -136,8 +165,45 @@ namespace Skills
             if (caster is Units.敌人 parent)
             {
                 unit.currentPathIndex = parent.currentPathIndex;
-                unit.Parent = parent;
             }
+            unit.Parent = caster;
+        }
+
+        public void Moveing(Vector3 pos, Vector3 direction, ref bool isArrive)
+        {
+            Unit.BreakAllCast();
+            if ((Unit.Position-pos).sqrMagnitude < 0.01f)
+            {
+                isArrive = true;
+                Unit.Position = pos;
+                if (Unit is 干员 op) op.ChangePos(pos.ToV2Int().x, pos.ToV2Int().y, op.Direction_E);
+                return;
+            }
+            Unit.Position += direction * speed * Time.deltaTime;
+        }
+
+        public override void UpdateOpening()
+        {
+            if (!Opening.Finished() && isMoving)
+            {
+                UpdateOpening(updateTime);
+                return;
+            }
+            if (!Opening.Finished() && SkillData.PowerUseType == PowerRecoverTypeEnum.自动)
+            {
+                UpdateOpening(SystemConfig.DeltaTime);
+            }
+        }
+        public override void BreakCast()
+        {
+            if (isMoving) return;
+            base.BreakCast();
+        }
+        public override void Finish()
+        {
+            base.Finish();
+            isMoving = false;
+            isArrive = false;
         }
     }
 }

@@ -23,7 +23,6 @@ namespace Units
     {
         public const float StopExCheck = 0.01f, TempArriveDistance = 0.01f;
         public Unit StopUnit;
-        new public 敌人 Parent;
 
         public WaveInfo WaveData;//=> Database.Instance.Get<WaveData>(WaveId);
 

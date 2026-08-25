@@ -10,6 +10,7 @@ namespace Bullets
     {
         CountDown Trigger = new CountDown();
         CountDown LifeTime = new CountDown();
+        float _lifeTime;
         float trigger;
         PullLineModel PullLine;
 
@@ -21,7 +22,8 @@ namespace Bullets
             Skill.Unit.AttackingSkill = Skill;
             Skill.Unit.OverWriteAnimation = Skill.SkillData.OverwriteAnimation;
             Skill.Unit.AttackingAction.Set(float.PositiveInfinity);
-            LifeTime.Set(BulletData.Data.GetFloat("_lifeTime"));
+            _lifeTime = BulletData.Data.GetFloat("LifeTime",0);
+            LifeTime.Set(_lifeTime);
             if (!string.IsNullOrEmpty(BulletData.Line))
             {
                 PullLine = BulletManager.Instance.GetLine(BulletData.Line);
