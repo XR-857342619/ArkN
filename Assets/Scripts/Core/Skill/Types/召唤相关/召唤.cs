@@ -43,13 +43,13 @@ namespace Skills
                 summonWaveInfo = new WaveInfo();
             }
             summonWaveInfo.sUnitId = unitId;
+            Debug.Log($"技能 {SkillData.Id} 初始化召唤物 {unitId}，范围 {range}，数量 {count}，位置模式 {targetPos}，部署模式 {setMod}");
         }
 
-        public override void Effect(Unit target)
+        public override void SpSkillEffect()
         {
-            base.Effect(target);
-
             var caster = Unit;
+            Debug.Log($"技能 {SkillData.Id} 由 {caster?.UnitData.Id} 施放");
             if (caster == null || (string.IsNullOrEmpty(unitId) && setMod != "位移")) return;
 
             List<Vector2Int> posList = GetPosList(caster);
@@ -63,8 +63,10 @@ namespace Skills
 
             for (int i = 0; i < posList.Count; i++)
             {
+                Debug.Log($"在位置 {posList[i].x}, {posList[i].y} 召唤 {count} 个单位");
                 for (int j = 0; j < count; j++)
                 {
+                    Debug.Log($"召唤第 {j + 1} 个单位");
                     SpawnEnemy(caster, GetRandomPositions(posList[i]));
                 }
             }
