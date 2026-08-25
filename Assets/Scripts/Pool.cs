@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
@@ -7,7 +7,6 @@ public class Pool<T> where T : Component
     private readonly Dictionary<T, Stack<T>> _pool = new Dictionary<T, Stack<T>>();
     private readonly Dictionary<T, T> _live = new Dictionary<T, T>();
     public static Transform PoolRoot;
-
 
     public T Spawn(T original, Vector3 position, Quaternion? rotation = null)
     {
@@ -27,7 +26,6 @@ public class Pool<T> where T : Component
                 }
 
                 result.gameObject.SetActive(true);
-                //result.transform.enabled = true;
             }
             else
             {
@@ -38,8 +36,10 @@ public class Pool<T> where T : Component
                 else
                 {
                     result = Object.Instantiate(original, position, original.transform.rotation);
-                    //result.transform.position = position;
                 }
+
+                // 首次实例化时也强制激活，避免 Effect.Awake 等组件把对象隐藏后无人重新激活。
+                result.gameObject.SetActive(true);
             }
         }
         else
@@ -52,8 +52,10 @@ public class Pool<T> where T : Component
             else
             {
                 result = Object.Instantiate(original, position, original.transform.rotation);
-                //result.transform.position = position;
             }
+
+            // 首次实例化时也强制激活。
+            result.gameObject.SetActive(true);
         }
 
         _live[result] = original;
