@@ -160,11 +160,19 @@ public class BattleManager : MonoBehaviour
         battleTcs?.TrySetResult(true);
 
         battleExitCounter++;
-        if (battleExitCounter >= 5)
+
+        if (battleExitCounter % 3 == 0)
+        {
+            SpineImportHelper.Instance.UnloadAllSpineAssets();
+        }
+
+        if (battleExitCounter >= 6)
         {
             battleExitCounter = 0;
             UnifiedExpressionEngine.ClearCache();
         }
+
+        ExtextureLoader.Instance.ClearCache();
     }
     public void ReSetPreviwSetting()
     {

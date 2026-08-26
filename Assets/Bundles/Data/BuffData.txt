@@ -327,7 +327,13 @@
 {"Id":"伊内丝部署标记","Type":"普通Buff"}
 {"Id":"测试buff","Type":"数值变化依表达式","LastTime":5,"Data":{"Expression":"Buff.Skill.SkillData.DamageRate = Buff.Duration.value","绑定进度条":"圆"}}
 {"Id":"CCB加攻速","Type":"数值变化","LastingEffect":21,"Data":{"t":["AgiAddFin"]}}
-{"Id":"CCB叠层","Type":"叠层转化","Data":{"maxLevel":3,"BuffId":"隐身","LastTime":5,"绑定进度条":"恐惧"}}
+{"Id":"CCB叠层","Type":"叠层转化","LastTime":99999,"Data":{"maxLevel":3,"BuffId":"CCB隐身","LastTime":6,"绑定进度条":"恐惧"}}
+{"Id":"CCB攻击印记","Type":"普通Buff","LastingEffect":33,"LastTime":12}
+{"Id":"CCB回血","Type":"治愈","LastingEffect":151,"Data":{"DamageBase":1,"TriggerTime":0.5,"HpLess":0.5,"HpLessRate":1.5}}
+{"Id":"CCB强力击标记","Type":"普通Buff","LastingEffect":34}
+{"Id":"CCB减攻速","Type":"数值变化","LastingEffect":37,"Data":{"t":["AgiAddFin"]}}
+{"Id":"小弟减速","Type":"数值变化","LastTime":0.8,"Data":{"t":["SpeedRate"]}}
+{"Id":"CCB隐身","Type":"隐身","LastingEffect":3,"Data":{"HideTime":0,"无视阻挡":1}}
 {"Id":"逻各斯附加","Type":"普通Buff","UnSourceCheck":1}
 {"Id":"逻减抗","Type":"数值变化","LastingEffect":37,"Data":{"t":["MagicDefenceAdd"]}}
 {"Id":"逻各斯1加成","Type":"数值变化","UnSourceCheck":1,"LastingEffect":348,"Data":{"t":["AttackRate"]}}
@@ -361,6 +367,9 @@
 {"Id":"m3标记","Type":"普通Buff","UnSourceCheck":1,"LastingEffect":146}
 {"Id":"m33动作","Type":"覆盖动作","Data":{"IdleAnimation":["Skill_3_Idle"]}}
 {"Id":"重构体给予buff","Type":"普通Buff","UnSourceCheck":1}
+{"Id":"召唤棋子","Type":"普通Buff","UnSourceCheck":1}
+{"Id":"望3动作","Type":"覆盖动作","UnSourceCheck":1,"Data":{"IdleAnimation":["Skill_3_Idle"]}}
+{"Id":"望3范围内","Type":"普通Buff","UnSourceCheck":1}
 {"Id":"余庇护","Type":"数值变化","StopNeed":1,"Data":{"t":["NormalDamageReceiveRate","MagicDamageReceiveRate"]}}
 {"Id":"余阻挡","Type":"普通Buff","StopNeed":1}
 {"Id":"余仇恨","Type":"数值变化","Data":{"t":["Hatre"]}}

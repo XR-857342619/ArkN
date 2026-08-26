@@ -74,8 +74,9 @@
 {"Id":"炮火先兆者弹道","Type":"延迟打击","Model":"skfire_skill_02_trail1","Speed":10,"FaceCamera":2,"Data":{"delay":2.5}}
 {"Id":"罗1子弹","Type":"逻各斯1技能类子弹","Model":"amiya_attack_01_trail","Speed":5,"FaceCamera":2}
 {"Id":"影哨子弹","Type":"大飞镖","Model":"frostl_attack_01_trail","Speed":10,"Data":{"LifeTime":0,"Radius":1.4,"Trigger":0.02,"MoveHeight":0,"TriggerTimes":1,"TargetTeam":2,"MaxTargetCount":6}}
-{"Id":"CCB链式弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Data":{"MoveHeight":0,"MaxLinkNum":10,"ReductionRate":0.25,"SkillId":"链式弹道索敌","CanBack":"false"}}
+{"Id":"CCB链式弹道","Type":"链式弹道","Model":"aglina_attack_01_trail","Speed":5,"EffectBase":1,"Data":{"MoveHeight":0,"MaxLinkNum":6,"ReductionRate":0.25,"SkillId":"CCB弹道索敌","CanBack":1,"ShowRange":1,"Color":"#ed3333"}}
 {"Id":"真言天赋弹道","Type":"大飞镖","Model":"frostl_attack_01_trail","Speed":10,"Data":{"LifeTime":99999,"Radius":0.5,"Trigger":0.02,"MoveHeight":2,"TriggerTimes":9999,"TargetTeam":2,"MaxTargetCount":9999}}
+{"Id":"移动弹道","Type":"棘刺2","Model":"amiya_skill_03_trail","Speed":10,"Data":{"MoveHeight":0,"MaxRadius":1.5,"InitRadius":1.5}}
 {"Id":"逻附加子弹","Type":"子弹","Model":"common_magic_trail_01","Speed":50,"FaceCamera":2}
 {"Id":"艾拉弹道","Type":"子弹","Model":"angle_skill_01_trail","Speed":200,"FaceCamera":2}
 {"Id":"测试弩箭","Type":"冲击波","Model":"platnm_attack_01_trail","Speed":2}
