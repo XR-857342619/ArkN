@@ -63,7 +63,7 @@ namespace Bullets
             canBack = BulletData.Data.GetBool("CanBack");
             skillId = BulletData.Data.GetStr("SkillId");
 
-            showRange = BulletData.Data.GetBool("DoNotShowRange");
+            showRange = BulletData.Data.GetBool("ShowRange");
             color = BulletData.Data.GetStr("Color");
             alpha = BulletData.Data.GetFloat("Alpha", 1f);
 
@@ -90,7 +90,7 @@ namespace Bullets
 
             isInitialized = true;
 
-            ShowRangeInit(color, alpha, skill);
+            if (showRange) ShowRangeInit(color, alpha, skill);
         }
 
         private Skill CreateTempUnit()
@@ -110,7 +110,7 @@ namespace Bullets
                 findTargetSkill = tempUnit.LearnSkill(skillData);
                 findTargetSkill.Init();
             }
-            Debug.Log("临时单位索敌半径"+tempUnit.AttackRange);
+            //Debug.Log("临时单位索敌半径"+tempUnit.AttackRange);
             return findTargetSkill;
         }
 
@@ -188,7 +188,7 @@ namespace Bullets
             // 检查是否到达目标
             if (time > totalTime)
             {
-                Debug.Log($"弹道到达目标位置: {TargetPos}");
+                //Debug.Log($"弹道到达目标位置: {TargetPos}");
                 HandleTargetReached(position);
             }
 
@@ -272,7 +272,7 @@ namespace Bullets
             findTargetSkill.UpdateAttackPoints();
             findTargetSkill.FindTarget();
 
-            Debug.Log($"下一目标: {(findTargetSkill.Targets.Count > 0 ? findTargetSkill.Targets[0].UnitData.Id : "无")}");
+            //Debug.Log($"下一目标: {(findTargetSkill.Targets.Count > 0 ? findTargetSkill.Targets[0].UnitData.Id : "无")}");
 
             if (maxLinkNum > 0 && findTargetSkill.Targets.Count > 0)
             {
@@ -281,7 +281,7 @@ namespace Bullets
                 if (!canBack)
                 {
                     nextTarget = findTargetSkill.Targets.Find(x => x.Alive() && !usedTargets.Contains(x));
-                    Debug.Log($"寻找下一个目标 (不允许回跳): {(nextTarget != null ? nextTarget.UnitData.Id : "无")} 位置: {nextTarget?.Position}");
+                    //Debug.Log($"寻找下一个目标 (不允许回跳): {(nextTarget != null ? nextTarget.UnitData.Id : "无")} 位置: {nextTarget?.Position}");
                 }
                 else
                 {
@@ -360,8 +360,10 @@ namespace Bullets
             showRange.unitWorldPos = Position.ToV2();
             showRange.colorHex = String.IsNullOrEmpty(color) ? "#6385FF" : color;
             showRange.alpha = alpha;
-            showRange.rangeRadius = skill.SkillData.AreaRange;
-            showRange.polygonRange = skill.AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();
+            showRange.rangeRadius = skill?.SkillData?.AreaRange ?? 0;
+            if (skill?.SkillData?.AttackPoints?.Length > 0)
+                showRange.polygonRange = skill.AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();
+            else showRange.polygonRange = null;
             //doNotShowRange.polygonRange = AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();    
             showRange.Init();
             tiles.Add(go);

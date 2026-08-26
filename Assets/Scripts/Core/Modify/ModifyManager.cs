@@ -28,6 +28,13 @@ public class ModifyManager
     {
         ModifyData data = Database.Instance.Get<ModifyData>(id);
         Modify modify = typeof(Unit).Assembly.CreateInstance(nameof(Modifys) + "." + data.Type) as Modify;
+        if (modify == null)
+        {
+            var typeName = data?.Type ?? "null";
+            Log.Debug(typeName);
+            TipManager.Instance.ShowTip($"获取修饰器类型失败于{skill.SkillData.Name}/{skill.SkillData.Id} {typeName}");
+            return null;
+        }
         modify.Id = id;
         modify.Skill = skill;
         modify.Init();

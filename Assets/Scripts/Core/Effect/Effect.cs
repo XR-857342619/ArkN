@@ -23,7 +23,6 @@ public class Effect : MonoBehaviour
     {
         PS = GetComponentsInChildren<ParticleSystem>();
         TR = GetComponentsInChildren<TrailRenderer>();
-        gameObject.SetActive(false);
     }
 
     /// <summary>

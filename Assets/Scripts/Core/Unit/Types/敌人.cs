@@ -61,6 +61,10 @@ namespace Units
         public override void Init(bool isTmp = false)
         {
             base.Init(isTmp);
+
+            if (UnitData.MainSkill is not null && UnitData.MainSkill.Length > 0)
+                MainSkill = LearnSkill(UnitData.MainSkill[0], null);
+
             InputTime = Battle.Tick;
             StopCost = 1;
             if (UnitData.StopCount != 0) StopCost = UnitData.StopCount;

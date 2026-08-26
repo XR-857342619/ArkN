@@ -38,6 +38,20 @@ public static class DataHelper
         }
         return defaultValue;
     }
+    public static float GetFloat(this Dictionary<string, object> self, string[] keys, float defaultValue = 0)
+    {
+        if (self == null) return defaultValue;
+        float value = 0;
+        for (int i = 0; i < keys.Length; i++)
+        {
+            if (self.TryGetValue(keys[i], out object r))
+            {
+                value = Convert.ToSingle(r);
+                if (value != defaultValue) return value;
+            }
+        }
+        return defaultValue;
+    }
 
     public static bool GetBool(this Dictionary<string, object> self, string key)
     {
@@ -45,6 +59,20 @@ public static class DataHelper
         if (self.TryGetValue(key, out object r))
         {
             return Convert.ToBoolean(r);
+        }
+        return false;
+    }
+    public static bool GetBool(this Dictionary<string, object> self, string[] keys)
+    {
+        if (self == null) return false;
+        bool value = false;
+        for (int i = 0; i < keys.Length; i++)
+        {
+            if (self.TryGetValue(keys[i], out object r))
+            {
+                value = Convert.ToBoolean(r);
+                if (value) return true;
+            }
         }
         return false;
     }

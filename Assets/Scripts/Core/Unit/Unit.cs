@@ -119,6 +119,7 @@ public class Unit
 
     public bool IfHide;
     public bool IfHideAnti;
+    public bool ForceHide = false;
     protected bool hideBase;
 
     public bool CanAttack;
@@ -328,6 +329,7 @@ public class Unit
         CanStopOther = true;
         bool lastIfStun = IfStun;
         IfStun = false;
+        ForceHide = false;
         foreach (var buff in Buffs.Reverse<Buff>())
         {
             buff.Update();
@@ -339,7 +341,9 @@ public class Unit
         {
             SetStatus(StateEnum.Idle);
         }
-        if (IfHideAnti || IfStoped()) IfHide = false;
+
+        if (hideBase && IfStoped()) IfHide = ForceHide;
+        if (IfHideAnti && !hideBase) IfHide = false;
         foreach (var buff in Buffs.Reverse<Buff>())//计算完单位属性后，有些buff要更新显示状态
         {
             buff.UpdateView();
@@ -897,6 +901,8 @@ public class Unit
         ApplyDamageModification(damageInfo);
 
         if (damageInfo.FinalDamage > damageInfo.ExpectedDamage * 1.5f) UnitModel.ShowCrit(damageInfo);
+
+        //if (damageInfo.DamageType == DamageTypeEnum.LoseHP) Debug.Log($"{UnitData.Name}受到{damageInfo.FinalDamage}点生命流失");
 
         Hp -= damageInfo.FinalDamage;
 

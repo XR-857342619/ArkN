@@ -271,7 +271,7 @@ public class Skill
 
         if (SkillData.SelfHpLess != 0 && Unit.Hp / Unit.MaxHp > SkillData.SelfHpLess) return false;
 
-        if ((SkillData?.OpenDisable?? true) && (!Unit?.MainSkill.Opening.Finished()??true)) return false;
+        if ((SkillData?.OpenDisable ?? true) && (!Unit?.MainSkill?.Opening.Finished() ?? true)) return false;
         if (SkillData.EnableBuff != null && !SkillData.EnableBuff.All(x => Unit.Buffs.Any(y => y.Id == x)))
             return false;
         if (SkillData.DisableBuff != null && SkillData.DisableBuff.Any(x => Unit.Buffs.Any(y => y.Id == x)))

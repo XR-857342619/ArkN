@@ -211,13 +211,13 @@ namespace Units
             //return GetCost() <= Battle.Cost && Reseting.Finished() && (Battle.BuildCount > 0 || UnitData.BuildCountCost <= 0);
         }
 
-        public void JoinMap()
+        public void JoinMap(bool ignoreCost = false)
         {
-            //Debug.Log("StartStart" + Time.time);
+            ignoreCost = ignoreCost ? true : BattleManager.Instance.IsInfCost;
             SetStatus(StateEnum.Default);
             IfAlive = true;
             hideBase = true;
-            if (!BattleManager.Instance.IsInfCost)
+            if (!ignoreCost)
                 Battle.Cost -= GetCost();
             if (!BattleManager.Instance.IsInfUnitCount)
                 Battle.BuildCount -= UnitData.BuildCountCost;
@@ -283,20 +283,24 @@ namespace Units
             joinEffect.Init(this, this, Position, Direction);
         }
 
-        public void LeaveMap(bool recoverPower = false)
+        public void LeaveMap(bool recoverPower = false, bool noEvent = false)
         {
             SetStatus(StateEnum.Default);
             if (recoverPower)
                 Battle.Cost += BattleManager.Instance.IsInfCost ? 0 : Mathf.FloorToInt(UnitData.Cost * UnitData.LeaveReturn);
             InjurePoint = 0;
-            Battle.TriggerDatas.Push(new TriggerData()
+            if (!noEvent)
             {
-                Target = this,
-            });
-            //Debug.Log(UnitData.Name + "撤退");
-            Trigger(TriggerEnum.撤退);
-            Battle.TriggerDatas.Pop();
-            Finish(true);
+                Battle.TriggerDatas.Push(new TriggerData()
+                {
+                    Target = this,
+                });
+                //Debug.Log(UnitData.Name + "撤退");
+                Trigger(TriggerEnum.撤退);
+                Battle.TriggerDatas.Pop();
+            }
+            
+            Finish(!noEvent);
         }
 
         public override void Finish(bool leaveEvent = true)

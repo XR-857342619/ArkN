@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Units;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace Skills
 {
@@ -163,6 +164,13 @@ namespace Skills
             if (unit == null) return;
             Debug.Log($"召唤单位 {unit.UnitData.Id} 到位置 {pos.x}, {pos.y}");
 
+            Unit.Battle.TriggerDatas.Push(new TriggerData()
+            {
+                Target = unit,
+            });
+            Unit.Battle.Trigger(TriggerEnum.入场);
+            unit.Trigger(TriggerEnum.自己入场);
+
             unit.Position = new Vector3(pos.x, caster.Position.y, pos.y);
             if (caster is Units.敌人 parent)
             {
@@ -173,16 +181,16 @@ namespace Skills
 
         public void Moveing(Vector3 pos, Vector3 direction, ref bool isArrive)
         {
-            Unit.BreakAllCast();
-            if ((Unit.Position-pos).sqrMagnitude < 0.01f || tickTime >= updateTime * SkillData.OpenTime)
+            if ((Unit.Position-pos).sqrMagnitude < 0.1f || tickTime >= updateTime * SkillData.OpenTime)
             {
                 isArrive = true;
                 Unit.Position = pos;
-                if (Unit is 干员 op) op.ChangePos(pos.ToV2Int().x, pos.ToV2Int().y, op.Direction_E);
+                if (Unit is 干员 op) op.ResetAttackPoint();
                 return;
             }
             Unit.Position += direction * speed * SystemConfig.DeltaTime;
             tickTime += SystemConfig.DeltaTime;
+            Unit.BreakAllCast();
         }
 
         public override void UpdateOpening()
