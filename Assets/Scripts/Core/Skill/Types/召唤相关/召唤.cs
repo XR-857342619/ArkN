@@ -190,7 +190,7 @@ namespace Skills
             }
             Unit.Position += direction * speed * SystemConfig.DeltaTime;
             tickTime += SystemConfig.DeltaTime;
-            Unit.BreakAllCast();
+            //Unit.BreakAllCast();
         }
 
         public override void UpdateOpening()

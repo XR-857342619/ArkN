@@ -8,6 +8,14 @@ using System.Reflection;
 //using System.Linq.Dynamic.Core.CustomTypeProviders;
 using UnityEngine;
 
+
+
+public enum NumericChangeMode
+{
+    Add,
+    Set,
+    Max,
+}
 /// <summary>
 /// 统一表达式引擎，支持：
 /// - 强类型编译（基于实际对象类型，提升性能）
@@ -15,13 +23,6 @@ using UnityEngine;
 /// - 过滤、数学计算、属性赋值
 /// - 缓存机制（包含参数名和类型）
 /// </summary>
-public enum NumericChangeMode
-{
-    Add,
-    Set,
-    Max,
-}
-
 public class UnifiedExpressionEngine
 {
     private static readonly Dictionary<string, Delegate> _compiledExpressions = new Dictionary<string, Delegate>();

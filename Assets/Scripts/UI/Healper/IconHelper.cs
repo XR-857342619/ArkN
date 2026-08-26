@@ -50,14 +50,14 @@ public static class IconHelper
         {
             try
             {
-                ExtextureLoader.Instance.LoadLocalTexture(loader, icon_url.Substring(11));
-                //Debug.Log("Load texture success!, path: " + icon_url.Substring(11));
+                ExtextureLoader.Instance.LoadLocalTexture(loader, icon_url.Substring(10));
+                //Debug.Log("Load texture success!, path: " + icon_url.Substring(10));
             }
             catch (Exception e)
             {
-                Debug.LogError(e);
-                TipManager.Instance.ShowTip("Load texture failed!, path: " + icon_url.Substring(11));
+                TipManager.Instance.ShowTip("Load texture failed!, path: " + icon_url.Substring(10));
                 TipManager.Instance.ShowTip(e.Message);
+                Debug.LogError(e);
             }
             return;
         }
@@ -70,6 +70,7 @@ public static class IconHelper
             _ => "ui://Res/" + icon_url  // 包括 type 为 null 或未定义的情况
         };
         loader.url = url;
+        //loader.url = "ui://Res/missing";
         //Debug.Log("Set texture success!, url: " + url);
     }
 }

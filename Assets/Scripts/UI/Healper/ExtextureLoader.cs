@@ -4,18 +4,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using FairyGUI;
-using UnityEngine.UI;
 
 public class ExtextureLoader : MonoBehaviour
 {
     private static readonly object _lock = new object();
+
     public static ExtextureLoader Instance
     {
         get
         {
             if (instance == null)
             {
-                lock (_lock)  // 加锁防止并发创建
+                lock (_lock)
                 {
                     if (instance == null)
                     {
@@ -32,32 +32,57 @@ public class ExtextureLoader : MonoBehaviour
 
     public Dictionary<string, GLoader> loaderDict = new Dictionary<string, GLoader>();
 
+    // 本地贴图缓存：避免待部署区每次刷新都重新从磁盘/包体加载同一张图。
+    readonly Dictionary<string, NTexture> textureCache = new Dictionary<string, NTexture>();
+
     public void LoadLocalTexture(GLoader loader, string localFileName, Action onSuccess = null, Action onFailed = null)
     {
-        string key = $"{localFileName}_{loader.GetHashCode()}";  // 唯一标识
+        if (loader == null || string.IsNullOrEmpty(localFileName))
+        {
+            onFailed?.Invoke();
+            return;
+        }
+
+        string cacheKey = localFileName.TrimStart('/');
+
+        // 缓存命中：直接使用，不再发 UnityWebRequest
+        if (textureCache.TryGetValue(cacheKey, out var cached) && cached != null)
+        {
+            loader.url = "";
+            loader.texture = cached;
+            onSuccess?.Invoke();
+            return;
+        }
+
+        // 先清空旧显示，避免异步加载期间残留上一个单位的外部贴图
+        loader.url = "";
+        loader.texture = null;
+
+        string key = $"{cacheKey}_{loader.GetHashCode()}";
+
         if (loaderDict.ContainsKey(key))
         {
-            loaderDict.Remove(key);  // 移除旧引用
+            loaderDict.Remove(key);
         }
         loaderDict.Add(key, loader);
-        // 拼出正确的本地路径（不同平台路径规则不一样，这么写通用）
-        // 首次启动复制后，安卓上的可写资源位于 AppHotfixResPath（persistentDataPath/产品名/）
-        string localPath;
-#if UNITY_ANDROID && !UNITY_EDITOR // 安卓手机上的路径
-        localPath = "file://" + PathHelper.AppHotfixResPath + "/" + localFileName;
-#else // Windows/Mac/Unity编辑器里的路径
-        localPath = PathHelper.AppHotfixResPath + "/" + localFileName;
-#endif
 
-        // 调用加载协程（下面会写）
-        Debug.Log("加载本地资源: " + localPath);
-        StartCoroutine(LoadTextureFromPath(loader, localPath, key, onSuccess, onFailed));
+        // 统一规范化相对路径，避免不同平台拼接差异
+        string relativePath = "Icon/" + cacheKey;
+        string normalizedPath = PathHelper.NormalizeAppPath(relativePath);
+
+        // UnityWebRequest 使用 file:/// 形式的本地文件 URI
+        string localPath = "file:///" + normalizedPath.TrimStart('/');
+
+        StartCoroutine(LoadTextureFromPath(loader, localPath, key, cacheKey, onSuccess, onFailed));
     }
 
-    /// <summary>
-    /// 通用加载协程（从路径/网址加载图片，给Loader显示）
-    /// </summary>
-    private IEnumerator LoadTextureFromPath(GLoader imgLoader, string pathOrUrl, string key, Action onSuccess, Action onFailed)
+    private IEnumerator LoadTextureFromPath(
+        GLoader imgLoader,
+        string pathOrUrl,
+        string key,
+        string cacheKey,
+        Action onSuccess,
+        Action onFailed)
     {
         using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(pathOrUrl))
         {
@@ -67,70 +92,56 @@ public class ExtextureLoader : MonoBehaviour
             if (!loaderDict.TryGetValue(key, out var currentLoader) || currentLoader != imgLoader)
             {
                 Debug.LogWarning("加载目标已失效，终止处理");
-                yield break;  // 加载目标已失效，终止处理
+                yield break;
             }
-            loaderDict.Remove(key);  // 清理引用
+            loaderDict.Remove(key);
 
             if (webRequest.result == UnityWebRequest.Result.Success)
             {
-                SetTexture(imgLoader, pathOrUrl);
-                onSuccess?.Invoke();
+                Texture2D unityTexture = DownloadHandlerTexture.GetContent(webRequest);
+                if (unityTexture != null)
+                {
+                    NTexture fairyTexture = new NTexture(unityTexture);
+
+                    // 写入缓存，后续同文件直接复用
+                    if (!textureCache.ContainsKey(cacheKey))
+                        textureCache[cacheKey] = fairyTexture;
+
+                    imgLoader.texture = fairyTexture;
+                    onSuccess?.Invoke();
+                }
+                else
+                {
+                    Debug.LogError("加载成功但纹理为空: " + pathOrUrl);
+                    imgLoader.url = "ui://Res/missing";
+                    onFailed?.Invoke();
+                }
             }
             else
             {
                 Debug.LogError($"加载失败: {webRequest.error}，路径: {pathOrUrl}");
-                onFailed?.Invoke();  // 通知外部处理失败
-                                     // imgLoader.texture = 错误默认图;  // 建议设置默认图
+                    imgLoader.url = "ui://Res/missing";
+                onFailed?.Invoke();
             }
         }
     }
 
-    private IEnumerator SetTexture(GLoader imgLoader, string pathOrUrl)
+    /// <summary>
+    /// 清空本地贴图缓存，一般在切场景/热更后调用。
+    /// </summary>
+    public void ClearCache()
     {
-        // 第一步：显示“加载中”（用之前设的默认图，或者手动设一张）
-        //imgLoader.icon = UIConfig.defaultLoadingIcon; // FairyGUI自带的加载图标
-
-        // 第二步：用Unity的工具加载图片（本地/网络都能用）
-        using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(pathOrUrl))
+        foreach (var kv in textureCache)
         {
-            yield return webRequest.SendWebRequest(); // 等待加载完成
-
-            // 第三步：判断加载成功还是失败
-            if (webRequest.result == UnityWebRequest.Result.Success)
-            {
-                Log.Debug("加载成功: " + pathOrUrl);
-                // 加载成功：把Unity的纹理转换成FairyGUI能识别的格式
-                Texture2D unityTexture = DownloadHandlerTexture.GetContent(webRequest);
-                if (unityTexture != null)
-                {
-                    // 在场景中创建一个RawImage用于预览（仅调试用）
-                    GameObject debugImage = new GameObject("DebugTexturePreview");
-                    RawImage rawImage = debugImage.AddComponent<RawImage>();
-                    rawImage.texture = unityTexture;
-                    rawImage.rectTransform.sizeDelta = new Vector2(200, 200); // 固定大小
-                    debugImage.transform.SetParent(Camera.main.transform, false); // 显示在相机前
-                    debugImage.transform.localPosition = new Vector3(0, 0, 5);
-                }
-                NTexture fairyTexture = new NTexture(unityTexture); // 转格式
-
-                // 把转换好的纹理给Loader显示
-                imgLoader.texture = fairyTexture;
-
-                // （可选）让Loader适应图片大小（不然图片可能被拉伸）
-                //imgLoader.SetSize(unityTexture.width, unityTexture.height);
-            }
-            else
-            {
-                // 加载失败：显示错误提示（比如一张“加载失败”的图）
-                Log.Error("加载图片失败：" + webRequest.error);
-                //imgLoader.icon = UIConfig.defaultErrorIcon; // FairyGUI自带的错误图标
-            }
+            kv.Value?.Dispose();
         }
+        textureCache.Clear();
     }
 
     private void OnDestroy()
     {
-        StopAllCoroutines();  // 停止所有未完成的加载协程
+        StopAllCoroutines();
         loaderDict.Clear();
+        ClearCache();
     }
 }

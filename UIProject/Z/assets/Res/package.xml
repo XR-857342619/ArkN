@@ -1141,9 +1141,6 @@
     <image id="us6h1rd" name="icon_morphis.png" path="/头像/" exported="true"/>
     <image id="us6h1re" name="icon_wolf.png" path="/头像/" exported="true"/>
     <image id="pncx1rf" name="icon_cuier.png" path="/头像/" exported="true"/>
-    <misc id="p5ih1rg" name="char_002_amiya.atlas.txt" path="/其他/"/>
-    <image id="p5ih1rh" name="char_002_amiya.png" path="/其他/"/>
-    <spine id="p5ih1ri" name="char_002_amiya.skel" path="/其他/" width="287" height="436" require="p5ih1rj,p5ih1rk" atlasNames="char_002_amiya" anchor="161,433"/>
   </resources>
   <publish name=""/>
 </packageDescription>
