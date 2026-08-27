@@ -826,34 +826,36 @@ public class Unit
     public virtual void CreateModel()
     {
         if (string.IsNullOrEmpty(UnitData.Model)) return;
-        //Debug.Log(UnitData.Model);
-        GameObject go = ResHelper.Instantiate(PathHelper.UnitPath + UnitData.Model);
-        if (go == null)
+
+        GameObject go = null;
+        SpineData spineData = Database.Instance.Get<SpineData>(UnitData.Model);
+
+        // 外部 Spine 模型：直接走 SpineImportHelper，避免先尝试加载不存在的普通 Prefab。
+        if (spineData != null)
         {
-            //Log.Debug(PathHelper.UnitPath + UnitData.Model);
-            //Debug.Log(UnitData.Model + " not found");
             if (!SpineImportHelper.Instance.loadedSkeletons.ContainsKey(UnitData.Model))
             {
-                SpineData spineData = Database.Instance.Get<SpineData>(UnitData.Model);
-                if (spineData is not null)
-                {
-                    bool hasBack = !spineData.OnlyFront;
-                    string pathHead = spineData.UseAppHotfixResPath ? PathHelper.AppHotfixResPath : "";
-                    SpineImportHelper.Instance.LoadSpineAssets(spineData.Id, pathHead + spineData.FrontPngPath, pathHead + spineData.FrontAtlasPath, pathHead + spineData.FrontSkelPath);
-                    if (hasBack)
-                        SpineImportHelper.Instance.LoadSpineAssets(spineData.Id + "_back", pathHead + spineData.BackPngPath, pathHead + spineData.BackAtlasPath, pathHead + spineData.BackSkelPath);
-                }
-                else
-                    TipManager.Instance.ShowTip("模型" + UnitData.Model + "不存在");
+                bool hasBack = !spineData.OnlyFront;
+                string pathHead = spineData.UseAppHotfixResPath ? PathHelper.AppHotfixResPath : "";
+                SpineImportHelper.Instance.LoadSpineAssets(spineData.Id, pathHead + spineData.FrontPngPath, pathHead + spineData.FrontAtlasPath, pathHead + spineData.FrontSkelPath);
+                if (hasBack)
+                    SpineImportHelper.Instance.LoadSpineAssets(spineData.Id + "_back", pathHead + spineData.BackPngPath, pathHead + spineData.BackAtlasPath, pathHead + spineData.BackSkelPath);
             }
+
             go = SpineImportHelper.Instance.ReplaceSkeletonComponents(UnitData.Model);
-            if (go == null)
-            {
-                Debug.LogError("模型" + UnitData.Model + "加载失败");
-                TipManager.Instance.ShowTip("模型" + UnitData.Model + "加载失败");
-                return;
-            }
         }
+        else
+        {
+            go = ResHelper.Instantiate(PathHelper.UnitPath + UnitData.Model);
+        }
+
+        if (go == null)
+        {
+            Debug.LogError("模型" + UnitData.Model + "加载失败");
+            TipManager.Instance.ShowTip("模型" + UnitData.Model + "加载失败");
+            return;
+        }
+
         UnitModel = go.GetComponent<UnitModel>();
         UnitModel.Init(this);
         // 初始化完成后立即按当前所在地块对齐地面，避免穿模

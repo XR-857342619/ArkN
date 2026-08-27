@@ -196,7 +196,7 @@
     <component id="hnilr69" name="tmBtn.xml" path="/FunUI/"/>
     <component id="hnilr6a" name="opBtn.xml" path="/FunUI/"/>
     <component id="hnilr6b" name="rg_Btn.xml" path="/FunUI/"/>
-    <component id="hnilr6c" name="eeBtn.xml" path="/FunUI/"/>
+    <component id="hnilr6c" name="ldBtn.xml" path="/FunUI/"/>
     <component id="pkaor6e" name="MapPackage_item.xml" path="/Map/"/>
     <component id="pkaor6f" name="MapPackage_popup.xml" path="/Map/"/>
     <component id="pkaor6g" name="MapPackage.xml" path="/Map/"/>
@@ -211,6 +211,13 @@
     <image id="sczhr6w" name="refresh_ic.png" path="/"/>
     <image id="sczhr6x" name="refresh_text.png" path="/"/>
     <component id="sczhr6y" name="refreshBtn.xml" path="/"/>
+    <component id="qseor6z" name="ProgressLanding.xml" path="/Loading/"/>
+    <image id="an5yr70" name="ld_ic.png" path="/FunUI/"/>
+    <image id="an5yr71" name="ld_text.png" path="/FunUI/"/>
+    <image id="an5yr72" name="rd_bg.png" path="/FunUI/"/>
+    <image id="an5yr73" name="rd_ic.png" path="/FunUI/"/>
+    <image id="an5yr74" name="rd_text.png" path="/FunUI/"/>
+    <component id="an5yr75" name="rdBtn.xml" path="/FunUI/"/>
   </resources>
   <publish name="" genCode="true"/>
 </packageDescription>

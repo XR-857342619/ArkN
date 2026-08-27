@@ -7,8 +7,13 @@
     <text id="n1_it6g" name="name" xy="960,266" pivot="0.5,0.5" anchor="true" size="141,104" fontSize="80" color="#ffffff" align="center" text="123">
       <relation target="" sidePair="center-center%,top-top%"/>
     </text>
-    <text id="n2_it6g" name="n2" xy="1640,994" size="268,60" fontSize="45" color="#ffffff" align="center" strokeColor="#000000" strokeSize="5" text="少女祈祷中...">
+    <text id="n2_it6g" name="n2" xy="1640,975" size="268,60" fontSize="45" color="#ffffff" align="center" strokeColor="#000000" strokeSize="5" text="少女祈祷中...">
       <relation target="" sidePair="right-right%,bottom-bottom%"/>
     </text>
+    <component id="n11_qseo" name="loadingBar" src="qseor6z" fileName="Loading/ProgressLanding.xml" xy="0,1050" size="1920,30">
+      <relation target="" sidePair="width-width,bottom-bottom"/>
+      <ProgressBar value="100" max="100"/>
+    </component>
+    <text id="n12_qseo" name="loadDes" xy="25,1015" size="1479,42" fontSize="30" color="#ffffff" autoSize="ellipsis" singleLine="true" text="IsLoading"/>
   </displayList>
 </component>

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080">
   <controller name="settingC" exported="true" pages="0,,1," selected="0"/>
-  <controller name="subSetting" exported="true" pages="0,,1,,2,,3," selected="0"/>
+  <controller name="subSetting" exported="true" pages="0,,1,,2,,3," selected="2"/>
+  <controller name="selectExcel" pages="0,,1," selected="1"/>
   <displayList>
     <image id="n25_r5qv" name="n25" src="r5qvr53" fileName="场景_视野.png" xy="0,0" size="1920,1080" aspect="true">
       <relation target="" sidePair="width-width,height-height,center-center,middle-middle"/>
@@ -14,11 +15,12 @@
       <relation target="n8_kbte" sidePair="center-center%,middle-middle%"/>
     </text>
     <component id="n28_r5qv" name="Setting" src="r5qvr55" fileName="SettingBtn.xml" xy="30,25" size="90,90" aspect="true">
+      <gearDisplay controller="settingC" pages="0"/>
       <Button controller="settingC" page="1"/>
     </component>
     <text id="n22_ulof" name="n22" xy="16,994" size="156,57" fontSize="43" color="#ffffff" strokeColor="#000000" text="Version"/>
     <text id="n23_ulof" name="Version" xy="178,994" size="65,57" fontSize="43" color="#ffffff" strokeColor="#000000" text="2.9"/>
-    <component id="n93_hnil" name="Export" src="hnilr6c" fileName="FunUI/eeBtn.xml" xy="1438,717" group="n54_qn1s">
+    <component id="n93_hnil" name="Export" src="hnilr6c" fileName="FunUI/ldBtn.xml" xy="1438,717" group="n54_qn1s">
       <relation target="" sidePair="right-right%"/>
     </component>
     <component id="n94_hnil" name="rogue" src="hnilr6b" fileName="FunUI/rg_Btn.xml" xy="1136,699" group="n54_qn1s">
@@ -35,6 +37,9 @@
     </component>
     <component id="n98_hnil" name="team" src="hnilr69" fileName="FunUI/tmBtn.xml" xy="1035,494" group="n54_qn1s">
       <relation target="n95_hnil" sidePair="right-right%"/>
+    </component>
+    <component id="n107_an5y" name="reload" src="an5yr75" fileName="FunUI/rdBtn.xml" xy="1649,739" group="n54_qn1s">
+      <Button controller="selectExcel" page="1"/>
     </component>
     <group id="n54_qn1s" name="funpage" xy="1035,165" size="779,746"/>
     <graph id="n21_10uur" name="n21" xy="0,0" size="1920,1080" group="n19_10uur" alpha="0.5" type="rect" lineSize="0" lineColor="#ffffffff">
@@ -62,7 +67,7 @@
     <text id="n34_a7vb" name="n34" xy="420,38" size="182,76" group="n19_10uur" fontSize="50" autoSize="none" text="设置">
       <relation target="n31_a7vb" sidePair="left-right%"/>
     </text>
-    <component id="n42_a7vb" name="n42" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,200" size="275,83" group="n44_a7vb" grayed="true">
+    <component id="n42_a7vb" name="n42" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,200" size="275,83" group="n44_a7vb">
       <gearLook controller="subSetting" pages="0,1,2" values="1,0,1,1|1,0,0,1|1,0,0,1" default="1,0,1,1"/>
       <relation target="" sidePair="left-left%"/>
       <relation target="n29_a7vb" sidePair="top-top%"/>
@@ -83,7 +88,7 @@
       <relation target="n15_10uur" sidePair="right-right%"/>
       <Button title="导表设置" titleFontSize="50" selectedTitle="导表设置" controller="subSetting" page="2"/>
     </component>
-    <component id="n105_pf8n" name="importSpine" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,509" size="275,83" group="n44_a7vb" visible="false" alpha="0" touchable="false" grayed="true">
+    <component id="n105_pf8n" name="importSpine" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,509" size="275,83" group="n44_a7vb" visible="false">
       <gearLook controller="subSetting" pages="0,2,3" values="0,0,1,0|1,0,0,1|1,0,1,0" default="1,0,1,1"/>
       <relation target="n42_a7vb" sidePair="top-top%"/>
       <relation target="" sidePair="left-left%"/>
@@ -109,12 +114,13 @@
     </text>
     <component id="n80_qn1s" name="ShowHp" src="qn1sr5o" fileName="Sbtn.xml" xy="1045,200" group="n83_qn1s" controller="button,0">
       <gearDisplay controller="subSetting" pages="0"/>
-      <relation target="n15_10uur" sidePair="left-left%,top-top%"/>
+      <relation target="n15_10uur" sidePair="left-left%"/>
+      <relation target="n45_a7vb" sidePair="middle-middle"/>
     </component>
     <component id="n81_qn1s" name="ShowElement" src="qn1sr5o" fileName="Sbtn.xml" xy="1045,302" group="n83_qn1s" controller="button,0">
       <gearDisplay controller="subSetting" pages="0"/>
       <relation target="n15_10uur" sidePair="left-left%"/>
-      <relation target="n80_qn1s" sidePair="top-top%"/>
+      <relation target="n75_qn1s" sidePair="middle-middle"/>
     </component>
     <text id="n45_a7vb" name="n45" xy="453,198" size="404,54" group="n83_qn1s" fontSize="40" text="显示敌方血条详细数值">
       <gearDisplay controller="subSetting" pages="0"/>
@@ -148,5 +154,31 @@
       <relation target="" sidePair="middle-middle%,left-left"/>
       <relation target="n8_kbte" sidePair="top-bottom%"/>
     </text>
+    <graph id="n113_an5y" name="n113" xy="0,0" size="1920,1080" group="n111_an5y" alpha="0.25" type="rect" lineSize="0">
+      <gearDisplay controller="selectExcel" pages="1"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <graph id="n109_an5y" name="rdbg" xy="210,90" size="1500,850" group="n111_an5y" type="rect" corner="50"/>
+    <list id="n108_an5y" name="reloadList" xy="245,172" size="1435,680" group="n111_an5y" overflow="scroll" margin="0,0,5,0" clipSoftness="5,0" lineGap="1" defaultItem="ui://k4mja8t16ew9r6q" autoClearItems="true" treeView="true" indent="25" clickToExpand="0">
+      <relation target="n100_6ew9" sidePair="left-left,top-bottom%"/>
+      <item title="100" name="0001" level="0"/>
+      <item title="101" level="1"/>
+      <item title="110" level="1"/>
+      <item title="111" level="2"/>
+      <item title="112" level="2"/>
+      <item title="1002" level="0"/>
+      <item title="10033" level="1"/>
+    </list>
+    <text id="n110_an5y" name="n110" xy="245,119" size="240,41" group="n111_an5y" fontSize="25" autoSize="none" text="选择需要更新的表格">
+      <relation target="n108_an5y" sidePair="left-left,bottom-top"/>
+    </text>
+    <component id="n112_an5y" name="n112" src="10uur50" fileName="exit.xml" xy="1640,115" size="30,30" group="n111_an5y">
+      <gearDisplay controller="selectExcel" pages="1"/>
+      <Button controller="selectExcel" page="0"/>
+    </component>
+    <component id="n114_an5y" name="reloadComfirmBtn" src="ip2qr6t" fileName="Map/comfirmBtn.xml" xy="1525,859" size="171,75" group="n111_an5y"/>
+    <group id="n111_an5y" name="reloadPage" xy="0,0" size="1920,1080" advanced="true">
+      <gearDisplay controller="selectExcel" pages="1"/>
+    </group>
   </displayList>
 </component>

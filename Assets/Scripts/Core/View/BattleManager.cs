@@ -63,11 +63,14 @@ public class BattleManager : MonoBehaviour
     {
         var loadingUI = UIManager.Instance.ChangeView<MainUI.UI_Loading>(MainUI.UI_Loading.URL);
         loadingUI.m_name.text = battleConfig.MapName;
+        loadingUI.SetProgress(0f, "正在准备战斗...");
         SaveHelper.SaveData();
         Pause = true;
         battleTcs = new TaskCompletionSource<bool>();
         var mapInfo = Database.Instance.GetMap(battleConfig.MapPackage, battleConfig.MapName);
+        loadingUI.SetProgress(0.05f, "正在读取地图数据...");
         var sceneName = mapInfo.Scene;
+        loadingUI.SetProgress(0.1f, "正在加载场景...");
         if (string.IsNullOrEmpty(sceneName))
         {
             await SceneManager.LoadSceneAsync("MapBuilder", LoadSceneMode.Additive);
@@ -83,11 +86,13 @@ public class BattleManager : MonoBehaviour
             await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         }
         SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+        loadingUI.SetProgress(0.25f, "场景加载完成");
         //AudioManager.Instance.PlayBackgroundAudio("battle");
         AudioManager.Instance.PlayBackgroundAudio("已至");
         await TimeHelper.Instance.WaitAsync(0.5f);
         Battle = new Battle();
         Battle.Init(battleConfig);
+        loadingUI.SetProgress(0.35f, "正在初始化战斗...");
         await TimeHelper.Instance.WaitAsync(0.1f);
         //AstarPath.active.Scan();
         
@@ -97,42 +102,54 @@ public class BattleManager : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i < battleConfig.Team.Cards.Count; i++)
+            int teamCount = battleConfig.Team.Cards.Count;
+            for (int i = 0; i < teamCount; i++)
             {
+                float progress = teamCount <= 0 ? 0.5f : Mathf.Lerp(0.4f, 0.65f, (float)i / teamCount);
+                loadingUI.SetProgress(progress, $"正在预加载干员 ({i + 1}/{teamCount})...");
+
                 Card card = battleConfig.Team.Cards[i];
                 await ResHelper.Prepare(Database.Instance.GetIndex<UnitData>(card.UnitId), i >= battleConfig.Team.UnitSkill.Count ? -1 : battleConfig.Team.UnitSkill[i]);
             }
         }
-        
-        foreach (var wave in mapInfo.WaveInfos)
+
+        int waveCount = mapInfo.WaveInfos.Count;
+        for (int i = 0; i < waveCount; i++)
         {
+            var wave = mapInfo.WaveInfos[i];
             if (!string.IsNullOrEmpty(wave.sUnitId))
+            {
+                float progress = waveCount <= 0 ? 0.7f : Mathf.Lerp(0.65f, 0.85f, (float)i / waveCount);
+                loadingUI.SetProgress(progress, $"正在预加载波次敌人 ({i + 1}/{waveCount})...");
                 await ResHelper.Prepare(Database.Instance.GetIndex<UnitData>(wave.sUnitId));
+            }
         }
+
         List<UnitInfo> toRemove = new List<UnitInfo>();
-        foreach (var wave in mapInfo.UnitInfos)
+        int sceneUnitCount = mapInfo.UnitInfos.Count;
+        for (int i = 0; i < sceneUnitCount; i++)
         {
+            var wave = mapInfo.UnitInfos[i];
             try
             {
+                float progress = sceneUnitCount <= 0 ? 0.9f : Mathf.Lerp(0.85f, 0.95f, (float)i / sceneUnitCount);
+                loadingUI.SetProgress(progress, $"正在预加载场景单位 ({i + 1}/{sceneUnitCount})...");
                 await ResHelper.Prepare(Database.Instance.GetIndex<UnitData>(wave.UnitId));
             }
             catch (Exception e)
             {
                 if (e is NullReferenceException)
-                    //mapInfo.UnitInfos.Remove(wave);
                     toRemove.Add(wave);
                 TipManager.Instance.ShowTip("波次信息加载失败：" + wave.UnitId);
                 Debug.LogError(e);
             }
         }
-        //foreach (var wave in toRemove)
-        //{
-        //    mapInfo.UnitInfos.Remove(wave);
-        //}
 
+        loadingUI.SetProgress(0.98f, "正在进入战斗...");
         Pause = false;
         var battleUI = UIManager.Instance.ChangeView<BattleUI.UI_Battle>(BattleUI.UI_Battle.URL);
         battleUI.SetBattle(Battle);
+        loadingUI.SetProgress(1f, "战斗加载完成");
         ExcuteTime = 0;
         await battleTcs.Task;
         Debug.Log("ExitBattleScene");
@@ -173,6 +190,7 @@ public class BattleManager : MonoBehaviour
         }
 
         ExtextureLoader.Instance.ClearCache();
+        ResHelper.ReleasePreloadedAssets();
     }
     public void ReSetPreviwSetting()
     {

@@ -8,7 +8,7 @@
     </graph>
     <text id="n1_jdpn" name="n1" xy="716,417" size="488,129" fontSize="100" color="#ffffff" singleLine="true" text="ArknightN">
       <gearLook controller="IsLanded" pages="1" values="0,0,0,0" default="1,0,0,0" tween="true"/>
-      <relation target="" sidePair="width-width,height-height,center-center,middle-middle"/>
+      <relation target="" sidePair="width-width,height-height,center-center%,middle-middle%"/>
     </text>
     <component id="n3_jdpn" name="landingProgress" src="jdpn1" fileName="LandingProgress.xml" xy="460,880" size="1000,30">
       <gearLook controller="IsLanded" pages="1" values="0,0,0,1" default="1,0,0,1" tween="true"/>
