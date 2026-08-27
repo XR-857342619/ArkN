@@ -9,13 +9,7 @@ using UnityEngine.AddressableAssets;
 
 public class Database
 {
-    public static Database Instance => instance == null ?
-#if UNITY_EDITOR
-        instance = new Database().Init1()
-#else
-            instance = new Database()
-#endif
-            : instance;
+    public static Database Instance => instance == null ? instance = new Database() : instance;
     private static Database instance;
 
     Dictionary<Type, IConfig[]> dic = new Dictionary<Type, IConfig[]>();
@@ -25,33 +19,44 @@ public class Database
         dic.Clear();
     }
 
-    public async Task Init()
+    public async Task Init() => await Init(null);
+
+    public async Task Init(List<string> excludeExcelPaths)
     {
-        //Debug.Log("init database");
         try
         {
+            Debug.Log("Database init");
             if (dic.Count > 0) return;
-            await Task.WhenAll(
-            //AddAsync<MapTileData>("MapTileData"),
-            AddAsync<CardData>("CardData"),
-            AddAsync<UnitData>("UnitData"),
-            //AddAsync<MapData>("MapData"),
-            AddAsync<SkillData>("SkillData"),
-            AddAsync<SkillJsonData>("SkillJson"),
-            AddAsync<BuffData>("BuffData"),
-            AddAsync<BulletData>("BulletData"),
-            //AddAsync<WaveData>("WaveData"),
-            AddAsync<ModifyData>("ModifyData"),
-            AddAsync<EffectData>("EffectData"),
-            //AddAsync<RelicData>("RelicData"),
-            AddAsync<ContractData>("ContractData"),
-            //AddAsync<EventData>("EventData"),
-            //AddAsync<RewardData>("RewardData"),
-            //AddAsync<DungeonLevelData>("DungeonLevelData")
-            //AddAsync<SystemData>("SystemData")
-            AddAsync<SpineData>("SpineData")
-            );
-            //await SpineResourcePreloader.Instance.PreloadAsync();
+
+            var excludeNames = excludeExcelPaths?
+                .Where(f => !string.IsNullOrEmpty(f))
+                .Select(Path.GetFileNameWithoutExtension)
+                .Where(n => !string.IsNullOrEmpty(n))
+                .ToList() ?? new List<string>();
+
+            var tasks = new List<Task>
+            {
+                AddAsync<CardData>("CardData", excludeNames),
+                AddAsync<UnitData>("UnitData", excludeNames),
+                AddAsync<SkillData>("SkillData", excludeNames),
+                AddAsync<SkillJsonData>("SkillJson", excludeNames),
+                AddAsync<BuffData>("BuffData", excludeNames),
+                AddAsync<BulletData>("BulletData", excludeNames),
+                AddAsync<ModifyData>("ModifyData", excludeNames),
+                AddAsync<EffectData>("EffectData", excludeNames),
+                AddAsync<ContractData>("ContractData", excludeNames),
+                AddAsync<SpineData>("SpineData", excludeNames)
+            };
+
+            await Task.WhenAll(tasks);
+
+            // 如果分类数据目录没有加载到有效数据，回退到内部统一大文件
+            if (NeedFallbackToInternalData())
+            {
+                Debug.LogWarning("分类数据目录未加载到有效数据，回退到内部数据 Init1");
+                Clear();
+                Init1();
+            }
         }
         catch (Exception e)
         {
@@ -60,31 +65,31 @@ public class Database
         }
     }
 
-    public Database Init1()
+    public Database Init1() => Init1(null);
+
+    public Database Init1(List<string> excludeExcelPaths)
     {
-        //Debug.Log("init1 database");
         try
         {
+            Debug.Log("Database init1");
             if (dic.Count > 0) return this;
-            //Add<MapTileData>("MapTileData");
-            Add<CardData>("CardData");
-            Add<UnitData>("UnitData");
-            //Add<MapData>("MapData");
-            Add<SkillData>("SkillData");
-            Add<SkillJsonData>("SkillJson");
-            Add<BuffData>("BuffData");
-            Add<BulletData>("BulletData");
-            //Add<WaveData>("WaveData");
-            Add<ModifyData>("ModifyData");
-            Add<EffectData>("EffectData");
-            //Add<RelicData>("RelicData");
-            Add<ContractData>("ContractData");
-            //Add<EventData>("EventData");
-            //Add<RewardData>("RewardData");
-            //Add<DungeonLevelData>("DungeonLevelData");
-            //Add<SystemData>("SystemData");
-            Add<SpineData>("SpineData");
-            //SpineResourcePreloader.Instance.PreloadSync();
+
+            var excludeNames = excludeExcelPaths?
+                .Where(f => !string.IsNullOrEmpty(f))
+                .Select(Path.GetFileNameWithoutExtension)
+                .Where(n => !string.IsNullOrEmpty(n))
+                .ToList() ?? new List<string>();
+
+            Add<CardData>("CardData", excludeNames);
+            Add<UnitData>("UnitData", excludeNames);
+            Add<SkillData>("SkillData", excludeNames);
+            Add<SkillJsonData>("SkillJson", excludeNames);
+            Add<BuffData>("BuffData", excludeNames);
+            Add<BulletData>("BulletData", excludeNames);
+            Add<ModifyData>("ModifyData", excludeNames);
+            Add<EffectData>("EffectData", excludeNames);
+            Add<ContractData>("ContractData", excludeNames);
+            Add<SpineData>("SpineData", excludeNames);
         }
         catch (Exception e)
         {
@@ -269,101 +274,224 @@ public class Database
         return -1;
     }
 
-    private void Add<T>(string name) where T : IConfig
+    private void Add<T>(string name, List<string> excludeFileNames = null) where T : IConfig
     {
 #if UNITY_EDITOR
-        //var text = SaveHelper.LoadFile("/Data/" + name + ".txt"); 
-        var text = SaveHelper.LoadFile("/Data/" + name + ".txt");
-        if (string.IsNullOrEmpty(text))
+        var files = ResolveDataFiles(name, excludeFileNames);
+        var lines = new List<string>();
+
+        // 分类文件夹为空时回退到旧版统一大文件
+        if (files.Count == 0)
         {
-            //Debug.Log(name + "load from address");
-            text = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(PathHelper.DataPath + name + ".txt").text;
-        }
-        var arr = text.Split('\n');
-        IConfig[] values = new IConfig[arr.Length];
-        for (int i = 0; i < arr.Length; i++)
-        {
-            if (JsonHelper.FromJson<T>(arr[i])?.Id == null && i != arr.Length - 1)
+            string text = SaveHelper.LoadFile("/Data/" + name + ".txt");
+            if (string.IsNullOrEmpty(text))
             {
-                //Debug.Log(JsonHelper.FromJson<T>(arr[i]).Id);
-                continue;
+                var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(PathHelper.DataPath + name + ".txt");
+                text = asset != null ? asset.text : null;
             }
-            try
+
+            if (!string.IsNullOrEmpty(text))
+                lines.AddRange(text.Split('\n').Where(l => !string.IsNullOrWhiteSpace(l)));
+        }
+        else
+        {
+            foreach (var file in files)
             {
-                values[i] = JsonHelper.FromJson<T>(arr[i]);
-                if (typeof(T) == typeof(SkillData))
+                try
                 {
-                    SkillData skill = values[i] as SkillData?? null;
-                    if (skill == null)
-                        continue;
-                    if (skill.Type == "全局技能")
-                    {
-                        globalSkills.Add(i);
-                    }
+                    lines.AddRange(File.ReadAllLines(file).Where(l => !string.IsNullOrWhiteSpace(l)));
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"读取数据文件失败: {file}\n{e}");
                 }
             }
-            catch (Exception e)
-            {
-                Debug.LogError(typeof(T).Name + "," + (i+1) + "\n" + e.ToString());
-            }
         }
-        dic.Add(typeof(T), values);
+
+        var values = BuildConfigArray<T>(name, lines, out var globalSkillIndexes);
+        foreach (int index in globalSkillIndexes)
+        {
+            if (!globalSkills.Contains(index))
+                globalSkills.Add(index);
+        }
+
+        dic[typeof(T)] = values;
 #endif
     }
 
-    private async Task AddAsync<T>(string name) where T : IConfig
+    private async Task AddAsync<T>(string name, List<string> excludeFileNames = null) where T : IConfig
     {
-        string text;
-        text = SaveHelper.LoadFile("/Data/" + name + ".txt");
-        //Debug.Log(PathHelper.AppHotfixResPath + "/Data/" + name + ".txt");
-        //Debug.Log(PathHelper.AppResPath + "/Data/" + name + ".txt");
-        //Debug.Log(name);
-        if (string.IsNullOrEmpty(text))
+        var files = ResolveDataFiles(name, excludeFileNames);
+        // 兼容旧版单文件 Data/XXX.txt
+        if (files.Count == 0)
         {
-            //Debug.Log(name + "load from address");
-            var operation = Addressables.LoadAssetAsync<TextAsset>(PathHelper.DataPath + name);
-            await operation.Task;
-            //var txt = operation.WaitForCompletion().text;
-            text = operation.Result?.text;
-            Addressables.ReleaseInstance(operation);
+            string text = SaveHelper.LoadFile("/Data/" + name + ".txt");
+            //Debug.Log($"load: /Data/{name}");
+            if (string.IsNullOrEmpty(text))
+            {
+                var operation = Addressables.LoadAssetAsync<TextAsset>(PathHelper.DataPath + name);
+                await operation.Task;
+                text = operation.Result?.text;
+                if (operation.IsValid()) Addressables.Release(operation);
+            }
+            if (string.IsNullOrEmpty(text)) return;
+            var arr = text.Split('\n').Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
+            var oldValues = new IConfig[arr.Length];
+            for (int i = 0; i < arr.Length; i++)
+            {
+                try
+                {
+                    oldValues[i] = JsonHelper.FromJson<T>(arr[i]);
+                    if (typeof(T) == typeof(SkillData))
+                    {
+                        SkillData skill = oldValues[i] as SkillData;
+                        if (skill != null && skill.Type == "全局技能")
+                            globalSkills.Add(i);
+                    }
+                }
+                catch (Exception e)
+                {
+                    TipManager.Instance.initErorrTips.Add(arr[i] + "\n" + e.ToString());
+                    Debug.LogError(arr[i] + "\n" + e.ToString());
+                }
+            }
+            dic[typeof(T)] = oldValues;
+            return;
         }
-        if (string.IsNullOrEmpty(text)) return;
-        //var arr = text.Split('\n');
-        //var arr = text.Split('\n').Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
-        var arr = text.Split('\n').Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
-        //var arr = File.ReadLines(PathHelper.AppResPath + "/Data/" + name + ".txt")
-        //      .Where(line => !string.IsNullOrWhiteSpace(line))
-        //      .ToArray();
-        IConfig[] values = new IConfig[arr.Length];
-        for (int i = 0; i < arr.Length; i++)
+        //Debug.Log($"files: {files.Count}");
+        var lines = new List<string>();
+        foreach (var file in files)
         {
             try
             {
-                //if (values[i] == null)
-                //{
-                //    Debug.LogError($"{name}\n {arr[i]}");
-                //    continue;
-                //}
-                values[i] = JsonHelper.FromJson<T>(arr[i]);
-                if (typeof(T) == typeof(SkillData))
-                {
-                    SkillData skill = values[i] as SkillData ?? null;
-                    if (skill == null)
-                        continue;
-                    if (skill.Type == "全局技能")
-                    {
-                        globalSkills.Add(i);
-                    }
-                }
+                lines.AddRange(File.ReadAllLines(file).Where(l => !string.IsNullOrWhiteSpace(l)));
+                //Debug.Log(string.Join(", ", lines));
             }
             catch (Exception e)
             {
-                TipManager.Instance.initErorrTips.Add(arr[i] + "\n" + e.ToString());
-                Debug.LogError(arr[i] + "\n" + e.ToString());
+                Debug.LogError($"读取数据文件失败: {file}\n{e}");
             }
         }
-        //Debug.Log(Time.time);
-        dic.Add(typeof(T), values);
+
+        var values = BuildConfigArray<T>(name, lines, out var globalSkillIndexes);
+        foreach (int index in globalSkillIndexes)
+        {
+            if (!globalSkills.Contains(index))
+                globalSkills.Add(index);
+        }
+        //Debug.Log(values);
+        dic[typeof(T)] = values;
+    }
+
+    private static string GetDataRoot()
+    {
+//#if UNITY_EDITOR
+//        return Path.GetFullPath(PathHelper.DataPath);
+//#else
+        return PathHelper.AppHotfixResPath + "/Data/";
+//#endif
+    }
+
+    private static List<string> ResolveDataFiles(string name, List<string> excludeFileNames)
+    {
+        var result = new List<string>();
+        string root = GetDataRoot();
+        string folder = root + name + "/";
+        //Debug.Log(folder);
+        if (excludeFileNames == null)
+            excludeFileNames = new List<string>();
+
+        var excludeSet = new HashSet<string>(excludeFileNames, StringComparer.OrdinalIgnoreCase);
+        //Debug.Log("除外" + string.Join(", ", excludeSet));
+        //Debug.Log($"文件夹存在:{Directory.Exists(folder)}");
+        if (Directory.Exists(folder))
+        {
+            foreach (var file in Directory.GetFiles(folder, "*.txt"))
+            {
+                string fileName = Path.GetFileNameWithoutExtension(file);
+                if (fileName == "_index") continue;
+                if (excludeSet.Contains(fileName)) continue;
+                //Debug.Log(fileName);
+                result.Add(file);
+            }
+        }
+
+        return result;
+    }
+
+    private bool NeedFallbackToInternalData()
+    {
+        if (dic.Count == 0) return true;
+
+        foreach (var arr in dic.Values)
+        {
+            if (arr == null || arr.Length == 0)
+                return true;
+        }
+
+        return false;
+    }
+
+    private IConfig[] BuildConfigArray<T>(string name, List<string> lines, out List<int> globalSkillIndexes) where T : IConfig
+    {
+        globalSkillIndexes = new List<int>();
+
+        string root = GetDataRoot();
+        string indexFile = root + name + "/_index.txt";
+        List<string> index = null;
+        if (File.Exists(indexFile))
+        {
+            index = File.ReadAllLines(indexFile)
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .ToList();
+        }
+
+        var dict = new Dictionary<string, T>();
+        foreach (var line in lines)
+        {
+            try
+            {
+                var cfg = JsonHelper.FromJson<T>(line);
+                if (cfg != null && cfg.Id != null)
+                    dict[cfg.Id] = cfg;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"{typeof(T).Name} 解析失败: {line}\n{e}");
+            }
+        }
+
+        if (index != null && index.Count > 0)
+        {
+            var values = new IConfig[index.Count];
+            for (int i = 0; i < index.Count; i++)
+            {
+                if (dict.TryGetValue(index[i], out var cfg))
+                {
+                    values[i] = cfg;
+                    if (typeof(T) == typeof(SkillData) && cfg is SkillData skill && skill.Type == "全局技能")
+                        globalSkillIndexes.Add(i);
+                }
+            }
+            return values;
+        }
+
+        // 无索引文件时退化为按行顺序
+        var arr = new IConfig[lines.Count];
+        for (int i = 0; i < lines.Count; i++)
+        {
+            try
+            {
+                arr[i] = JsonHelper.FromJson<T>(lines[i]);
+                if (typeof(T) == typeof(SkillData) && arr[i] is SkillData skill && skill.Type == "全局技能")
+                    globalSkillIndexes.Add(i);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"{typeof(T).Name} 解析失败: {lines[i]}\n{e}");
+            }
+        }
+        return arr;
     }
     public Dictionary<string, MapInfo> Maps = new Dictionary<string, MapInfo>();
     public MapInfo GetMap(string packageName, string mapName)
@@ -417,7 +545,9 @@ public class Database
         //获取全部Excel文件夹的路径（使用 Path.Combine 保证跨平台路径分隔符正确）
         var path = Path.Combine(PathHelper.ExcelResPath, "Excel");
         if (!Directory.Exists(path)) return new List<string>();
-        List<string> paths = Directory.GetDirectories(path).ToList();
+        List<string> paths = Directory.GetDirectories(path)
+            .Select(PathHelper.NormalizeAppPath)
+            .ToList();
         return paths;
     }
     public List<string> GetExcelPathNames(List<string> paths)
@@ -443,7 +573,7 @@ public class Database
         //    Debug.Log(file);
         //}
         //FileHelper.GetAllFiles(paths, path);
-        return paths;
+        return paths.Select(PathHelper.NormalizeAppPath).ToList();
 
     }
     public List<string> GetExcelFileNames(List<string> paths)

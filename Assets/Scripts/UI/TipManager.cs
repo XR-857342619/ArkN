@@ -49,6 +49,7 @@ public class TipManager : MonoBehaviour
         {
             tip.y = Tips[Tips.Count - 2].com.y + tip.height + 10;
         }
+        //Debug.Log(text);
     }
 
     private void Update()

@@ -57,7 +57,12 @@ namespace BattleUI
         {
             base.OnUpdate();
             if (Unit == null) return;
-            var s = Unit.MainSkill;
+            if (Unit.InputTime < 0)
+            {
+                Unit = null;
+                tileUnits = null;
+            }
+            var s = Unit?.MainSkill;
             if (s != null)
             {
                 m_mainSkillInfo.visible = true;

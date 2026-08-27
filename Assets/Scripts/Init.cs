@@ -46,7 +46,10 @@ public class Init : MonoBehaviour
         // 4. 加载配置数据
         landing?.SetProgress(0.35f, "正在加载配置数据...");
         UnifiedExpressionEngine.ClearCache();
-        await Database.Instance.Init();
+        GameData.Instance.LoadExcelListFromSave();
+
+        await Database.Instance.Init(GameData.Instance.ExcludedExcelList);
+
         await Task.Yield();
 
         // 5. 初始化玩家存档/编队数据

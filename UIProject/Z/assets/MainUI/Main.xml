@@ -39,6 +39,7 @@
       <relation target="n95_hnil" sidePair="right-right%"/>
     </component>
     <component id="n107_an5y" name="reload" src="an5yr75" fileName="FunUI/rdBtn.xml" xy="1649,739" group="n54_qn1s">
+      <relation target="n93_hnil" sidePair="right-right%"/>
       <Button controller="selectExcel" page="1"/>
     </component>
     <group id="n54_qn1s" name="funpage" xy="1035,165" size="779,746"/>
@@ -158,9 +159,11 @@
       <gearDisplay controller="selectExcel" pages="1"/>
       <relation target="" sidePair="width-width,height-height"/>
     </graph>
-    <graph id="n109_an5y" name="rdbg" xy="210,90" size="1500,850" group="n111_an5y" type="rect" corner="50"/>
+    <graph id="n109_an5y" name="rdbg" xy="210,90" size="1500,850" group="n111_an5y" type="rect" corner="50">
+      <relation target="" sidePair="width-width%,height-height%,center-center,middle-middle"/>
+    </graph>
     <list id="n108_an5y" name="reloadList" xy="245,172" size="1435,680" group="n111_an5y" overflow="scroll" margin="0,0,5,0" clipSoftness="5,0" lineGap="1" defaultItem="ui://k4mja8t16ew9r6q" autoClearItems="true" treeView="true" indent="25" clickToExpand="0">
-      <relation target="n100_6ew9" sidePair="left-left,top-bottom%"/>
+      <relation target="" sidePair="center-center%,middle-middle%"/>
       <item title="100" name="0001" level="0"/>
       <item title="101" level="1"/>
       <item title="110" level="1"/>
@@ -174,9 +177,12 @@
     </text>
     <component id="n112_an5y" name="n112" src="10uur50" fileName="exit.xml" xy="1640,115" size="30,30" group="n111_an5y">
       <gearDisplay controller="selectExcel" pages="1"/>
+      <relation target="n109_an5y" sidePair="right-right,top-top"/>
       <Button controller="selectExcel" page="0"/>
     </component>
-    <component id="n114_an5y" name="reloadComfirmBtn" src="ip2qr6t" fileName="Map/comfirmBtn.xml" xy="1525,859" size="171,75" group="n111_an5y"/>
+    <component id="n114_an5y" name="reloadComfirmBtn" src="ip2qr6t" fileName="Map/comfirmBtn.xml" xy="1525,859" size="171,75" group="n111_an5y">
+      <relation target="n109_an5y" sidePair="right-right,bottom-bottom"/>
+    </component>
     <group id="n111_an5y" name="reloadPage" xy="0,0" size="1920,1080" advanced="true">
       <gearDisplay controller="selectExcel" pages="1"/>
     </group>

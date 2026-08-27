@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 #if !UNITY_ANDROID
@@ -19,6 +20,9 @@ public class ExcelHelper
 
     };
 
+    private static readonly object exportErrorLock = new object();
+    private static readonly List<string> exportErrors = new List<string>();
+
     public static void Export(List<string> ExcelList)
     {
         // 过滤掉无效/旧路径并去重，避免同一 Sheet 被多次导出导致旧数据叠加
@@ -28,8 +32,38 @@ public class ExcelHelper
         foreach (string path in effectiveList)
             Debug.Log($"[ExcelHelper] 导表路径：{path}");
 
-        ExportClass(effectiveList);
+        // 跨表引用需要基于全部 Excel 构建 ID 索引，不能只扫描本次需要更新的文件
+        var allExcelPaths = GetAllExcelPaths();
+        ExportClass(allExcelPaths.Count > 0 ? allExcelPaths : effectiveList);
         ExportData(effectiveList);
+    }
+
+    private static List<string> GetAllExcelPaths()
+    {
+        var result = new List<string>();
+        foreach (var folder in Database.Instance.GetExcelPathList())
+        {
+            result.AddRange(Database.Instance.GetExcelFileList(folder));
+        }
+        return result;
+    }
+
+    private static void AddExportError(string message)
+    {
+        lock (exportErrorLock)
+        {
+            exportErrors.Add(message);
+        }
+    }
+
+    private static void FlushExportErrors()
+    {
+        lock (exportErrorLock)
+        {
+            foreach (var message in exportErrors)
+                TipManager.Instance.ShowTip(message);
+            exportErrors.Clear();
+        }
     }
 
     /// <summary>
@@ -115,118 +149,121 @@ public class ExcelHelper
             }
         }
     }
-    static void ExportData(List<string> ExcelList)
-    {
-        string dataDir = PathHelper.AppHotfixResPath + "/Data/";
-        Directory.CreateDirectory(dataDir);
-
-        // 先删除旧数据文件，并确保每个目标文件被清空，避免 Append 时叠加旧数据
-        foreach (string key in dic.Keys)
+        static void ExportData(List<string> ExcelList)
         {
-            string filePath = dataDir + key + ".txt";
-            if (File.Exists(filePath))
-                File.Delete(filePath);
-            using (File.Create(filePath)) { }
-        }
+            string dataDir = PathHelper.AppHotfixResPath + "/Data/";
+            Directory.CreateDirectory(dataDir);
 
-        // UnitData 需要保证 Id=0 的占位行始终位于文件首位（战斗会读取 UnitData[0]）
-        if (dic.ContainsKey("UnitData"))
-        {
-            File.WriteAllText(dataDir + "UnitData.txt", "{\"Id\":\"0\",\"Hp\":1}\n");
-        }
-
-        foreach (var path in ExcelList.ToArray())
-        {
-            if (path.Contains("$")) continue;
-            Export(path);
-        }
-    }
-
-    static void Export(string fileName)
-    {
-        ExcelDataReader.IExcelDataReader reader;
-        using (FileStream file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-        {
-            reader = ExcelDataReader.ExcelReaderFactory.CreateReader(file);
-            try
+            // 并行导出每个 Excel 文件，只有修改过的 Excel 会重写对应数据文件
+            Parallel.ForEach(ExcelList.ToArray(), path =>
             {
-                foreach (System.Data.DataTable sheet in reader.AsDataSet().Tables)
-                {
-                    //Debug.Log(sheet.TableName);
-                    if (sheet.TableName.StartsWith("#")) continue;
-                    StringBuilder sb = new StringBuilder();
-                    int cellCount = sheet.Columns.Count;
-                    bool isUnitData = sheet.TableName == "UnitData";
-                    for (int i = 3; i < sheet.Rows.Count; i++)
-                    {
-                        string Id = GetCellString(sheet, i, 0);
-                        if (string.IsNullOrEmpty(Id) || Id.StartsWith("#"))
-                        {
-                            continue;
-                        }
-                        // UnitData 的 Id=0 占位行已由 ExportData 置顶，这里忽略 Excel 中的相同内容
-                        if (isUnitData && Id == "0")
-                        {
-                            continue;
-                        }
-                        sb.Append("{");
-                        for (int j = 0; j < cellCount; j++)
-                        {
-                            string fieldName = GetCellString(sheet, 1, j);
-                            string fieldType = GetCellString(sheet, 2, j);
-                            if (string.IsNullOrEmpty(fieldName) || string.IsNullOrEmpty(fieldType))
-                            {
-                                continue;
-                            }
-                            string fieldValue = GetCellString(sheet, i, j);
-                            if (string.IsNullOrEmpty(fieldValue))
-                            {
-                                continue;
-                            }
-                            sb.Append($"\"{fieldName}\":{Convert(fieldType, fieldValue, fileName, sheet.TableName, fieldName)},");
-                        }
-                        sb.Remove(sb.Length - 1, 1);
-                        sb.Append("}\n");
-                    }
-                    sb.Append("\n");
-                    if (sb.Length > 1) sb.Remove(sb.Length - 1, 1);
+                if (path.Contains("$")) return;
+                Export(path, dataDir);
+            });
 
-                    using (FileStream txt = new FileStream(PathHelper.AppHotfixResPath + "/Data/" + sheet.TableName + ".txt", FileMode.Append))
-                    using (StreamWriter sw = new StreamWriter(txt))
-                    {
-                        if (sb.ToString() != "\n")
-                            sw.Write(sb.ToString());
-                        sw.Close();
-                        txt.Close();
-                    }
-                    sb.Clear();
+            // 回到主线程后统一展示子线程收集到的错误
+            FlushExportErrors();
+
+            // 生成每个类型的索引文件，保证多文件加载后索引顺序与旧版一致
+            foreach (var kv in dic)
+            {
+                string folder = dataDir + kv.Key + "/";
+                Directory.CreateDirectory(folder);
+                File.WriteAllLines(folder + "_index.txt", kv.Value);
+
+                if (kv.Key == "UnitData")
+                {
+                    string placeholder = folder + "0.txt";
+                    if (!File.Exists(placeholder))
+                        File.WriteAllText(placeholder, "{\"Id\":\"0\",\"Hp\":1}\n");
                 }
             }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-            }
-            file.Close();
         }
-    }
 
-    private static string GetCellString(System.Data.DataTable sheet, int i, int j)
-    {
-        try
+        static void Export(string fileName, string dataDir)
         {
-            return sheet.Rows[i][j].ToString();
+            ExcelDataReader.IExcelDataReader reader;
+            using (FileStream file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                reader = ExcelDataReader.ExcelReaderFactory.CreateReader(file);
+                try
+                {
+                    foreach (System.Data.DataTable sheet in reader.AsDataSet().Tables)
+                    {
+                        //Debug.Log(sheet.TableName);
+                        if (sheet.TableName.StartsWith("#")) continue;
+
+                        string folder = dataDir + sheet.TableName + "/";
+                        Directory.CreateDirectory(folder);
+                        string outputFile = folder + Path.GetFileNameWithoutExtension(fileName) + ".txt";
+
+
+                        StringBuilder sb = new StringBuilder();
+                        int cellCount = sheet.Columns.Count;
+                        bool isUnitData = sheet.TableName == "UnitData";
+                        for (int i = 3; i < sheet.Rows.Count; i++)
+                        {
+                            string Id = GetCellString(sheet, i, 0);
+                            if (string.IsNullOrEmpty(Id) || Id.StartsWith("#"))
+                            {
+                                continue;
+                            }
+                            // UnitData 的 Id=0 占位行单独写入 0.txt
+                            if (isUnitData && Id == "0")
+                            {
+                                continue;
+                            }
+                            sb.Append("{");
+                            for (int j = 0; j < cellCount; j++)
+                            {
+                                string fieldName = GetCellString(sheet, 1, j);
+                                string fieldType = GetCellString(sheet, 2, j);
+                                if (string.IsNullOrEmpty(fieldName) || string.IsNullOrEmpty(fieldType))
+                                {
+                                    continue;
+                                }
+                                string fieldValue = GetCellString(sheet, i, j);
+                                if (string.IsNullOrEmpty(fieldValue))
+                                {
+                                    continue;
+                                }
+                                sb.Append($"\"{fieldName}\":{Convert(fieldType, fieldValue, fileName, sheet.TableName, fieldName)},");
+                            }
+                            sb.Remove(sb.Length - 1, 1);
+                            sb.Append("}\n");
+                        }
+                        sb.Append("\n");
+                        if (sb.Length > 1) sb.Remove(sb.Length - 1, 1);
+
+                        File.WriteAllText(outputFile, sb.ToString());
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                    AddExportError($"导出失败: {fileName} -> {e.Message}");
+                }
+                file.Close();
+            }
         }
-        catch
+
+        private static string GetCellString(System.Data.DataTable sheet, int i, int j)
         {
-            return "";
+            try
+            {
+                return sheet.Rows[i][j].ToString();
+            }
+            catch
+            {
+                return "";
+            }
         }
-    }
-    static StringBuilder sbCache = new StringBuilder();
 
     private static string Convert(string type, string value, string path, string sheetName, string fieldName)
     {
         try
         {
+            StringBuilder sbCache = new StringBuilder();
             if (type.EndsWith("Enum[]"))
             {
                 Type t = typeof(Init).Assembly.GetType(type.Substring(0, type.Length - 2));
@@ -335,7 +372,7 @@ public class ExcelHelper
             Debug.LogError($"导表于{path}中的{sheetName}的{fieldName}字段发生错误");
             Debug.LogError(e);
             Debug.Log(e.Message);
-            TipManager.Instance.ShowTip($"导表错误{e.Message}于{path}中的{sheetName}的{fieldName}字段");
+            AddExportError($"导表错误{e.Message}于{path}中的{sheetName}的{fieldName}字段");
             throw e;
         }
     }

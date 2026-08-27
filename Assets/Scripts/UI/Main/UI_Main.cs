@@ -12,8 +12,9 @@ namespace MainUI
     partial class UI_Main : IGameUIView
     {
         GameData gameData => GameData.Instance;
-        //List<string> ExcelList => GameData.Instance.ExcelList;
-        List<string> ExcelList = GameData.Instance.ExcelList;
+        List<string> ExcelList => GameData.Instance.ExcelList;
+        //List<string> ExcelList = GameData.Instance.ExcelList;
+        List<string> ReloadExcelList = new List<string>();
         public GTreeNode rootNode;
         partial void Init()
         {
@@ -78,30 +79,51 @@ namespace MainUI
             });
             m_Export.onClick.Add(async () =>
             {
-                //foreach (KeyValuePair<string, bool> kvp in GameData.Instance.excelDict)
-                //{
-                //    if (kvp.Value)
-                //    {
-                //        excelist.Add(kvp.Key);
-                //    }
-                //}
-                if (ExcelList.Count > 0)
+                // m_ExcelList 记录的是“已选择”的 Excel 文件路径
+                GameData.Instance.RefreshExcludedExcelList();
+                Database.Instance.Clear();
+                UnifiedExpressionEngine.ClearCache();
+                await Database.Instance.Init(GameData.Instance.ExcludedExcelList);
+                SaveHelper.SaveData();
+                GameData.Instance.RefreshCardData();
+                TipManager.Instance.ShowTip("数据重载完成");
+                Debug.Log(string.Join(";", ExcelList));
+            });
+            m_reload.onClick.Add(() =>
+            {
+                ReloadTreeViewInit();
+            });
+
+            m_reloadComfirmBtn.onClick.Add(async () =>
+            {
+                if (ReloadExcelList.Count > 0)
                 {
-                    foreach (string path in ExcelList)
-                    { 
-                        //Debug.Log(path);
+                    //GameData.Instance.RefreshExcludedExcelList();
+                    ExcelHelper.Export(ReloadExcelList);
+
+                    // 已更新的 Excel 不再属于排除列表
+                    foreach (var path in ReloadExcelList)
+                    {
+                        if (GameData.Instance.ExcludedExcelList.Contains(path))
+                            GameData.Instance.ExcludedExcelList.Remove(path);
                     }
-                    ExcelHelper.Export(ExcelList);
+
+                    SaveHelper.SaveData();
+
                     Database.Instance.Clear();
                     UnifiedExpressionEngine.ClearCache();
-                    await Database.Instance.Init();
+                    await Database.Instance.Init(GameData.Instance.ExcludedExcelList);
                     GameData.Instance.RefreshCardData();
-                    TipManager.Instance.ShowTip("导表结束");
+                    TipManager.Instance.ShowTip("数据更新完成");
+                    m_selectExcel.selectedIndex = 0;
                 }
                 else
                 {
-                    TipManager.Instance.ShowTip("请选择表格");
+                    TipManager.Instance.ShowTip("请选择需要更新的表格");
                 }
+
+                ReloadExcelList.Clear();
+                ReloadTreeViewInit();
             });
             m_ShowHp.onClick.Add(() =>
             {
@@ -214,6 +236,7 @@ namespace MainUI
                         if (!ExcelList.Contains(path)) ExcelList.Add(path);
                     }
                 }
+                GameData.Instance.RefreshExcludedExcelList();
                 SaveHelper.SaveData();
                 freshNode();
             }
@@ -237,6 +260,7 @@ namespace MainUI
                     if (!ExcelList.Contains(path)) ExcelList.Add(path);
                 }
 
+                GameData.Instance.RefreshExcludedExcelList();
                 SaveHelper.SaveData();
                 // 文件点击后刷新所在文件夹的状态
                 freshNode();
@@ -340,6 +364,134 @@ namespace MainUI
             foreach (string path in ExcelList)
             {
                 Debug.Log("已选择的表格: " + path);
+            }
+        }
+        public void ReloadTreeViewInit()
+        {
+            GTreeNode reloadRoot = m_reloadList.rootNode;
+            reloadRoot.RemoveChildren();
+
+            List<string> ExcelFolderPaths = Database.Instance.GetExcelPathList();
+            List<string> ExcelFolderNames = ExcelFolderPaths.Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
+
+            for (int i = 0; i < ExcelFolderNames.Count; i++)
+            {
+                GTreeNode item_folder = new GTreeNode(true);
+                reloadRoot.AddChild(item_folder);
+                GComponent obj_folder = item_folder.cell;
+                obj_folder.GetChild("title").text = ExcelFolderNames[i];
+                obj_folder.GetChild("path").text = PathHelper.NormalizeAppPath(ExcelFolderPaths[i]);
+                obj_folder.GetChild("selectBtn").asButton.onClick.Set(() => ReloadExcelListClicke(item_folder));
+
+                List<string> ExcelFilePaths = Database.Instance.GetExcelFileList(ExcelFolderPaths[i]);
+                List<string> ExcelFileNames = ExcelFilePaths.Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
+
+                item_folder.expanded = true;
+                for (int j = 0; j < ExcelFileNames.Count; j++)
+                {
+                    GTreeNode item_file = new GTreeNode(false);
+                    string path = PathHelper.NormalizeAppPath(Path.Combine(ExcelFolderPaths[i], ExcelFileNames[j] + ".xlsx"));
+                    item_folder.AddChild(item_file);
+                    item_file.data = path;
+
+                    GComponent obj_file = item_file.cell;
+                    obj_file.GetChild("title").text = ExcelFileNames[j];
+                    obj_file.GetChild("path").text = GetShortExcelDisplayPath(path);
+                    obj_file.GetChild("selectBtn").asButton.onClick.Set(() => ReloadExcelListClicke(item_file));
+
+                    obj_file.GetChild("selectBtn").asButton.GetController("button").selectedIndex =
+                        ReloadExcelList.Contains(path) ? 1 : 0;
+                }
+            }
+
+            freshReloadNode();
+        }
+
+        public void ReloadExcelListClicke(GTreeNode node)
+        {
+            if (node == null || node.cell == null) return;
+
+            if (node.numChildren > 0)
+            {
+                bool allOn = true;
+                for (int i = 0; i < node.numChildren; i++)
+                {
+                    GTreeNode sonNode = node.GetChildAt(i);
+                    if (sonNode?.cell == null) continue;
+                    if (sonNode.cell.GetChild("selectBtn").asButton.GetController("button").selectedIndex != 1)
+                    {
+                        allOn = false;
+                        break;
+                    }
+                }
+
+                int target = allOn ? 0 : 1;
+                node.cell.GetChild("selectBtn").asButton.GetController("button").selectedIndex = target;
+                node.expanded = true;
+
+                for (int i = 0; i < node.numChildren; i++)
+                {
+                    GTreeNode sonNode = node.GetChildAt(i);
+                    if (sonNode?.cell == null) continue;
+                    string path = sonNode.data as string;
+                    if (string.IsNullOrEmpty(path)) continue;
+
+                    GComponent obj = sonNode.cell;
+                    obj.GetChild("selectBtn").asButton.GetController("button").selectedIndex = target;
+
+                    if (target == 0)
+                    {
+                        if (ReloadExcelList.Contains(path)) ReloadExcelList.Remove(path);
+                    }
+                    else
+                    {
+                        if (!ReloadExcelList.Contains(path)) ReloadExcelList.Add(path);
+                    }
+                }
+
+                freshReloadNode();
+            }
+            else
+            {
+                string path = node.data as string;
+                if (string.IsNullOrEmpty(path)) return;
+
+                int target = ReloadExcelList.Contains(path) ? 0 : 1;
+                node.cell.GetChild("selectBtn").asButton.GetController("button").selectedIndex = target;
+
+                if (target == 0)
+                {
+                    if (ReloadExcelList.Contains(path)) ReloadExcelList.Remove(path);
+                }
+                else
+                {
+                    if (!ReloadExcelList.Contains(path)) ReloadExcelList.Add(path);
+                }
+
+                freshReloadNode();
+            }
+        }
+
+        public void freshReloadNode()
+        {
+            for (int i = 0; i < m_reloadList.rootNode.numChildren; i++)
+            {
+                GTreeNode node = m_reloadList.rootNode.GetChildAt(i);
+                if (node == null || node.numChildren <= 0 || node.cell == null) continue;
+
+                bool anySelected = false;
+                for (int j = 0; j < node.numChildren; j++)
+                {
+                    GTreeNode sonNode = node.GetChildAt(j);
+                    if (sonNode?.cell == null) continue;
+                    if (sonNode.cell.GetChild("selectBtn").asButton.GetController("button").selectedIndex == 1)
+                    {
+                        anySelected = true;
+                        break;
+                    }
+                }
+
+                node.cell.GetChild("selectBtn").asButton.GetController("button").selectedIndex = anySelected ? 1 : 0;
             }
         }
         //public void OpenFolderDialog()

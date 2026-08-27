@@ -16,6 +16,52 @@ public class GameData
     public bool showHP = false;
     public bool showElement = false;
     public List<string> ExcelList = new List<string>();
+    public List<string> ExcludedExcelList = new List<string>();
+    /// <summary>
+    /// 仅从存档中读取 ExcelList（排除列表），不触发完整的 GameData 初始化。
+    /// 用于启动时在 Database 加载前取得需要排除的数据文件列表。
+    /// </summary>
+    /// <summary>
+    /// 根据当前 ExcelList（已选择列表）计算排除列表：
+    /// 全部 Excel 文件路径 - ExcelList。
+    /// </summary>
+    public void RefreshExcludedExcelList()
+    {
+        var all = new List<string>();
+        foreach (var folder in Database.Instance.GetExcelPathList())
+        {
+            all.AddRange(Database.Instance.GetExcelFileList(folder));
+        }
+
+        ExcludedExcelList = all.Except(ExcelList).ToList();
+    }
+
+    public void LoadExcelListFromSave()
+    {
+        var str = SaveHelper.LoadFile("/data.sav");
+        if (string.IsNullOrEmpty(str)) return;
+
+        try
+        {
+            var saved = JsonHelper.FromJson<GameData>(str);
+            if (saved?.ExcelList == null) return;
+
+            ExcelList.Clear();
+            foreach (var item in saved.ExcelList)
+            {
+                string normalized = PathHelper.NormalizeAppPath(item);
+                if (!string.IsNullOrEmpty(normalized) && !ExcelList.Contains(normalized))
+                    ExcelList.Add(normalized);
+            }
+            //Debug.Log(string.Join(";", ExcelList));
+            RefreshExcludedExcelList();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"读取存档 ExcelList 失败: {e.Message}");
+        }
+    }
+
     public void Init()
     {
         //Debug.Log("GameData初始化");
@@ -99,6 +145,7 @@ public class GameData
             for (int i = 0; i < fixedList.Count; i++)
                 instance.ExcelList[i] = fixedList[i];
             ExcelList = instance.ExcelList;
+            RefreshExcludedExcelList();
             //Debug.Log("读取ExcelList成功");
             //foreach (var item in ExcelList)
             //{
@@ -144,11 +191,16 @@ public class GameData
             //Debug.Log(unitConfig.Id);
             //Debug.Log(times);
             //times++;
-            try
-            {
+            //try
+            //{
                 if (unitConfig == null) continue;
                 if (instance.Cards.Any(x => unitConfig.units.Contains(x.Id))) continue;
                 var unitdata = Database.Instance.Get<UnitData>(unitConfig.units.Last());
+                if (unitdata is null)
+                {
+                    TipManager.Instance.initErorrTips.Add($"加载{unitConfig.Id}Card数据失败");
+                    continue;
+                }
                 Card card = new Card()
                 {
                     UnitId = unitdata.Id,
@@ -157,12 +209,12 @@ public class GameData
                 };
                 if (card.UnitData.MainSkill != null) card.DefaultUsingSkill = card.UnitData.MainSkill.Length - 1;
                 instance.Cards.Add(card);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-                TipManager.Instance.initErorrTips.Add("读取Excel编队数据失败:" + e.Message);
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    Debug.LogError(e);
+            //    TipManager.Instance.initErorrTips.Add("读取Excel编队数据失败:" + e.Message);
+            //}
         }
     }
     public void RefreshCardData()
