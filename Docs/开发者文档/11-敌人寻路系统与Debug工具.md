@@ -1,5 +1,7 @@
 # 11 敌人寻路系统与 Debug 工具
 
+> 文档同步版本：**v1.6.5**（2026-08-28）。本文内容与当前 `EnemyPathfinder.cs` / `PathDebugger.cs` 一致。
+
 > 本次重构将敌人类单位（`Units.敌人`）的寻路逻辑从 `敌人.cs` 抽离到独立文件 `Assets/Scripts/Core/Unit/EnemyPathfinder.cs`，并新增 `Assets/Scripts/Helper/PathDebugger.cs` 用于寻路流程调试。
 
 ## 1. 敌人寻路流程梳理

@@ -2,7 +2,29 @@
 
 > 适用工程：`zhou-master`（ArknightR N 版分支，明日方舟同人模拟器）
 > 文档范围：`Assets/Scripts/Core` 全部代码，重点详述 **Skill（技能）**、**Buff（状态）**、**Unit（单位）** 三大子系统
-> 本文档基于对 `Assets/Scripts/Core` 下 187 个 C# 文件的通读整理
+> 本文档基于对 `Assets/Scripts/Core` 下 **214 个 C# 文件** 的通读整理；文档同步至 **v1.6.5**（2026-08-28）
+
+---
+
+## 0. v1.5.0 ~ v1.6.5 变更速览
+
+> 本文档主体按 v1.3.x 时期的 Core 代码整理。以下变更会覆盖/修正部分旧描述，阅读时优先以本节与当前代码为准。
+
+1. **Skill 系统新增 JsonSkill**（v1.5.0）：
+   - 新宿主 `JsonSkill`、配置 `SkillJsonData`、选择器/排序器节点、12 个效果器、`SkillJsonValidator`；
+   - `Unit.LearnSkill` 在 `SkillData.Type == "Json"`、Type 为空或存在 `SkillJsonData` 时创建 `JsonSkill`，否则仍反射旧 `Skills.<Type>`；
+   - 详见 `Docs/开发者文档/13-Skill系统详细设计方案.md`、`14-JsonSkill开发者文档.md`。
+2. **伤害处理重构**（v1.5.1）：叠加类减伤与弱点伤害实现方式调整；`Unit` 新增弱点伤害判定，`Modifys` 新增 `弱点伤害`。
+3. **单位配置扩展**：
+   - `UnitData` 新增 `RedeployPolicy`（默认/唯一/队列）、`BuildCountLimit`（v1.3.18）；
+   - 新增 `ModelOffset`（v1.5.6）、`StartAnimation` / `DeadAnimation` 等动画配置（v1.5.7）；
+   - `Unit.Init(bool isTmp = false)` 适配临时单位，`UnitData.Id == "0"` 按临时单位初始化（v1.5.16）。
+4. **召唤系统重做**（v1.5.14）：召唤实现方式修改、范围参数修复、施法者类型扩展；随后 v1.5.16 修复位移模式移速、临时单位额外索敌弹道/索敌范围；v1.6.1 增强召唤健壮性。
+5. **敌人与隐身**（v1.6.1）：敌人新增学习默认主技能；隐身新增无视阻挡参数，反隐/隐身/部署保护判定调整。
+6. **弹道**（v1.5.15/v1.5.16）：修复部分子弹 `lifetime` 未生效；可自主索敌的弹道支持展示攻击范围。
+7. **索敌索引已重构**：`Battle` 使用 `Dictionary<int, HashSet<Unit>[,]> teamMaps`，`FindAll(pos, radius)` 走九宫格检索；`UnitMap` 保留为敌人索引兼容。
+8. **特效系统修复**（v1.6.0）：一次性特效到期自动回收、对象池状态重置、BoneFollower 去重与空引用保护，见 `15-特效系统优化方案.md`。
+9. **类型文件数量变化**：Skill/Types 53 个、Buff/Types 53 个、Bullet/Types 8 个、Modify/Types 18 个（均为递归 `.cs` 计数）。
 
 ---
 
@@ -25,7 +47,7 @@
 ### 1.1 项目背景
 
 - 本项目是 ArknightR（独钓寒江翎 开发的明日方舟模拟器）的 N 版分支，由 X2r 与 HJsama 维护。
-- 使用"互联网获得素材"自制，总体还原度较高，支持玩家地编、自建关卡（`Tools` 下有 `攻击范围编辑器.exe`、`dungeon.xlsx` 等）。
+- 使用"互联网获得素材"自制，总体还原度较高，支持玩家地编、自建关卡（`Excel/` 下有 `攻击范围编辑器.exe`，`Docx/` 有设计文档）。
 - 引擎：Unity（2019+ 风格 API），使用 Spine 骨骼动画（`Spine.Unity`）、FairyGUI（UI）、A* Pathfinding 插件（工程内 `AstarPathfindingProject`）、Addressables 资源加载。
 - 代码结构：全部战斗逻辑为 **纯 C# 非 MonoBehaviour 类**（`Unit` / `Skill` / `Buff` / `Battle` 均不继承 MonoBehaviour），由少数 MonoBehaviour 门面（`BattleManager`、`MapManager` 等）驱动固定步长更新。
 
@@ -71,16 +93,16 @@ Assets/Scripts/
 
 ### 2.1 数据加载（`Assets/Scripts/Database.cs`）
 
-- `Database` 是全局单例，把每类配置（`IConfig[]`）按 Excel 导出的 `Assets/Data/*.txt`（每行一个 JSON 对象）加载进 `Dictionary<Type, IConfig[]>`。
-- 编辑器下 `Init1()` 同步读本地文件；运行时 `Init()` 走 Addressables。
-- 全局技能：`SkillData.Type == "全局技能"` 的条目会被收集进 `Database.globalSkills`，每个单位 `Unit.Init()` 时都会追加学习（实现"全体生效规则"）。
+- `Database` 是全局单例，把每类配置（`IConfig[]`）加载进 `Dictionary<Type, IConfig[]>`。v1.6.5 起：运行时优先读热更目录 `Data/<表名>/<Excel文件名>.txt` 并按 `_index.txt` 定序；缺失时回退旧单文件 `Data/<表名>.txt`（热更目录）→ Addressables（`Assets/Bundles/Data/<表名>`）；编辑器 `Init1()` 同步读 `Assets/Bundles/Data/*.txt` / AssetDatabase。
+- 全局技能：`SkillData.Type == "全局技能"` 的条目会被收集进 `Database.globalSkills`，`Unit.Init()` 用**局部列表合并后学习**，不再回写共享 `UnitData.Skills`。
 
 ### 2.2 配置数据类（`Assets/Scripts/Config/`）
 
 | 配置类 | 作用 |
 |---|---|
 | `UnitData` | 单位静态数据：基础属性（Hp/Attack/Defence/MagicDefence/Speed/Agi/AttackGap/Weight...）、模型/动画名、`Skills`（技能 id 列表）、`MainSkill`（主技能列表）、Team、职业 `Profession`、`Type`（运行时反射类名）、`CanSetPos`（可部署地形标签）、`IgnoreBuff`、`Tags` 等 |
-| `SkillData` | 技能静态数据（详见 §5.2，115 个字段） |
+| `SkillData` | 旧式技能静态数据（详见 §5.2，当前 111 个 public 字段） |
+| `SkillJsonData` | JsonSkill 配置：`BaseConfig` + `Selectors` + `Sorters` + `Effects`，见 13/14 文档 |
 | `BuffData` | 状态静态数据：`Type`、持续时间 `LastTime`、`Upgrade`（升级成哪个 buff）、`RelyBuff`（依赖 buff）、`Resist`（是否受抵抗影响）、`RoundNeed/StopNeed/StopLess`（生效条件）、`Data`（扩展字典） |
 | `BulletData` | 弹道数据：`Type`、`Model`、`Modifys`（弹道修饰器）、`EffectBase` 等 |
 | `ModifyData` | 修饰器数据：`Type` + `Data` |
@@ -170,7 +192,7 @@ class DamageInfo {
 
 ## 4. Unit 单位系统
 
-### 4.1 `Unit` 基类（`Unit/Unit.cs`，1232 行）
+### 4.1 `Unit` 基类（`Unit/Unit.cs`，1213 行）
 
 所有单位的基类（纯 C#，不继承 MonoBehaviour）。关键职责：
 
@@ -312,7 +334,7 @@ void Damage(DamageInfo dmg) {
 
 ## 5. Skill 技能系统
 
-### 5.1 `Skill` 基类（`Skill/Skill.cs`，1829 行）
+### 5.1 `Skill` 基类（`Skill/Skill.cs`，1846 行）
 
 技能是"单位的行为剧本"：索敌 → 抬手 → 生效 → 冷却，全部由数据驱动，特殊行为通过子类重写。
 
@@ -416,7 +438,7 @@ Hit → 命中特效 → OnAttack 事件
 
 按 `AttackPoints` 或 `AttackRange` 实例化 `ShowRange` 地块高亮（数据 `Data.Color/Alpha` 控制样式）。
 
-### 5.2 `SkillData` 配置字段速查（`Config/SkillData.cs`，115 字段）
+### 5.2 `SkillData` 配置字段速查（`Config/SkillData.cs`，111 个 public 字段）
 
 按用途分组：
 
@@ -442,7 +464,7 @@ Hit → 命中特效 → OnAttack 事件
 
 ### 5.3 技能类型总表（`Skill/Types/`）
 
-> 55 个技能子类按功能可分为：**通用/空壳**（普通技能、全局技能）、**目标/事件特化**（事件目标替换、余火墙、乌萨斯战吼、塑灵术士式索敌、近战/群攻）、**伤害/状态施加特化**（获得费用、回复技力、技能升级、赋予被动、增加修饰器）、**位移/地形**（传送、推、拉、跳跃、拆地板、地块属性更改、重寻路、尝试插入临时路径点）、**召唤部署**（部署干员系 5 个 + 获取单位 + 召唤绑定 + 引爆召唤 + 召唤）、**全局规则**（修改Tag/回费速度/部署上限、关卡伤害、暂停、清除射弹）、**生命周期**（强制撤退、打断释放、持续施法、锁血治疗）等。
+> 53 个技能子类按功能可分为：**通用/空壳**（普通技能、全局技能）、**目标/事件特化**（事件目标替换、余火墙、乌萨斯战吼、塑灵术士式索敌、近战/群攻）、**伤害/状态施加特化**（获得费用、回复技力、技能升级、赋予被动、增加修饰器）、**位移/地形**（传送、推、拉、跳跃、拆地板、地块属性更改、重寻路、尝试插入临时路径点）、**召唤部署**（召唤相关子目录 9 个：部署干员/装置、ew3 类部署干员/装置、位移、召唤、召唤绑定、获取单位、引爆召唤）、**全局规则**（修改Tag/回费速度/部署上限、关卡伤害、暂停、清除射弹）、**生命周期**（强制撤退、打断释放、持续施法、锁血治疗）等。其中召唤系在 v1.5.14 重做，具体以当前代码为准。
 >
 > 完整逐个说明见 **附录 A**（含继承族谱与实现缺陷清单）。
 
@@ -450,7 +472,7 @@ Hit → 命中特效 → OnAttack 事件
 
 ## 6. Buff 状态系统
 
-### 6.1 `Buff` 基类（`Buff/Buff.cs`，228 行）
+### 6.1 `Buff` 基类（`Buff/Buff.cs`，240 行）
 
 Buff 是"作用在单位/弹道上的一段声明式效果"：挂载时生效、持续期间逐帧维持、结束/被清除时移除。
 
@@ -547,7 +569,7 @@ IfSelectable = true; CanStopOther = true; IfStun = false;
 
 ### 6.8 Buff 类型总表（`Buff/Types/`）
 
-> 54 个 Buff 子类按功能可分为：**数值修改**（数值变化族 6 个、设置属性、高级属性设置、免疫Buff、绝食、缴械、不可阻挡）、**状态控制**（眩晕、睡眠、冻结、麻痹、打断攻击、专注失调、即死、破坏、反隐、隐身）、**持续伤害/治疗**（中毒、剧毒、线性剧毒、治愈、消去伤害、延迟追加Buff、蕾缪安通缉类停留时间标记）、**位移**（推动、拉动、重设高度）、**伤害重写**（伤害重写/吸收类限伤、屏障、护盾、锁血、无敌、伤害分摊）、**伤害面板修改**（减伤、未阻挡伤害、闪避、无视防御、Buff可抵挡）、**特殊机制**（Buff抵挡、叠层转化、加速、覆盖动作、屏蔽模型、精确移除Buff、m3融毁加攻）等。
+> 53 个 Buff 子类按功能可分为：**数值修改**（数值变化族 6 个、设置属性、高级属性设置、免疫Buff、绝食、缴械、不可阻挡）、**状态控制**（眩晕、睡眠、冻结、麻痹、打断攻击、专注失调、即死、破坏、反隐、隐身）、**持续伤害/治疗**（中毒、剧毒、线性剧毒、治愈、消去伤害、延迟追加Buff、蕾缪安通缉类停留时间标记）、**位移**（推动、拉动、重设高度）、**伤害重写**（伤害重写/吸收类限伤、屏障、护盾、锁血、无敌、伤害分摊）、**伤害面板修改**（减伤、未阻挡伤害、闪避、无视防御、Buff可抵挡、叠加类减伤）、**特殊机制**（Buff抵挡、叠层转化、加速、覆盖动作、屏蔽模型、精确移除Buff、m3融毁加攻）等。
 >
 > 完整逐个说明见 **附录 B**（含汇总表、关键机制注解与问题清单）。
 
@@ -641,23 +663,23 @@ IfSelectable = true; CanStopOther = true; IfStun = false;
 
 > 以下均摘自代码中的注释与实现观察，供后续维护参考。
 
-1. **索敌效率与复杂度**（README 原文）：索敌逻辑较乱，`FindAll(pos, radius, team)` 直接遍历全单位列表（`//需要优化！`）；`Skill.SortTarget` 排序在每帧 `GetAttackTarget` 里重算。
+1. **索敌效率**：`FindAll(pos, radius, team)` 已重构为 `teamMaps` 九宫格检索（P0/P1 已实施）；`Skill.SortTarget` 排序仍在每帧 `GetAttackTarget` 里重算，可作为后续优化点。
 2. **持续施法类技能全靠 trick**（README 原文）：`持续施法.cs` 通过 `LastTarget` 缓存目标 + 目标失效即 `Opening.Finish()` 的方式模拟持续施法。
 3. **反射 + 字符串拼接脆弱性**：所有 `Type` 字符串与命名空间硬绑定，配置写错即创建失败（有 Tip 提示）；`Skill.LearnSkill` 用 `nameof(Skills) + "." + type`，若 type 含命名空间会失败。
 4. **遗留/半成品系统**：
-   - `ISkillDiy.cs`：`ITargetSelector / IFilterStrategy / ISortStrategy / IExecutor` 等"动态索敌"接口大量注释、半实现；`DynamicTargetSelector / DynamicSorter / TargetSelectorFactory / SortStrategyFactory` 为实验性代码，实际索敌主线并未使用（仍走 `Skill.GetAttackTarget` 虚方法管线）；`主要目标选择器.cs` 中大部分选择器被注释标记"弃用的选择器"，仅 `Buff筛选` 等少数类存活。
+   - `ISkillDiy.cs` 的选择器/排序器接口已由 JsonSkill 框架正式使用（`DynamicTargetSelector` / `DynamicSorter` 当前为 JsonSkill 的筛选/排序执行器，不再是实验代码）；`主要目标选择器.cs` 中部分旧选择器仍标记为弃用。
    - `Unit.cs` 中"入梦砖"相关 `UpdateBuffSuppression` 大段注释。
    - `旧Effect.cs` 已废弃；`Map.cs` 内旧广搜寻路已注释（改用 A* 插件）。
 5. **硬编码**：`Skill.cs` 中 `SkillData.Id == "萃蔓无敌"` 的调试日志；`Battle.cs` 注释掉的 Dungeon 分支；`Unit.Damage` 中 `DamageTypeEnum.Real/Element` 统计逻辑分支；`Battle.CreateEnemy` 中找不到单位时兜底 `enemy_1106_byokai`。
-6. **编码问题**：部分源文件为 GBK 编码（已确认：`ISkillDiy.cs`、`DynamicTargetSelector.cs`、`DynamicSorter.cs`、`TargetSelector/主要目标选择器.cs`、`TargetSelector/主要目标排序器.cs`、`Preview.cs`、`Map/ITileData.cs`、`Map/PathFinder_AStar.cs`；注意 Skill/Types、Buff/Types、Bullet、Modify 目录经严格 UTF-8 校验全部合法），GBK 与 UTF-8 文件混存，迁移仓库时需统一。
+6. **编码问题**：历史 GBK 文件已全部转 UTF-8；v1.6.5 复核 `Assets` 下 `.cs/.shader/.json/.txt/.md` 无 GBK/UTF-16 残留。
 7. **动画/攻速耦合**：`Start()` 中动画时长与攻击间隔互相钳制（`fullDuration * attackSpeed != Cooldown.value` 时强制拉快/拉长动画），逻辑较绕，改动需谨慎。
 8. **Buff 抵挡（入梦砖）机制**：`Buff抵挡` + `Buff可抵挡` 双条件 + `NotCancelable` 豁免，逻辑分布在 `Buff.Init/Reset/Update` 与 `Unit.AddBuff`，是项目中最特殊的状态交互。
 
 ---
 
-## 附录 A：Skill 子类全表（`Skill/Types/`，55 个文件）
+## 附录 A：Skill 子类全表（`Skill/Types/`，53 个文件）
 
-> 全部类均在 **`Skills` 命名空间**（基类 `Skill` 在全局命名空间）。含 `召唤相关/` 子目录 7 个。配置 `Type` 字符串 = 类名。**本目录全部为合法 UTF-8**（与 Buff 目录相同，无 GBK 文件）。
+> 全部类均在 **`Skills` 命名空间**（基类 `Skill` 在全局命名空间）。含 `召唤相关/` 子目录 9 个。配置 `Type` 字符串 = 类名。**全项目文本文件当前均为合法 UTF-8**（v1.6.5 复核）。召唤相关子类在 v1.5.14/v1.6.1 有较大改动，下表以文件/类名索引为主，实现细节以当前代码为准。
 
 ### A.1 汇总表
 
@@ -748,7 +770,7 @@ Skill（基类，全局命名空间）
 6. **`弩箭`** MapUp 分支用 `GetLength(1)` 作 x 上限（疑似行列写反）。
 7. **部署系**：`battleOp.Count > 0 && battleOp.Count < i` 条件基本不会成立；`Operator` 字段在子类中反复用 `new` 隐藏。
 
-## 附录 B：Buff 子类全表（`Buff/Types/`，54 个文件）
+## 附录 B：Buff 子类全表（`Buff/Types/`，53 个文件）
 
 > 全部类（含子目录 `伤害重写类/`、`数值变化/`、`Sp/`）均在 **`Buffs` 命名空间**（`IPushBuff` 是全局命名空间的接口）。配置 `Type` 字符串 = 类名。
 

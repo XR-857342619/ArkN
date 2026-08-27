@@ -1,9 +1,10 @@
 # 12 Skill 系统重构计划书
 
-> 版本：v1.0
-> 状态：待评审
+> 版本：v1.1（2026-08-28 同步）
+> 状态：**已实施（渐进式）**。v1.5.0 起 JsonSkill 与旧 `Skill/Types` 并行运行，实施细节见 `13-Skill系统详细设计方案.md`、当前实现见 `14-JsonSkill开发者文档.md`。
+> 与计划的差异：核心选择器/排序器/效果器已落地；计划中的内置 Skill JSON 编辑器尚未实现；实际目录为 `Core/Skill/Json/`、`Core/Skill/Effects/`、`Core/Skill/TargetSelector/`。
 > 适用工程：`zhou-master`（ArknightR N 版分支）
-> 相关文档：`03-核心战斗系统.md`、`09-代码问题清单.md`、`10-潜在Bug清单与修复记录.md`
+> 相关文档：`03-核心战斗系统.md`、`13-Skill系统详细设计方案.md`、`14-JsonSkill开发者文档.md`
 
 ---
 

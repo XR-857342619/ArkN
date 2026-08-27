@@ -1,5 +1,7 @@
 # 07 工具链与 Excel 导表
 
+> 文档同步版本：**v1.6.5**（2026-08-28）。
+
 ## 1. Excel 导表
 
 ### 1.1 表结构约定
@@ -37,30 +39,35 @@ Excel 文件放在 `Excel/<作者或分类>/`（如 `Main/`、`Test/`、`一方�
 ### 1.3 导出方式
 
 1. **编辑器菜单导出**：`Tools → 导出配置`（`Assets/Editor/ExcelEditor/ExcelExportEditor.cs`）
-   - 输入目录：`./Excel/Main`；
+   - 输入目录：`./Excel` 下**所有** `.xlsx`（递归），跳过 `$` 临时文件与备份目录；
    - 生成配置类：`Assets/Scripts/Config/<SheetName>.cs`（注意：会覆盖）；
-   - 导出数据：`Assets/Bundles/Data/<SheetName>.txt`（每行一个 JSON）；
+   - 合并所有同名 Sheet 并导出到 `Assets/Bundles/Data/<SheetName>.txt`（每行一个 JSON）；`UnitData` 首行写入 `Id=0` 占位行；
    - 自动 `AssetDatabase.Refresh()`。
 2. **游戏内导出**：主界面勾选玩家 Excel → 点击导出，走 `ExcelHelper.Export(ExcelList)`（`Assets/Scripts/Helper/ExcelHelper.cs`）。
-   - 用于玩家自定义表（DIY/一方通行/尊尼获加等），运行时把选中的 Excel 导出到热更路径 `StreamingAssets/Data/`；
+   - 用于玩家自定义表（DIY/一方通行/尊尼获加等），运行时把选中的 Excel 导出到热更路径；
+   - 并行写出 `Data/<SheetName>/<Excel文件名>.txt`，并为每个 Sheet 生成 `Data/<SheetName>/_index.txt`；
    - 导出后 `Database.Clear()` → `Database.Init()` 重新加载，并 `GameData.RefreshCardData()`。
 
 ### 1.4 导出实现要点
 
 - `ExportClass()` 第一遍扫描所有 Sheet，建立 `表名 → Id 列表`，用于把引用其他表的字段转成下标。
-- `ExportData()` 逐 Sheet 生成 JSON 行，写到 `Data/<SheetName>.txt`。
+- 编辑器 `ExportData()` 逐 Sheet 合并生成 JSON 行，写到 `Data/<SheetName>.txt`。
+- 游戏内 `ExportData()` 使用 `Parallel.ForEach` 按 Excel 文件并行导出，再由主线程统一生成 `_index.txt`。
 - `Convert(type, value)` 是类型转换核心，注意：
   - `string[]` 分隔失败时用 `\n`；
   - `Vector2[]` 分量之间用 `,`，点之间用 `#`；
   - 引用表类型找不到 Id 会抛异常并 `TipManager.ShowTip("导表错误:...")`。
-- 运行时导出的 txt 通过 `Database.AddAsync` 读取，每行反序列化为一个 `IConfig`，数组下标即 Id 索引。
+- 运行时导出的分类 txt 由 `Database.AddAsync` 读取：优先 `Data/<表名>/` 分类目录 + `_index.txt` 定序，缺失时回退旧版单文件 `Data/<表名>.txt` / Addressables。
 
 ## 2. 编辑器菜单
 
 | 菜单 | 脚本 | 功能 |
 |---|---|---|
-| `Tools/导出配置` | `Assets/Editor/ExcelEditor/ExcelExportEditor.cs` | 从 `Excel/Main` 导表到 `Assets/Bundles/Data` 并生成 Config 类 |
+| `Tools/导出配置` | `Assets/Editor/ExcelEditor/ExcelExportEditor.cs` | 从 `Excel/` 全部 xlsx 导表到 `Assets/Bundles/Data` 并生成 Config 类 |
+| `Tools/Excel列同步/选择基准文件并同步` | `Assets/Editor/ExcelEditor/ExcelColumnSyncTool.cs` | 以基准 Excel 同步目标 Excel 的 Sheet 列结构，同步前备份 |
+| `Tools/Excel列同步/同步指定Sheet列` | `Assets/Editor/ExcelEditor/ExcelColumnSyncWindow.cs` | 窗口式指定 Sheet 列同步 |
 | `Tools/重新标记` | `Assets/Editor/BuildEditor/BuildEditor.cs` | 重新标记 Addressables |
+| `Tools/生成StreamingAssets文件列表` | `Assets/Editor/BuildFileList.cs` | 生成 `StreamingAssets/filelist.txt` |
 | `Tools/Spine移动信息` | `Assets/Editor/SpineImportEditor.cs` | Spine 移动信息处理 |
 | `Tools/Spine转Prefab` | `Assets/Editor/SpineImportEditor.cs` | Spine 转 Prefab |
 | `GameObject/FairyGUI/...` | `Assets/Editor/FairyGUI/EditorToolSet.cs` | 创建 FairyGUI UI Panel/Camera |
@@ -70,7 +77,7 @@ Excel 文件放在 `Excel/<作者或分类>/`（如 `Main/`、`Test/`、`一方�
 
 | 工具 | 功能 |
 |---|---|
-| `ExcelHelper` | Excel 读写、导出、新建/修改单位行 |
+| `ExcelHelper` | Excel 读写、并行导出、生成 `_index.txt`、新建/修改单位行 |
 | `EnemyInfoExcelTool` | 敌人信息 Excel 工具 |
 | `EnemySpineDownloadTool` | 敌人 Spine 下载 |
 | `SpineDownLoadTool` | 干员 Spine 下载 |
@@ -96,6 +103,7 @@ Excel 文件放在 `Excel/<作者或分类>/`（如 `Main/`、`Test/`、`一方�
   ```
   引用其他表的字段会自动变成 `int?` 或 `int[]`（下标引用）。
 - 配置类手写扩展在 `Config/Ex/`（如 `SkillDataEx`、`RewardDataEx`），用于补充计算属性/扩展方法。
+- 注意：导表不会生成 `SkillJsonData` 的可读配置，`SkillJson` 以 `Data/SkillJson.txt` / 热更分类目录为准。
 
 ## 5. 辅助工具
 
@@ -103,4 +111,4 @@ Excel 文件放在 `Excel/<作者或分类>/`（如 `Main/`、`Test/`、`一方�
 - `Helper/FileHelper.cs`：递归文件遍历。
 - `Helper/ResHelper.cs`：资源加载与预加载。
 - `Helper/Log.cs`：统一日志。
-- `Helper/UnifiedExpressionEngine.cs`：Roslyn 动态表达式引擎（过滤/计算/赋值）。
+- `Helper/UnifiedExpressionEngine.cs`：基于 System.Linq.Dynamic.Core 的表达式引擎（过滤/计算/赋值），带编译缓存与成员缓存。
