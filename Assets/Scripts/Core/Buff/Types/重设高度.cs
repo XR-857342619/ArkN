@@ -8,7 +8,7 @@ namespace Buffs
     /// 配置项（BuffData.Data 字典）：
     ///   Start    起飞前高度（默认 0，即地面；降落后固定回到地面）
     ///   Fly      起飞后目标高度（默认 1.0）
-    ///   Time     平滑阻尼时间（默认 0.1 s）
+    ///   Time     完成上升/下降所需时间（默认 0.1 s）
     /// 不再读取 Land 参数：降落后固定回到地面（0），并调用 AlignHeight 对齐地面。
     /// </summary>
     public class 重设高度 : Buff
@@ -20,10 +20,13 @@ namespace Buffs
         private float smoothTime;
 
         // 运行时状态
-        private float velocity;          // SmoothDamp 用
         private bool isTakingOff = true; // 起飞阶段
         private bool isLanding;          // 降落阶段
         private bool isLanded;           // 已降落完成，避免重复触发降落
+
+        // 阶段计时：保证上升/下降在 smoothTime 内完成
+        private float phaseStartHeight;
+        private float phaseElapsed;
 
         public override void Init()
         {
@@ -33,13 +36,16 @@ namespace Buffs
             takeOffHeight = BuffData.Data.GetFloat("Fly", 1f);
             smoothTime = Mathf.Max(0.001f, BuffData.Data.GetFloat("Time", 0.1f));
 
-            // 移除 Land 参数：降落后回到地面
+            // 移除 Land 参数：降落后回到起飞前的高度
             landingHeight = startHeight;
+
+            Unit.Height = startHeight;
 
             isTakingOff = true;
             isLanding = false;
             isLanded = false;
-            velocity = 0f;
+            phaseStartHeight = startHeight;
+            phaseElapsed = 0f;
         }
 
         public override void ApplyToUnit()
@@ -49,23 +55,27 @@ namespace Buffs
             if (Dead)
                 return;
 
+            phaseElapsed += SystemConfig.DeltaTime;
+            float rawT = Mathf.Clamp01(phaseElapsed / smoothTime);
+            float t = Mathf.SmoothStep(0f, 1f, rawT);
+
             if (isTakingOff)
             {
-                Unit.Height = Mathf.SmoothDamp(Unit.Height, takeOffHeight, ref velocity, smoothTime, Mathf.Infinity, SystemConfig.DeltaTime);
-                if (Mathf.Abs(Unit.Height - takeOffHeight) < 0.01f)
+                Unit.Height = Mathf.Lerp(phaseStartHeight, takeOffHeight, t);
+
+                if (rawT >= 1f)
                 {
                     Unit.Height = takeOffHeight;
-                    velocity = 0f;
                     isTakingOff = false;
                 }
             }
             else if (isLanding)
             {
-                Unit.Height = Mathf.SmoothDamp(Unit.Height, landingHeight, ref velocity, smoothTime, Mathf.Infinity, SystemConfig.DeltaTime);
-                if (Mathf.Abs(Unit.Height - landingHeight) < 0.01f)
+                Unit.Height = Mathf.Lerp(phaseStartHeight, landingHeight, t);
+
+                if (rawT >= 1f)
                 {
                     Unit.Height = landingHeight;
-                    velocity = 0f;
                     isLanding = false;
                     isLanded = true;
 
@@ -82,11 +92,12 @@ namespace Buffs
             if (Dead)
                 return;
 
-            // 剩余时间不足一个平滑周期时开始降落；已经降落完成则不再重复触发
+            // 剩余时间不足一个阶段时长时开始降落；已经降落完成则不再重复触发
             if (!isTakingOff && !isLanding && !isLanded && Duration.value <= smoothTime)
             {
                 isLanding = true;
-                velocity = 0f;
+                phaseStartHeight = Unit.Height;
+                phaseElapsed = 0f;
             }
         }
 

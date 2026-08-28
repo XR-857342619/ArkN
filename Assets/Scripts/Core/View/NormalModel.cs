@@ -30,8 +30,9 @@ public class NormalModel : UnitModel
     public override void Init(Unit unit)
     {
         this.Unit = unit;
+        bool hasAlpha = unit.UnitData.Ablititys != null && unit.UnitData.Ablititys.ContainsKey("Alpha");
         Color = unit.UnitData.Ablititys.GetStr("Color");
-        Alpha = unit.UnitData.Ablititys.GetFloat("Alpha");
+        Alpha = unit.UnitData.Ablititys.GetFloat("Alpha", 1f);
         Size = unit.UnitData.Ablititys.GetFloat("Size", 1);
         _size = Size != 1 ? Size : (unit.UnitData.ModelScale == 0 ? 1 : unit.UnitData.ModelScale);
         texturePath = unit.UnitData.Ablititys.GetStr("TexturePath");
@@ -54,10 +55,14 @@ public class NormalModel : UnitModel
         }
 
         Animator?.Play(Unit.AnimationName[0]);
-        if (Color is not null)
+        if (Color is not null && meshRenderer != null && materialInstance != null)
         {
             meshRenderer.material = materialInstance;
             SetColorFromHex(Color);
+        }
+        if (hasAlpha && meshRenderer != null && materialInstance != null)
+        {
+            meshRenderer.material = materialInstance;
             SetAlpha(Alpha);
         }
 
@@ -129,12 +134,10 @@ public class NormalModel : UnitModel
     // 单独修改透明度
     public void SetAlpha(float alpha)
     {
-        if (materialInstance == null || alpha == 0) {
-            //Debug.Log("材质实例为空");
-            return; 
-        }
+        if (materialInstance == null)
+            return;
         Color current = materialInstance.color;
-        materialInstance.color = new Color(current.r, current.g, current.b, alpha);
+        materialInstance.color = new Color(current.r, current.g, current.b, Mathf.Clamp01(alpha));
     }
 
     void OnDestroy()
