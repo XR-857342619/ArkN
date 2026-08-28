@@ -12,6 +12,12 @@ public class NormalModel : UnitModel
     private Material materialInstance;
     public GameObject Particices;
     public bool haspartic;
+    public string Color;
+    public float Alpha;
+    public float Size;
+    private float _size;
+    public string texturePath;
+
     private void Awake()
     {
         Animator = GetComponentInChildren<Animator>();
@@ -24,11 +30,29 @@ public class NormalModel : UnitModel
     public override void Init(Unit unit)
     {
         this.Unit = unit;
-        string Color = unit.UnitData.Ablititys.GetStr("Color");
-        float Alpha = unit.UnitData.Ablititys.GetFloat("Alpha");
-        float Size = unit.UnitData.Ablititys.GetFloat("Size",-1f);
+        Color = unit.UnitData.Ablititys.GetStr("Color");
+        Alpha = unit.UnitData.Ablititys.GetFloat("Alpha");
+        Size = unit.UnitData.Ablititys.GetFloat("Size", 1);
+        _size = Size != 1 ? Size : (unit.UnitData.ModelScale == 0 ? 1 : unit.UnitData.ModelScale);
+        texturePath = unit.UnitData.Ablititys.GetStr("TexturePath");
         //Debug.Log(Color + "," + Alpha);
         //gameObject.SetActive(false);
+        int texturePropertyID = Shader.PropertyToID("_MainTex");
+
+        if (!string.IsNullOrEmpty(texturePath) && meshRenderer != null && materialInstance != null)
+        {
+            // 先把材质实例挂到 Renderer 上，否则只设置材质纹理但未赋值给 meshRenderer 时不会生效
+            meshRenderer.material = materialInstance;
+
+            ExtextureLoader.Instance.LoadTexture2D(texturePath, texture =>
+            {
+                if (materialInstance == null)
+                    return;
+
+                materialInstance.SetTexture(texturePropertyID, texture);
+            });
+        }
+
         Animator?.Play(Unit.AnimationName[0]);
         if (Color is not null)
         {
@@ -36,8 +60,8 @@ public class NormalModel : UnitModel
             SetColorFromHex(Color);
             SetAlpha(Alpha);
         }
-        if (Size > 0)
-            transform.localScale = new Vector3(Size, 1f, Size);
+
+        transform.localScale *= _size;
         // AlignHeight 统一由 Unit.CreateModel / 单位位置变更时调用
     }
 
@@ -45,7 +69,7 @@ public class NormalModel : UnitModel
     private void LateUpdate()
     {
         if (Unit == null) return;
-            transform.position = Unit.Position + Unit.UnitData.ModelOffset;
+        transform.position = Unit.Position + Vector3.up * Unit.Height + Unit.UnitData.ModelOffset;
         transform.localEulerAngles = new Vector3(0, Vector2.SignedAngle(Unit.Direction, Vector2.right), 0);
         if (Animator != null && Unit.AnimationName != null)
         {

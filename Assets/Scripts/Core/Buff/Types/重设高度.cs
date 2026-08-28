@@ -1,51 +1,44 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace Buffs
 {
     /// <summary>
     /// 重设高度：起飞 → 维持 → 降落 三阶段
-    /// 配置项：
-    ///   StartHeight    起始高度（不填则保持当前高度）
-    ///   TakeOffHeight  起飞后目标高度（默认 1.0）
-    ///   LandingHeight  降落后目标高度（默认 0.0）
-    ///   SmoothTime     平滑阻尼时间（默认 0.3 s）
+    /// 配置项（BuffData.Data 字典）：
+    ///   Start    起飞前高度（默认 0，即地面；降落后固定回到地面）
+    ///   Fly      起飞后目标高度（默认 1.0）
+    ///   Time     平滑阻尼时间（默认 0.1 s）
+    /// 不再读取 Land 参数：降落后固定回到地面（0），并调用 AlignHeight 对齐地面。
     /// </summary>
     public class 重设高度 : Buff
     {
         // 配置数据
-        private float startHeight;   // 新增：可配置起始高度
+        private float startHeight;
         private float takeOffHeight;
         private float landingHeight;
         private float smoothTime;
 
-        // 运行时
-        private float velocity;            // SmoothDamp 用
-        private bool isTakingOff = true;  // 起飞阶段
-        private bool isLanding;           // 降落阶段
-
-        private float totalDuration;
-        private float startTime;
+        // 运行时状态
+        private float velocity;          // SmoothDamp 用
+        private bool isTakingOff = true; // 起飞阶段
+        private bool isLanding;          // 降落阶段
+        private bool isLanded;           // 已降落完成，避免重复触发降落
 
         public override void Init()
         {
             base.Init();
 
-            /*---------- 读取配置 ----------*/
-            startHeight = BuffData.Data.GetFloat("Start", 0f);
+            startHeight = Unit.Height;
             takeOffHeight = BuffData.Data.GetFloat("Fly", 1f);
-            landingHeight = BuffData.Data.GetFloat("Land", 0f);
-            smoothTime = BuffData.Data.GetFloat("Time", 0.1f);
+            smoothTime = Mathf.Max(0.001f, BuffData.Data.GetFloat("Time", 0.1f));
 
-            totalDuration = Skill.SkillData.BuffLastTime ?? BuffData.LastTime;
-            startTime = Time.time;
-
-            /*---------- 可选：立即设成配置的起始高度，避免扰动 ----------*/
-            Unit.Height = startHeight;
+            // 移除 Land 参数：降落后回到地面
+            landingHeight = startHeight;
 
             isTakingOff = true;
             isLanding = false;
-            //velocity = (takeOffHeight - landingHeight) / smoothTime;
+            isLanded = false;
             velocity = 0f;
         }
 
@@ -53,27 +46,31 @@ namespace Buffs
         {
             base.ApplyToUnit();
 
+            if (Dead)
+                return;
+
             if (isTakingOff)
             {
-                Unit.Height = Mathf.SmoothDamp(Unit.Height, takeOffHeight, ref velocity, smoothTime);
-                //Log.Debug(Unit.Height);
+                Unit.Height = Mathf.SmoothDamp(Unit.Height, takeOffHeight, ref velocity, smoothTime, Mathf.Infinity, SystemConfig.DeltaTime);
                 if (Mathf.Abs(Unit.Height - takeOffHeight) < 0.01f)
                 {
                     Unit.Height = takeOffHeight;
-                    
+                    velocity = 0f;
                     isTakingOff = false;
                 }
             }
             else if (isLanding)
             {
-                Unit.Height = Mathf.SmoothDamp(Unit.Height, landingHeight, ref velocity, smoothTime);
-                //Log.Debug(Unit.Height);
+                Unit.Height = Mathf.SmoothDamp(Unit.Height, landingHeight, ref velocity, smoothTime, Mathf.Infinity, SystemConfig.DeltaTime);
                 if (Mathf.Abs(Unit.Height - landingHeight) < 0.01f)
                 {
                     Unit.Height = landingHeight;
-                    
+                    velocity = 0f;
                     isLanding = false;
-                    Dead = true;
+                    isLanded = true;
+
+                    // 降落完成后让模型与当前地块对齐，避免悬空/穿模
+                    Unit.UnitModel?.AlignHeight();
                 }
             }
         }
@@ -82,21 +79,26 @@ namespace Buffs
         {
             base.Update();
 
-            if (!isTakingOff && !isLanding && Duration.value <= smoothTime)
+            if (Dead)
+                return;
+
+            // 剩余时间不足一个平滑周期时开始降落；已经降落完成则不再重复触发
+            if (!isTakingOff && !isLanding && !isLanded && Duration.value <= smoothTime)
             {
                 isLanding = true;
                 velocity = 0f;
-                //velocity = (takeOffHeight - landingHeight) / smoothTime;
-                ApplyToUnit();
             }
         }
 
         public override void Finish()
         {
-            base.Finish();
-            //if (isTakingOff || !isLanding)
+            if (Unit != null)
+            {
                 Unit.Height = landingHeight;
-            Dead = true;
+                Unit.UnitModel?.AlignHeight();
+            }
+
+            base.Finish();
         }
     }
 }

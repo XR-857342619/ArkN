@@ -84,4 +84,4 @@
 - 不要提交 `Assets/StreamingAssets/`（已被 .gitignore 忽略）。
 - 资源路径大小写：Addressables 地址通常为无扩展名路径；`PathHelper` 中路径大小写要保持一致。
 - 加载配置数据使用 `TextAsset.text`（要求 UTF-8）。当前仓库 `.cs/.shader/.json/.txt/.md` 文本文件已全部通过 UTF-8 严格解码验证。
-- 外部本地贴图（头像/纹理）统一由 `Helper/ExtextureLoader.cs` 处理，v1.6.2 起增加了缓存、失效保护与失败占位图。
+- 外部本地贴图（头像/纹理）统一由 `Helper/ExtextureLoader.cs` 处理，v1.6.2 起增加了缓存、失效保护与失败占位图；v1.6.5 后提供 `LoadTexture2D(path, onSuccess, onFailed)` 与 `TryGetCachedTexture2D(path, out texture)` 公共接口，其他脚本可直接获取带缓存的 `Texture2D`。

@@ -30,6 +30,10 @@ namespace Units
             {
                 UpdateSkills();
             }
+            if (LifeTime != null && LifeTime.Update(SystemConfig.DeltaTime))
+            {
+                Finish();
+            }
         }
 
         public override void Init(bool isTmp = false)
