@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skeletonDataAsset: {fileID: 11400000, guid: c75f9b996efab5849bcc439703a82084, type: 2}
+  skeletonDataAsset: {fileID: 11400000, guid: 944b56fcc0ae5b643b3e6ad4d69ee44d, type: 2}
   initialSkinName: default
   initialFlipX: 0
   initialFlipY: 0

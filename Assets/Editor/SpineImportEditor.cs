@@ -188,7 +188,7 @@ public class SpineImportEditor
             //    EditorUtility.SetDirty(dataAsset);
             //}
             var root = AssetDatabase.LoadAssetAtPath<GameObject>(unitAnimationPrefab_AssetPath + name + ".prefab");
-            if (root == null)
+            if (root == null || name.StartsWith("token") || name.StartsWith("trap"))
             //if (true)
             {
                 root = GameObject.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/Res/Spine/{(enemy ? "Enemy" : "Unit")}.prefab"));

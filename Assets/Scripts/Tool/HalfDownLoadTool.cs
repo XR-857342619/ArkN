@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
+using UnityEngine.Networking;
 
 public class HalfDownLoadTool : MonoBehaviour
 {
@@ -18,12 +19,11 @@ public class HalfDownLoadTool : MonoBehaviour
         public string half;
     }
 
-
     public class CharInfo
     {
         public string name;
     }
-    // Start is called before the first frame update
+
     void Start()
     {
         StartCoroutine(DownloadAll());
@@ -31,61 +31,97 @@ public class HalfDownLoadTool : MonoBehaviour
 
     IEnumerator DownloadAll()
     {
+        if (PartText == null || CharText == null)
+        {
+            Debug.LogError("PartText or CharText is null");
+            yield break;
+        }
 
         PrtsInfo[] partInfos = JsonHelper.FromJson<PrtsInfo[]>(PartText.text);
         Dictionary<string, CharInfo> charInfos = JsonHelper.FromJson<Dictionary<string, CharInfo>>(CharText.text);
+
+        if (partInfos == null || charInfos == null)
+        {
+            Debug.LogError("Failed to parse PartText or CharText");
+            yield break;
+        }
+
         string getIdByName(string name)
         {
-            var s = charInfos.FirstOrDefault(x => x.Value.name == name).Key;
-            if (string.IsNullOrEmpty(s)) return "";
-            var ss = s.Split('_');
-            return ss.Last();
+            if (string.IsNullOrEmpty(name) || charInfos == null)
+                return "";
+
+            var pair = charInfos.FirstOrDefault(x => x.Value != null && x.Value.name == name);
+            if (pair.Value == null || string.IsNullOrEmpty(pair.Key))
+                return "";
+
+            var ss = pair.Key.Split('_');
+            return ss.Length > 0 ? ss.Last() : "";
         }
+
         foreach (var kv in partInfos)
         {
-            if (Targets.Length > 0 && !Targets.Contains(kv.cn)) continue;
+            if (kv == null || string.IsNullOrEmpty(kv.cn))
+                continue;
+
+            if (Targets != null && Targets.Length > 0 && !Targets.Contains(kv.cn))
+                continue;
+
             float t = Time.time;
-            Debug.Log($"开始爬取{kv.cn}");
-            yield return StartCoroutine(Download(kv.icon, "icon_" + getIdByName(kv.cn), IconDir));
-            yield return StartCoroutine(Download(kv.half, "half_" + getIdByName(kv.cn), HalfDir));
-            Debug.Log($"{kv.cn}完成!耗时{Time.time - t}");
+            Debug.Log($"开始爬取 {kv.cn}");
+
+            string id = getIdByName(kv.cn);
+            if (string.IsNullOrEmpty(id))
+            {
+                Debug.LogWarning($"未在 character_table 中找到 {kv.cn} 对应的 ID，跳过");
+                continue;
+            }
+
+            yield return StartCoroutine(Download(kv.icon, "icon_" + id, IconDir));
+            yield return StartCoroutine(Download(kv.half, "half_" + id, HalfDir));
+            Debug.Log($"{kv.cn} 完成!耗时{Time.time - t}");
         }
-        Debug.Log($"全部爬取完成！");
+
+        Debug.Log("全部爬取完成！");
     }
 
-    IEnumerator Download(string url, string name,string dir)
+    IEnumerator Download(string url, string name, string dir)
     {
+        if (string.IsNullOrEmpty(url))
+        {
+            Debug.LogWarning($"下载地址为空: {name}");
+            yield break;
+        }
+
         int index = url.IndexOf("110px-");
         if (index > 0)
         {
             url = url.Substring(0, index - 1);
             url = url.Replace("thumb/", "");
         }
-        UnityEngine.Networking.UnityWebRequest wr = UnityEngine.Networking.UnityWebRequest.Get(url);
-        wr.timeout = 2;
-        yield return wr.SendWebRequest();
-        if (!string.IsNullOrEmpty(wr.error))
+
+        using (UnityWebRequest wr = UnityWebRequest.Get(url))
         {
-            Debug.Log("Download Error:" + wr.error);
-        }
-        else
-        {
-            string path = dir;
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
-            FileStream txt = new FileStream(path + $"{name.ToLower()}.png", FileMode.Create);
-            StreamWriter sw = new StreamWriter(txt);
-            //Debug.Log(txt.Name);
+            wr.timeout = 10;
+            yield return wr.SendWebRequest();
+
+            if (wr.result != UnityWebRequest.Result.Success)
+            {
+                Debug.Log("Download Error:" + wr.error);
+                yield break;
+            }
+
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
             try
             {
-                sw.BaseStream.Write(wr.downloadHandler.data, 0, wr.downloadHandler.data.Length);
+                File.WriteAllBytes(dir + $"{name.ToLower()}.png", wr.downloadHandler.data);
             }
             catch (System.Exception e)
             {
-                Debug.LogError(e);
+                Debug.LogError($"Save Error: {e}");
             }
-            sw.Close();
-            txt.Close();
         }
     }
 }

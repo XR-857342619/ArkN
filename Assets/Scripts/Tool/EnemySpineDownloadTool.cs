@@ -1,16 +1,16 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
 using Newtonsoft.Json.Linq;
+using UnityEngine.Networking;
 
 public class EnemySpineDownloadTool : MonoBehaviour
 {
     public TextAsset TextAsset;
     public string Dir;
 
-    // Start is called before the first frame update
     void Start()
     {
         StartCoroutine(DownloadAll());
@@ -18,6 +18,12 @@ public class EnemySpineDownloadTool : MonoBehaviour
 
     IEnumerator DownloadAll()
     {
+        if (TextAsset == null || string.IsNullOrEmpty(TextAsset.text))
+        {
+            Debug.LogError("TextAsset is null or empty");
+            yield break;
+        }
+
         var root = JsonHelper.FromJson<Dictionary<string, object>>(TextAsset.text);
         if (root == null)
         {
@@ -25,32 +31,53 @@ public class EnemySpineDownloadTool : MonoBehaviour
             yield break;
         }
 
-        if (!root.TryGetValue("enemyData", out object enemyDataObj))
+        // 收集所有敌人 ID（不归一化，PRTS 通常拥有全部变体的 spine 资源）
+        HashSet<string> enemyIds = new HashSet<string>();
+
+        if (root.TryGetValue("enemyData", out object enemyDataObj) && enemyDataObj is JObject enemyDataJObject)
         {
-            Debug.LogError("enemyData not found in JSON");
+            foreach (var property in enemyDataJObject.Properties())
+            {
+                enemyIds.Add(property.Name);
+            }
+        }
+        else if (root.TryGetValue("enemies", out object enemiesObj) && enemiesObj is JArray enemiesArray)
+        {
+            foreach (var item in enemiesArray)
+            {
+                if (item is JObject enemyObject && enemyObject.TryGetValue("Key", out JToken keyToken))
+                {
+                    enemyIds.Add(keyToken.ToString());
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError("enemyData/enemies not found in JSON");
             yield break;
         }
 
-        var enemyDataJObject = enemyDataObj as JObject;
-        if (enemyDataJObject == null)
-        {
-            Debug.LogError("enemyData is not a JObject");
-            yield break;
-        }
+        Debug.Log($"共发现 {enemyIds.Count} 个敌人 ID");
 
-        foreach (var property in enemyDataJObject.Properties())
+        foreach (string enemyId in enemyIds)
         {
-            string enemyId = property.Name;
+            string targetDir = Dir + enemyId + "/";
+            if (Directory.Exists(targetDir))
+            {
+                Debug.Log($"{targetDir} 已存在，跳过");
+                continue;
+            }
+
             Debug.Log($"开始爬取 {enemyId}");
             float t = Time.time;
-            yield return StartCoroutine(dowloadOne(enemyId));
+            yield return StartCoroutine(DownloadOne(enemyId));
             Debug.Log($"{enemyId} 完成！耗时 {Time.time - t}");
         }
 
         Debug.Log("全部爬取完成！");
     }
 
-    IEnumerator dowloadOne(string name)
+    IEnumerator DownloadOne(string name)
     {
         List<Coroutine> coroutines = new List<Coroutine>();
         for (int i = 0; i < 3; i++)
@@ -78,40 +105,31 @@ public class EnemySpineDownloadTool : MonoBehaviour
                 end = ".atlas";
                 break;
         }
-        UnityEngine.Networking.UnityWebRequest wr = UnityEngine.Networking.UnityWebRequest.Get("http://" + $"torappu.prts.wiki/assets/enemy_spine/{name}/{name}{end}");
-        //https://torappu.prts.wiki/assets/enemy_spine/enemy_8010_mcnist/enemy_8010_mcnist.png
-        wr.timeout = 2;
-        yield return wr.SendWebRequest();
-        if (!string.IsNullOrEmpty(wr.error))
+
+        string url = $"http://torappu.prts.wiki/assets/enemy_spine/{name}/{name}{end}";
+        using (UnityWebRequest wr = UnityWebRequest.Get(url))
         {
-            Debug.LogError($"Download Error {name}:" + wr.error);
-            try
+            wr.timeout = 10;
+            yield return wr.SendWebRequest();
+
+            if (wr.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogWarning(Database.Instance.Get<UnitData>(name).Name);
+                Debug.LogError($"Download Error {name}{end}: {wr.error}");
+                yield break;
             }
-            catch (Exception e)
-            {
-                Debug.LogError($"not fond {name}");
-            }
-        }
-        else
-        {
+
             string path = Dir + name + "/";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
-            FileStream txt = new FileStream(path + $"{name}{end}", FileMode.Create);
-            StreamWriter sw = new StreamWriter(txt);
-            //Debug.Log(txt.Name);
+
             try
             {
-                sw.BaseStream.Write(wr.downloadHandler.data, 0, wr.downloadHandler.data.Length);
+                File.WriteAllBytes(path + $"{name}{end}", wr.downloadHandler.data);
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
-                Debug.LogError(e);
+                Debug.LogError($"Save Error {name}{end}: {e}");
             }
-            sw.Close();
-            txt.Close();
         }
     }
 }

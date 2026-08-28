@@ -419,7 +419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1564333222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -465,7 +465,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2015475989
 Transform:
   m_ObjectHideFlags: 0
@@ -493,5 +493,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a64eb71620e484f468ead6509ea409a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterDataJson: {fileID: 4900000, guid: 9f370e95a393fef4caf3b71f5d5e159b, type: 3}
+  characterDataJson: {fileID: 4900000, guid: d110b10fb8d411f4ba0a69b9cdad2883, type: 3}
   downloadDir: .\Spine\Enemy

@@ -334,6 +334,7 @@
 {"Id":"CCB减攻速","Type":"数值变化","LastingEffect":37,"Data":{"t":["AgiAddFin"]}}
 {"Id":"小弟减速","Type":"数值变化","LastTime":0.8,"Data":{"t":["SpeedRate"]}}
 {"Id":"CCB隐身","Type":"隐身","LastingEffect":3,"Data":{"HideTime":0,"无视阻挡":1}}
+{"Id":"涨潮","Type":"重设高度","Data":{"Fly":4,"Time":2}}
 {"Id":"逻各斯附加","Type":"普通Buff","UnSourceCheck":1}
 {"Id":"逻减抗","Type":"数值变化","LastingEffect":37,"Data":{"t":["MagicDefenceAdd"]}}
 {"Id":"逻各斯1加成","Type":"数值变化","UnSourceCheck":1,"LastingEffect":348,"Data":{"t":["AttackRate"]}}

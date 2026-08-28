@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +16,8 @@ public class TipManager : MonoBehaviour
             if (instance == null)
             {
                 GameObject gameObject = new GameObject("TipManager");
-                DontDestroyOnLoad(gameObject);
+                if (Application.isPlaying)
+                    DontDestroyOnLoad(gameObject);
                 instance = gameObject.AddComponent<TipManager>();
             }
             return instance;
@@ -35,6 +36,11 @@ public class TipManager : MonoBehaviour
 
     public void ShowTip(string text)
     {
+        if (!Application.isPlaying)
+        {
+            Debug.LogWarning(text);
+            return;
+        }
         var tip = UIPackage.CreateObject("MainUI", "ToopTip").asCom;
         tip.text = text;
         GRoot.inst.AddChild(tip);

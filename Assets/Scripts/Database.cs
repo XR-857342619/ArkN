@@ -19,6 +19,26 @@ public class Database
         dic.Clear();
     }
 
+    /// <summary>
+    /// 编辑器/非运行态下不创建 TipManager（避免 DontDestroyOnLoad 只能在 Play Mode 使用的问题），改用日志提示。
+    /// </summary>
+    static void ShowTip(string message)
+    {
+        if (Application.isPlaying)
+            TipManager.Instance.ShowTip(message);
+        else
+            Debug.LogWarning(message);
+    }
+
+    static void AddInitError(string message)
+    {
+        if (Application.isPlaying)
+            TipManager.Instance.initErorrTips.Add(message);
+        else
+            Debug.LogWarning(message);
+    }
+
+
     public async Task Init() => await Init(null);
 
     public async Task Init(List<string> excludeExcelPaths)
@@ -60,7 +80,7 @@ public class Database
         }
         catch (Exception e)
         {
-            TipManager.Instance.ShowTip("Init database failed: " + e.Message);
+            ShowTip("Init database failed: " + e.Message);
             Debug.LogError(e);
         }
     }
@@ -93,7 +113,7 @@ public class Database
         }
         catch (Exception e)
         {
-            TipManager.Instance.initErorrTips.Add(e.Message);
+            AddInitError(e.Message);
             Debug.LogError(e);
         }
         return this;
@@ -105,14 +125,14 @@ public class Database
 
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
-            TipManager.Instance.ShowTip("No data loaded for type " + typeof(T).Name);
+            ShowTip("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return false;
         }
 
         if (id < 0 || id >= configs.Length)
         {
-            TipManager.Instance.ShowTip($"Invalid id {id} for type {typeof(T).Name}. Valid range: 0-{configs.Length - 1}");
+            ShowTip($"Invalid id {id} for type {typeof(T).Name}. Valid range: 0-{configs.Length - 1}");
             Debug.LogWarning($"Invalid id {id} for type {typeof(T).Name}. Valid range: 0-{configs.Length - 1}");
             return false;
         }
@@ -127,14 +147,14 @@ public class Database
 
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
-            TipManager.Instance.ShowTip("No data loaded for type " + typeof(T).Name);
+            ShowTip("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return false;
         }
 
         if (string.IsNullOrEmpty(id))
         {
-            TipManager.Instance.ShowTip($"Invalid (null or empty) id for type {typeof(T).Name}");
+            ShowTip($"Invalid (null or empty) id for type {typeof(T).Name}");
             Debug.LogWarning($"Invalid (null or empty) id for type {typeof(T).Name}");
             return false;
         }
@@ -167,14 +187,14 @@ public class Database
     {
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
-            TipManager.Instance.ShowTip("No data loaded for type " + typeof(T).Name);
+            ShowTip("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return null;
         }
 
         if (match == null)
         {
-            TipManager.Instance.ShowTip("Null match function for type " + typeof(T).Name);
+            ShowTip("Null match function for type " + typeof(T).Name);
             Debug.LogWarning($"Null match function for type {typeof(T).Name}");
             return null;
         }
@@ -189,7 +209,7 @@ public class Database
     {
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
-            TipManager.Instance.ShowTip("No data loaded for type " + typeof(T).Name);
+            ShowTip("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return Array.Empty<T>();
         }
@@ -206,14 +226,14 @@ public class Database
 
         if (config == null)
         {
-            TipManager.Instance.ShowTip("Null config for type " + typeof(T).Name);
+            ShowTip("Null config for type " + typeof(T).Name);
             Debug.LogWarning($"Null config for type {typeof(T).Name}");
             return false;
         }
 
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
-            TipManager.Instance.ShowTip("No data loaded for type " + typeof(T).Name);
+            ShowTip("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return false;
         }
@@ -228,14 +248,14 @@ public class Database
 
         if (string.IsNullOrEmpty(id))
         {
-            TipManager.Instance.ShowTip($"Invalid (null or empty) id for type {typeof(T).Name}");
+            ShowTip($"Invalid (null or empty) id for type {typeof(T).Name}");
             Debug.LogWarning($"Invalid (null or empty) id for type {typeof(T).Name}");
             return false;
         }
 
         if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null)
         {
-            TipManager.Instance.ShowTip("No data loaded for type " + typeof(T).Name);
+            ShowTip("No data loaded for type " + typeof(T).Name);
             Debug.LogWarning($"No data loaded for type {typeof(T).Name}");
             return false;
         }
@@ -258,7 +278,7 @@ public class Database
         {
             return index;
         }
-        TipManager.Instance.ShowTip($"Can't find {typeof(T).Name} with id {config?.Id}");
+        ShowTip($"Can't find {typeof(T).Name} with id {config?.Id}");
         //throw new Exception($"Can't find {typeof(T).Name} with id {config?.Id}");
         return -1;
     }
@@ -269,7 +289,7 @@ public class Database
         {
             return index;
         }
-        TipManager.Instance.ShowTip($"Can't find {typeof(T).Name} with id {id}");
+        ShowTip($"Can't find {typeof(T).Name} with id {id}");
         //throw new Exception($"Can't find {typeof(T).Name} with id {id}");
         return -1;
     }
@@ -351,7 +371,7 @@ public class Database
                 }
                 catch (Exception e)
                 {
-                    TipManager.Instance.initErorrTips.Add(arr[i] + "\n" + e.ToString());
+                    AddInitError(arr[i] + "\n" + e.ToString());
                     Debug.LogError(arr[i] + "\n" + e.ToString());
                 }
             }

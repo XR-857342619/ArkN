@@ -1,28 +1,21 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
-
+using UnityEngine.Networking;
 
 public class TokenDownloadTool : MonoBehaviour
 {
     public TextAsset characterDataJson; // 包含角色数据的JSON文件
     public string downloadDir = "DownloadedTokens/"; // 下载目录
 
-    // 用于解析JSON的辅助类
-    [System.Serializable]
-    public class CharacterDataWrapper
-    {
-        public Dictionary<string, CharacterData> data;
-    }
-
+    // 用于解析JSON的辅助类（JsonHelper/Newtonsoft 解析，支持 Dictionary）
     [System.Serializable]
     public class CharacterData
     {
         public string characterPrefabKey;
         public Talent[] talents;
-        // 其他字段不需要，所以不定义
     }
 
     [System.Serializable]
@@ -44,35 +37,44 @@ public class TokenDownloadTool : MonoBehaviour
 
     IEnumerator DownloadAllTokens()
     {
-        // 解析JSON数据
-        CharacterDataWrapper wrapper = JsonUtility.FromJson<CharacterDataWrapper>("{\"data\":" + characterDataJson.text + "}");
-
-        if (wrapper == null || wrapper.data == null)
+        if (characterDataJson == null || string.IsNullOrEmpty(characterDataJson.text))
         {
-            Debug.LogError("Failed to parse JSON data");
+            Debug.LogError("characterDataJson is null or empty");
+            yield break;
+        }
+
+        // 使用 Newtonsoft 解析 character_table 的 Dictionary<string, CharacterData>
+        Dictionary<string, CharacterData> data = JsonHelper.FromJson<Dictionary<string, CharacterData>>(characterDataJson.text);
+
+        if (data == null || data.Count == 0)
+        {
+            Debug.LogError("Failed to parse character data JSON");
             yield break;
         }
 
         // 收集所有tokenKey
         HashSet<string> tokenKeys = new HashSet<string>();
 
-        foreach (var character in wrapper.data.Values)
+        foreach (var character in data.Values)
         {
-            if (character.talents != null)
+            if (character == null || character.talents == null)
+                continue;
+
+            foreach (var talent in character.talents)
             {
-                foreach (var talent in character.talents)
+                if (talent == null || talent.candidates == null)
+                    continue;
+
+                foreach (var candidate in talent.candidates)
                 {
-                    if (talent.candidates != null)
+                    if (candidate == null)
+                        continue;
+
+                    if (!string.IsNullOrEmpty(candidate.tokenKey) &&
+                        candidate.tokenKey.StartsWith("token_"))
                     {
-                        foreach (var candidate in talent.candidates)
-                        {
-                            if (!string.IsNullOrEmpty(candidate.tokenKey) &&
-                                candidate.tokenKey.StartsWith("token_"))
-                            {
-                                tokenKeys.Add(candidate.tokenKey);
-                                Debug.Log($"Found token: {candidate.tokenKey}");
-                            }
-                        }
+                        tokenKeys.Add(candidate.tokenKey);
+                        Debug.Log($"Found token: {candidate.tokenKey}");
                     }
                 }
             }
@@ -125,13 +127,14 @@ public class TokenDownloadTool : MonoBehaviour
         string url = $"https://torappu.prts.wiki/assets/char_spine/{tokenKey}/defaultskin/{direction}/{tokenKey}{fileExtension}";
         Debug.Log($"Downloading from: {url}");
 
-        using (UnityEngine.Networking.UnityWebRequest webRequest = UnityEngine.Networking.UnityWebRequest.Get(url))
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
         {
+            webRequest.timeout = 10;
             yield return webRequest.SendWebRequest();
 
-            if (webRequest.result != UnityEngine.Networking.UnityWebRequest.Result.Success)
+            if (webRequest.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"Download failed for {tokenKey}: {webRequest.error}");
+                Debug.LogError($"Download failed for {tokenKey} {direction} {fileExtension}: {webRequest.error}");
                 yield break;
             }
 

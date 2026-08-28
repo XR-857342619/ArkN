@@ -13,7 +13,7 @@ namespace DIY
 
     public partial class UI_Main : GComponent
     {
-#if !UNITY_ANDROID
+//#if !UNITY_ANDROID
         private GoWrapper _currentWrapper;
 
         public int pageIndex = 0;
@@ -49,11 +49,12 @@ namespace DIY
 
         partial void Init()
         {
+#if !UNITY_ANDROID
             //unitList = ExcelHelper.GetUnitList();
             ExcelHelper.ExportClass(new List<string>() { UnityEngine.Application.streamingAssetsPath + "/Excel/Main/battle.xlsx" });
             List<string> folderpaths = Directory.GetDirectories(folderPath).ToList();
             folderList = Database.Instance.GetExcelPathNames(folderpaths);
-
+#endif
             GameObject spineGo = ResHelper.Instantiate("Assets/Bundles/Units/char_002_amiya");
             spineGo.transform.localPosition = new Vector3(280, -150, 100);
             spineGo.transform.localRotation = Quaternion.Euler(-60, 0, 0);
@@ -66,6 +67,7 @@ namespace DIY
             {
                 UIManager.Instance.ChangeView<MainUI.UI_Main>(MainUI.UI_Main.URL);
             });
+#if !UNITY_ANDROID
             m_Unit.onClick.Add(() =>
             {
                 pageIndex = 0;
@@ -132,6 +134,7 @@ namespace DIY
             {
                 isNew = m_isNewBtn.selected;
             });
+#endif
             m_mode.onClick.Add(() =>
             {
                 //if ((m_excels.items?.Length ?? 0) == 0) return;
@@ -139,6 +142,7 @@ namespace DIY
                 freshIcon();
                 //m_mode.alpha = 0;
             });
+#if !UNITY_ANDROID
             m_selectUnitCombobox.onChanged.Add(() =>
             {
                 //if (isNew)
@@ -182,7 +186,7 @@ namespace DIY
                 m_Weight.m_text.text = selectUnit.Weight.ToString();
                 m_NotUseTile.m_bool.selected = selectUnit.NotUseTile;
             });
-            freshAttribute();
+            //freshAttribute();
             m_newUnitAttribute.onClick.Add(addAttribute);
 
 
@@ -191,7 +195,9 @@ namespace DIY
 
 
             //SpineResourceManager.Instance.LoadAllSpineResources();
+#endif
         }
+        #if !UNITY_ANDROID
         private void freshExcel(string folder)
         {
             m_excels.items = new string[0];
@@ -227,6 +233,7 @@ namespace DIY
                 unitIndexs[i.Item1] = unitInfos[i];
             }
         }
+#endif
         private void searchItem()
         {
             //if (isNew) return;
@@ -355,7 +362,7 @@ namespace DIY
             _currentWrapper.CacheRenderers();
         }
 
-
+#if !UNITY_ANDROID
         private void freshAttribute()
         {
             attributes = ExcelHelper.GetAttributes(UnityEngine.Application.streamingAssetsPath + "/Excel/temp.xlsx");
@@ -367,6 +374,7 @@ namespace DIY
             }
             m_selectUnitAttribute.items = tmp.ToArray();
         }
+
 
         private void addAttribute()
         {

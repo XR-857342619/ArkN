@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
+using UnityEngine.Networking;
 
 public class SpineDownLoadTool : MonoBehaviour
 {
     public TextAsset TextAsset;
     public string Dir;
+
     public class A
     {
         public Dictionary<string, string[]> spCharGroups;
     }
-    // Start is called before the first frame update
+
     void Start()
     {
         StartCoroutine(DownloadAll());
@@ -20,22 +22,35 @@ public class SpineDownLoadTool : MonoBehaviour
 
     IEnumerator DownloadAll()
     {
-        A a = JsonHelper.FromJson<A>(TextAsset.text);
+        if (TextAsset == null || string.IsNullOrEmpty(TextAsset.text))
+        {
+            Debug.LogError("TextAsset is null or empty");
+            yield break;
+        }
 
-        // 创建一个集合来存储所有需要下载的角色名，避免重复
+        A a = JsonHelper.FromJson<A>(TextAsset.text);
+        if (a == null || a.spCharGroups == null)
+        {
+            Debug.LogError("spCharGroups not found in JSON");
+            yield break;
+        }
+
+        // 创建集合存储所有需要下载的角色名，避免重复
         HashSet<string> allCharacters = new HashSet<string>();
 
         foreach (var kv in a.spCharGroups)
         {
-            // 将键和值数组中的所有元素都添加到集合中
             allCharacters.Add(kv.Key);
-            foreach (string character in kv.Value)
+            if (kv.Value != null)
             {
-                allCharacters.Add(character);
+                foreach (string character in kv.Value)
+                {
+                    if (!string.IsNullOrEmpty(character))
+                        allCharacters.Add(character);
+                }
             }
         }
 
-        // 遍历所有唯一的角色名进行下载
         foreach (string characterName in allCharacters)
         {
             string path = Dir + characterName;
@@ -44,16 +59,17 @@ public class SpineDownLoadTool : MonoBehaviour
                 Debug.Log(path + " 已存在");
                 continue;
             }
+
             float t = Time.time;
-            Debug.Log($"开始爬取{characterName}");
-            yield return StartCoroutine(dowloadOne(characterName));
-            Debug.Log($"{characterName}完成!耗时{Time.time - t}");
+            Debug.Log($"开始爬取 {characterName}");
+            yield return StartCoroutine(DownloadOne(characterName));
+            Debug.Log($"{characterName} 完成!耗时{Time.time - t}");
         }
 
-        Debug.Log($"全部爬取完成！");
+        Debug.Log("全部爬取完成！");
     }
 
-    IEnumerator dowloadOne(string name)
+    IEnumerator DownloadOne(string name)
     {
         List<Coroutine> coroutines = new List<Coroutine>();
         for (int i = 0; i < 3; i++)
@@ -67,7 +83,7 @@ public class SpineDownLoadTool : MonoBehaviour
         }
     }
 
-    IEnumerator Download(string name,bool back,int type)
+    IEnumerator Download(string name, bool back, int type)
     {
         string end;
         switch (type)
@@ -82,31 +98,33 @@ public class SpineDownLoadTool : MonoBehaviour
                 end = ".atlas";
                 break;
         }
-        UnityEngine.Networking.UnityWebRequest wr = UnityEngine.Networking.UnityWebRequest.Get("https://" + $"torappu.prts.wiki/assets/char_spine/{name}/defaultskin/{(back ? "back/" : "front/")}{name}{end}");
-        Debug.Log("https://" + $"torappu.prts.wiki/assets/char_spine/{name}/defaultskin/{(back ? "back/" : "front/")}{name}{end}");
-        yield return wr.SendWebRequest();
-        if (!string.IsNullOrEmpty(wr.error))
+
+        string url = $"https://torappu.prts.wiki/assets/char_spine/{name}/defaultskin/{(back ? "back/" : "front/")}{name}{end}";
+        Debug.Log(url);
+
+        using (UnityWebRequest wr = UnityWebRequest.Get(url))
         {
-            Debug.LogError($"Download Error {name}  :" + wr.error);
-        }
-        else
-        {
+            wr.timeout = 10;
+            yield return wr.SendWebRequest();
+
+            if (wr.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError($"Download Error {name}  :{wr.error}");
+                yield break;
+            }
+
             string path = Dir + name + "/" + (back ? "back" : "front") + "/";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
-            FileStream txt = new FileStream(path + $"{name}{end}", FileMode.Create);
-            StreamWriter sw = new StreamWriter(txt);
-            //Debug.Log(txt.Name);
+
             try
             {
-                sw.BaseStream.Write(wr.downloadHandler.data, 0, wr.downloadHandler.data.Length);
+                File.WriteAllBytes(path + $"{name}{end}", wr.downloadHandler.data);
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
-                Debug.LogError(e);
+                Debug.LogError($"Save Error {name}{end}: {e}");
             }
-            sw.Close();
-            txt.Close();
         }
     }
 }
