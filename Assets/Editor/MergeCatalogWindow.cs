@@ -70,6 +70,12 @@ public class MergeCatalogWindow : EditorWindow
                 Merge(false);
         }
 
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Generate Branch1 Extra For Branch2", GUILayout.Height(30)))
+                GenerateExtra();
+        }
+
         EditorGUILayout.Space();
         if (!string.IsNullOrEmpty(log))
         {
@@ -136,6 +142,35 @@ public class MergeCatalogWindow : EditorWindow
         catch (Exception e)
         {
             log = "Merge 失败：" + e.Message;
+            Debug.LogException(e);
+        }
+    }
+
+    void GenerateExtra()
+    {
+        if (!ValidatePaths(true))
+            return;
+
+        try
+        {
+            var outputExtraCatalog = Path.Combine(b2BundleRoot, "extra_catalog.json");
+            var projectRoot = Directory.GetParent(Application.dataPath).FullName;
+            var outputAddressList = Path.Combine(projectRoot, "Tools", "branch1_extra_addresses.txt");
+
+            MergeCatalogTool.GenerateBranch1ExtraCatalog(
+                b2Catalog,
+                b2BundleRoot,
+                b1Catalog,
+                b1BundleRoot,
+                outputExtraCatalog,
+                b2BundleRoot,
+                outputAddressList);
+
+            log = "Branch1 Extra 生成完成，详细结果请查看 Console。";
+        }
+        catch (Exception e)
+        {
+            log = "Branch1 Extra 生成失败：" + e.Message;
             Debug.LogException(e);
         }
     }
