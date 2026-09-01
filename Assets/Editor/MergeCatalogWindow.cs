@@ -136,6 +136,19 @@ public class MergeCatalogWindow : EditorWindow
         try
         {
             var output = string.IsNullOrEmpty(outputCatalog) ? b1Catalog : outputCatalog;
+
+            // 复制 bundle 时，B1 Bundle Root 自动跟随输出 catalog 所在目录，
+            // 避免误填成 branch2 的 aa 目录导致所有 bundle 被误判为“已存在”。
+            if (copy && !string.IsNullOrEmpty(output))
+            {
+                var outputDir = Path.GetDirectoryName(output);
+                if (!string.IsNullOrEmpty(outputDir))
+                {
+                    b1BundleRoot = outputDir;
+                    EditorPrefs.SetString(PrefB1BundleRoot, b1BundleRoot);
+                }
+            }
+
             MergeCatalogTool.MergeCatalogs(b1Catalog, b1BundleRoot, b2Catalog, b2BundleRoot, output, copy);
             log = "Merge 完成，详细结果请查看 Console。";
         }

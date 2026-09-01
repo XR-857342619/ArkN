@@ -189,8 +189,9 @@ namespace MainUI
             var cards = gameData?.Teams[0]?.Cards ?? new List<Card>();
             if (cards.Count > 0)
             {
-                string picName = Database.Instance.Get<UnitData>(cards[0].UnitId).StandPic;
-                m_standPic.texture = new NTexture(ResHelper.GetAsset<Texture>(PathHelper.StandPicPath + picName));
+                string picName = Database.Instance.Get<UnitData>(cards[0]?.UnitId)?.StandPic ?? "";
+                if (!string.IsNullOrEmpty(picName))
+                    m_standPic.texture = new NTexture(ResHelper.GetAsset<Texture>(PathHelper.StandPicPath + picName));
             }
         }
         public void ExccelListClicke(GTreeNode node)

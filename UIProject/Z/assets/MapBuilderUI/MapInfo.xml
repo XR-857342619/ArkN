@@ -5,49 +5,39 @@
     <image id="n65_hnil" name="n65" src="hnilr6d" fileName="Backgroundpro.jpg" xy="0,0" size="1920,1080" aspect="true">
       <relation target="" sidePair="width-width,height-height"/>
     </image>
-    <text id="n40_ei15" name="n40" xy="713,829" size="394,42" group="n81_hnil" fontSize="30" text="选择一个方式来创建你的地图">
+    <text id="n40_ei15" name="n40" xy="728,802" size="394,42" group="n81_hnil" visible="false" fontSize="30" text="选择一个方式来创建你的地图">
       <relation target="" sidePair="center-center%,bottom-bottom%"/>
     </text>
-    <text id="n7_ei15" name="n7" xy="531,909" size="244,42" group="n68_hnil" fontSize="30" text="使用场景创建地图">
+    <text id="n29_ei15" name="n29" xy="546,916" size="244,42" group="n74_hnil" fontSize="30" text="使用方块创建地图">
       <relation target="" sidePair="center-center%,bottom-bottom%"/>
     </text>
-    <graph id="n8_ei15" name="n8" xy="786,905" size="267,51" group="n68_hnil" type="rect" corner="20">
+    <graph id="n30_ei15" name="n30" xy="859,912" size="76,51" group="n74_hnil" type="rect" corner="20">
       <relation target="" sidePair="center-center%,bottom-bottom%"/>
     </graph>
-    <text id="n9_ei15" name="SceneName" xy="799,909" size="240,42" group="n68_hnil" fontSize="30" autoSize="none" singleLine="true" text="" input="true">
+    <text id="n31_ei15" name="width" xy="872,916" size="51,42" group="n74_hnil" fontSize="30" autoSize="none" singleLine="true" text="12" input="true" keyboardType="4">
       <relation target="" sidePair="center-center%,bottom-bottom%"/>
     </text>
-    <group id="n68_hnil" name="ifscene" xy="531,905" size="522,51" group="n81_hnil"/>
-    <text id="n29_ei15" name="n29" xy="531,983" size="244,42" group="n74_hnil" fontSize="30" text="使用方块创建地图">
+    <text id="n32_ei15" name="n32" xy="817,916" size="34,42" group="n74_hnil" fontSize="30" text="宽">
       <relation target="" sidePair="center-center%,bottom-bottom%"/>
     </text>
-    <graph id="n30_ei15" name="n30" xy="844,979" size="76,51" group="n74_hnil" type="rect" corner="20">
+    <graph id="n33_ei15" name="n33" xy="991,911" size="76,51" group="n74_hnil" type="rect" corner="20">
       <relation target="" sidePair="center-center%,bottom-bottom%"/>
     </graph>
-    <text id="n31_ei15" name="width" xy="857,983" size="51,42" group="n74_hnil" fontSize="30" autoSize="none" singleLine="true" text="12" input="true" keyboardType="4">
+    <text id="n34_ei15" name="height" xy="1004,916" size="51,42" group="n74_hnil" fontSize="30" autoSize="none" singleLine="true" text="8" input="true" keyboardType="4">
       <relation target="" sidePair="center-center%,bottom-bottom%"/>
     </text>
-    <text id="n32_ei15" name="n32" xy="802,983" size="34,42" group="n74_hnil" fontSize="30" text="宽">
+    <text id="n35_ei15" name="n35" xy="949,916" size="34,42" group="n74_hnil" fontSize="30" text="高">
       <relation target="" sidePair="center-center%,bottom-bottom%"/>
     </text>
-    <graph id="n33_ei15" name="n33" xy="976,978" size="76,51" group="n74_hnil" type="rect" corner="20">
+    <group id="n74_hnil" name="size" xy="546,911" size="521,52" group="n81_hnil"/>
+    <graph id="n38_ei15" name="next" xy="1145,904" pivot="0.5,0.5" size="143,63" group="n76_hnil" type="rect" corner="20">
       <relation target="" sidePair="center-center%,bottom-bottom%"/>
     </graph>
-    <text id="n34_ei15" name="height" xy="989,983" size="51,42" group="n74_hnil" fontSize="30" autoSize="none" singleLine="true" text="8" input="true" keyboardType="4">
+    <text id="n39_ei15" name="n39" xy="1170,915" size="94,42" group="n76_hnil" fontSize="30" text="下一步">
       <relation target="" sidePair="center-center%,bottom-bottom%"/>
     </text>
-    <text id="n35_ei15" name="n35" xy="934,983" size="34,42" group="n74_hnil" fontSize="30" text="高">
-      <relation target="" sidePair="center-center%,bottom-bottom%"/>
-    </text>
-    <group id="n74_hnil" name="size" xy="531,978" size="521,52" group="n81_hnil"/>
-    <graph id="n38_ei15" name="next" xy="1100,905" size="204,120" group="n76_hnil" type="rect" corner="20">
-      <relation target="" sidePair="center-center%,bottom-bottom%"/>
-    </graph>
-    <text id="n39_ei15" name="n39" xy="1144,939" size="116,51" group="n76_hnil" fontSize="38" text="下一步">
-      <relation target="" sidePair="center-center%,bottom-bottom%"/>
-    </text>
-    <group id="n76_hnil" name="nest" xy="1100,905" size="204,120" group="n81_hnil"/>
-    <group id="n81_hnil" name="craetsetting" xy="531,829" size="773,201" group="n83_hnil" advanced="true">
+    <group id="n76_hnil" name="nest" xy="1145,904" size="143,63" group="n81_hnil"/>
+    <group id="n81_hnil" name="craetsetting" xy="546,802" size="742,165" group="n83_hnil" advanced="true">
       <relation target="" sidePair="width-width%,center-center%,bottom-bottom%"/>
     </group>
     <text id="n46_jh39" name="n46" xy="108,231" size="94,42" group="n80_hnil" fontSize="30" text="文件名">
@@ -151,7 +141,7 @@
     <group id="n82_hnil" name="basicsetting" xy="63,155" size="462,698" group="n83_hnil" advanced="true">
       <relation target="" sidePair="middle-middle%,left-left%"/>
     </group>
-    <group id="n83_hnil" name="mapsetting" xy="63,155" size="1241,875"/>
+    <group id="n83_hnil" name="mapsetting" xy="63,155" size="1225,813"/>
     <text id="n58_ic0q" name="n58" xy="260,75" size="154,42" group="n79_hnil" fontSize="30" text="选则地图包">
       <relation target="" sidePair="left-left%,top-top%"/>
     </text>

@@ -127,6 +127,7 @@ public static class MergeCatalogTool
         }
 
         var mergedEntries = new List<ContentCatalogDataEntry>(b1Entries);
+        var addedB2BundleInternalIds = new HashSet<string>();
         int skippedAddress = 0;
         int skippedDuplicateBundle = 0;
         int addedB2 = 0;
@@ -160,6 +161,9 @@ public static class MergeCatalogTool
                     e.Dependencies[i] = mapped;
             }
 
+            if (isBundleEntry)
+                addedB2BundleInternalIds.Add(e.InternalId);
+
             mergedEntries.Add(e);
             addedB2++;
         }
@@ -176,7 +180,7 @@ public static class MergeCatalogTool
         Debug.Log($"[Merge] B1 entries={b1Entries.Count} B2 entries={b2Entries.Count} addedB2={addedB2} skippedAddress={skippedAddress} skippedDuplicateBundle={skippedDuplicateBundle} total={mergedEntries.Count}");
 
         if (copyBundles)
-            CopyB2Bundles(b1BundleRoot, b2BundleRoot);
+            CopyB2Bundles(b1BundleRoot, b2BundleRoot, addedB2BundleInternalIds);
         else
             Debug.Log("[Merge] bundle copy skipped.");
     }
@@ -362,18 +366,32 @@ public static class MergeCatalogTool
     }
 
 
-    static void CopyB2Bundles(string b1BundleRoot, string b2BundleRoot)
+    static void CopyB2Bundles(string b1BundleRoot, string b2BundleRoot, HashSet<string> bundleInternalIds)
     {
         var srcBase = Path.Combine(b2BundleRoot, "StandaloneWindows64");
         var dstBase = Path.Combine(b1BundleRoot, "StandaloneWindows64");
         int copied = 0;
         int skippedSame = 0;
         int conflictDifferent = 0;
+        int missing = 0;
 
-        foreach (var src in Directory.GetFiles(srcBase, "*.bundle", SearchOption.AllDirectories))
+        const string marker = "StandaloneWindows64\\";
+        foreach (var internalId in bundleInternalIds)
         {
-            var rel = src.Substring(srcBase.Length + 1);
+            int idx = internalId.IndexOf(marker, StringComparison.Ordinal);
+            if (idx < 0) continue;
+
+            var rel = internalId.Substring(idx + marker.Length).Replace('/', Path.DirectorySeparatorChar);
+            var src = Path.Combine(srcBase, rel);
             var dst = Path.Combine(dstBase, rel);
+
+            if (!File.Exists(src))
+            {
+                Debug.LogWarning($"[Merge] Missing B2 source bundle: {rel}");
+                missing++;
+                continue;
+            }
+
             var dstDir = Path.GetDirectoryName(dst);
             if (!string.IsNullOrEmpty(dstDir))
                 Directory.CreateDirectory(dstDir);
@@ -395,7 +413,7 @@ public static class MergeCatalogTool
             copied++;
         }
 
-        Debug.Log($"[Merge] bundle copy done: copied={copied} skippedSame={skippedSame} conflictsDifferent={conflictDifferent}");
+        Debug.Log($"[Merge] bundle copy done: copied={copied} skippedSame={skippedSame} conflictsDifferent={conflictDifferent} missing={missing}");
     }
 
     static bool FilesEqual(string pathA, string pathB)

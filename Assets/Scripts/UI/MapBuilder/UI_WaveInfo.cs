@@ -36,7 +36,8 @@ namespace MapBuilderUI
                     else
                     {
                         WaveInfo.sUnitId = Database.Instance.Get<UnitData>(id).Id;
-                        m_head.icon = "ui://Res/" + Database.Instance.Get<UnitData>(WaveInfo.sUnitId).HeadIcon;
+                        //m_head.icon = "ui://Res/" + Database.Instance.Get<UnitData>(WaveInfo.sUnitId).HeadIcon;
+                        IconHelper.SetTexture(m_head, Database.Instance.Get<UnitData>(WaveInfo.sUnitId).HeadIcon, IconType.HeadIcon);
                         m_name.text = Database.Instance.Get<UnitData>(WaveInfo.sUnitId).Name;
                     }
                 }
@@ -59,8 +60,9 @@ namespace MapBuilderUI
                 m_name.text = "出怪指示线";
             }
             else
-            {               
-                m_head.icon = "ui://Res/" + Database.Instance.Get<UnitData>(waveInfo.sUnitId).HeadIcon;
+            {
+                //m_head.icon = "ui://Res/" + Database.Instance.Get<UnitData>(waveInfo.sUnitId).HeadIcon;
+                IconHelper.SetTexture(m_head, Database.Instance.Get<UnitData>(waveInfo.sUnitId).HeadIcon, IconType.HeadIcon);
                 m_name.text = Database.Instance.Get<UnitData>(waveInfo.sUnitId).Name;
             }
             m_path.value = waveInfo.Path;

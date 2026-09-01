@@ -66,7 +66,7 @@ namespace MapBuilderUI
                     if (info.UnitOvDatas == null) info.UnitOvDatas = new List<OverwriteUnitInfo>();
                     if (info.Contracts == null) info.Contracts = new List<string>();
 
-                    m_StartPage.m_SceneName.text = info.Scene;
+                    //m_StartPage.m_SceneName.text = info.Scene;
                     m_StartPage.m_width.text = info.GridInfos.GetLength(0).ToString();
                     m_StartPage.m_height.text = info.GridInfos.GetLength(1).ToString();
                     m_StartPage.Fresh();
@@ -74,30 +74,30 @@ namespace MapBuilderUI
             });
             m_StartPage.m_next.onClick.Add(async () =>
             {
-                scene = m_StartPage.m_SceneName.text;
-                if (string.IsNullOrEmpty(scene))
-                {
-                    if (MapInfo.GridInfos == null)
-                    {
-                        MapInfo.GridInfos = new GridInfo[int.Parse(m_StartPage.m_width.text), int.Parse(m_StartPage.m_height.text)];
-                        MapInfo.CameraPos = new Vector3((MapInfo.GridInfos.GetLength(0) - 1) / 2f, 0.7f * MapInfo.GridInfos.GetLength(0), -4.5f + (MapInfo.GridInfos.GetLength(1) - 1) / 3f);
+                //scene = m_StartPage.m_SceneName.text;
+                //if (string.IsNullOrEmpty(scene))
+                //{
+                //    if (MapInfo.GridInfos == null)
+                //    {
+                //        MapInfo.GridInfos = new GridInfo[int.Parse(m_StartPage.m_width.text), int.Parse(m_StartPage.m_height.text)];
+                //        MapInfo.CameraPos = new Vector3((MapInfo.GridInfos.GetLength(0) - 1) / 2f, 0.7f * MapInfo.GridInfos.GetLength(0), -4.5f + (MapInfo.GridInfos.GetLength(1) - 1) / 3f);
 
-                        for (int i = 0; i < MapInfo.GridInfos.GetLength(0); i++)
-                        {
-                            for (int j = 0; j < MapInfo.GridInfos.GetLength(1); j++)
-                            {
-                                MapInfo.GridInfos[i, j] = new GridInfo() { X = i, Y = j, CanBuildUnit = true, CanMove = true, FarAttack = false };
-                            }
-                        }
-                    }
-                    await SceneManager.LoadSceneAsync("MapBuilder", LoadSceneMode.Additive);
-                    SceneManager.SetActiveScene(SceneManager.GetSceneByName("MapBuilder"));
-                    changeCamera();
-                    MapManager.Instance.Build(MapInfo.GridInfos);
-                    goMain();
-                }
-                else
-                {
+                //        for (int i = 0; i < MapInfo.GridInfos.GetLength(0); i++)
+                //        {
+                //            for (int j = 0; j < MapInfo.GridInfos.GetLength(1); j++)
+                //            {
+                //                MapInfo.GridInfos[i, j] = new GridInfo() { X = i, Y = j, CanBuildUnit = true, CanMove = true, FarAttack = false };
+                //            }
+                //        }
+                //    }
+                //    await SceneManager.LoadSceneAsync("MapBuilder", LoadSceneMode.Additive);
+                //    SceneManager.SetActiveScene(SceneManager.GetSceneByName("MapBuilder"));
+                //    changeCamera();
+                //    MapManager.Instance.Build(MapInfo.GridInfos);
+                //    goMain();
+                //}
+                //else
+                //{
                     MapInfo.Scene = scene;
                     await SceneManager.LoadSceneAsync(scene, LoadSceneMode.Additive);
                     var grids = MapManager.Instance.gameObject.GetComponentsInChildren<MapGrid>();
@@ -114,7 +114,7 @@ namespace MapBuilderUI
                         };
                     }
                     goMain();
-                }
+                //}
                 m_MidPage.UpdatePoints();
             });
             m_yes.onClick.Add(() => ovTcs.SetResult(true));
