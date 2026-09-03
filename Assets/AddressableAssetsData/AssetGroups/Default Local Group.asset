@@ -1969,10 +1969,6 @@ MonoBehaviour:
     m_Address: Assets/Bundles/Effect/skfire_skill_02_trail1
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: 6b59620f67af59949bd8d528027881f6
-    m_Address: "Assets/Bundles/Data/Map/Main/\u6587\u4EF6\u540D"
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   - m_GUID: 5993e84bc90096d4f9bad36e471dcef5
     m_Address: Assets/Bundles/Units/New Material
     m_ReadOnly: 0
@@ -2195,22 +2191,6 @@ MonoBehaviour:
     m_SerializedLabels: []
   - m_GUID: 485a78c5f236bff4d84f0b017521cb4e
     m_Address: Assets/Bundles/Other/Tiles/b105
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: 9568b023e3788c045ab871ed639d2228
-    m_Address: Assets/Bundles/Data/Map/Main/1-1
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: 693b16f13ef397646a35ac5a3aabc444
-    m_Address: Assets/Bundles/Data/Map/Main/1-2
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: 287952f7ccada444495d8f8e7da50fc5
-    m_Address: Assets/Bundles/Data/Map/Main/1-3
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: a9d8b3d5d519a504184bf625568ac1dc
-    m_Address: Assets/Bundles/Data/Map/Main/Map1
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: e3f2eb6156965b54ca188f8130cc9c82

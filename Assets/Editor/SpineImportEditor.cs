@@ -148,7 +148,7 @@ public class SpineImportEditor
     {
         DirectoryInfo dirInfo = new DirectoryInfo(unitAnimationResourcePath);
         FileInfo[] files = dirInfo.GetFiles("*_SkeletonData.asset", SearchOption.AllDirectories);
-        int index = 0;
+        //int index = 0;
         foreach (var item in files)
         {
             string assetPath = "Assets" + item.FullName.Substring(Application.dataPath.Length);

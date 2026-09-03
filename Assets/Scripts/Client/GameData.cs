@@ -32,8 +32,10 @@ public class GameData
         {
             all.AddRange(Database.Instance.GetExcelFileList(folder));
         }
-
-        ExcludedExcelList = all.Except(ExcelList).ToList();
+        if ((ExcelList?.Count() ?? 0) > 0)
+            ExcludedExcelList = all.Except(ExcelList).ToList();
+        else
+            ExcludedExcelList = all;
     }
 
     public void LoadExcelListFromSave()
