@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -84,7 +84,11 @@ namespace MainUI
                     uiAb.text = kv.Key;
                 }
             }
-            m_standPic.texture = new NTexture(ResHelper.GetAsset<Texture>(PathHelper.StandPicPath + UnitData.StandPic));
+            Texture standPic = ResHelper.GetAsset<Texture>(PathHelper.StandPicPath + UnitData.StandPic);
+            if (standPic != null)
+            {
+                m_standPic.texture = new NTexture(standPic);
+            }
             m_standPic.position = new Vector2(UnitData.StandPicPos[0], UnitData.StandPicPos[1]);
             m_standPic.size = new Vector2(UnitData.StandPicPos[2], UnitData.StandPicPos[3]);
 

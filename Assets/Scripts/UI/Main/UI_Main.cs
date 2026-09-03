@@ -189,8 +189,21 @@ namespace MainUI
             var cards = gameData?.Teams[0]?.Cards ?? new List<Card>();
             if (cards.Count > 0)
             {
-                string picName = Database.Instance.Get<UnitData>(cards[0].UnitId).StandPic;
-                m_standPic.texture = new NTexture(ResHelper.GetAsset<Texture>(PathHelper.StandPicPath + picName));
+                string picName = Database.Instance.Get<UnitData>(cards[0]?.UnitId)?.StandPic ?? "";
+                if (!string.IsNullOrEmpty(picName))
+                {
+                    Debug.Log(picName);
+                    Texture standPic = ResHelper.GetAsset<Texture>(PathHelper.StandPicPath + picName);
+                    if (standPic != null)
+                    {
+                        m_standPic.texture = new NTexture(standPic);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"未找到立绘资源: {picName}");
+                        m_standPic.texture = null;
+                    }
+                }
             }
         }
         public void ExccelListClicke(GTreeNode node)

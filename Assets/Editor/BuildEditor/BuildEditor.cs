@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -57,21 +57,32 @@ public class BuildEditor
         //var group = groupName == null ? setting.DefaultGroup : setting.FindGroup(groupName);
         var group = setting.FindGroup("StandPic");
         List<string> unitDatas = new List<string>();
-        //Debug.Log(Database.Instance.GetAll<UnitData>().Select(x => x.StandPic != null).Count());
-        foreach (var unitData in Database.Instance.GetAll<UnitData>())
+        // 游戏数据现在优先读 StreamingAssets/Data 分类文件，可能不含完整 Main 数据；
+        // 重新标记立绘时应直接读取编辑器导出的完整 Assets/Bundles/Data/UnitData.txt。
+        string unitDataFile = PathHelper.DataPath + "UnitData.txt";
+        if (File.Exists(unitDataFile))
         {
-            try
+            foreach (string line in File.ReadAllLines(unitDataFile))
             {
-                if (unitData.StandPic != null)
-                    unitDatas.Add(unitData.StandPic);
-                //Debug.Log(unitData.StandPic);
-            }
-            catch (System.Exception e)
-            {
-                Debug.Log(e.Message);
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                try
+                {
+                    UnitData unitData = JsonHelper.FromJson<UnitData>(line);
+                    if (unitData != null && !string.IsNullOrEmpty(unitData.StandPic))
+                        unitDatas.Add(unitData.StandPic);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning($"解析 UnitData 失败: {e.Message}");
+                }
             }
         }
-        //var unitDatas = Database.Instance.GetAll<UnitData>().Select(x => x.StandPic)?.ToList();
+        else
+        {
+            Debug.LogWarning($"未找到完整 UnitData 配置: {unitDataFile}");
+        }
         foreach (string path in paths)
         {
             string path1 = path.Replace('\\', '/');
@@ -97,6 +108,7 @@ public class BuildEditor
         foreach (string path in paths)
         {
             string path1 = path.Replace('\\', '/');
+            if (path1.EndsWith(".ini")) continue;
             var guid = AssetDatabase.AssetPathToGUID(path1);
             var refence = setting.CreateAssetReference(guid);
             var entry = setting.CreateOrMoveEntry(guid, group);

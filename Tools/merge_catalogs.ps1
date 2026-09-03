@@ -529,30 +529,41 @@ $srcBase = Join-Path $B2BundleRoot 'StandaloneWindows64'
 $copyCount = 0
 $skipCount = 0
 $errorCount = 0
-$allSrc = Get-ChildItem $srcBase -Recurse -File -Filter *.bundle
-foreach ($srcFile in $allSrc) {
-    $rel = $srcFile.FullName.Substring($srcBase.Length + 1)
-    $destFile = Join-Path $destBase $rel
+$missingCount = 0
+for ($i=0; $i -lt $b2.EntryCount; $i++) {
+    if ($b2MergedIndex[$i] -lt 0) { continue }
+    $e = $b2.Entries[$i]
+    if ($b2.ProviderIds[$e.ProviderIndex] -ne $b1ProviderAssetBundle) { continue }
+    $internalId = $b2.InternalIds[$e.InternalIdIndex]
+    $idx = $internalId.IndexOf('StandaloneWindows64\')
+    if ($idx -lt 0) { continue }
+    $suffix = $internalId.Substring($idx + 'StandaloneWindows64\'.Length).Replace('/','\')
+    $srcFile = Join-Path $srcBase $suffix
+    $destFile = Join-Path $destBase $suffix
+    if (-not (Test-Path $srcFile)) {
+        Write-Warning "[Merge] Missing B2 source bundle: $suffix"
+        $missingCount++
+        continue
+    }
     $destDir = Split-Path $destFile -Parent
     if (-not (Test-Path $destDir)) {
         New-Item -ItemType Directory -Force -Path $destDir | Out-Null
     }
     if (Test-Path $destFile) {
         $h1 = (Get-FileHash $destFile -Algorithm MD5).Hash
-        $h2 = (Get-FileHash $srcFile.FullName -Algorithm MD5).Hash
+        $h2 = (Get-FileHash $srcFile -Algorithm MD5).Hash
         if ($h1 -eq $h2) {
             $skipCount++
             continue
         } else {
-            Write-Warning "[Merge] Conflicting bundle with different content: $rel"
+            Write-Warning "[Merge] Conflicting bundle with different content: $suffix"
             $errorCount++
             continue
         }
     }
-    Copy-Item -Path $srcFile.FullName -Destination $destFile -Force
+    Copy-Item -Path $srcFile -Destination $destFile -Force
     $copyCount++
 }
-Write-Host "[Merge] Bundle copy done: copied=$copyCount skippedSame=$skipCount conflictsDifferent=$errorCount"
-
+Write-Host "[Merge] Bundle copy done: copied=$copyCount skippedSame=$skipCount conflictsDifferent=$errorCount missing=$missingCount"
 }
 

@@ -22,6 +22,14 @@ namespace Skills
 
         public override void Hit(Unit target, Bullet bullet = null)
         {
+            if (target is not null && target.Position.y < 5)
+            {
+                if (target.Alive())
+                {
+                    target.DoDie(this);
+                }
+                Finish();
+            }
             //base.Hit(target);
             var X = Unit.GridPos.x;
             var Y = Unit.GridPos.y;

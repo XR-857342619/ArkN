@@ -16,7 +16,7 @@ namespace MainUI
         bool isEdit = false;
         bool isMove = false;
         bool isLink = false;
-        bool isPreview = false;
+        //bool isPreview = false;
         List<Vector2> linkset = new List<Vector2>();
         Config Config = new Config();
         List<string> ExcelList = new List<string>();

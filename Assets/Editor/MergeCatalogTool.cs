@@ -127,6 +127,7 @@ public static class MergeCatalogTool
         }
 
         var mergedEntries = new List<ContentCatalogDataEntry>(b1Entries);
+        var addedB2BundleInternalIds = new HashSet<string>();
         int skippedAddress = 0;
         int skippedDuplicateBundle = 0;
         int addedB2 = 0;
@@ -160,6 +161,9 @@ public static class MergeCatalogTool
                     e.Dependencies[i] = mapped;
             }
 
+            if (isBundleEntry)
+                addedB2BundleInternalIds.Add(e.InternalId);
+
             mergedEntries.Add(e);
             addedB2++;
         }
@@ -176,23 +180,222 @@ public static class MergeCatalogTool
         Debug.Log($"[Merge] B1 entries={b1Entries.Count} B2 entries={b2Entries.Count} addedB2={addedB2} skippedAddress={skippedAddress} skippedDuplicateBundle={skippedDuplicateBundle} total={mergedEntries.Count}");
 
         if (copyBundles)
-            CopyB2Bundles(b1BundleRoot, b2BundleRoot);
+            CopyB2Bundles(b1BundleRoot, b2BundleRoot, addedB2BundleInternalIds);
         else
             Debug.Log("[Merge] bundle copy skipped.");
     }
 
+<<<<<<< HEAD
     static void CopyB2Bundles(string b1BundleRoot, string b2BundleRoot)
+=======
+    public static void GenerateBranch1ExtraCatalog(
+        string mainCatalog,
+        string mainBundleRoot,
+        string extraSourceCatalog,
+        string extraSourceBundleRoot,
+        string outputExtraCatalog,
+        string outputBundleRoot,
+        string outputAddressList)
+    {
+        if (string.IsNullOrEmpty(mainCatalog) || !File.Exists(mainCatalog))
+        {
+            Debug.LogError("[Extra] Main catalog path is invalid or does not exist.");
+            return;
+        }
+        if (string.IsNullOrEmpty(extraSourceCatalog) || !File.Exists(extraSourceCatalog))
+        {
+            Debug.LogError("[Extra] Extra source catalog path is invalid or does not exist.");
+            return;
+        }
+        if (string.IsNullOrEmpty(outputExtraCatalog))
+            outputExtraCatalog = Path.Combine(mainBundleRoot, "extra_catalog.json");
+        if (string.IsNullOrEmpty(outputBundleRoot))
+            outputBundleRoot = mainBundleRoot;
+
+        var outputDir = Path.GetDirectoryName(outputExtraCatalog);
+        if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
+            Directory.CreateDirectory(outputDir);
+
+        const string providerAssetBundle = "UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider";
+
+        var main = LoadCatalog(mainCatalog);
+        var source = LoadCatalog(extraSourceCatalog);
+        var mainEntries = ExtractEntries(main, "Main");
+        var sourceEntries = ExtractEntries(source, "ExtraSource");
+
+        var mainAddresses = new HashSet<string>();
+        var mainBundleInternalIds = new HashSet<string>();
+        var mainBundleLogical = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        foreach (var e in mainEntries)
+        {
+            if (e.Provider == providerAssetBundle)
+            {
+                mainBundleInternalIds.Add(NormalizeBundleId(e.InternalId));
+                var logical = GetBundleLogicalName(e.InternalId);
+                if (!mainBundleLogical.TryGetValue(logical, out var list))
+                    mainBundleLogical[logical] = list = new List<string>();
+                list.Add(GetBundleKey(e.InternalId));
+            }
+            else if (e.Keys.Count > 0 && e.Keys[0] is string s)
+            {
+                mainAddresses.Add(s);
+            }
+        }
+
+        var sourceBundleLogical = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        foreach (var e in sourceEntries)
+        {
+            if (e.Provider != providerAssetBundle) continue;
+            var logical = GetBundleLogicalName(e.InternalId);
+            if (!sourceBundleLogical.TryGetValue(logical, out var list))
+                sourceBundleLogical[logical] = list = new List<string>();
+            list.Add(GetBundleKey(e.InternalId));
+        }
+
+        var keyRemap = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var kvp in sourceBundleLogical)
+        {
+            if (!mainBundleLogical.TryGetValue(kvp.Key, out var mainKeys)) continue;
+            var mainKey = mainKeys[0];
+            foreach (var sourceKey in kvp.Value)
+            {
+                if (sourceKey != mainKey)
+                    keyRemap[sourceKey] = mainKey;
+            }
+        }
+
+        var mergedEntries = new List<ContentCatalogDataEntry>();
+        var addedBundleInternalIds = new HashSet<string>();
+        var addressSet = new HashSet<string>();
+        int skippedAddress = 0;
+        int skippedBundle = 0;
+
+        foreach (var e in sourceEntries)
+        {
+            bool isBundleEntry = e.Provider == providerAssetBundle;
+            if (isBundleEntry)
+            {
+                var bundleKey = GetBundleKey(e.InternalId);
+                if (mainBundleInternalIds.Contains(NormalizeBundleId(e.InternalId)) ||
+                    keyRemap.ContainsKey(bundleKey))
+                {
+                    skippedBundle++;
+                    continue;
+                }
+                addedBundleInternalIds.Add(e.InternalId);
+            }
+            else
+            {
+                if (e.Keys.Count > 0 && e.Keys[0] is string s && mainAddresses.Contains(s))
+                {
+                    skippedAddress++;
+                    continue;
+                }
+                if (e.Keys.Count > 0 && e.Keys[0] is string addr)
+                    addressSet.Add(addr);
+            }
+
+            for (int i = 0; i < e.Dependencies.Count; i++)
+            {
+                if (e.Dependencies[i] is string dep && keyRemap.TryGetValue(dep, out var mapped))
+                    e.Dependencies[i] = mapped;
+            }
+
+            mergedEntries.Add(e);
+        }
+
+        var data = new ContentCatalogData(mergedEntries, "Branch1ExtraContentCatalog");
+        data.InstanceProviderData = main.InstanceProviderData;
+        data.SceneProviderData = main.SceneProviderData;
+        data.ResourceProviderData = main.ResourceProviderData;
+
+        var json = JsonUtility.ToJson(data);
+        File.WriteAllText(outputExtraCatalog, json, new System.Text.UTF8Encoding(false));
+        File.WriteAllLines(outputAddressList, addressSet.OrderBy(x => x, StringComparer.Ordinal), new System.Text.UTF8Encoding(false));
+
+        Debug.Log($"[Extra] extra catalog written: {outputExtraCatalog}");
+        Debug.Log($"[Extra] added={mergedEntries.Count} skippedAddress={skippedAddress} skippedBundle={skippedBundle} addresses={addressSet.Count}");
+
+        CopyExtraBundles(extraSourceBundleRoot, outputBundleRoot, addedBundleInternalIds);
+    }
+
+
+
+
+    static void CopyExtraBundles(string sourceBundleRoot, string outputBundleRoot, HashSet<string> addedBundleInternalIds)
+    {
+        var srcBase = Path.Combine(sourceBundleRoot, "StandaloneWindows64");
+        var dstBase = Path.Combine(outputBundleRoot, "StandaloneWindows64");
+        int copied = 0;
+        int skippedSame = 0;
+        int missing = 0;
+
+        const string marker = "StandaloneWindows64\\";
+        foreach (var internalId in addedBundleInternalIds)
+        {
+            int idx = internalId.IndexOf(marker, StringComparison.Ordinal);
+            if (idx < 0) continue;
+            var rel = internalId.Substring(idx + marker.Length).Replace('/', Path.DirectorySeparatorChar);
+            var src = Path.Combine(srcBase, rel);
+            var dst = Path.Combine(dstBase, rel);
+            if (!File.Exists(src))
+            {
+                Debug.LogWarning($"[Extra] missing source bundle: {rel}");
+                missing++;
+                continue;
+            }
+
+            var dstDir = Path.GetDirectoryName(dst);
+            if (!string.IsNullOrEmpty(dstDir))
+                Directory.CreateDirectory(dstDir);
+
+            if (File.Exists(dst))
+            {
+                if (FilesEqual(src, dst))
+                {
+                    skippedSame++;
+                    continue;
+                }
+
+                Debug.LogWarning($"[Extra] conflict different content: {rel}");
+                continue;
+            }
+
+            File.Copy(src, dst);
+            copied++;
+        }
+
+        Debug.Log($"[Extra] bundle copy done: copied={copied} skippedSame={skippedSame} missing={missing}");
+    }
+
+
+    static void CopyB2Bundles(string b1BundleRoot, string b2BundleRoot, HashSet<string> bundleInternalIds)
+>>>>>>> fd444b2c72522a04b0b697f99378d6b36baa6813
     {
         var srcBase = Path.Combine(b2BundleRoot, "StandaloneWindows64");
         var dstBase = Path.Combine(b1BundleRoot, "StandaloneWindows64");
         int copied = 0;
         int skippedSame = 0;
         int conflictDifferent = 0;
+        int missing = 0;
 
-        foreach (var src in Directory.GetFiles(srcBase, "*.bundle", SearchOption.AllDirectories))
+        const string marker = "StandaloneWindows64\\";
+        foreach (var internalId in bundleInternalIds)
         {
-            var rel = src.Substring(srcBase.Length + 1);
+            int idx = internalId.IndexOf(marker, StringComparison.Ordinal);
+            if (idx < 0) continue;
+
+            var rel = internalId.Substring(idx + marker.Length).Replace('/', Path.DirectorySeparatorChar);
+            var src = Path.Combine(srcBase, rel);
             var dst = Path.Combine(dstBase, rel);
+
+            if (!File.Exists(src))
+            {
+                Debug.LogWarning($"[Merge] Missing B2 source bundle: {rel}");
+                missing++;
+                continue;
+            }
+
             var dstDir = Path.GetDirectoryName(dst);
             if (!string.IsNullOrEmpty(dstDir))
                 Directory.CreateDirectory(dstDir);
@@ -214,7 +417,7 @@ public static class MergeCatalogTool
             copied++;
         }
 
-        Debug.Log($"[Merge] bundle copy done: copied={copied} skippedSame={skippedSame} conflictsDifferent={conflictDifferent}");
+        Debug.Log($"[Merge] bundle copy done: copied={copied} skippedSame={skippedSame} conflictsDifferent={conflictDifferent} missing={missing}");
     }
 
     static bool FilesEqual(string pathA, string pathB)

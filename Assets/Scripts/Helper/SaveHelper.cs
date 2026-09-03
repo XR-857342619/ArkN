@@ -20,9 +20,9 @@ public class SaveHelper
         }
         catch (Exception e)
         {
+            Debug.LogException(e);
             return string.Empty;
         }
-        return string.Empty;
     }
 
     public static void SaveData()

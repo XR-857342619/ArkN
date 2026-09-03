@@ -135,6 +135,7 @@ public class UIManager : MonoBehaviour
         }
         catch (Exception e)
         {
+            Debug.LogWarning($"Addressables 加载 UI 资源失败：{name}，尝试本地回退。\n{e.Message}");
             return null;
         }
     }

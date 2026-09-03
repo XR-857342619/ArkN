@@ -25,18 +25,22 @@ public class ResHelper
     {
         var op = Addressables.LoadAssetAsync<T>(path);
         op.WaitForCompletion();
-        if (op.IsDone)
+        if (op.Status == AsyncOperationStatus.Succeeded)
         {
             return op.Result;
         }
-        throw new Exception($"Addressables 加载失败: {path}");
+        throw new Exception($"Addressables 加载失败: {path}, Status={op.Status}, Error={op.OperationException}");
     }
 
     public static async Task<T> GetAssetAsync<T>(string path)
     {
         var op = Addressables.LoadAssetAsync<T>(path);
         await op.Task;
-        return op.Result;
+        if (op.Status == AsyncOperationStatus.Succeeded)
+        {
+            return op.Result;
+        }
+        throw new Exception($"Addressables 加载失败: {path}, Status={op.Status}, Error={op.OperationException}");
     }
 
     public static GameObject Instantiate(string path)
@@ -70,7 +74,7 @@ public class ResHelper
 #if UNITY_EDITOR
         return;
 #endif
-        Log.Debug("Prepare " + unitId);
+        Debug.Log("Prepare " + unitId);
         if (unitId == -1) unitId = 256;
 
         lock (preloadLock)
