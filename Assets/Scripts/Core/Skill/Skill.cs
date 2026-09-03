@@ -67,7 +67,7 @@ public class Skill
     public int UseCount;
     public int AnimationIndex;
 
-    public Effect ReadyEffect;
+    Effect ReadyEffect;
 
     public CountDown LoopingStart = new CountDown();
     public CountDown LoopingEnd = new CountDown();

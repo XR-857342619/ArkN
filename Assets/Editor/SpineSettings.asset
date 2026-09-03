@@ -27,7 +27,7 @@ MonoBehaviour:
   blendModeMaterialAdditive: {fileID: 2100000, guid: 4deba332d47209e4780b3c5fcf0e3745,
     type: 2}
   atlasTxtImportWarning: 1
-  textureImporterWarning: 1
+  textureImporterWarning: 0
   componentMaterialWarning: 1
   autoReloadSceneSkeletons: 1
   handleScale: 1

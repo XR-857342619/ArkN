@@ -35,6 +35,11 @@ public class Init : MonoBehaviour
         await UnityEngine.AddressableAssets.Addressables.InitializeAsync().Task;
         await Task.Yield();
 
+        // 2.3. 加载附加 catalog（branch1 独有资源）
+        landing?.SetProgress(0.04f, "正在加载附加资源...");
+        await LoadExtraCatalogAsync();
+        await Task.Yield();
+
         // 2.5. 首次启动时复制 StreamingAssets 到持久化路径（Android 必须）
         landing?.SetProgress(0.05f, "正在复制初始资源...");
         await RunCopyOnFirstLaunch();
@@ -68,6 +73,23 @@ public class Init : MonoBehaviour
         await Task.Yield();
 
         var battleUI = UIManager.Instance.ChangeView<MainUI.UI_Main>(MainUI.UI_Main.URL);
+    }
+
+    /// <summary>
+    /// Load the extra catalog that contains branch1 unique resources.
+    /// </summary>
+    private async Task LoadExtraCatalogAsync()
+    {
+        var extraCatalogPath = UnityEngine.AddressableAssets.Addressables.RuntimePath + "/extra_catalog.json";
+        try
+        {
+            await UnityEngine.AddressableAssets.Addressables.LoadContentCatalogAsync(extraCatalogPath, true).Task;
+            Debug.Log("[Init] Extra catalog loaded: " + extraCatalogPath);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("[Init] Failed to load extra catalog: " + e);
+        }
     }
 
     /// <summary>
