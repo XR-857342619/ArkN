@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,7 +35,11 @@ namespace DungeonUI
         {
             if (nowEvent.Background != null)
             {
-                m_background.texture = new NTexture(ResHelper.GetAsset<UnityEngine.Sprite>(PathHelper.SpritePath + nowEvent.Background));
+                Sprite background = ResHelper.GetAsset<UnityEngine.Sprite>(PathHelper.SpritePath + nowEvent.Background);
+                if (background != null)
+                {
+                    m_background.texture = new NTexture(background);
+                }
             }
             if (nowEvent.Tile != null)
             {

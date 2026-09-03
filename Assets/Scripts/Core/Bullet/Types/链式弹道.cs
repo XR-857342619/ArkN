@@ -7,13 +7,12 @@ namespace Bullets
 {
     public class 链式弹道 : Bullet
     {
-        // 私有字段
         private float moveHeight;
         private float tickTime;
         private string skillId;
         private int maxLinkNum;
         private int linkNum;
-        private float reductionBase;
+        //private float reductionBase;
         private List<Unit> linkedTargets;
         private bool canBack;
         private List<Unit> usedTargets = new List<Unit>();
@@ -25,16 +24,17 @@ namespace Bullets
         private bool isDirectHit; // 标记是否为直接命中（起点终点相同）
         private bool isFinished;
         private Skill skill;
+        private float _lifeTime;
 
         private bool showRange;
         private string color;
         private float alpha;
 
-        // 属性
         public int LinkNum => linkNum;
-        public float reductionRate;
+        //public float reductionRate;
         //public float ReductionRate => reductionRate;
-        List<GameObject> tiles = new List<GameObject>();
+        private List<GameObject> tiles = new List<GameObject>();
+        private CountDown lifeTime;
 
         public override void Init()
         {
@@ -66,6 +66,10 @@ namespace Bullets
             showRange = BulletData.Data.GetBool("ShowRange");
             color = BulletData.Data.GetStr("Color");
             alpha = BulletData.Data.GetFloat("Alpha", 1f);
+
+            _lifeTime = BulletData.Data.GetFloat("LifeTime", 0);
+            if (_lifeTime > 0) lifeTime.Set(_lifeTime);
+            else lifeTime = null;
 
             // 设置目标位置
             TargetPos = GetTargetPos(Target);
@@ -116,6 +120,15 @@ namespace Bullets
 
         public override void Update()
         {
+            if (lifeTime is not null)
+            {
+                lifeTime.Update(SystemConfig.DeltaTime);
+                if (lifeTime.Finished())
+                {
+                    Finish();
+                    return;
+                }
+            }
             if (isFinished) return;
             base.Update();
             if (isDirectHit)
@@ -132,10 +145,20 @@ namespace Bullets
             {
                 TargetPos = GetTargetPos(Target);
             }
-            else if (Target != null) // 目标存在但已死亡
+            else if (Target != null && Target.IfHide)
             {
-                // 继续飞向目标最后的位置，但不更新目标位置
-                // 这样弹道会继续飞行到目标最后的位置，然后尝试链式跳转
+                FindNextTarget(Position);
+                TargetPos = GetTargetPos(Target);
+            }
+            else
+            {
+                FindNextTarget(Position);
+            }
+
+            if (Target is null)
+            {
+                Finish();
+                return;
             }
 
             // 更新临时单位位置
@@ -160,7 +183,7 @@ namespace Bullets
             if (showRange)
             {
                 ShowRange range = tiles[0].GetComponent<ShowRange>();
-                range.UpdateRange(this.Position.ToV2(), 2.5f);
+                range.UpdateRange(this.Position.ToV2(), skill?.SkillData?.AttackRange ?? 0);
             }
         }
 
@@ -191,6 +214,8 @@ namespace Bullets
                 //Debug.Log($"弹道到达目标位置: {TargetPos}");
                 HandleTargetReached(position);
             }
+
+            if (position.y < 0) position.y = moveHeight;
 
             return position;
         }
@@ -274,7 +299,7 @@ namespace Bullets
 
             //Debug.Log($"下一目标: {(findTargetSkill.Targets.Count > 0 ? findTargetSkill.Targets[0].UnitData.Id : "无")}");
 
-            if (maxLinkNum > 0 && findTargetSkill.Targets.Count > 0)
+            if ((maxLinkNum > 0 && findTargetSkill.Targets.Count > 0) || maxLinkNum < 0)
             {
                 Unit nextTarget = null;
 
@@ -309,10 +334,33 @@ namespace Bullets
                     }
                     return;
                 }
+                else
+                {
+                    if (lastTarget is null || !lastTarget.IfAlive)
+                    {
+                        // 没有找到有效目标，结束弹道
+                        Finish();
+                        return;
+                    }
+                    Target = lastTarget;
+                    TargetPos = GetTargetPos(Target);
+                    startPositionCache = currentPosition;
+
+                    // 检查新目标是否与当前位置相同
+                    if (Vector3.Distance(currentPosition, TargetPos) < Mathf.Epsilon)
+                    {
+                        // 直接处理命中，避免除零错误
+                        HandleDirectHit();
+                    }
+                    else
+                    {
+                        tickTime = 0;
+                    }
+                    return;
+                }
             }
 
             // 没有找到有效目标，结束弹道
-            CleanUp();
             Finish();
         }
 
@@ -360,13 +408,14 @@ namespace Bullets
             showRange.unitWorldPos = Position.ToV2();
             showRange.colorHex = String.IsNullOrEmpty(color) ? "#6385FF" : color;
             showRange.alpha = alpha;
-            showRange.rangeRadius = skill?.SkillData?.AreaRange ?? 0;
+            showRange.rangeRadius = skill?.SkillData?.AttackRange ?? 0;
             if (skill?.SkillData?.AttackPoints?.Length > 0)
                 showRange.polygonRange = skill.AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();
             else showRange.polygonRange = null;
             //doNotShowRange.polygonRange = AttackPoints.Select(p => new Vector2(p.x, p.y)).ToList();    
             showRange.Init();
             tiles.Add(go);
+            //Debug.Log(showRange.rangeRadius);
         }
     }
 }

@@ -77,43 +77,43 @@ namespace MapBuilderUI
                 //scene = m_StartPage.m_SceneName.text;
                 //if (string.IsNullOrEmpty(scene))
                 //{
-                //    if (MapInfo.GridInfos == null)
-                //    {
-                //        MapInfo.GridInfos = new GridInfo[int.Parse(m_StartPage.m_width.text), int.Parse(m_StartPage.m_height.text)];
-                //        MapInfo.CameraPos = new Vector3((MapInfo.GridInfos.GetLength(0) - 1) / 2f, 0.7f * MapInfo.GridInfos.GetLength(0), -4.5f + (MapInfo.GridInfos.GetLength(1) - 1) / 3f);
+                    if (MapInfo.GridInfos == null)
+                    {
+                        MapInfo.GridInfos = new GridInfo[int.Parse(m_StartPage.m_width.text), int.Parse(m_StartPage.m_height.text)];
+                        MapInfo.CameraPos = new Vector3((MapInfo.GridInfos.GetLength(0) - 1) / 2f, 0.7f * MapInfo.GridInfos.GetLength(0), -4.5f + (MapInfo.GridInfos.GetLength(1) - 1) / 3f);
 
-                //        for (int i = 0; i < MapInfo.GridInfos.GetLength(0); i++)
-                //        {
-                //            for (int j = 0; j < MapInfo.GridInfos.GetLength(1); j++)
-                //            {
-                //                MapInfo.GridInfos[i, j] = new GridInfo() { X = i, Y = j, CanBuildUnit = true, CanMove = true, FarAttack = false };
-                //            }
-                //        }
-                //    }
-                //    await SceneManager.LoadSceneAsync("MapBuilder", LoadSceneMode.Additive);
-                //    SceneManager.SetActiveScene(SceneManager.GetSceneByName("MapBuilder"));
-                //    changeCamera();
-                //    MapManager.Instance.Build(MapInfo.GridInfos);
-                //    goMain();
+                        for (int i = 0; i < MapInfo.GridInfos.GetLength(0); i++)
+                        {
+                            for (int j = 0; j < MapInfo.GridInfos.GetLength(1); j++)
+                            {
+                                MapInfo.GridInfos[i, j] = new GridInfo() { X = i, Y = j, CanBuildUnit = true, CanMove = true, FarAttack = false };
+                            }
+                        }
+                    }
+                    await SceneManager.LoadSceneAsync("MapBuilder", LoadSceneMode.Additive);
+                    SceneManager.SetActiveScene(SceneManager.GetSceneByName("MapBuilder"));
+                    changeCamera();
+                    MapManager.Instance.Build(MapInfo.GridInfos);
+                    goMain();
                 //}
                 //else
                 //{
-                    MapInfo.Scene = scene;
-                    await SceneManager.LoadSceneAsync(scene, LoadSceneMode.Additive);
-                    var grids = MapManager.Instance.gameObject.GetComponentsInChildren<MapGrid>();
-                    MapInfo.GridInfos = new GridInfo[grids.Max(x => x.X + 1), grids.Max(x => x.Y + 1)];
-                    foreach (var g in grids)
-                    {
-                        MapInfo.GridInfos[g.X, g.Y] = new GridInfo()
-                        {
-                            X = g.X,
-                            Y = g.Y,
-                            CanBuildUnit = g.CanBuildUnit,
-                            FarAttack = g.FarAttackGrid,
-                            CanMove = g.CanMove,
-                        };
-                    }
-                    goMain();
+                //    MapInfo.Scene = scene;
+                //    await SceneManager.LoadSceneAsync(scene, LoadSceneMode.Additive);
+                //    var grids = MapManager.Instance.gameObject.GetComponentsInChildren<MapGrid>();
+                //    MapInfo.GridInfos = new GridInfo[grids.Max(x => x.X + 1), grids.Max(x => x.Y + 1)];
+                //    foreach (var g in grids)
+                //    {
+                //        MapInfo.GridInfos[g.X, g.Y] = new GridInfo()
+                //        {
+                //            X = g.X,
+                //            Y = g.Y,
+                //            CanBuildUnit = g.CanBuildUnit,
+                //            FarAttack = g.FarAttackGrid,
+                //            CanMove = g.CanMove,
+                //        };
+                //    }
+                //    goMain();
                 //}
                 m_MidPage.UpdatePoints();
             });

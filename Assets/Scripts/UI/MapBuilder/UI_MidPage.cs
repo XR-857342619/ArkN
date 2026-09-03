@@ -100,6 +100,7 @@ namespace MapBuilderUI
         {
             //if (!string.IsNullOrEmpty((parent as UI_MapBuilder).scene)) return;
             Despawn();
+            if (MapInfo.UnitInfos == null || MapInfo.UnitInfos.Count == 0) return;
             foreach (var unitInfo in MapInfo.UnitInfos)
             {
                 var g = p.Spawn(ResHelper.GetAsset<GameObject>(PathHelper.UnitPath + Database.Instance.Get<UnitData>(unitInfo.UnitId).Model).transform, MapManager.Instance.Grids[unitInfo.X, unitInfo.Y].transform.position);

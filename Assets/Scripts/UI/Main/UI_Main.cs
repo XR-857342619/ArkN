@@ -191,7 +191,19 @@ namespace MainUI
             {
                 string picName = Database.Instance.Get<UnitData>(cards[0]?.UnitId)?.StandPic ?? "";
                 if (!string.IsNullOrEmpty(picName))
-                    m_standPic.texture = new NTexture(ResHelper.GetAsset<Texture>(PathHelper.StandPicPath + picName));
+                {
+                    Debug.Log(picName);
+                    Texture standPic = ResHelper.GetAsset<Texture>(PathHelper.StandPicPath + picName);
+                    if (standPic != null)
+                    {
+                        m_standPic.texture = new NTexture(standPic);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"未找到立绘资源: {picName}");
+                        m_standPic.texture = null;
+                    }
+                }
             }
         }
         public void ExccelListClicke(GTreeNode node)
