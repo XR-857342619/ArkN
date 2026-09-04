@@ -4,27 +4,27 @@ using UnityEngine;
 namespace Buffs
 {
     /// <summary>
-    /// é‡è®¾é«˜åº¦ï¼šèµ·é£ â†’ ç»´æŒ â†’ é™è½ ä¸‰é˜¶æ®µ
-    /// é…ç½®é¡¹ï¼ˆBuffData.Data å­—å…¸ï¼‰ï¼š
-    ///   Start    èµ·é£å‰é«˜åº¦ï¼ˆé»˜è®¤ 0ï¼Œå³åœ°é¢ï¼›é™è½åå›ºå®šå›åˆ°åœ°é¢ï¼‰
-    ///   Fly      èµ·é£åç›®æ ‡é«˜åº¦ï¼ˆé»˜è®¤ 1.0ï¼‰
-    ///   Time     å®Œæˆä¸Šå‡/ä¸‹é™æ‰€éœ€æ—¶é—´ï¼ˆé»˜è®¤ 0.1 sï¼‰
-    /// ä¸å†è¯»å– Land å‚æ•°ï¼šé™è½åå›ºå®šå›åˆ°åœ°é¢ï¼ˆ0ï¼‰ï¼Œå¹¶è°ƒç”¨ AlignHeight å¯¹é½åœ°é¢ã€‚
+    /// ÖØÉè¸ß¶È£ºÆğ·É ¡ú Î¬³Ö ¡ú ½µÂä Èı½×¶Î
+    /// ÅäÖÃÏî£¨BuffData.Data ×Öµä£©£º
+    ///   Start    Æğ·ÉÇ°¸ß¶È£¨Ä¬ÈÏ 0£¬¼´µØÃæ£»½µÂäºó¹Ì¶¨»Øµ½µØÃæ£©
+    ///   Fly      Æğ·ÉºóÄ¿±ê¸ß¶È£¨Ä¬ÈÏ 1.0£©
+    ///   Time     Íê³ÉÉÏÉı/ÏÂ½µËùĞèÊ±¼ä£¨Ä¬ÈÏ 0.1 s£©
+    /// ²»ÔÙ¶ÁÈ¡ Land ²ÎÊı£º½µÂäºó¹Ì¶¨»Øµ½µØÃæ£¨0£©£¬²¢µ÷ÓÃ AlignHeight ¶ÔÆëµØÃæ¡£
     /// </summary>
-    public class é‡è®¾é«˜åº¦ : Buff
+    public class ÖØÉè¸ß¶È : Buff
     {
-        // é…ç½®æ•°æ®
+        // ÅäÖÃÊı¾İ
         private float startHeight;
         private float takeOffHeight;
         private float landingHeight;
         private float smoothTime;
 
-        // è¿è¡Œæ—¶çŠ¶æ€
-        private bool isTakingOff = true; // èµ·é£é˜¶æ®µ
-        private bool isLanding;          // é™è½é˜¶æ®µ
-        private bool isLanded;           // å·²é™è½å®Œæˆï¼Œé¿å…é‡å¤è§¦å‘é™è½
+        // ÔËĞĞÊ±×´Ì¬
+        private bool isTakingOff = true; // Æğ·É½×¶Î
+        private bool isLanding;          // ½µÂä½×¶Î
+        private bool isLanded;           // ÒÑ½µÂäÍê³É£¬±ÜÃâÖØ¸´´¥·¢½µÂä
 
-        // é˜¶æ®µè®¡æ—¶ï¼šä¿è¯ä¸Šå‡/ä¸‹é™åœ¨ smoothTime å†…å®Œæˆ
+        // ½×¶Î¼ÆÊ±£º±£Ö¤ÉÏÉı/ÏÂ½µÔÚ smoothTime ÄÚÍê³É
         private float phaseStartHeight;
         private float phaseElapsed;
 
@@ -36,7 +36,7 @@ namespace Buffs
             takeOffHeight = BuffData.Data.GetFloat("Fly", 1f);
             smoothTime = Mathf.Max(0.001f, BuffData.Data.GetFloat("Time", 0.1f));
 
-            // ç§»é™¤ Land å‚æ•°ï¼šé™è½åå›åˆ°èµ·é£å‰çš„é«˜åº¦
+            // ÒÆ³ı Land ²ÎÊı£º½µÂäºó»Øµ½Æğ·ÉÇ°µÄ¸ß¶È
             landingHeight = startHeight;
 
             Unit.Height = startHeight;
@@ -79,7 +79,7 @@ namespace Buffs
                     isLanding = false;
                     isLanded = true;
 
-                    // é™è½å®Œæˆåè®©æ¨¡å‹ä¸å½“å‰åœ°å—å¯¹é½ï¼Œé¿å…æ‚¬ç©º/ç©¿æ¨¡
+                    // ½µÂäÍê³ÉºóÈÃÄ£ĞÍÓëµ±Ç°µØ¿é¶ÔÆë£¬±ÜÃâĞü¿Õ/´©Ä£
                     Unit.UnitModel?.AlignHeight();
                 }
             }
@@ -92,7 +92,7 @@ namespace Buffs
             if (Dead)
                 return;
 
-            // å‰©ä½™æ—¶é—´ä¸è¶³ä¸€ä¸ªé˜¶æ®µæ—¶é•¿æ—¶å¼€å§‹é™è½ï¼›å·²ç»é™è½å®Œæˆåˆ™ä¸å†é‡å¤è§¦å‘
+            // Ê£ÓàÊ±¼ä²»×ãÒ»¸ö½×¶ÎÊ±³¤Ê±¿ªÊ¼½µÂä£»ÒÑ¾­½µÂäÍê³ÉÔò²»ÔÙÖØ¸´´¥·¢
             if (!isTakingOff && !isLanding && !isLanded && Duration.value <= smoothTime)
             {
                 isLanding = true;

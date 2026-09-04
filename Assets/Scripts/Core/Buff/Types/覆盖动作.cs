@@ -11,60 +11,50 @@ namespace Buffs
         public override void Init()
         {
             base.Init();
-            var datas = BuffData.Data.GetArray("IdleAnimation");
-            if (datas != null)
+
+            bool allOverWrite = BuffData.Data.GetBool("AllOverWrite");
+            string[] keys = { "StartAnimation", "IdleAnimation", "DieAnimation", "MoveAnimation" };
+
+            foreach (string key in keys)
             {
-                var names = new string[datas.Length];
-                for (int i = 0; i < datas.Length; i++)
+                var data = BuffData.Data.GetArray(key);
+                if (data == null) continue;
+
+                // 将数据转换为字符串数组
+                string[] names = new string[data.Length];
+                for (int i = 0; i < data.Length; i++)
                 {
-                    names[i] = Convert.ToString(datas[i]);
+                    names[i] = Convert.ToString(data[i]);
                 }
-                if (BuffData.Data.GetBool("AllOverWrite"))
+
+                // 如果开启全部覆盖，则所有动画都赋给 OverWriteAnimation（保留原逻辑：后面的覆盖前面的）
+                if (allOverWrite)
                 {
                     Unit.OverWriteAnimation = names;
                 }
                 else
-                    Unit.OverWriteIdle = names;
+                {
+                    // 分别赋值给对应的覆盖字段
+                    if (key == "StartAnimation") Unit.OverWriteStart = names;
+                    else if (key == "IdleAnimation") Unit.OverWriteIdle = names;
+                    else if (key == "DieAnimation") Unit.OverWriteDie = names;
+                    else if (key == "MoveAnimation") Unit.OverWriteMove = names;
+                }
             }
-            var datas1 = BuffData.Data.GetArray("DieAnimation");
-            if (datas1 != null)
-            {
-                var names = new string[datas1.Length];
-                for (int i = 0; i < datas1.Length; i++)
-                {
-                    names[i] = Convert.ToString(datas1[i]);
-                }
-                if (BuffData.Data.GetBool("AllOverWrite"))
-                {
-                    Unit.OverWriteAnimation = names;
-                }
-                else
-                    Unit.OverWriteDie = names;
-            }
-            var datas2 = BuffData.Data.GetArray("MoveAnimation");
-            if (datas2 != null)
-            {
-                var names = new string[datas2.Length];
-                for (int i = 0; i < datas2.Length; i++)
-                {
-                    names[i] = Convert.ToString(datas2[i]);
-                }
-                if (BuffData.Data.GetBool("AllOverWrite"))
-                {
-                    Unit.OverWriteAnimation = names;
-                }
-                else
-                    Unit.OverWriteMove = names;
-            }
+
+            // 强制刷新当前动画状态（如果当前处于 Start 状态，就会应用新的覆盖）
             Unit.SetStatus(Unit.State);
         }
 
         public override void Finish()
         {
             base.Finish();
+            // 清除所有覆盖字段（注意新增了 Start）
             Unit.OverWriteAnimation = null;
+            Unit.OverWriteStart = null;
             Unit.OverWriteIdle = null;
             Unit.OverWriteDie = null;
+            Unit.OverWriteMove = null;
         }
     }
 }
