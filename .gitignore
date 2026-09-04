@@ -81,3 +81,27 @@ crashlytics-build.properties
 /Excel/一方通行/~$测试N.xlsx
 /Excel/Test/~$Test.xlsx
 /Docs/开发者文档/15-特效系统优化方案.md
+
+
+# Unity / IDE local user settings (not for sharing)
+/[Uu]serSettings/
+/[Uu]serSettings.meta
+
+# IDE local config
+.idea/
+.vscode/
+
+# Office autosave / lock files
+~$*
+
+# General temp / backup / OS files
+*.temp
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*.log
+Thumbs.db
+Desktop.ini
+.DS_Store
