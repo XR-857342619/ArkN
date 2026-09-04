@@ -175,6 +175,7 @@ public class Unit
 
     public string[] AnimationName;
     public string[] OverWriteAnimation;
+    public string[] OverWriteStart;
     public string[] OverWriteIdle;
     public string[] OverWriteMove;
     public string[] OverWriteDie;
@@ -797,6 +798,8 @@ public class Unit
         {
             if (state == StateEnum.Default)
                 AnimationName = UnitData.DefaultAnimation;
+            else if (state == StateEnum.Start)
+                AnimationName = GetStartAnimation();
             else if (state == StateEnum.Idle)
                 AnimationName = GetIdleAnimation();
             else if (state == StateEnum.Move)
@@ -1083,6 +1086,12 @@ public class Unit
     {
         return OverWriteMove == null ? UnitData.MoveAnimation : OverWriteMove;
     }
+
+    public string[] GetStartAnimation()
+    {
+        return OverWriteStart ?? StartAnimation;
+    }
+
     public string[] GetIdleAnimation()
     {
         return OverWriteIdle == null ? UnitData.IdleAnimation : OverWriteIdle;

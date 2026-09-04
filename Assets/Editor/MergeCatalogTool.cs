@@ -180,7 +180,8 @@ public static class MergeCatalogTool
         Debug.Log($"[Merge] B1 entries={b1Entries.Count} B2 entries={b2Entries.Count} addedB2={addedB2} skippedAddress={skippedAddress} skippedDuplicateBundle={skippedDuplicateBundle} total={mergedEntries.Count}");
 
         if (copyBundles)
-            CopyB2Bundles(b1BundleRoot, b2BundleRoot, addedB2BundleInternalIds);
+            return;
+        //CopyB2Bundles(b1BundleRoot, b2BundleRoot, addedB2BundleInternalIds);
         else
             Debug.Log("[Merge] bundle copy skipped.");
     }
@@ -366,6 +367,7 @@ public static class MergeCatalogTool
     }
 
 
+    /*
     static void CopyB2Bundles(string b1BundleRoot, string b2BundleRoot, HashSet<string> bundleInternalIds)
     {
         var srcBase = Path.Combine(b2BundleRoot, "StandaloneWindows64");
@@ -415,6 +417,7 @@ public static class MergeCatalogTool
 
         Debug.Log($"[Merge] bundle copy done: copied={copied} skippedSame={skippedSame} conflictsDifferent={conflictDifferent} missing={missing}");
     }
+    */
 
     static bool FilesEqual(string pathA, string pathB)
     {
