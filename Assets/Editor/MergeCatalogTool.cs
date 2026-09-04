@@ -376,7 +376,7 @@ public static class MergeCatalogTool
         int missing = 0;
 
         const string marker = "StandaloneWindows64\\";
-        foreach (var internalId in addedB2BundleInternalIds)
+        foreach (var internalId in bundleInternalIds)
         {
             int idx = internalId.IndexOf(marker, StringComparison.Ordinal);
             if (idx < 0) continue;
