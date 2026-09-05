@@ -39,6 +39,23 @@ public class UnifiedExpressionEngine
         _targets = targets;
     }
 
+    // ===== 0. 预编译表达式 =====
+    public void PrecompileFilter(string expression,
+                                 string contextName = "Unit",
+                                 string targetName = "Target")
+    {
+        if (string.IsNullOrEmpty(expression)) return;
+
+        try
+        {
+            CompileLambda<Unit, Unit, bool>(expression, contextName, targetName);
+        }
+        catch (Exception ex)
+        {
+            HandleExpressionError(ex, expression, "目标过滤预编译");
+        }
+    }
+
     // ===== 1. 过滤（原 ExpressionEvaluator 功能） =====
     public List<Unit> FilterTargets(string expression, string contextName = "Unit", string targetName = "Target")
     {
@@ -87,6 +104,30 @@ public class UnifiedExpressionEngine
             throw;
         }
     }
+    // ===== 2.1 数学计算,对每一个目标 =====
+    public T EvaluateForTarget<T>(object target, string expression,
+                              string contextName = "Unit", string targetName = "Target")
+    {
+        if (string.IsNullOrWhiteSpace(expression))
+            throw new ArgumentException("表达式不能为空", nameof(expression));
+
+        try
+        {
+            var logicOperators = new[] { "&&", "||", "!", "and", "or", "not", "==", "!=", "<", ">", "<=", ">=" };
+            if (logicOperators.Any(op => expression.Contains(op)))
+                throw new ArgumentException("数学表达式不能包含逻辑运算符", nameof(expression));
+
+            var contextType = _context.GetType();
+            var targetType = target?.GetType() ?? typeof(object);
+            var del = CompileLambdaInternal(expression, contextType, targetType, typeof(T), contextName, targetName);
+            return (T)del.DynamicInvoke(_context, target);
+        }
+        catch (Exception ex)
+        {
+            HandleExpressionError(ex, expression, "数学计算");
+            throw;
+        }
+    }
 
     // ===== 3. 属性赋值 =====
     public void ExecuteAssignment(string expression, string contextName = "Buff", string targetName = "Target")
@@ -103,18 +144,41 @@ public class UnifiedExpressionEngine
             var leftExpr = parts[0].Trim();
             var rightExpr = parts[1].Trim();
 
-            var contextType = _context.GetType();
-            var targetType = _targets?.FirstOrDefault()?.GetType() ?? typeof(object);
-            var rightDel = CompileLambdaInternal(rightExpr, contextType, targetType, typeof(object), contextName, targetName);
-            var rightValue = rightDel.DynamicInvoke(_context, _targets?.FirstOrDefault());
-
+            // 先解析左侧赋值目标，避免在目标缺失时仍用 object 编译 RHS，
+            // 导致出现 “Operator '*' incompatible with operand types 'Double' and 'Object'” 这类误导性报错。
+            object assignRoot = _context;
             var leftPath = leftExpr;
-            if (leftExpr.StartsWith(contextName + "."))
-                leftPath = leftExpr.Substring(contextName.Length + 1);
-            else if (leftExpr.StartsWith(targetName + "."))
-                leftPath = leftExpr.Substring(targetName.Length + 1);
+            Unit rhsTarget = null;
 
-            SetPropertyValue(_context, leftPath, rightValue);
+            if (leftExpr.StartsWith(contextName + "."))
+            {
+                leftPath = leftExpr.Substring(contextName.Length + 1);
+                rhsTarget = _targets?.FirstOrDefault(t => t != null);
+            }
+            else if (leftExpr.StartsWith(targetName + "."))
+            {
+                rhsTarget = _targets?.FirstOrDefault(t => t != null);
+                if (rhsTarget == null)
+                {
+                    HandleExpressionError(
+                        new InvalidOperationException("赋值表达式指定了 Target，但没有可用目标"),
+                        expression,
+                        "属性赋值");
+                    return;
+                }
+
+                assignRoot = rhsTarget;
+                leftPath = leftExpr.Substring(targetName.Length + 1);
+            }
+
+            // RHS 仍可能引用 Target，因此统一用真实目标类型解析。
+            // 没有真实目标时回退到 Unit 而不是 object，可让 Target.MainSkill 等属性被正确识别类型。
+            var targetType = rhsTarget?.GetType() ?? typeof(Unit);
+            var contextType = _context.GetType();
+            var rightDel = CompileLambdaInternal(rightExpr, contextType, targetType, typeof(object), contextName, targetName);
+            var rightValue = rightDel.DynamicInvoke(_context, rhsTarget);
+
+            SetPropertyValue(assignRoot, leftPath, rightValue);
         }
         catch (Exception ex)
         {
@@ -346,11 +410,7 @@ public class UnifiedExpressionEngine
 
     private string PreprocessExpression(string expression)
     {
-        return expression.Replace("and", "&&")
-                        .Replace("or", "||")
-                        .Replace("not", "!")
-                        .Replace("  ", " ")
-                        .Trim();
+        return System.Text.RegularExpressions.Regex.Replace(expression, @"\s+", " ").Trim();
     }
 
     private ParsingConfig GetParsingConfig()

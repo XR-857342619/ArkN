@@ -18,7 +18,10 @@ namespace Buffs
             expression = BuffData.Data.GetStr("Expression", string.Empty);
             time = BuffData.Data.GetInt("Time", -1);
             //evaluator = new ExpressionExecutor(this);
-            evaluator = new UnifiedExpressionEngine(this);
+            if (Unit is not null)
+                evaluator = new UnifiedExpressionEngine(this, new List<Unit>() { Unit });
+            else
+                evaluator = new UnifiedExpressionEngine(this);
         }
         
         public override void ApplyToUnit()
