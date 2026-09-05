@@ -123,15 +123,14 @@ public class Skill
         Reset();
         IsNormalAttack = SkillData.UseType == SkillUseTypeEnum.自动 && SkillData.MaxPower == 0 && SkillData.ModelAnimation != null && SkillData.DamageRate > 0;//4个条件判断技能是否为普攻，判断条件存疑
 
-        // 预编译技能条件/排序表达式：只要任一表达式存在，就创建引擎供后续 Evaluate/Filter 复用
-        if (!string.IsNullOrEmpty(SkillData.SkillCondition) || !string.IsNullOrEmpty(SkillData.OrderExpression))
+        // 预编译技能条件/排序表达式
+        if (!string.IsNullOrEmpty(SkillData.SkillCondition) ||
+            !string.IsNullOrEmpty(SkillData.OrderExpression))
         {
-            // 传入空列表触发编译（实际执行时不依赖列表数据）
-            //tempExpressionEngine = new ExpressionEvaluator(Unit, new List<Unit>());
-            tempExpressionEngine = new UnifiedExpressionEngine(Unit, new List<Unit>());
-            // 调用Filter触发编译，此时仅会执行到GetCompiledPredicate并缓存
+            tempExpressionEngine = new UnifiedExpressionEngine(Unit);
+
             if (!string.IsNullOrEmpty(SkillData.SkillCondition))
-                tempExpressionEngine.FilterTargets(SkillData.SkillCondition);
+                tempExpressionEngine.PrecompileFilter(SkillData.SkillCondition);
         }
 
         RegisterProgressBarIfNeeded();
@@ -1175,10 +1174,10 @@ public class Skill
             tempTargets.AddRange(tempTargetsFromEvent);
             tempTargets.AddRange(tempTargetsFromAttackRange);
         }
-        if (SkillData.SkillCondition is not null && Casting.Finished())
+        if (!string.IsNullOrEmpty(SkillData.SkillCondition) && Casting.Finished())
         {
-            //var evaluator = new UnifiedExpressionEngine(Unit, tempTargets);
-            tempTargets = tempExpressionEngine.FilterTargets(SkillData.SkillCondition);
+            var evaluator = new UnifiedExpressionEngine(Unit, tempTargets);
+            tempTargets = evaluator.FilterTargets(SkillData.SkillCondition);
         }
 
         orderTargets(tempTargets);
@@ -1372,9 +1371,11 @@ public class Skill
     protected virtual float GetSortOrder3(Unit x)
     {
         float orderByExpression = 0;
-        if (SkillData.OrderExpression is not null)
-            //orderByExpression = (float) tempExpressionEngine.EvaluateExpressionWithParameters(SkillData.OrderExpression);
-            orderByExpression = tempExpressionEngine.Evaluate<float>(SkillData.OrderExpression);
+        if (!string.IsNullOrEmpty(SkillData.OrderExpression) && tempExpressionEngine != null)
+        {
+            orderByExpression = tempExpressionEngine.EvaluateForTarget<float>(
+                x, SkillData.OrderExpression, "Unit", "Target");
+        }
 
         float orderByTag = 0;
         if (SkillData.OrderTag is not null)
