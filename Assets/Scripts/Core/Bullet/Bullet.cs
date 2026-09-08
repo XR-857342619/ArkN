@@ -70,6 +70,7 @@ public class Bullet
     public virtual void Finish()
     {
         Battle.Bullets.Remove(this);
+        BulletManager.Instance.ReleaseHomingData(this);
         if (BulletModel != null)
         {
             BulletManager.Instance.Return(BulletModel);

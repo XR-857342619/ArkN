@@ -12,6 +12,9 @@ public class BulletManager
     readonly Dictionary<string, BulletModel> bulletPrefabs = new Dictionary<string, BulletModel>();
     readonly Dictionary<string, PullLineModel> linePrefabs = new Dictionary<string, PullLineModel>();
 
+    // 比例导引追踪子弹的帧间状态缓存，key 为 Bullet 对象，避免把追踪字段侵入 Bullet 基类。
+    readonly Dictionary<Bullet, HomingTrackingData> homingData = new Dictionary<Bullet, HomingTrackingData>();
+
     public BulletModel Get(string model)
     {
         if (!bulletPrefabs.TryGetValue(model, out var prefab) || prefab == null)
@@ -59,9 +62,33 @@ public class BulletManager
         Pool1.Despawn(bulletModel);
     }
 
+    public HomingTrackingData GetOrCreateHomingData(Bullet bullet)
+    {
+        if (bullet == null) return null;
+
+        if (!homingData.TryGetValue(bullet, out var data))
+        {
+            data = new HomingTrackingData();
+            homingData[bullet] = data;
+        }
+        return data;
+    }
+
+    public void ReleaseHomingData(Bullet bullet)
+    {
+        if (bullet == null) return;
+        homingData.Remove(bullet);
+    }
+
+    public void ClearHomingData()
+    {
+        homingData.Clear();
+    }
+
     public void ReturnAll()
     {
         Pool.DespawnAll();
         Pool1.DespawnAll();
+        homingData.Clear();
     }
 }

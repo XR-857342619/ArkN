@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -135,6 +135,7 @@ namespace Bullets
             {
                 HandleDirectHit();
                 if (isFinished) return;
+                if (isDirectHit) return; // 同点回跳改为下一帧处理，避免同帧递归无限命中
             }
             if (!isInitialized) return;
 
@@ -211,8 +212,8 @@ namespace Bullets
             // 检查是否到达目标
             if (time > totalTime)
             {
-                //Debug.Log($"弹道到达目标位置: {TargetPos}");
-                HandleTargetReached(position);
+                HandleTargetReached();
+                return Position; // 命中后以实际吸附位置作为当前帧位置，不再用“过冲点”覆盖
             }
 
             if (position.y < 0) position.y = moveHeight;
@@ -248,10 +249,10 @@ namespace Bullets
             }
             isDirectHit = false;
             // 寻找下一个目标
-            FindNextTarget(TargetPos);
+            FindNextTarget(Position);
         }
 
-        private void HandleTargetReached(Vector3 position)
+        private void HandleTargetReached()
         {
             Position = TargetPos;
             if (tempUnit != null)
@@ -283,7 +284,7 @@ namespace Bullets
             }
 
             // 寻找下一个目标
-            FindNextTarget(position);
+            FindNextTarget(Position);
         }
 
         private void FindNextTarget(Vector3 currentPosition)
@@ -326,7 +327,8 @@ namespace Bullets
                     if (Vector3.Distance(currentPosition, TargetPos) < Mathf.Epsilon)
                     {
                         // 直接处理命中，避免除零错误
-                        HandleDirectHit();
+                        isDirectHit = true; // 同点回跳放到下一帧处理，保留无限回跳但不递归
+                        tickTime = 0;
                     }
                     else
                     {
@@ -350,7 +352,8 @@ namespace Bullets
                     if (Vector3.Distance(currentPosition, TargetPos) < Mathf.Epsilon)
                     {
                         // 直接处理命中，避免除零错误
-                        HandleDirectHit();
+                        isDirectHit = true; // 同点回跳放到下一帧处理，保留无限回跳但不递归
+                        tickTime = 0;
                     }
                     else
                     {
