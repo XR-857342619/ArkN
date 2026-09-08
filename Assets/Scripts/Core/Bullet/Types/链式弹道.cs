@@ -25,6 +25,10 @@ namespace Bullets
         private bool isFinished;
         private Skill skill;
         private float _lifeTime;
+        private bool homing;
+        private float homingNavigationConstant = HomingNavigation.DefaultNavigationConstant;
+        private float homingMaxTurnRate;
+        private float homingHitRange = 0.1f;
 
         private bool showRange;
         private string color;
@@ -70,6 +74,14 @@ namespace Bullets
             _lifeTime = BulletData.Data.GetFloat("LifeTime", 0);
             if (_lifeTime > 0) lifeTime.Set(_lifeTime);
             else lifeTime = null;
+
+            homing = BulletData.Data.GetInt("Homing", 0) == 1;
+            if (homing)
+            {
+                homingNavigationConstant = BulletData.Data.GetFloat("NavigationConstant", HomingNavigation.DefaultNavigationConstant);
+                homingMaxTurnRate = BulletData.Data.GetFloat("MaxTurnRate", 0f);
+                homingHitRange = BulletData.Data.GetFloat("HomingHitRange", 0.1f);
+            }
 
             // 设置目标位置
             TargetPos = GetTargetPos(Target);
@@ -167,7 +179,13 @@ namespace Bullets
                 tempUnit.Position = Position;
 
             // 计算新位置
-            if (moveHeight == 0)
+            if (homing)
+            {
+                // Homing=1 时：只改变“从当前位置移动到当前目标”的轨迹算法，
+                // 其余链式索敌、命中、回跳、清理逻辑保持原样。
+                Position = CalculateHomingPosition();
+            }
+            else if (moveHeight == 0)
             {
                 Position = CalculatePositionAtTime(tickTime);
             }
@@ -219,6 +237,25 @@ namespace Bullets
             if (position.y < 0) position.y = moveHeight;
 
             return position;
+        }
+
+        private Vector3 CalculateHomingPosition()
+        {
+            // 比例导引每次根据当前子弹位置/当前目标位置计算下一步，
+            // 不再使用 startPositionCache 的线性插值。
+            Vector3 next = HomingNavigation.GetNextPosition(this, SystemConfig.DeltaTime, homingNavigationConstant, homingMaxTurnRate);
+
+            // 到达判定：目标在当前帧步长可覆盖的范围内，或已经非常接近时视为命中。
+            float step = Mathf.Max(homingHitRange, BulletData.Speed * Speed * SystemConfig.DeltaTime);
+            if ((next - TargetPos).sqrMagnitude <= step * step ||
+                (Position - TargetPos).sqrMagnitude <= step * step)
+            {
+                Position = TargetPos;
+                HandleTargetReached();
+                return Position;
+            }
+
+            return next;
         }
 
         private void HandleDirectHit()
