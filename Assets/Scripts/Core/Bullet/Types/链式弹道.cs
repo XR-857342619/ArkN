@@ -75,7 +75,7 @@ namespace Bullets
             if (_lifeTime > 0) lifeTime.Set(_lifeTime);
             else lifeTime = null;
 
-            homing = BulletData.Data.GetInt("Homing", 0) == 1;
+            homing = BulletData.Data.GetBool("Homing");
             if (homing)
             {
                 homingNavigationConstant = BulletData.Data.GetFloat("NavigationConstant", HomingNavigation.DefaultNavigationConstant);
