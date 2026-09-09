@@ -29,6 +29,9 @@ namespace Bullets
         private float homingNavigationConstant = HomingNavigation.DefaultNavigationConstant;
         private float homingMaxTurnRate;
         private float homingHitRange = 0.1f;
+        private bool isSeekingTarget;
+        private float searchInterval = 0.1f;
+        private float searchTimer;
 
         private bool showRange;
         private string color;
@@ -45,15 +48,7 @@ namespace Bullets
             base.Init();
 
             isFinished = false;
-
-            // 检查起点和终点是否相同
-            isDirectHit = Vector3.Distance(StartPosition, GetTargetPos(Target)) < Mathf.Epsilon;
-
-            if (Target == null || !Target.Alive())
-            {
-                Finish();
-                return;
-            }
+            isSeekingTarget = false;
 
             // 缓存初始位置
             startPositionCache = StartPosition;
@@ -83,20 +78,54 @@ namespace Bullets
                 homingHitRange = BulletData.Data.GetFloat("HomingHitRange", 0.1f);
             }
 
-            // 设置目标位置
-            TargetPos = GetTargetPos(Target);
+            searchInterval = Mathf.Max(0f, BulletData.Data.GetFloat("SearchInterval", 0.1f));
+            searchTimer = 0f;
 
-            // 设置弹道方向与旋转
-            if (moveHeight == 0 && BulletData.FaceCamera == 2 && !isDirectHit)
-                Direction = TargetPos - Position;
+            bool hasTarget = Target != null && Target.Alive();
+
+            // 有初始指向目标时保持原逻辑。
+            if (hasTarget)
+            {
+                isDirectHit = Vector3.Distance(StartPosition, HomingNavigation.GetTargetPosition(this, Target)) < Mathf.Epsilon;
+                TargetPos = HomingNavigation.GetTargetPosition(this, Target);
+
+                if (moveHeight == 0 && BulletData.FaceCamera == 2 && !isDirectHit)
+                    Direction = TargetPos - Position;
+            }
+            else
+            {
+                // 非指向技能（例如弩箭）发射时没有初始 Target。
+                // TargetPos 仍由 CreateBullet 传入，可作为初始直线搜索方向。
+                isDirectHit = false;
+
+                Vector3 aim = TargetPos - Position;
+                if (aim.sqrMagnitude <= 0.0001f)
+                {
+                    Vector3 casterDir = new Vector3(Skill.Unit.Direction.x, 0f, Skill.Unit.Direction.y);
+                    if (casterDir.sqrMagnitude > 0.0001f)
+                    {
+                        TargetPos = Position + casterDir.normalized;
+                        aim = casterDir;
+                    }
+                }
+
+                if (aim.sqrMagnitude > 0.0001f)
+                    Direction = aim;
+
+                // 追踪模式下允许无目标开局：先直线飞行并索敌。
+                if (homing)
+                    isSeekingTarget = true;
+            }
 
             if (BulletData.FaceCamera == 1)
                 BulletModel.transform.eulerAngles = new Vector3(60, 0, 0);
 
             // 设置缩放
-            float scaleX = 1;
-            if (BulletData.ScaleX == 1) scaleX = Target.ScaleX;
-            if (BulletData.ScaleX == 2) scaleX = Skill.Unit.ScaleX;
+            float scaleX = 1f;
+            if (BulletData.ScaleX == 1)
+                scaleX = hasTarget ? Target.ScaleX : Skill.Unit.ScaleX;
+            else if (BulletData.ScaleX == 2)
+                scaleX = Skill.Unit.ScaleX;
             BulletModel.transform.localScale = new Vector3(scaleX, 1, 1);
 
             // 创建临时单位用于索敌
@@ -106,7 +135,9 @@ namespace Bullets
 
             isInitialized = true;
 
-            if (showRange) ShowRangeInit(color, alpha, skill);
+            // ShowRange 基于临时索敌单位 tempUnit 显示，因此无初始 Target 时也可显示。
+            if (showRange)
+                ShowRangeInit(color, alpha, skill);
         }
 
         private Skill CreateTempUnit()
@@ -117,7 +148,7 @@ namespace Bullets
             tempUnit.Battle = Battle;
             tempUnit.Init(true);
             tempUnit.AttackRange = 1;
-            tempUnit.Position = Skill.Unit.Position;
+            tempUnit.Position = Position;
             if (tempUnit == null) return null;
 
             var skillData = Database.Instance.GetIndex<SkillData>(skillId);
@@ -153,6 +184,10 @@ namespace Bullets
 
             tickTime += SystemConfig.DeltaTime;
 
+            // 临时索敌单位始终跟随子弹当前位置，确保直线飞行途中也能用当前位置索敌。
+            if (tempUnit != null)
+                tempUnit.Position = Position;
+
             // 更新目标位置或检查目标有效性
             if (Target != null && Target.Alive())
             {
@@ -163,27 +198,43 @@ namespace Bullets
                 FindNextTarget(Position);
                 TargetPos = GetTargetPos(Target);
             }
+            else if (isSeekingTarget)
+            {
+                // 搜索状态下按配置间隔索敌，避免每帧执行完整 FindTarget。
+                searchTimer -= SystemConfig.DeltaTime;
+                if (searchTimer <= 0f)
+                {
+                    searchTimer = searchInterval;
+                    FindNextTarget(Position);
+                }
+            }
             else
             {
                 FindNextTarget(Position);
             }
 
-            if (Target is null)
+            if (Target is null && !isSeekingTarget)
             {
                 Finish();
                 return;
             }
 
-            // 更新临时单位位置
-            if (tempUnit != null)
-                tempUnit.Position = Position;
-
             // 计算新位置
             if (homing)
             {
-                // Homing=1 时：只改变“从当前位置移动到当前目标”的轨迹算法，
-                // 其余链式索敌、命中、回跳、清理逻辑保持原样。
-                Position = CalculateHomingPosition();
+                // 同点命中放到下一帧处理，避免同帧递归无限命中。
+                if (isDirectHit)
+                {
+                    // 不移动，下一帧走 HandleDirectHit。
+                }
+                else if (Target != null && Target.Alive())
+                {
+                    Position = CalculateHomingPosition();
+                }
+                else if (isSeekingTarget)
+                {
+                    Position = CalculateSeekingPosition();
+                }
             }
             else if (moveHeight == 0)
             {
@@ -356,6 +407,7 @@ namespace Bullets
                 if (nextTarget != null)
                 {
                     // 设置新目标并重置参数
+                    isSeekingTarget = false;
                     Target = nextTarget;
                     TargetPos = GetTargetPos(Target);
                     startPositionCache = currentPosition;
@@ -373,35 +425,83 @@ namespace Bullets
                     }
                     return;
                 }
-                else
+
+                // 当前索敌范围内没有可用目标。
+                // 追踪模式下不立即结束：保留 lastTarget 回跳能力，
+                // 但如果连 lastTarget 都已不可用，则进入直线飞行搜索状态。
+                if (lastTarget is null || !lastTarget.IfAlive)
                 {
-                    if (lastTarget is null || !lastTarget.IfAlive)
+                    if (homing)
                     {
-                        // 没有找到有效目标，结束弹道
-                        Finish();
+                        EnterSeekingState();
                         return;
                     }
-                    Target = lastTarget;
-                    TargetPos = GetTargetPos(Target);
-                    startPositionCache = currentPosition;
-
-                    // 检查新目标是否与当前位置相同
-                    if (Vector3.Distance(currentPosition, TargetPos) < Mathf.Epsilon)
-                    {
-                        // 直接处理命中，避免除零错误
-                        isDirectHit = true; // 同点回跳放到下一帧处理，保留无限回跳但不递归
-                        tickTime = 0;
-                    }
-                    else
-                    {
-                        tickTime = 0;
-                    }
+                    Finish();
                     return;
                 }
+
+                isSeekingTarget = false;
+                Target = lastTarget;
+                TargetPos = GetTargetPos(Target);
+                startPositionCache = currentPosition;
+
+                if (Vector3.Distance(currentPosition, TargetPos) < Mathf.Epsilon)
+                {
+                    // 直接处理命中，避免除零错误
+                    isDirectHit = true; // 同点回跳放到下一帧处理，保留无限回跳但不递归
+                    tickTime = 0;
+                }
+                else
+                {
+                    tickTime = 0;
+                }
+                return;
             }
 
-            // 没有找到有效目标，结束弹道
+            // 链接次数用尽后仍维持原有结束逻辑。
+            if (maxLinkNum == 0)
+            {
+                Finish();
+                return;
+            }
+
+            // 还有剩余链接次数，但当前位置暂时索不到目标。
+            // 追踪模式下进入直线飞行搜索；否则维持原有结束逻辑。
+            if (homing)
+            {
+                EnterSeekingState();
+                return;
+            }
+
             Finish();
+        }
+
+        private void EnterSeekingState()
+        {
+            isSeekingTarget = true;
+            Target = null;
+            TargetPos = Position;
+            isDirectHit = false;
+            tickTime = 0f;
+            startPositionCache = Position;
+            searchTimer = searchInterval;
+        }
+
+        private Vector3 CalculateSeekingPosition()
+        {
+            Vector3 direction = Direction;
+            if (direction.sqrMagnitude <= 0.0001f &&
+                (TargetPos - Position).sqrMagnitude > 0.0001f)
+            {
+                direction = (TargetPos - Position).normalized;
+            }
+
+            if (direction.sqrMagnitude <= 0.0001f)
+                return Position;
+
+            direction.Normalize();
+            Direction = direction;
+            return Position + direction * BulletData.Speed * Speed * SystemConfig.DeltaTime;
         }
 
         private void CleanUp()
@@ -435,17 +535,29 @@ namespace Bullets
 
         public void ShowRangeInit(string color, float alpha, Skill skill)
         {
+            if (tempUnit == null)
+                return;
+
             var tileAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "ShowRange");
             GameObject go = UnityEngine.Object.Instantiate(tileAsset);
-            go.transform.SetParent(Skill.Unit.NowGrid.MapGrid.transform);
-            go.transform.localPosition = new Vector3(0, Battle.Map.Tiles[Target.NowGrid.X, Target.NowGrid.Y].FarAttackGrid ? -0.25f : 0.15f, 0);
+
+            var tile = Battle.Map.Tiles[tempUnit.GridPos.x, tempUnit.GridPos.y];
+            if (tile == null || tile.MapGrid == null)
+            {
+                UnityEngine.Object.Destroy(go);
+                return;
+            }
+
+            go.transform.SetParent(tile.MapGrid.transform);
+            go.transform.localPosition = new Vector3(0, tile.FarAttackGrid ? -0.25f : 0.15f, 0);
+
             ShowRange showRange = go.GetComponent<ShowRange>();
-            showRange.targetTile = Battle.Map.Tiles[Skill.Unit.NowGrid.X, Skill.Unit.NowGrid.Y].MapGrid.gameObject;
-            showRange.unitUniqueIndex = Battle.AllUnits.IndexOf(Target);
+            showRange.targetTile = tile.MapGrid.gameObject;
+            showRange.unitUniqueIndex = Battle.AllUnits.IndexOf(tempUnit);
             showRange.useGridPos = false;
-            showRange.unitGridPos = Position.ToV2Int();
+            showRange.unitGridPos = tempUnit.GridPos;
             //doNotShowRange.unitGridPos = Skill.Unit.GridPos;
-            showRange.unitWorldPos = Position.ToV2();
+            showRange.unitWorldPos = tempUnit.Position.ToV2();
             showRange.colorHex = String.IsNullOrEmpty(color) ? "#6385FF" : color;
             showRange.alpha = alpha;
             showRange.rangeRadius = skill?.SkillData?.AttackRange ?? 0;

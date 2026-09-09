@@ -115,14 +115,23 @@ public static class HomingNavigation
         Vector3 relativeVelocity = data.TargetVelocity - missileVelocity;
         Vector3 losRate = Vector3.Cross(losDir, relativeVelocity) / distance; // 视线角速度矢量
         float closingSpeed = -Vector3.Dot(los, relativeVelocity) / distance;   // 接近速度
-        if (closingSpeed < 0f)
-            closingSpeed = 0f;
 
-        Vector3 acceleration = navigationConstant * closingSpeed * Vector3.Cross(losRate, losDir);
-        Vector3 desiredVelocity = missileVelocity + acceleration * deltaTime;
-        desiredVelocity = desiredVelocity.sqrMagnitude > 0.0001f
-            ? desiredVelocity.normalized * speed
-            : losDir * speed;
+        // 若当前没有“接近”目标（目标在侧面/后方/远离中），
+        // 纯比例导引可能不产生转向力，导致命中后重选目标时继续直飞。
+        // 此时退化为向目标当前位置的纯追踪方向，确保能重新转向索敌到的目标。
+        Vector3 desiredVelocity;
+        if (closingSpeed > 0f)
+        {
+            Vector3 acceleration = navigationConstant * closingSpeed * Vector3.Cross(losRate, losDir);
+            desiredVelocity = missileVelocity + acceleration * deltaTime;
+            desiredVelocity = desiredVelocity.sqrMagnitude > 0.0001f
+                ? desiredVelocity.normalized * speed
+                : losDir * speed;
+        }
+        else
+        {
+            desiredVelocity = losDir * speed;
+        }
 
         // 可选的最大转向角限制，避免轨迹过弯/抖动
         if (maxTurnRateDegrees > 0f && data.HasBulletVelocity)
