@@ -767,8 +767,7 @@ Skill（基类，全局命名空间）
 3. **事件上下文强依赖**：`余火墙` / `死亡回技力` 直接 `TriggerDatas.Peek()` 或解引用事件目标，脱离事件上下文会空引用/抛异常。
 4. **半成品**：`子弹属性修改` / `获取子弹` 只收集子弹不消费；`伤害连发` / `显示进度` 为空实现。
 5. **`继承主技能`**：`CopyState` 不复制 `Unit` 字段，靠手动赋值；`Cast/Start` 未调 base，无伤害/CD 流程。
-6. **`弩箭`** MapUp 分支用 `GetLength(1)` 作 x 上限（疑似行列写反）。
-7. **部署系**：`battleOp.Count > 0 && battleOp.Count < i` 条件基本不会成立；`Operator` 字段在子类中反复用 `new` 隐藏。
+6. **部署系**：`battleOp.Count > 0 && battleOp.Count < i` 条件基本不会成立；`Operator` 字段在子类中反复用 `new` 隐藏。
 
 ## 附录 B：Buff 子类全表（`Buff/Types/`，53 个文件）
 

@@ -29,9 +29,16 @@ namespace Bullets
         private float homingNavigationConstant = HomingNavigation.DefaultNavigationConstant;
         private float homingMaxTurnRate;
         private float homingHitRange = 0.1f;
+        private float homingMinTurnRadius;
+        private float searchMinTurnRadius;
+        private float homingDelay;
+        private float homingDelayTimer;
         private bool isSeekingTarget;
         private float searchInterval = 0.1f;
         private float searchTimer;
+        private float searchTurnRate = 720f;
+        private bool useSearchTurnRate;
+        private float currentHomingTurnRate;
 
         private bool showRange;
         private string color;
@@ -41,7 +48,7 @@ namespace Bullets
         //public float reductionRate;
         //public float ReductionRate => reductionRate;
         private List<GameObject> tiles = new List<GameObject>();
-        private CountDown lifeTime;
+        private CountDown lifeTime = new CountDown();
 
         public override void Init()
         {
@@ -49,6 +56,8 @@ namespace Bullets
 
             isFinished = false;
             isSeekingTarget = false;
+            useSearchTurnRate = false;
+            homingDelayTimer = 0f;
 
             // 缓存初始位置
             startPositionCache = StartPosition;
@@ -74,12 +83,26 @@ namespace Bullets
             if (homing)
             {
                 homingNavigationConstant = BulletData.Data.GetFloat("NavigationConstant", HomingNavigation.DefaultNavigationConstant);
-                homingMaxTurnRate = BulletData.Data.GetFloat("MaxTurnRate", 0f);
-                homingHitRange = BulletData.Data.GetFloat("HomingHitRange", 0.1f);
+                // 默认也使用平滑转向，避免没有显式配置 MaxTurnRate 时瞬间锐角转弯。
+                homingMaxTurnRate = BulletData.Data.GetFloat("MaxTurnRate", 1440f);
+                homingHitRange = BulletData.Data.GetFloat("HomingHitRange", 0.2f);
+                homingDelay = Mathf.Max(0f, BulletData.Data.GetFloat("HomingDelay", 0f));
+                homingDelayTimer = homingDelay;
             }
 
             searchInterval = Mathf.Max(0f, BulletData.Data.GetFloat("SearchInterval", 0.1f));
             searchTimer = 0f;
+
+            searchTurnRate = BulletData.Data.GetFloat("SearchTurnRate", -1f);
+            if (searchTurnRate < 0f)
+                searchTurnRate = homingMaxTurnRate > 0f ? homingMaxTurnRate : 1440f;
+
+            // 初始追踪使用配置的最大转向速率；命中目标后才会重置为 1°/s 并逐帧加速。
+            currentHomingTurnRate = homingMaxTurnRate;
+
+            // 粗略计算当前配置下的最小转弯半径，近距离时用于退化为纯追踪。
+            homingMinTurnRadius = HomingNavigation.CalculateMinTurnRadius(BulletData.Speed, homingMaxTurnRate);
+            searchMinTurnRadius = HomingNavigation.CalculateMinTurnRadius(BulletData.Speed, searchTurnRate);
 
             bool hasTarget = Target != null && Target.Alive();
 
@@ -184,6 +207,14 @@ namespace Bullets
 
             tickTime += SystemConfig.DeltaTime;
 
+            // 追踪启动计时：HomingDelay 秒内只直线飞行，不进行追踪转向。
+            if (homing && homingDelayTimer > 0f)
+            {
+                homingDelayTimer -= SystemConfig.DeltaTime;
+                if (homingDelayTimer <= 0f)
+                    homingDelayTimer = 0f;
+            }
+
             // 临时索敌单位始终跟随子弹当前位置，确保直线飞行途中也能用当前位置索敌。
             if (tempUnit != null)
                 tempUnit.Position = Position;
@@ -222,8 +253,14 @@ namespace Bullets
             // 计算新位置
             if (homing)
             {
+                // 追踪启动时间未到前只沿当前方向直线飞行。
+                // 若直线路径直接到达目标，仍按正常命中处理。
+                if (homingDelayTimer > 0f)
+                {
+                    Position = CalculateHomingDelayPosition();
+                }
                 // 同点命中放到下一帧处理，避免同帧递归无限命中。
-                if (isDirectHit)
+                else if (isDirectHit)
                 {
                     // 不移动，下一帧走 HandleDirectHit。
                 }
@@ -247,6 +284,10 @@ namespace Bullets
                 if (BulletData.FaceCamera == 2)
                     Direction = CalculatePositionAtTime(tickTime + SystemConfig.DeltaTime) - Position;
             }
+
+            // 只在有实际追踪目标时提升本段追踪的最大转向速率。
+            if (homing && Target != null && Target.Alive())
+                IncreaseHomingTurnRate();
 
             if (tiles.Count == 0)
                 return;
@@ -285,16 +326,43 @@ namespace Bullets
                 return Position; // 命中后以实际吸附位置作为当前帧位置，不再用“过冲点”覆盖
             }
 
-            if (position.y < 0) position.y = moveHeight;
+            if (position.y < 0) position.y = Target.GetHitPoint().y;
 
             return position;
+        }
+
+        private Vector3 CalculateHomingDelayPosition()
+        {
+            Vector3 next = CalculateSeekingPosition();
+
+            // 延迟追踪阶段不做转向，但如果直线飞到目标身边，仍然正常命中。
+            if (Target != null && Target.Alive())
+            {
+                float step = Mathf.Max(homingHitRange, BulletData.Speed * Speed * SystemConfig.DeltaTime);
+                if ((next - TargetPos).sqrMagnitude <= step * step ||
+                    (Position - TargetPos).sqrMagnitude <= step * step)
+                {
+                    Position = TargetPos;
+                    HandleTargetReached();
+                    return Position;
+                }
+            }
+
+            return next;
         }
 
         private Vector3 CalculateHomingPosition()
         {
             // 比例导引每次根据当前子弹位置/当前目标位置计算下一步，
             // 不再使用 startPositionCache 的线性插值。
-            Vector3 next = HomingNavigation.GetNextPosition(this, SystemConfig.DeltaTime, homingNavigationConstant, homingMaxTurnRate);
+            float targetTurnRate = useSearchTurnRate ? searchTurnRate : homingMaxTurnRate;
+            float turnRate = currentHomingTurnRate;
+
+            if (targetTurnRate > 0f && (turnRate <= 0f || turnRate > targetTurnRate))
+                turnRate = targetTurnRate;
+
+            float minTurnRadius = useSearchTurnRate ? searchMinTurnRadius : homingMinTurnRadius;
+            Vector3 next = HomingNavigation.GetNextPosition(this, SystemConfig.DeltaTime, homingNavigationConstant, turnRate, minTurnRadius);
 
             // 到达判定：目标在当前帧步长可覆盖的范围内，或已经非常接近时视为命中。
             float step = Mathf.Max(homingHitRange, BulletData.Speed * Speed * SystemConfig.DeltaTime);
@@ -307,6 +375,30 @@ namespace Bullets
             }
 
             return next;
+        }
+
+        private void IncreaseHomingTurnRate()
+        {
+            if (!homing)
+                return;
+
+            float targetTurnRate = useSearchTurnRate ? searchTurnRate : homingMaxTurnRate;
+            if (targetTurnRate <= 0f)
+            {
+                currentHomingTurnRate = targetTurnRate;
+                return;
+            }
+
+            if (currentHomingTurnRate < targetTurnRate)
+            {
+                currentHomingTurnRate += 15f;
+                if (currentHomingTurnRate >= targetTurnRate)
+                    currentHomingTurnRate = targetTurnRate;
+            }
+            else
+            {
+                currentHomingTurnRate = targetTurnRate;
+            }
         }
 
         private void HandleDirectHit()
@@ -336,6 +428,11 @@ namespace Bullets
                 lastTarget = Target;
             }
             isDirectHit = false;
+
+            // 命中目标后，下一段追踪从 1°/s 开始逐渐加速。
+            if (homing)
+                currentHomingTurnRate = 1f;
+
             // 寻找下一个目标
             FindNextTarget(Position);
         }
@@ -371,6 +468,10 @@ namespace Bullets
                 lastTarget = Target;
             }
 
+            // 命中目标后，下一段追踪从 1°/s 开始逐渐加速。
+            if (homing)
+                currentHomingTurnRate = 1f;
+
             // 寻找下一个目标
             FindNextTarget(Position);
         }
@@ -382,6 +483,8 @@ namespace Bullets
                 Finish();
                 return;
             }
+
+            bool fromSearch = isSeekingTarget;
 
             findTargetSkill.UpdateAttackPoints();
             findTargetSkill.FindTarget();
@@ -408,6 +511,7 @@ namespace Bullets
                 {
                     // 设置新目标并重置参数
                     isSeekingTarget = false;
+                    useSearchTurnRate = fromSearch;
                     Target = nextTarget;
                     TargetPos = GetTargetPos(Target);
                     startPositionCache = currentPosition;
@@ -427,8 +531,23 @@ namespace Bullets
                 }
 
                 // 当前索敌范围内没有可用目标。
-                // 追踪模式下不立即结束：保留 lastTarget 回跳能力，
-                // 但如果连 lastTarget 都已不可用，则进入直线飞行搜索状态。
+                if (!canBack)
+                {
+                    // 不开启回跳时，不能再把 lastTarget 当作可重复命中目标。
+                    // 非追踪模式：结束弹道；追踪模式：进入搜索并排除已命中目标。
+                    if (homing)
+                    {
+                        EnterSeekingState();
+                    }
+                    else
+                    {
+                        Finish();
+                    }
+                    return;
+                }
+
+                // 开启回跳时保留原逻辑：lastTarget 仍可继续作为回跳目标。
+                // 如果连 lastTarget 都已不可用，则进入直线飞行搜索状态或结束。
                 if (lastTarget is null || !lastTarget.IfAlive)
                 {
                     if (homing)
@@ -441,6 +560,7 @@ namespace Bullets
                 }
 
                 isSeekingTarget = false;
+                useSearchTurnRate = fromSearch;
                 Target = lastTarget;
                 TargetPos = GetTargetPos(Target);
                 startPositionCache = currentPosition;

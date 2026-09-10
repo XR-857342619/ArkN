@@ -12,6 +12,19 @@ using UnityEngine;
 public static class HomingNavigation
 {
     public const float DefaultNavigationConstant = 4f;
+    private const float DefaultMaxPitchRate = 3600f;
+
+    /// <summary>
+    /// 粗略计算当前速度/转向速率下的最小转弯半径。
+    /// 角速度单位：度/秒；速度单位：世界单位/秒。
+    /// </summary>
+    public static float CalculateMinTurnRadius(float speed, float maxTurnRateDegrees)
+    {
+        if (speed <= 0f || maxTurnRateDegrees <= 0f)
+            return 0f;
+
+        return speed / (maxTurnRateDegrees * Mathf.Deg2Rad) + 0.1f;
+    }
 
     /// <summary>
     /// 获取当前要追踪的点。会优先使用 Bullet.GetTargetPos（命中点/模型点），
@@ -44,7 +57,8 @@ public static class HomingNavigation
     /// <param name="deltaTime">帧时间</param>
     /// <param name="navigationConstant">比例导引常数，通常 3~5，默认 4</param>
     /// <param name="maxTurnRateDegrees">最大转向速率（度/秒），0 表示不限制</param>
-    public static Vector3 GetNextPosition(Bullet bullet, float deltaTime, float navigationConstant, float maxTurnRateDegrees)
+    /// <param name="minTurnRadius">最小转弯半径；小于该距离时退化为纯追踪，0 表示不启用</param>
+    public static Vector3 GetNextPosition(Bullet bullet, float deltaTime, float navigationConstant, float maxTurnRateDegrees, float minTurnRadius = 0f)
     {
         if (bullet == null)
             return Vector3.zero;
@@ -100,7 +114,6 @@ public static class HomingNavigation
         missileVelocity = missileVelocity.sqrMagnitude > 0.0001f
             ? missileVelocity.normalized * speed
             : (targetPos - bullet.Position).normalized * speed;
-
         // ---- 比例导引核心公式 ----
         Vector3 los = targetPos - bullet.Position;
         float distance = los.magnitude;
@@ -120,7 +133,18 @@ public static class HomingNavigation
         // 纯比例导引可能不产生转向力，导致命中后重选目标时继续直飞。
         // 此时退化为向目标当前位置的纯追踪方向，确保能重新转向索敌到的目标。
         Vector3 desiredVelocity;
-        if (closingSpeed > 0f)
+
+        // 近距离时比例导引容易形成环绕，直接退化为纯追踪，优先尝试命中。
+        bool forcePurePursuit = minTurnRadius > 0f && distance < minTurnRadius;
+
+        // 换目标后的第一帧还没有有效目标速度，TargetVelocity 仍为 zero。
+        // 此时直接走纯追踪方向，避免用零目标速度跑比例导引产生异常转向；
+        // 随后仍然会经过 LimitRotation 做水平/垂直转向限制。
+        if (!data.HasTargetVelocity || forcePurePursuit)
+        {
+            desiredVelocity = losDir * speed;
+        }
+        else if (closingSpeed > 0f)
         {
             Vector3 acceleration = navigationConstant * closingSpeed * Vector3.Cross(losRate, losDir);
             desiredVelocity = missileVelocity + acceleration * deltaTime;
@@ -133,21 +157,53 @@ public static class HomingNavigation
             desiredVelocity = losDir * speed;
         }
 
-        // 可选的最大转向角限制，避免轨迹过弯/抖动
-        if (maxTurnRateDegrees > 0f && data.HasBulletVelocity)
+        // 水平转向与垂直俯仰分开限制：
+        // - 水平方向继续使用 maxTurnRateDegrees 控制；
+        // - 垂直方向固定使用 3600°/s，避免在 Y 轴方向积累过多偏移，同时不瞬间突变。
+        if (data.HasBulletVelocity)
         {
-            float maxAngle = maxTurnRateDegrees * Mathf.Deg2Rad * deltaTime;
-            Vector3 newDirection = Vector3.RotateTowards(
+            float maxYawAngle = maxTurnRateDegrees > 0f
+                ? maxTurnRateDegrees * Mathf.Deg2Rad * deltaTime
+                : float.MaxValue;
+            float maxPitchAngle = DefaultMaxPitchRate * Mathf.Deg2Rad * deltaTime;
+
+            Vector3 newDirection = LimitRotation(
                 missileVelocity.normalized,
                 desiredVelocity.normalized,
-                maxAngle,
-                0f);
+                maxYawAngle,
+                maxPitchAngle);
             desiredVelocity = newDirection * speed;
         }
 
         data.BulletVelocity = desiredVelocity;
         bullet.Direction = desiredVelocity.normalized;
         return bullet.Position + desiredVelocity * deltaTime;
+    }
+
+    private static Vector3 LimitRotation(Vector3 current, Vector3 desired, float maxYawAngle, float maxPitchAngle)
+    {
+        if (current.sqrMagnitude < 0.0001f || desired.sqrMagnitude < 0.0001f)
+            return desired.normalized;
+
+        current.Normalize();
+        desired.Normalize();
+
+        float curYaw = Mathf.Atan2(current.z, current.x);
+        float desYaw = Mathf.Atan2(desired.z, desired.x);
+        float yawDiff = Mathf.DeltaAngle(curYaw * Mathf.Rad2Deg, desYaw * Mathf.Rad2Deg) * Mathf.Deg2Rad;
+        yawDiff = Mathf.Clamp(yawDiff, -maxYawAngle, maxYawAngle);
+        float newYaw = curYaw + yawDiff;
+
+        float curPitch = Mathf.Asin(Mathf.Clamp(current.y, -1f, 1f));
+        float desPitch = Mathf.Asin(Mathf.Clamp(desired.y, -1f, 1f));
+        float pitchDiff = Mathf.Clamp(desPitch - curPitch, -maxPitchAngle, maxPitchAngle);
+        float newPitch = curPitch + pitchDiff;
+
+        return new Vector3(
+            Mathf.Cos(newPitch) * Mathf.Cos(newYaw),
+            Mathf.Sin(newPitch),
+            Mathf.Cos(newPitch) * Mathf.Sin(newYaw)
+        ).normalized;
     }
 }
 
