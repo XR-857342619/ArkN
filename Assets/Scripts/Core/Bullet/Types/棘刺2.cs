@@ -30,7 +30,10 @@ namespace Bullets
 
         private int targetTeam;
         private int maxTargetCount;
+        private int currentTargetCount;
         private int triggerTimes;
+        private bool hasInitialTarget;
+        private bool hasHitTarget;
         //float attackGap = -1;
 
         private bool countLimit = false;
@@ -43,8 +46,16 @@ namespace Bullets
         public override void Init()
         {
             base.Init();
-            if (Target.Alive())
+
+            // 是否为指向技能发射：非指向技能没有初始 Target，视为一直没有命中目标。
+            hasInitialTarget = Target != null;
+
+            // 有初始目标时使用命中点；非指向技能没有 Target，保留 CreateBullet 传入的 TargetPos。
+            if (Target != null && Target.Alive())
                 TargetPos = GetTargetPos(Target);
+            else if (Target != null)
+                arrive = true;
+
             moveHeight = BulletData.Data.GetFloat("MoveHeight");
             _lifeTime = BulletData.Data.GetFloat("LifeTime",0);
             LifeTime.Set(_lifeTime);
@@ -57,6 +68,8 @@ namespace Bullets
             targetTeam = BulletData.Data.GetInt("TargetTeam", -1);
             if (targetTeam == -1) targetTeam = Skill.SkillData.TargetTeam;
             maxTargetCount = BulletData.Data.GetInt("MaxTargetCount", -1);
+            countLimit = maxTargetCount != -1;
+            currentTargetCount = 0;
             triggerTimes = BulletData.Data.GetInt("TriggerTimes", -1);
 
             doNotShowRange = BulletData.Data.GetBool("DoNotShowRange");
@@ -65,44 +78,51 @@ namespace Bullets
 
             if (moveHeight == 0 && BulletData.FaceCamera == 2) Direction = TargetPos - this.Position;
             if (BulletData.FaceCamera == 1) BulletModel.transform.eulerAngles = new Vector3(60, 0, 0);
+
             float scaleX = 1;
-            if (BulletData.ScaleX == 1) scaleX = Target.ScaleX;
-            if (BulletData.ScaleX == 2) scaleX = Skill.Unit.ScaleX;
+            if (BulletData.ScaleX == 1)
+                scaleX = Target != null ? Target.ScaleX : Skill.Unit.ScaleX;
+            else if (BulletData.ScaleX == 2)
+                scaleX = Skill.Unit.ScaleX;
             BulletModel.transform.localScale = new Vector3(scaleX, 1, 1);
 
             if (!doNotShowRange) ShowRangeInit(color, alpha);
         }
         public override void Update()
         {
-            if (arrive) return;
             base.Update();
+
             if (radius < MaxRadius)
                 radius += RadiusExponentRate * SystemConfig.DeltaTime;
-            tickTime += SystemConfig.DeltaTime;
 
-            //Log.Debug(radius);
-            
-
-            if (Target.Alive())
-                TargetPos = GetTargetPos(Target);
-            else arrive = true;
-
+            // 仅未到达时更新移动相关逻辑；到达后仍继续执行伤害、持续时间和触发逻辑。
             if (!arrive)
             {
-                if (moveHeight == 0)
-                {
-                    Position = getPosOfTime(tickTime);
-                }
-                else if (moveHeight == 2)
-                {
-                    Position = TargetPos;
+                tickTime += SystemConfig.DeltaTime;
+
+                // 有目标时持续更新目标位置；无目标时保持 CreateBullet 传入的终点，直线飞过去。
+                if (Target != null && Target.Alive())
+                    TargetPos = GetTargetPos(Target);
+                else if (Target != null)
                     arrive = true;
-                }
-                else
+
+                if (!arrive)
                 {
-                    Position = getPosOfTime(tickTime);
-                    if (BulletData.FaceCamera == 2)
-                        Direction = getPosOfTime(tickTime + SystemConfig.DeltaTime) - Position;
+                    if (moveHeight == 0)
+                    {
+                        Position = getPosOfTime(tickTime);
+                    }
+                    else if (moveHeight == 2)
+                    {
+                        Position = TargetPos;
+                        arrive = true;
+                    }
+                    else
+                    {
+                        Position = getPosOfTime(tickTime);
+                        if (!arrive && BulletData.FaceCamera == 2)
+                            Direction = getPosOfTime(tickTime + SystemConfig.DeltaTime) - Position;
+                    }
                 }
             }
             //Debug.Log($"弹道 {BulletData.Id} 更新范围: 位置={this.Position}, 半径={radius}");
@@ -125,6 +145,7 @@ namespace Bullets
             {
                 TriggerTime.Set(_triggerTime);
                 startAttack = true;
+                currentTargetCount = 0;
             }
             if (TriggerTime.Update(SystemConfig.DeltaTime))
             {
@@ -133,6 +154,7 @@ namespace Bullets
                     triggerTimes--;
                 }
                 DamagedUnits.Clear();
+                currentTargetCount = 0;
                 TriggerTime.Set(_triggerTime);
             }
             //Debug.Log("target team:" + team);
@@ -141,34 +163,46 @@ namespace Bullets
                 if (!DamagedUnits.Contains(t))
                 {
                     //Debug.Log("击中:" + t.UnitData.Id);
-                    if (countLimit && maxTargetCount == 0)
+                    if (countLimit && currentTargetCount >= maxTargetCount)
                         break;
+
                     DamagedUnits.Add(t);
-                    if (countLimit)
-                    {
-                        if (maxTargetCount > 0)
-                        {
-                            //Log.Debug("maxTargetCount:" + maxTargetCount);
-                            maxTargetCount--;
-                            Skill.Hit(t, this);
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    else
-                        Skill.Hit(t, this);
+                    currentTargetCount++;
+
+                    if (hasInitialTarget)
+                        hasHitTarget = true;
+
+                    Skill.Hit(t, this);
                 }
             }
-            if (LifeTime.Update(SystemConfig.DeltaTime) && _lifeTime!=0)
+
+            // 命中目标后：
+            // - _lifeTime == 0：立即结束；
+            // - _lifeTime > 0：停止移动，原地持续到 LifeTime 归零。
+            if (hasHitTarget)
+            {
+                if (_lifeTime == 0)
+                {
+                    Finish();
+                    return;
+                }
+
+                arrive = true;
+            }
+
+            if (LifeTime.Update(SystemConfig.DeltaTime) && _lifeTime != 0)
             {
                 Finish();
             }
-            if (arrive && _lifeTime==0)
+
+            // 没有配置 LifeTime 时：
+            // - 命中过目标：在命中当帧已经 Finish；
+            // - 从未命中：到达终点后结束，避免无目标子弹永久存在。
+            if (!hasHitTarget && _lifeTime == 0 && arrive)
             {
                 Finish();
             }
+
             if (triggerTimes == 0)
             {
                 Finish();
@@ -178,7 +212,15 @@ namespace Bullets
         Vector3 getPosOfTime(float time)
         {
             Vector3 position = Vector3.zero;
-            float totalTime = (TargetPos - StartPosition).magnitude / BulletData.Speed * Speed;
+            float distance = (TargetPos - StartPosition).magnitude;
+
+            if (distance < 0.0001f)
+            {
+                arrive = true;
+                return TargetPos;
+            }
+
+            float totalTime = distance / BulletData.Speed * Speed;
             if (time > totalTime)
             {
                 position = TargetPos;
@@ -199,6 +241,7 @@ namespace Bullets
         }
         public override void Finish()
         {
+            //Debug.Log($"弹道 {BulletData.Id} 结束: 位置={this.Position}, 半径={radius}");
             base.Finish();
             foreach (var tile in tiles)
             {
@@ -211,11 +254,16 @@ namespace Bullets
         {
             var tileAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "ShowRange");
             GameObject go = UnityEngine.Object.Instantiate(tileAsset);
-            go.transform.SetParent(Skill.Unit.NowGrid.MapGrid.transform);
-            go.transform.localPosition = new Vector3(0, Battle.Map.Tiles[Target.NowGrid.X, Target.NowGrid.Y].FarAttackGrid ? -0.25f : 0.15f, 0);
+
+            var grid = Skill.Unit.NowGrid;
+            Unit rangeUnit = Target != null ? Target : Skill.Unit;
+
+            go.transform.SetParent(grid.MapGrid.transform);
+            go.transform.localPosition = new Vector3(0, grid.FarAttackGrid ? -0.25f : 0.15f, 0);
+
             ShowRange showRange = go.GetComponent<ShowRange>();
-            showRange.targetTile = Battle.Map.Tiles[Skill.Unit.NowGrid.X, Skill.Unit.NowGrid.Y].MapGrid.gameObject;
-            showRange.unitUniqueIndex = Battle.AllUnits.IndexOf(Target);
+            showRange.targetTile = grid.MapGrid.gameObject;
+            showRange.unitUniqueIndex = Battle.AllUnits.IndexOf(rangeUnit);
             showRange.useGridPos = false;
             showRange.unitGridPos = Position.ToV2Int();
             //doNotShowRange.unitGridPos = Skill.Unit.GridPos;

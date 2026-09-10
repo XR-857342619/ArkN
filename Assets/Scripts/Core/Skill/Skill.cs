@@ -849,7 +849,7 @@ public class Skill
             //创建一个子弹
             var startPoint = Unit.UnitModel.GetPoint(SkillData.ShootPoint);
             //Debug.Log($"攻击{target.UnitData.Name}:{target.Hp} 起点：{startPoint}");
-            Battle.CreateBullet(SkillData.Bullet.Value, startPoint, Vector3.zero, target, this);
+            Battle.CreateBullet(SkillData.Bullet.Value, startPoint, target.GetHitPoint(), target, this);
         }
     }
 

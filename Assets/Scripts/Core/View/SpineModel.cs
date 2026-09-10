@@ -74,7 +74,8 @@ public class SpineModel : UnitModel
         if (bone == null)
         {
             Debug.LogWarning($"{Unit.UnitData.Name} 无法找到骨骼 {name}");
-            return transform.position;
+            //Debug.Log($"{Unit.UnitData.Name} 默认受击点: {transform.position} + {new Vector3(0, SkeletonAnimation.skeleton.ScaleY / 2, 0)} = {transform.position + new Vector3(0, SkeletonAnimation.skeleton.ScaleY / 2, 0)}");
+            return transform.position + new Vector3(0, SkeletonAnimation.skeleton.ScaleY / 2, 0);
         }
         //Vector3 point = new Vector3(bone.GetWorldPosition * transform.lossyScale.x, bone.Y * transform.lossyScale.y, 0);
         //Debug.Log($"bone {name} 的位置偏移 {point}");

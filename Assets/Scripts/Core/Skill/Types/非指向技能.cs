@@ -88,7 +88,7 @@ namespace Skills
                 Unit.AnimationSpeed = 1 / attackSpeed * (beginDuration + fullDuration) / fullDuration;
                 duration = (duration + beginDuration) * fullDuration / (beginDuration + fullDuration);
                 Casting.Set(duration);
-                Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "AttackStart,pointDelay:" + duration + ",fullDuration" + fullDuration + ",beginDuration" + beginDuration + ",Time:" + Time.time);
+                //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "AttackStart,pointDelay:" + duration + ",fullDuration" + fullDuration + ",beginDuration" + beginDuration + ",Time:" + Time.time);
                 if (duration == 0)
                 {
                     Cast();
@@ -114,23 +114,13 @@ namespace Skills
                 BurstCount = SkillData.BurstCount;
                 IsBursting = true;
                 BurstGap.Set(SkillData.BurstDelay);
-                LastTargets.Clear();
-                LastTargets.AddRange(Targets);
+                Burst();
             }
         }
 
         protected override void Burst()
         {
-            if (SkillData.BurstFind || SkillData.RegetTarget) //当目标为随机时
-            {
-                LastTargets.Clear();
-                LastTargets.AddRange(GetAttackTarget());
-            }
-            foreach (var target in LastTargets)
-            {
-                Effect(null);
-            }
-            //Debug.Log(LastTargets.Count + "个目标");
+            Effect(null);
             BurstCount--;
             if (BurstCount > 0)
                 BurstGap.Set(SkillData.BurstDelay);
