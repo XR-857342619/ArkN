@@ -148,100 +148,140 @@ public class SpineImportEditor
     {
         DirectoryInfo dirInfo = new DirectoryInfo(unitAnimationResourcePath);
         FileInfo[] files = dirInfo.GetFiles("*_SkeletonData.asset", SearchOption.AllDirectories);
-        //int index = 0;
-        foreach (var item in files)
+        List<string> failedModels = new List<string>();
+
+        try
         {
-            string assetPath = "Assets" + item.FullName.Substring(Application.dataPath.Length);
-            //Debug.Log(assetPath);
-            string name = item.Name.Substring(0, item.Name.IndexOf("_SkeletonData.asset"));
-            bool front = item.FullName.Contains("\\front\\");
-            bool enemy = item.FullName.Contains("\\Enemy\\");
-            bool back = item.FullName.Contains("\\back\\");
-            //if (back) continue;
-            //Debug.Log(item.FullName);
-            //Debug.Log(back);
-            //EditorUtility.DisplayProgressBar("Create unit spine prefab", name, (float)index++ / files.Length);
-
-            string materialPath = assetPath.Replace("SkeletonData.asset", "Material.mat");
-            Material material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
-            if (material == null)
+            for (int index = 0; index < files.Length; index++)
             {
-                Debug.LogError("can't find mat at:" + materialPath);
-                continue;
-            }
-            material.shader = Shader.Find("Spine/Skeleton Tint");
-            material.SetFloat("_angle", 60);
-            
-            var dataAsset = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(Path.Combine(assetPath));
-            //Debug.Log(Path.Combine(assetPath));
-            //Debug.Log(front);
-            //Debug.Log(dataAsset);
-            //if (dataAsset.scale == 0.01f)
-            //{
-                dataAsset.scale = 0.003f * 0.9f; 
-                EditorUtility.SetDirty(dataAsset);
-            //}
-            //dataAsset.
-            //if (dataAsset.atlasAssets == null || dataAsset.atlasAssets.Length == 0)
-            //{
-            //    SpineEditorUtilities.ImportSpineContent(new string[] { AssetDatabase.GetAssetPath(dataAsset.skeletonJSON) }, true);
-            //    EditorUtility.SetDirty(dataAsset);
-            //}
-            var root = AssetDatabase.LoadAssetAtPath<GameObject>(unitAnimationPrefab_AssetPath + name + ".prefab");
-            //if (root == null || name.StartsWith("token") || name.StartsWith("trap"))
-            if (root == null)
-            //if (true)
-            {
-                root = GameObject.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/Res/Spine/{(enemy ? "Enemy" : "Unit")}.prefab"));
-                PrefabUtility.SaveAsPrefabAsset(root, string.Format("{0}/{1}.prefab", unitAnimationPrefab_AssetPath, name));
-                GameObject.DestroyImmediate(root);
-                AssetDatabase.ImportAsset(Path.Combine(assetPath));
-                root = AssetDatabase.LoadAssetAtPath<GameObject>(unitAnimationPrefab_AssetPath + name + ".prefab"); 
-                SkeletonAnimation sa;
-                if (enemy || front) sa = root.transform.GetChild(1).GetComponent<SkeletonAnimation>();
-                else
-                {
-                    Debug.Log("is back");
-                    Debug.Log(root.transform.GetChild(2));
-                    sa = root.transform.GetChild(2).GetComponent<SkeletonAnimation>();
-                }
-                //else
-                    //sa = root.transform.GetChild(1).GetComponent<SkeletonAnimation>();
+                var item = files[index];
+                string assetPath = "Assets" + item.FullName.Substring(Application.dataPath.Length);
+                string name = item.Name.Substring(0, item.Name.IndexOf("_SkeletonData.asset"));
+                bool front = item.FullName.Contains("\\front\\");
+                bool enemy = item.FullName.Contains("\\Enemy\\");
+                bool back = item.FullName.Contains("\\back\\");
 
-                if (sa.skeletonDataAsset != dataAsset)
-                {
-                    sa.skeletonDataAsset = dataAsset;
-                    sa.Initialize(true);
-                    EditorUtility.SetDirty(root);
-                }
-            }
-            if (root != null && !enemy)
-            {
-                //Debug.Log(root.transform.GetChild(1).name);
-                //Debug.Log(root.transform.GetChild(2).name);
-                SkeletonAnimation frontsa = root.transform.GetChild(1).GetComponent<SkeletonAnimation>();
-                SkeletonAnimation backsa = root.transform.GetChild(2).GetComponent<SkeletonAnimation>();
-                if (front)
-                {
-                    frontsa.skeletonDataAsset = dataAsset;
-                    frontsa.Initialize(true);
-                    Debug.Log("frontsa " + dataAsset.name);
-                    Debug.Log(assetPath);
-                }
-                if (back)
-                {
-                    backsa.skeletonDataAsset = dataAsset;
-                    backsa.Initialize(true);
-                    Debug.Log("backsa " + dataAsset.name);
-                    Debug.Log(assetPath);
-                }
-                EditorUtility.SetDirty(root);
-            }
+                EditorUtility.DisplayProgressBar("Create unit spine prefab", name, (float)index / Mathf.Max(1, files.Length));
 
+                try
+                {
+                    string materialPath = assetPath.Replace("SkeletonData.asset", "Material.mat");
+                    Material material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+                    if (material == null)
+                    {
+                        Debug.LogError("can't find mat at:" + materialPath);
+                        failedModels.Add(item.FullName);
+                        continue;
+                    }
+
+                    material.shader = Shader.Find("Spine/Skeleton Tint");
+                    material.SetFloat("_angle", 60);
+
+                    var dataAsset = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(Path.Combine(assetPath));
+                    if (dataAsset == null)
+                    {
+                        Debug.LogError("can't find SkeletonDataAsset at:" + assetPath);
+                        failedModels.Add(item.FullName);
+                        continue;
+                    }
+
+                    dataAsset.scale = 0.003f * 0.9f;
+                    EditorUtility.SetDirty(dataAsset);
+
+                    var root = AssetDatabase.LoadAssetAtPath<GameObject>(unitAnimationPrefab_AssetPath + name + ".prefab");
+                    if (root == null)
+                    {
+                        root = GameObject.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/Res/Spine/{(enemy ? "Enemy" : "Unit")}.prefab"));
+                        PrefabUtility.SaveAsPrefabAsset(root, string.Format("{0}/{1}.prefab", unitAnimationPrefab_AssetPath, name));
+                        GameObject.DestroyImmediate(root);
+                        AssetDatabase.ImportAsset(Path.Combine(assetPath));
+                        root = AssetDatabase.LoadAssetAtPath<GameObject>(unitAnimationPrefab_AssetPath + name + ".prefab");
+                    }
+
+                    if (root == null)
+                    {
+                        failedModels.Add(item.FullName);
+                        Debug.LogError($"SpinePrefab failed: cannot create/load prefab for model '{name}' ({item.FullName})");
+                        continue;
+                    }
+
+                    if (enemy)
+                    {
+                        SkeletonAnimation enemySa = root.GetComponentInChildren<SkeletonAnimation>(true);
+                        if (enemySa == null)
+                        {
+                            failedModels.Add(item.FullName);
+                            Debug.LogError($"SpinePrefab failed: enemy prefab '{name}' has no SkeletonAnimation component ({item.FullName})");
+                            continue;
+                        }
+
+                        if (enemySa.skeletonDataAsset != dataAsset)
+                        {
+                            enemySa.skeletonDataAsset = dataAsset;
+                            enemySa.Initialize(true);
+                            EditorUtility.SetDirty(root);
+                            Debug.Log($"SpinePrefab: updated enemy '{name}' -> {dataAsset.name}");
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log(name + "is old unit");
+                        SkeletonAnimation frontsa = root.transform.childCount > 1 ? root.transform.GetChild(1).GetComponent<SkeletonAnimation>() : null;
+                        SkeletonAnimation backsa = root.transform.childCount > 2 ? root.transform.GetChild(2).GetComponent<SkeletonAnimation>() : null;
+
+                        if (front && frontsa == null)
+                        {
+                            failedModels.Add(item.FullName);
+                            Debug.LogError($"SpinePrefab failed: unit prefab '{name}' front SkeletonAnimation missing ({item.FullName})");
+                            continue;
+                        }
+
+                        if (back && backsa == null)
+                        {
+                            failedModels.Add(item.FullName);
+                            Debug.LogError($"SpinePrefab failed: unit prefab '{name}' back SkeletonAnimation missing ({item.FullName})");
+                            continue;
+                        }
+
+                        if (front)
+                        {
+                            frontsa.skeletonDataAsset = dataAsset;
+                            frontsa.Initialize(true);
+                            Debug.Log("frontsa " + dataAsset.name);
+                            Debug.Log(assetPath);
+                        }
+                        if (back)
+                        {
+                            backsa.skeletonDataAsset = dataAsset;
+                            backsa.Initialize(true);
+                            Debug.Log("backsa " + dataAsset.name);
+                            Debug.Log(assetPath);
+                        }
+                        EditorUtility.SetDirty(root);
+                    }
+                }
+                catch (Exception e)
+                {
+                    failedModels.Add(item.FullName);
+                    Debug.LogError($"SpinePrefab failed for model '{name}' ({item.FullName}):\n{e}");
+                }
+            }
         }
+        finally
+        {
+            EditorUtility.ClearProgressBar();
+        }
+
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        EditorUtility.ClearProgressBar();
-        //AssetDatabase.Instance.Refresh();
+
+        if (failedModels.Count > 0)
+        {
+            Debug.LogError($"SpinePrefab completed with {failedModels.Count} failed model(s):\n" + string.Join("\n", failedModels));
+        }
+        else
+        {
+            Debug.Log("SpinePrefab completed successfully.");
+        }
     }
 }

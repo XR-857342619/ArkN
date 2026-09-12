@@ -1,10 +1,8 @@
-for /r %%i in (*.atlas) do ( 
-echo %%i
-ren "%%i" "%%~ni.atlas.txt"
- )
- for /r %%i in (*.skel) do ( 
-echo %%i
-ren "%%i" "%%~ni.skel.bytes"
- )
+@echo off
+setlocal
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0process_spine_exports.ps1"
+set "EXIT_CODE=%ERRORLEVEL%"
+echo.
+if not "%EXIT_CODE%"=="0" echo Script failed with exit code %EXIT_CODE%.
 pause
-exit
+exit /b %EXIT_CODE%

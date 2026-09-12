@@ -11893,6 +11893,158 @@ MonoBehaviour:
     m_Address: Assets/Bundles/Units/token_10070_aphris_pc
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 1fdea2eb72b3dbf46a8f68cb1a21f414
+    m_Address: Assets/Bundles/Units/char_1015_aglna2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a4baa46e349a3fd499cf0937e666ee11
+    m_Address: Assets/Bundles/Units/char_4217_makoto
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: db9d22636d9338348aa7b9e5a9014956
+    m_Address: Assets/Bundles/Units/char_4218_aigis
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3fbbaba75c2449a41822fa53f9a96540
+    m_Address: Assets/Bundles/Units/char_4219_yukari
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c539ae4a51340024294b07d1d9715c01
+    m_Address: Assets/Bundles/Units/char_4220_kormr
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 886d75090dde8564cb0f7d40d3059107
+    m_Address: Assets/Bundles/Units/char_4230_mcnist
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7e065fac112f9c344914831ec6cc32e8
+    m_Address: Assets/Bundles/Units/char_4235_thumpy
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ed649f101ceae5547ab5a5444c7de150
+    m_Address: Assets/Bundles/Units/char_4236_tmslot
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0e5d530ccb682304e9ec3eddccfe501d
+    m_Address: Assets/Bundles/Units/char_4237_jcinta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a83e07f684639e849ac671bb540792e7
+    m_Address: Assets/Bundles/Units/enemy_10120_uaghst
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: fd87c17d191aeca46a1e27dda8601652
+    m_Address: Assets/Bundles/Units/enemy_10120_uaghst_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2f63d90ee68249141812ce2fc5e2d2f0
+    m_Address: Assets/Bundles/Units/enemy_10121_uasnip
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c32eccc3477416642bb68886e00fed6e
+    m_Address: Assets/Bundles/Units/enemy_10121_uasnip_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1d2c27163e28f994ba097a83c1390c0e
+    m_Address: Assets/Bundles/Units/enemy_10184_pppsbr
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 504329616be84a54584a09ccbe2e4230
+    m_Address: Assets/Bundles/Units/enemy_10184_pppsbr_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9deb42e8b24e0964ba8cf5829d218c90
+    m_Address: Assets/Bundles/Units/enemy_10185_pppshd
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 31e43082e584cb848b2254934ffd0b80
+    m_Address: Assets/Bundles/Units/enemy_10185_pppshd_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: dad53ef43e87d614fa938eed22f261ed
+    m_Address: Assets/Bundles/Units/enemy_10186_ppparc
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1a4460440c086d643aede16707becf15
+    m_Address: Assets/Bundles/Units/enemy_10186_ppparc_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8083559c36a46ef4688b8e0d469f720d
+    m_Address: Assets/Bundles/Units/enemy_10187_pppwiz
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a7ada2dc025b69e4bbcbdb8ed09a40d8
+    m_Address: Assets/Bundles/Units/enemy_10187_pppwiz_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cdf7106d1ff4ba040a183413ec874849
+    m_Address: Assets/Bundles/Units/enemy_10188_pppdp
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 45f7b6d31e3857a43ac31cb104a2851a
+    m_Address: Assets/Bundles/Units/enemy_10188_pppdp_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2a1969a453d58654290b66ee8dc7c729
+    m_Address: Assets/Bundles/Units/enemy_10189_pppmag
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5d411c83b7b34904ab7cfacfbae4f516
+    m_Address: Assets/Bundles/Units/enemy_10189_pppmag_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 75f0caacd825c9449af1c45a1366864a
+    m_Address: Assets/Bundles/Units/enemy_10190_pppham
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8685f9072c73aed4fada7a483d505f50
+    m_Address: Assets/Bundles/Units/enemy_10190_pppham_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c8e86e64b82fb6945ac3cd914b629698
+    m_Address: Assets/Bundles/Units/enemy_10191_pppgst
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4ee39ee62ea67e84391715d0eeda09e8
+    m_Address: Assets/Bundles/Units/enemy_10191_pppgst_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d10aa5b40e5c88447b75448f99c83b0b
+    m_Address: Assets/Bundles/Units/enemy_10191_pppgst_3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 27f6941349ca7ea4c949f54566202594
+    m_Address: Assets/Bundles/Units/enemy_10191_pppgst_4
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ac2219d6fc661224dbc319d6b7e3c6a5
+    m_Address: Assets/Bundles/Units/enemy_10191_pppgst_5
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 67d9b822308d05641b16974fccfa4e42
+    m_Address: Assets/Bundles/Units/enemy_10192_ppprpr
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c79c2809bf416d14f927b89c26550915
+    m_Address: Assets/Bundles/Units/enemy_1526_sfsui
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: dd84ba5295e1bdd4294ecf58763ae332
+    m_Address: Assets/Bundles/Units/enemy_1571_mirbst
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 33d26f3ffc6279845a0863afc5ee674c
+    m_Address: Assets/Bundles/Units/enemy_1589_pppdth
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d39b571ac34b3ee4689d707d3d407a28
+    m_Address: Assets/Bundles/Units/enemy_3010_mcreep
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 48d9786cd6e66c64987c7cb36c6f0695
+    m_Address: Assets/Bundles/Units/char_1052_kalts2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 242fd0e985ecef14caef48a8cdb9ed24, type: 2}
   m_SchemaSet:

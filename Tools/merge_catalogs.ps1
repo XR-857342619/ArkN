@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$B1Catalog = 'D:\ArknightR\ArknightR0403\ArknightR\ArknightR_Data\StreamingAssets\aa\catalog.json',
     [string]$B1BundleRoot = 'D:\ArknightR\ArknightR0403\ArknightR\ArknightR_Data\StreamingAssets\aa',
     [string]$B2Catalog = 'D:\UnityWork\Ark_N\ArknightN_Data\StreamingAssets\aa\catalog.json',
@@ -222,28 +222,42 @@ function Add-UniqueType($list, $map, $typeObj) {
     return $idx
 }
 
+function Get-BundleKey($internalId) {
+    $token = '{UnityEngine.AddressableAssets.Addressables.RuntimePath}'
+    $tokenIdx = $internalId.IndexOf($token)
+    if ($tokenIdx -lt 0) { return $internalId }
+    $start = $tokenIdx + $token.Length
+    while ($start -lt $internalId.Length -and ($internalId[$start] -eq '/' -or $internalId[$start] -eq '\')) { $start++ }
+    $sep = $internalId.IndexOfAny([char[]]@('/','\'), $start)
+    if ($sep -ge 0) { return $internalId.Substring($sep + 1) }
+    return $internalId
+}
+
+function Get-PlatformFolder($internalId) {
+    $token = '{UnityEngine.AddressableAssets.Addressables.RuntimePath}'
+    $tokenIdx = $internalId.IndexOf($token)
+    if ($tokenIdx -lt 0) { return 'StandaloneWindows64' }
+    $start = $tokenIdx + $token.Length
+    while ($start -lt $internalId.Length -and ($internalId[$start] -eq '/' -or $internalId[$start] -eq '\')) { $start++ }
+    $sep = $internalId.IndexOfAny([char[]]@('/','\'), $start)
+    if ($sep -gt $start) { return $internalId.Substring($start, $sep - $start) }
+    return 'StandaloneWindows64'
+}
+
 function Get-BundleSuffixSet($cat) {
     $set = New-Object 'System.Collections.Generic.HashSet[string]'
     foreach ($id in $cat.InternalIds) {
         if ($id -like '*.bundle') {
-            $idx = $id.IndexOf('StandaloneWindows64\')
-            if ($idx -ge 0) {
-                $suffix = $id.Substring($idx + 'StandaloneWindows64\'.Length).Replace('/','\')
-                $null = $set.Add($suffix)
-            }
+            $null = $set.Add((Get-BundleKey $id).Replace('/','\'))
         }
     }
     return $set
 }
 
 function Get-BundleLogicalName($internalId) {
-    $idx = $internalId.IndexOf('StandaloneWindows64\')
-    if ($idx -lt 0) { return $internalId }
-    $suffix = $internalId.Substring($idx + 'StandaloneWindows64\'.Length).Replace('/','\')
+    $suffix = (Get-BundleKey $internalId).Replace('/','\')
     $name = [System.IO.Path]::GetFileNameWithoutExtension($suffix)
-    if ($name -match '^(.*)_[0-9a-fA-F]{32}$') {
-        return $Matches[1]
-    }
+    if ($name -match '^(.*)_[0-9a-fA-F]{32}$') { return $Matches[1] }
     return $name
 }
 
@@ -333,9 +347,7 @@ for ($i=0; $i -lt $b1.EntryCount; $i++) {
     $e = $b1.Entries[$i]
     if ($b1.ProviderIds[$e.ProviderIndex] -ne $b1ProviderAssetBundle) { continue }
     $internalId = $b1.InternalIds[$e.InternalIdIndex]
-    $idx = $internalId.IndexOf('StandaloneWindows64\')
-    if ($idx -lt 0) { continue }
-    $key = $internalId.Substring($idx + 'StandaloneWindows64\'.Length)
+    $key = Get-BundleKey $internalId
     $logical = Get-BundleLogicalName $internalId
     if (-not $b1BundleLogical.ContainsKey($logical)) {
         $b1BundleLogical[$logical] = New-Object 'System.Collections.Generic.List[string]'
@@ -348,9 +360,7 @@ for ($i=0; $i -lt $b2.EntryCount; $i++) {
     $e = $b2.Entries[$i]
     if ($b2.ProviderIds[$e.ProviderIndex] -ne $b1ProviderAssetBundle) { continue }
     $internalId = $b2.InternalIds[$e.InternalIdIndex]
-    $idx = $internalId.IndexOf('StandaloneWindows64\')
-    if ($idx -lt 0) { continue }
-    $key = $internalId.Substring($idx + 'StandaloneWindows64\'.Length)
+    $key = Get-BundleKey $internalId
     $logical = Get-BundleLogicalName $internalId
     if (-not $b2BundleLogical.ContainsKey($logical)) {
         $b2BundleLogical[$logical] = New-Object 'System.Collections.Generic.List[string]'
@@ -405,8 +415,7 @@ for ($i=0; $i -lt $b2.EntryCount; $i++) {
 
     if ($isBundleEntry) {
         $internalId = $b2.InternalIds[$e.InternalIdIndex]
-        $idx = $internalId.IndexOf('StandaloneWindows64\')
-        $b2BundleKey = if ($idx -ge 0) { $internalId.Substring($idx + 'StandaloneWindows64\'.Length) } else { $internalId }
+        $b2BundleKey = Get-BundleKey $internalId
         if ($b1BundleInternalIds.Contains($internalId)) {
             $b2SkippedBundle++
             continue
@@ -524,8 +533,17 @@ Move-Item -Path $tmp -Destination $OutputCatalog -Force
 Write-Host "[Merge] Wrote $OutputCatalog ($((Get-Item $OutputCatalog).Length) bytes)"
 
 if ($CopyBundles) {
-$destBase = Join-Path $B1BundleRoot 'StandaloneWindows64'
-$srcBase = Join-Path $B2BundleRoot 'StandaloneWindows64'
+$firstBundleInternalId = $null
+for ($bi=0; $bi -lt $b2.EntryCount; $bi++) {
+    if ($b2MergedIndex[$bi] -lt 0) { continue }
+    $be = $b2.Entries[$bi]
+    if ($b2.ProviderIds[$be.ProviderIndex] -ne $b1ProviderAssetBundle) { continue }
+    $firstBundleInternalId = $b2.InternalIds[$be.InternalIdIndex]
+    break
+}
+$platformFolder = if ($firstBundleInternalId) { Get-PlatformFolder $firstBundleInternalId } else { 'StandaloneWindows64' }
+$destBase = Join-Path $B1BundleRoot $platformFolder
+$srcBase = Join-Path $B2BundleRoot $platformFolder
 $copyCount = 0
 $skipCount = 0
 $errorCount = 0
@@ -535,9 +553,7 @@ for ($i=0; $i -lt $b2.EntryCount; $i++) {
     $e = $b2.Entries[$i]
     if ($b2.ProviderIds[$e.ProviderIndex] -ne $b1ProviderAssetBundle) { continue }
     $internalId = $b2.InternalIds[$e.InternalIdIndex]
-    $idx = $internalId.IndexOf('StandaloneWindows64\')
-    if ($idx -lt 0) { continue }
-    $suffix = $internalId.Substring($idx + 'StandaloneWindows64\'.Length).Replace('/','\')
+    $suffix = (Get-BundleKey $internalId).Replace('/','\')
     $srcFile = Join-Path $srcBase $suffix
     $destFile = Join-Path $destBase $suffix
     if (-not (Test-Path $srcFile)) {

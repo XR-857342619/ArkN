@@ -11,6 +11,7 @@ using UnityEngine.ResourceManagement.ResourceLocations;
 public static class MergeCatalogTool
 {
     const string TokenRuntimePath = "{UnityEngine.AddressableAssets.Addressables.RuntimePath}";
+    const string ProviderAssetBundle = "UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider";
 
     public static void InspectCatalogs(string b1Catalog, string b2Catalog)
     {
@@ -27,11 +28,12 @@ public static class MergeCatalogTool
 
         var b1 = LoadCatalog(b1Catalog);
         var b2 = LoadCatalog(b2Catalog);
-
         var b1Entries = ExtractEntries(b1, "B1");
         var b2Entries = ExtractEntries(b2, "B2");
 
         Debug.Log($"[Merge] B1 entries={b1Entries.Count} B2 entries={b2Entries.Count}");
+        Debug.Log($"[Merge] B1 providerIds={string.Join(",", b1.ProviderIds ?? new string[0])}");
+        Debug.Log($"[Merge] B2 providerIds={string.Join(",", b2.ProviderIds ?? new string[0])}");
 
         var b1Internal = new HashSet<string>(b1Entries.Select(e => NormalizeBundleId(e.InternalId)));
         var b2Internal = new HashSet<string>(b2Entries.Select(e => NormalizeBundleId(e.InternalId)));
@@ -42,10 +44,6 @@ public static class MergeCatalogTool
         var commonPrimary = b1Primary.Intersect(b2Primary).OrderBy(x => x).ToList();
         Debug.Log($"[Merge] primary overlap={commonPrimary.Count} b1Only={b1Primary.Except(b2Primary).Count()} b2Only={b2Primary.Except(b1Primary).Count()}");
         Debug.Log("[Merge] commonPrimary sample:\n" + string.Join("\n", commonPrimary.Take(50)));
-
-        var b1AllKeys = new HashSet<string>(b1Entries.SelectMany(e => e.Keys).Select(k => k.ToString()));
-        var b2AllKeys = new HashSet<string>(b2Entries.SelectMany(e => e.Keys).Select(k => k.ToString()));
-        Debug.Log($"[Merge] all-key overlap={b1AllKeys.Intersect(b2AllKeys).Count()} b1AllKeys={b1AllKeys.Count} b2AllKeys={b2AllKeys.Count}");
     }
 
     public static void MergeCatalogs(string b1Catalog, string b1BundleRoot, string b2Catalog, string b2BundleRoot, string outputCatalog, bool copyBundles)
@@ -77,8 +75,6 @@ public static class MergeCatalogTool
         if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
             Directory.CreateDirectory(outputDir);
 
-        const string providerAssetBundle = "UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider";
-
         var b1 = LoadCatalog(b1Catalog);
         var b2 = LoadCatalog(b2Catalog);
         var b1Entries = ExtractEntries(b1, "B1");
@@ -89,7 +85,7 @@ public static class MergeCatalogTool
         var b1BundleLogical = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         foreach (var e in b1Entries)
         {
-            if (e.Provider == providerAssetBundle)
+            if (e.Provider == ProviderAssetBundle)
             {
                 b1BundleInternalIds.Add(NormalizeBundleId(e.InternalId));
                 var logical = GetBundleLogicalName(e.InternalId);
@@ -107,7 +103,7 @@ public static class MergeCatalogTool
         var b2BundleLogical = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         foreach (var e in b2Entries)
         {
-            if (e.Provider != providerAssetBundle) continue;
+            if (e.Provider != ProviderAssetBundle) continue;
             var logical = GetBundleLogicalName(e.InternalId);
             if (!b2BundleLogical.TryGetValue(logical, out var list))
                 b2BundleLogical[logical] = list = new List<string>();
@@ -134,7 +130,7 @@ public static class MergeCatalogTool
 
         foreach (var e in b2Entries)
         {
-            bool isBundleEntry = e.Provider == providerAssetBundle;
+            bool isBundleEntry = e.Provider == ProviderAssetBundle;
             if (isBundleEntry)
             {
                 var bundleKey = GetBundleKey(e.InternalId);
@@ -180,8 +176,7 @@ public static class MergeCatalogTool
         Debug.Log($"[Merge] B1 entries={b1Entries.Count} B2 entries={b2Entries.Count} addedB2={addedB2} skippedAddress={skippedAddress} skippedDuplicateBundle={skippedDuplicateBundle} total={mergedEntries.Count}");
 
         if (copyBundles)
-            return;
-        //CopyB2Bundles(b1BundleRoot, b2BundleRoot, addedB2BundleInternalIds);
+            CopyB2Bundles(b1BundleRoot, b2BundleRoot, addedB2BundleInternalIds);
         else
             Debug.Log("[Merge] bundle copy skipped.");
     }
@@ -214,8 +209,6 @@ public static class MergeCatalogTool
         if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
             Directory.CreateDirectory(outputDir);
 
-        const string providerAssetBundle = "UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider";
-
         var main = LoadCatalog(mainCatalog);
         var source = LoadCatalog(extraSourceCatalog);
         var mainEntries = ExtractEntries(main, "Main");
@@ -224,15 +217,20 @@ public static class MergeCatalogTool
         var mainAddresses = new HashSet<string>();
         var mainBundleInternalIds = new HashSet<string>();
         var mainBundleLogical = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        var mainBundleEntriesByKey = new Dictionary<string, ContentCatalogDataEntry>(StringComparer.Ordinal);
         foreach (var e in mainEntries)
         {
-            if (e.Provider == providerAssetBundle)
+            if (e.Provider == ProviderAssetBundle)
             {
                 mainBundleInternalIds.Add(NormalizeBundleId(e.InternalId));
                 var logical = GetBundleLogicalName(e.InternalId);
                 if (!mainBundleLogical.TryGetValue(logical, out var list))
                     mainBundleLogical[logical] = list = new List<string>();
                 list.Add(GetBundleKey(e.InternalId));
+
+                var bundleKey = GetBundleKey(e.InternalId);
+                if (!mainBundleEntriesByKey.ContainsKey(bundleKey))
+                    mainBundleEntriesByKey[bundleKey] = e;
             }
             else if (e.Keys.Count > 0 && e.Keys[0] is string s)
             {
@@ -243,7 +241,7 @@ public static class MergeCatalogTool
         var sourceBundleLogical = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         foreach (var e in sourceEntries)
         {
-            if (e.Provider != providerAssetBundle) continue;
+            if (e.Provider != ProviderAssetBundle) continue;
             var logical = GetBundleLogicalName(e.InternalId);
             if (!sourceBundleLogical.TryGetValue(logical, out var list))
                 sourceBundleLogical[logical] = list = new List<string>();
@@ -263,6 +261,7 @@ public static class MergeCatalogTool
         }
 
         var mergedEntries = new List<ContentCatalogDataEntry>();
+        var requiredMainBundleKeys = new HashSet<string>();
         var addedBundleInternalIds = new HashSet<string>();
         var addressSet = new HashSet<string>();
         int skippedAddress = 0;
@@ -270,7 +269,7 @@ public static class MergeCatalogTool
 
         foreach (var e in sourceEntries)
         {
-            bool isBundleEntry = e.Provider == providerAssetBundle;
+            bool isBundleEntry = e.Provider == ProviderAssetBundle;
             if (isBundleEntry)
             {
                 var bundleKey = GetBundleKey(e.InternalId);
@@ -295,11 +294,38 @@ public static class MergeCatalogTool
 
             for (int i = 0; i < e.Dependencies.Count; i++)
             {
-                if (e.Dependencies[i] is string dep && keyRemap.TryGetValue(dep, out var mapped))
-                    e.Dependencies[i] = mapped;
+                if (e.Dependencies[i] is string dep)
+                {
+                    if (keyRemap.TryGetValue(dep, out var mapped))
+                    {
+                        e.Dependencies[i] = mapped;
+                        requiredMainBundleKeys.Add(mapped);
+                    }
+                    else if (mainBundleEntriesByKey.ContainsKey(dep))
+                    {
+                        requiredMainBundleKeys.Add(dep);
+                    }
+                }
             }
 
             mergedEntries.Add(e);
+        }
+
+        // 额外 catalog 中必须包含 branch2 的 bundle stub，否则 SetData 无法解析依赖 key。
+        var stubKeys = new HashSet<string>();
+        var stubQueue = new Queue<string>(requiredMainBundleKeys);
+        while (stubQueue.Count > 0)
+        {
+            var key = stubQueue.Dequeue();
+            if (!stubKeys.Add(key)) continue;
+            if (!mainBundleEntriesByKey.TryGetValue(key, out var stub)) continue;
+
+            mergedEntries.Add(stub);
+            foreach (var depObj in stub.Dependencies)
+            {
+                if (depObj is string depKey)
+                    stubQueue.Enqueue(depKey);
+            }
         }
 
         var data = new ContentCatalogData(mergedEntries, "Branch1ExtraContentCatalog");
@@ -317,79 +343,41 @@ public static class MergeCatalogTool
         CopyExtraBundles(extraSourceBundleRoot, outputBundleRoot, addedBundleInternalIds);
     }
 
-
-
-
-    static void CopyExtraBundles(string sourceBundleRoot, string outputBundleRoot, HashSet<string> addedBundleInternalIds)
-    {
-        var srcBase = Path.Combine(sourceBundleRoot, "StandaloneWindows64");
-        var dstBase = Path.Combine(outputBundleRoot, "StandaloneWindows64");
-        int copied = 0;
-        int skippedSame = 0;
-        int missing = 0;
-
-        const string marker = "StandaloneWindows64\\";
-        foreach (var internalId in addedBundleInternalIds)
-        {
-            int idx = internalId.IndexOf(marker, StringComparison.Ordinal);
-            if (idx < 0) continue;
-            var rel = internalId.Substring(idx + marker.Length).Replace('/', Path.DirectorySeparatorChar);
-            var src = Path.Combine(srcBase, rel);
-            var dst = Path.Combine(dstBase, rel);
-            if (!File.Exists(src))
-            {
-                Debug.LogWarning($"[Extra] missing source bundle: {rel}");
-                missing++;
-                continue;
-            }
-
-            var dstDir = Path.GetDirectoryName(dst);
-            if (!string.IsNullOrEmpty(dstDir))
-                Directory.CreateDirectory(dstDir);
-
-            if (File.Exists(dst))
-            {
-                if (FilesEqual(src, dst))
-                {
-                    skippedSame++;
-                    continue;
-                }
-
-                Debug.LogWarning($"[Extra] conflict different content: {rel}");
-                continue;
-            }
-
-            File.Copy(src, dst);
-            copied++;
-        }
-
-        Debug.Log($"[Extra] bundle copy done: copied={copied} skippedSame={skippedSame} missing={missing}");
-    }
-
-
-    /*
     static void CopyB2Bundles(string b1BundleRoot, string b2BundleRoot, HashSet<string> bundleInternalIds)
     {
-        var srcBase = Path.Combine(b2BundleRoot, "StandaloneWindows64");
-        var dstBase = Path.Combine(b1BundleRoot, "StandaloneWindows64");
+        CopyBundles(b2BundleRoot, b1BundleRoot, bundleInternalIds, "[Merge]");
+    }
+
+    static void CopyExtraBundles(string sourceBundleRoot, string outputBundleRoot, HashSet<string> bundleInternalIds)
+    {
+        CopyBundles(sourceBundleRoot, outputBundleRoot, bundleInternalIds, "[Extra]");
+    }
+
+    static void CopyBundles(string sourceBundleRoot, string outputBundleRoot, HashSet<string> bundleInternalIds, string logPrefix)
+    {
+        if (bundleInternalIds == null || bundleInternalIds.Count == 0)
+        {
+            Debug.Log($"{logPrefix} bundle copy skipped: no unique bundles to copy.");
+            return;
+        }
+
+        var platformFolder = GetPlatformFolder(bundleInternalIds.First());
+        var srcBase = Path.Combine(sourceBundleRoot, platformFolder);
+        var dstBase = Path.Combine(outputBundleRoot, platformFolder);
         int copied = 0;
         int skippedSame = 0;
         int conflictDifferent = 0;
         int missing = 0;
 
-        const string marker = "StandaloneWindows64\\";
         foreach (var internalId in bundleInternalIds)
         {
-            int idx = internalId.IndexOf(marker, StringComparison.Ordinal);
-            if (idx < 0) continue;
-
-            var rel = internalId.Substring(idx + marker.Length).Replace('/', Path.DirectorySeparatorChar);
+            var rel = GetBundleKey(internalId).Replace('/', Path.DirectorySeparatorChar);
             var src = Path.Combine(srcBase, rel);
             var dst = Path.Combine(dstBase, rel);
 
             if (!File.Exists(src))
             {
-                Debug.LogWarning($"[Merge] Missing B2 source bundle: {rel}");
+                Debug.LogWarning($"{logPrefix} Missing source bundle: {rel}");
                 missing++;
                 continue;
             }
@@ -406,7 +394,7 @@ public static class MergeCatalogTool
                     continue;
                 }
 
-                Debug.LogWarning($"[Merge] Conflicting bundle with different content: {rel}");
+                Debug.LogWarning($"{logPrefix} Conflicting bundle with different content: {rel}");
                 conflictDifferent++;
                 continue;
             }
@@ -415,9 +403,8 @@ public static class MergeCatalogTool
             copied++;
         }
 
-        Debug.Log($"[Merge] bundle copy done: copied={copied} skippedSame={skippedSame} conflictsDifferent={conflictDifferent} missing={missing}");
+        Debug.Log($"{logPrefix} bundle copy done: copied={copied} skippedSame={skippedSame} conflictsDifferent={conflictDifferent} missing={missing}");
     }
-    */
 
     static bool FilesEqual(string pathA, string pathB)
     {
@@ -436,8 +423,7 @@ public static class MergeCatalogTool
     static ContentCatalogData LoadCatalog(string path)
     {
         var json = File.ReadAllText(path);
-        var data = JsonUtility.FromJson<ContentCatalogData>(json);
-        return data;
+        return JsonUtility.FromJson<ContentCatalogData>(json);
     }
 
     static List<ContentCatalogDataEntry> ExtractEntries(ContentCatalogData data, string label)
@@ -465,8 +451,6 @@ public static class MergeCatalogTool
             var loc = kvp.Key;
             var keys = kvp.Value;
 
-            // 必须把 PrimaryKey 放在 Keys 的第一位，否则 SetData 会把它当成非主 key，
-            // 导致后续合并时无法正确识别重复 address。
             if (!string.IsNullOrEmpty(loc.PrimaryKey))
             {
                 keys.Remove(loc.PrimaryKey);
@@ -479,9 +463,9 @@ public static class MergeCatalogTool
                 foreach (var dep in loc.Dependencies)
                     deps.Add(dep.PrimaryKey);
             }
+
             var internalId = ToTemplateInternalId(loc.InternalId);
-            var entry = new ContentCatalogDataEntry(loc.ResourceType, internalId, loc.ProviderId, keys, deps, loc.Data);
-            result.Add(entry);
+            result.Add(new ContentCatalogDataEntry(loc.ResourceType, internalId, loc.ProviderId, keys, deps, loc.Data));
         }
 
         Debug.Log($"[Merge] {label}: locator keys={locator.Locations.Count} unique locations={result.Count} providerIds={string.Join(",", data.ProviderIds ?? new string[0])}");
@@ -499,11 +483,10 @@ public static class MergeCatalogTool
                     return TokenRuntimePath + id.Substring(rt.Length);
                 if (id.StartsWith(rt + "/", StringComparison.Ordinal))
                     return TokenRuntimePath + id.Substring(rt.Length);
-                // Sometimes the editor path has forward slashes and the suffix has backslashes already.
                 var normalizedRt = rt.Replace('\\', '/');
                 var normalizedId = id.Replace('\\', '/');
                 if (normalizedId.StartsWith(normalizedRt + "/", StringComparison.Ordinal))
-                    return TokenRuntimePath + "\\" + normalizedId.Substring(normalizedRt.Length + 1).Replace('/', '\\');
+                    return TokenRuntimePath + "/" + normalizedId.Substring(normalizedRt.Length + 1);
             }
         }
         catch (Exception e)
@@ -515,9 +498,34 @@ public static class MergeCatalogTool
 
     static string GetBundleKey(string internalId)
     {
-        const string marker = "StandaloneWindows64\\";
-        int idx = internalId.IndexOf(marker, StringComparison.Ordinal);
-        return idx < 0 ? internalId : internalId.Substring(idx + marker.Length);
+        int tokenIdx = internalId.IndexOf(TokenRuntimePath, StringComparison.Ordinal);
+        if (tokenIdx >= 0)
+        {
+            int start = tokenIdx + TokenRuntimePath.Length;
+            while (start < internalId.Length && (internalId[start] == '/' || internalId[start] == '\\'))
+                start++;
+            int sep = internalId.IndexOfAny(new[] { '/', '\\' }, start);
+            if (sep >= 0)
+                return internalId.Substring(sep + 1);
+        }
+
+        return internalId;
+    }
+
+    static string GetPlatformFolder(string internalId)
+    {
+        int tokenIdx = internalId.IndexOf(TokenRuntimePath, StringComparison.Ordinal);
+        if (tokenIdx >= 0)
+        {
+            int start = tokenIdx + TokenRuntimePath.Length;
+            while (start < internalId.Length && (internalId[start] == '/' || internalId[start] == '\\'))
+                start++;
+            int sep = internalId.IndexOfAny(new[] { '/', '\\' }, start);
+            if (sep > start)
+                return internalId.Substring(start, sep - start);
+        }
+
+        return "StandaloneWindows64";
     }
 
     static string GetBundleLogicalName(string internalId)
@@ -533,7 +541,6 @@ public static class MergeCatalogTool
         }
         return name;
     }
-
 
     static string NormalizeBundleId(string internalId)
     {

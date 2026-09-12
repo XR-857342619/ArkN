@@ -166,17 +166,29 @@ public class MergeCatalogWindow : EditorWindow
 
         try
         {
-            var outputExtraCatalog = Path.Combine(b2BundleRoot, "extra_catalog.json");
+            // 附加 catalog 必须和主 catalog 放在同一目录，
+            // 也就是 Addressables.RuntimePath 所在目录。
+            var mainCatalogDir = Path.GetDirectoryName(b2Catalog);
+            if (string.IsNullOrEmpty(mainCatalogDir))
+            {
+                log = "无法从 Branch2 Catalog 路径推导运行时目录。";
+                return;
+            }
+
+            b2BundleRoot = mainCatalogDir;
+            EditorPrefs.SetString(PrefB2BundleRoot, b2BundleRoot);
+
+            var outputExtraCatalog = Path.Combine(mainCatalogDir, "extra_catalog.json");
             var projectRoot = Directory.GetParent(Application.dataPath).FullName;
             var outputAddressList = Path.Combine(projectRoot, "Tools", "branch1_extra_addresses.txt");
 
             MergeCatalogTool.GenerateBranch1ExtraCatalog(
                 b2Catalog,
-                b2BundleRoot,
+                mainCatalogDir,
                 b1Catalog,
                 b1BundleRoot,
                 outputExtraCatalog,
-                b2BundleRoot,
+                mainCatalogDir,
                 outputAddressList);
 
             log = "Branch1 Extra 生成完成，详细结果请查看 Console。";
