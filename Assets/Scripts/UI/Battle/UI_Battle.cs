@@ -32,6 +32,7 @@ namespace BattleUI
             Instance = this;
             //m_UnitList.asTree.SetIgnoreEngineTimeScale(true);
             UIPool = new GObjectPool(container.cachedTransform);
+            damageInfoPool = new GObjectPool(container.cachedTransform);
             m_state.onChanged.Add(pageChange);
             m_SkillUseBack.onClick.Add(StopChooseUnit);
             m_SkillUsePanel.m_Leave.onClick.Add(leaveUnit);
@@ -308,9 +309,17 @@ namespace BattleUI
             }
             foreach (var damageInfo in m_DamageInfo.GetChildren())
             {
-                //UIPool.ReturnObject(damageInfo);
-                damageInfo.Dispose();
+                if (damageInfo is UI_DamageInfo info)
+                    damageInfoPool.ReturnObject(info);
+                else
+                    damageInfo.Dispose();
             }
+            m_DamageInfo.RemoveChildren();
+            activeDamageInfos.Clear();
+            unitDamageInfos.Clear();
+            damageTextByItem.Clear();
+            damageReplayTimes.Clear();
+            damagePlayVersions.Clear();
             m_state.selectedIndex = 5;
             //Debug.Log("sate:5");
             BattleCamera.Instance.Blur = true;
@@ -621,41 +630,138 @@ namespace BattleUI
                 m_isPreview.selectedIndex = 0;
             }
         }
+        const int MaxDamageInfoCount = 720;
+        const int MaxUnitDamageInfoCount = 30;
 
-        Queue<(int, int, Vector2)> textQueue = new Queue<(int, int, Vector2)>();       
+        GObjectPool damageInfoPool;
+        readonly List<UI_DamageInfo> activeDamageInfos = new List<UI_DamageInfo>();
+        readonly Dictionary<int, List<UI_DamageInfo>> unitDamageInfos = new Dictionary<int, List<UI_DamageInfo>>();
+        readonly Dictionary<UI_DamageInfo, string> damageTextByItem = new Dictionary<UI_DamageInfo, string>();
+        readonly Dictionary<UI_DamageInfo, int> damagePlayVersions = new Dictionary<UI_DamageInfo, int>();
+        readonly Dictionary<(int unitId, string text), float> damageReplayTimes =
+            new Dictionary<(int unitId, string text), float>();
 
-        public void ShowDamageText(DamageInfo damage, int type,Vector2 pos)
+        const float MinDamageReplayInterval = 0.1f;
+
+        public void ShowDamageText(DamageInfo damage, int type, Vector2 pos)
         {
             int showDamage = Mathf.RoundToInt(Mathf.Abs(damage.FinalDamage));
             if (showDamage == 0) return;
-            textQueue.Enqueue((showDamage, type, pos));
-            DoShowText();
-            //ShowDamageText(showDamage.ToString(), type, pos);
+
+            ShowDamageText(showDamage.ToString(), type, pos, damage.Target);
         }
 
-        async void DoShowText()
+        public void ShowDamageText(string text, int type, Vector2 pos, Unit target = null)
         {
-            if (textQueue.Count > 1) return;
-            while (textQueue.Count > 0)
+            if (string.IsNullOrEmpty(text)) return;
+            if (activeDamageInfos.Count >= MaxDamageInfoCount) return;
+
+            int unitId = target != null ? System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(target) : 0;
+            if (!unitDamageInfos.TryGetValue(unitId, out var unitList))
             {
-                var target = textQueue.Peek();
-                ShowDamageText(target.Item1.ToString(), target.Item2, target.Item3);
-                await TimeHelper.Instance.WaitAsync(0.0f);
-                textQueue.Dequeue();
+                unitList = new List<UI_DamageInfo>();
+                unitDamageInfos[unitId] = unitList;
             }
-        }
 
-        public void ShowDamageText(string text,int type,Vector2 pos)
-        {
-            var damageInfo = UIPackage.CreateObjectFromURL(UI_DamageInfo.URL) as UI_DamageInfo;
+            if (unitList.Count >= MaxUnitDamageInfoCount)
+            {
+                // 1. 优先重新播放最早的相同伤害量
+                UI_DamageInfo sameItem = null;
+                for (int i = 0; i < unitList.Count; i++)
+                {
+                    if (damageTextByItem.TryGetValue(unitList[i], out var oldText) && oldText == text)
+                    {
+                        sameItem = unitList[i];
+                        break;
+                    }
+                }
+
+                if (sameItem != null)
+                {
+                    var replayKey = (unitId, text);
+                    if (damageReplayTimes.TryGetValue(replayKey, out float lastReplay) &&
+                        Time.unscaledTime - lastReplay < MinDamageReplayInterval)
+                    {
+                        return;
+                    }
+                    damageReplayTimes[replayKey] = Time.unscaledTime;
+                    sameItem.visible = true;
+                    sameItem.position = pos;
+                    sameItem.m_type.selectedIndex = type;
+
+                    int newVersion = damagePlayVersions.TryGetValue(sameItem, out int oldVersion) ? oldVersion + 1 : 1;
+                    damagePlayVersions[sameItem] = newVersion;
+                    sameItem.m_show.Play(() => ReturnDamageInfo(sameItem, unitId, text, newVersion));
+                    return;
+                }
+
+                // 2. 没有相同伤害量时，尝试移除一条重复伤害来腾出位置
+                UI_DamageInfo duplicateItem = FindDuplicateDamageItem(unitList);
+                if (duplicateItem != null)
+                {
+                    int dupVersion = damagePlayVersions.TryGetValue(duplicateItem, out int v) ? v : 0;
+                    ReturnDamageInfo(duplicateItem, unitId, damageTextByItem[duplicateItem], dupVersion);
+                }
+                else
+                {
+                    // 3. 全部都是不重复伤害信息时，才忽略本次伤害
+                    return;
+                }
+            }
+
+            UI_DamageInfo damageInfo = damageInfoPool.GetObject(UI_DamageInfo.URL) as UI_DamageInfo;
+            if (damageInfo == null) return;
+
             damageInfo.m_number.SetVar("n", text).FlushVars();
             damageInfo.m_type.selectedIndex = type;
             m_DamageInfo.AddChild(damageInfo);
             damageInfo.position = pos;
-            damageInfo.m_show.Play(() =>
+
+            activeDamageInfos.Add(damageInfo);
+            damageTextByItem[damageInfo] = text;
+            damagePlayVersions[damageInfo] = 0;
+            if (!unitDamageInfos.TryGetValue(unitId, out unitList))
             {
-                damageInfo.Dispose();
-            });
+                unitList = new List<UI_DamageInfo>();
+                unitDamageInfos[unitId] = unitList;
+            }
+            unitList.Add(damageInfo);
+
+            damageInfo.m_show.Play(() => ReturnDamageInfo(damageInfo, unitId, text, 0));
+        }
+
+        private UI_DamageInfo FindDuplicateDamageItem(List<UI_DamageInfo> unitList)
+        {
+            var seen = new HashSet<string>();
+            foreach (var item in unitList)
+            {
+                if (!damageTextByItem.TryGetValue(item, out var text)) continue;
+                if (!seen.Add(text))
+                    return item;
+            }
+            return null;
+        }
+
+        private void ReturnDamageInfo(UI_DamageInfo damageInfo, int unitId, string text, int version)
+        {
+            if (damageInfo == null) return;
+            if (!damagePlayVersions.TryGetValue(damageInfo, out int currentVersion) || currentVersion != version) return;
+            if (!activeDamageInfos.Contains(damageInfo)) return;
+
+            activeDamageInfos.Remove(damageInfo);
+            damageTextByItem.Remove(damageInfo);
+
+            if (unitDamageInfos.TryGetValue(unitId, out var unitList))
+            {
+                unitList.Remove(damageInfo);
+                if (unitList.Count == 0)
+                    unitDamageInfos.Remove(unitId);
+            }
+
+            damagePlayVersions.Remove(damageInfo);
+
+            m_DamageInfo.RemoveChild(damageInfo);
+            damageInfoPool.ReturnObject(damageInfo);
         }
         public void freshDamageInfo()
         {

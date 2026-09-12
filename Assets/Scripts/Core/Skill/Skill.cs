@@ -225,7 +225,7 @@ public class Skill
         {
             if ((!SkillData.RegetTarget && !SkillData.NoTargetAlsoUse) && Targets.All(x => !CanUseTo(x)))
             {
-                Log.Debug($"{Unit.UnitData.Id}的{SkillData.Name}全部目标不合法,强制打断抬手动作{Time.time}");
+                //Log.Debug($"{Unit.UnitData.Id}的{SkillData.Name}全部目标不合法,强制打断抬手动作{Time.time}");
                 BreakCast();
             }
         }
@@ -748,7 +748,7 @@ public class Skill
         CastExSkill();
         if (SkillData.BurstCount > 0)
         {
-            Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "开始Burst");
+            //Debug.Log(Unit.UnitData.Id + "的" + SkillData.Id + "开始Burst");
             BurstCount = SkillData.BurstCount;
             IsBursting = true;
             BurstGap.Set(SkillData.BurstDelay);
@@ -794,7 +794,10 @@ public class Skill
                     r -= SkillData.ExSkillWeight[i];
                     if (r < 0)
                     {
-                        Unit.Skills.Find(x => x.Id == SkillData.ExSkills[i]).Start();
+                        if (i > SkillData.ExSkills.Length - 1) break;
+                        var skill = Unit.Skills?.Find(x => x.Id == SkillData?.ExSkills[i]);
+                        if (skill is not null)
+                            skill.Start();
                         break;
                     }
                 }

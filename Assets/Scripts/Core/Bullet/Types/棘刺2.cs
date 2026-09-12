@@ -178,16 +178,11 @@ namespace Bullets
 
             // 命中目标后：
             // - _lifeTime == 0：立即结束；
-            // - _lifeTime > 0：停止移动，原地持续到 LifeTime 归零。
-            if (hasHitTarget)
+            // - _lifeTime > 0：不结束，继续移动；arrive 仍只由子弹中心到达 TargetPos 决定。
+            if (hasHitTarget && _lifeTime == 0)
             {
-                if (_lifeTime == 0)
-                {
-                    Finish();
-                    return;
-                }
-
-                arrive = true;
+                Finish();
+                return;
             }
 
             if (LifeTime.Update(SystemConfig.DeltaTime) && _lifeTime != 0)

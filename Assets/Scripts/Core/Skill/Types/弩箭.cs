@@ -119,14 +119,14 @@ namespace Skills
             return new Vector3(dir.x * cos - dir.y * sin, 0f, dir.x * sin + dir.y * cos).normalized;
         }
 
-        private void CreateFanBullet(Vector3 startPoint, Unit target, float angleDegrees)
+        private void CreateFanBullet(Vector3 startPoint, float angleDegrees)
         {
             Vector3 direction = RotateDirection(Unit.Direction, angleDegrees);
-            Battle.CreateBullet(SkillData.Bullet.Value, startPoint, startPoint + direction * MaxDistance, target, this);
+            Battle.CreateBullet(SkillData.Bullet.Value, startPoint, startPoint + direction * MaxDistance, null, this);
             Debug.DrawRay(startPoint, direction * MaxDistance, Color.red, 3f);
         }
 
-        private void FireFan(Vector3 startPoint, Unit target)
+        private void FireFan(Vector3 startPoint)
         {
             if (MaxLine <= 0 || Line <= 0)
                 return;
@@ -149,14 +149,14 @@ namespace Skills
             {
                 for (int i = 0; i < MaxLine; i++)
                 {
-                    CreateFanBullet(startPoint, target, startAngle + i * angleStep);
+                    CreateFanBullet(startPoint, startAngle + i * angleStep);
                 }
             }
             else
             {
                 foreach (int i in GetRandomLineIndexes(Line, MaxLine))
                 {
-                    CreateFanBullet(startPoint, target, startAngle + i * angleStep);
+                    CreateFanBullet(startPoint, startAngle + i * angleStep);
                 }
             }
         }
@@ -165,10 +165,13 @@ namespace Skills
         {
             if (SkillData.Bullet != null)
             {
+                // 弩箭的所有子弹必须沿创建时确定的方向直线飞行。
+                // 即使 Effect 收到了有效的 Unit target，也不能传给 CreateBullet，
+                // 否则追踪/链式类弹道会转向目标。
                 if (Mathf.Abs(FanRange) > 0f)
                 {
                     Vector3 fanStart = Unit.UnitModel.GetPoint(SkillData.ShootPoint);
-                    FireFan(fanStart, target);
+                    FireFan(fanStart);
                     return;
                 }
 
@@ -192,7 +195,7 @@ namespace Skills
                                 Battle.CreateBullet(SkillData.Bullet.Value,
                                                   bulletStart,
                                                   bulletStart + direction * MaxDistance,
-                                                  target,
+                                                  null,
                                                   this);
                                 // 在调试模式下显示弹道
                                 Debug.DrawRay(bulletStart, direction * MaxDistance, Color.red, 3f);
@@ -206,7 +209,7 @@ namespace Skills
                                 Battle.CreateBullet(SkillData.Bullet.Value,
                                                   bulletStart,
                                                   bulletStart + direction * MaxDistance,
-                                                  target,
+                                                  null,
                                                   this);
                                 // 在调试模式下显示弹道
                                 Debug.DrawRay(bulletStart, direction * MaxDistance, Color.red, 3f);
@@ -223,7 +226,7 @@ namespace Skills
                             {
                                 var j = startPoint.z + i * GapDistance;
                                 if (j >= 0 && j < Battle.Map.Tiles.GetLength(1))
-                                    Battle.CreateBullet(SkillData.Bullet.Value, startPoint + i * new Vector3(0, 0, 1), startPoint + new Vector3(1, 0, 0) * MaxDistance + i * new Vector3(0, 0, 1), target, this);
+                                    Battle.CreateBullet(SkillData.Bullet.Value, startPoint + i * new Vector3(0, 0, 1), startPoint + new Vector3(1, 0, 0) * MaxDistance + i * new Vector3(0, 0, 1), null, this);
                             }
                         }
                         else
@@ -237,7 +240,7 @@ namespace Skills
                             {
                                 var bulletStart = startPoint + new Vector3(0, 0, offset);
                                 var bulletEnd = startPoint + new Vector3(1, 0, 0) * MaxDistance + new Vector3(0, 0, offset);
-                                Battle.CreateBullet(SkillData.Bullet.Value, bulletStart, bulletEnd, target, this);
+                                Battle.CreateBullet(SkillData.Bullet.Value, bulletStart, bulletEnd, null, this);
                             }
                         }
                         break;
@@ -250,7 +253,7 @@ namespace Skills
                             {
                                 var x = startPoint.x + i * GapDistance;
                                 if (x >= 0 && x < Battle.Map.Tiles.GetLength(0))
-                                    Battle.CreateBullet(SkillData.Bullet.Value, new Vector3(x, startPoint.y, startPoint.z), new Vector3(x, startPoint.y, startPoint.z + MaxDistance), target, this);
+                                    Battle.CreateBullet(SkillData.Bullet.Value, new Vector3(x, startPoint.y, startPoint.z), new Vector3(x, startPoint.y, startPoint.z + MaxDistance), null, this);
                             }
                         }
                         else
@@ -263,7 +266,7 @@ namespace Skills
                             foreach (var offset in lineOffsets)
                             {
                                 var x = startPoint.x + offset;
-                                Battle.CreateBullet(SkillData.Bullet.Value, new Vector3(x, startPoint.y, startPoint.z), new Vector3(x, startPoint.y, startPoint.z + MaxDistance), target, this);
+                                Battle.CreateBullet(SkillData.Bullet.Value, new Vector3(x, startPoint.y, startPoint.z), new Vector3(x, startPoint.y, startPoint.z + MaxDistance), null, this);
                             }
                         }
                         break;
@@ -276,7 +279,7 @@ namespace Skills
                             {
                                 var j = startPoint.z + i * GapDistance;
                                 if (j >= 0 && j < Battle.Map.Tiles.GetLength(1))
-                                    Battle.CreateBullet(SkillData.Bullet.Value, startPoint + i * new Vector3(0, 0, 1), startPoint + new Vector3(-1, 0, 0) * MaxDistance + i * new Vector3(0, 0, 1), target, this);
+                                    Battle.CreateBullet(SkillData.Bullet.Value, startPoint + i * new Vector3(0, 0, 1), startPoint + new Vector3(-1, 0, 0) * MaxDistance + i * new Vector3(0, 0, 1), null, this);
                             }
                         }
                         else
@@ -290,7 +293,7 @@ namespace Skills
                             {
                                 var bulletStart = startPoint + new Vector3(0, 0, offset);
                                 var bulletEnd = startPoint + new Vector3(-1, 0, 0) * MaxDistance + new Vector3(0, 0, offset);
-                                Battle.CreateBullet(SkillData.Bullet.Value, bulletStart, bulletEnd, target, this);
+                                Battle.CreateBullet(SkillData.Bullet.Value, bulletStart, bulletEnd, null, this);
                             }
                         }
                         break;
@@ -303,7 +306,7 @@ namespace Skills
                             {
                                 var x = startPoint.x + i * GapDistance;
                                 if (x >= 0 && x < Battle.Map.Tiles.GetLength(0))
-                                    Battle.CreateBullet(SkillData.Bullet.Value, new Vector3(x, startPoint.y, startPoint.z), new Vector3(x, startPoint.y, startPoint.z - MaxDistance), target, this);
+                                    Battle.CreateBullet(SkillData.Bullet.Value, new Vector3(x, startPoint.y, startPoint.z), new Vector3(x, startPoint.y, startPoint.z - MaxDistance), null, this);
                             }
                         }
                         else
@@ -316,7 +319,7 @@ namespace Skills
                             foreach (var offset in lineOffsets)
                             {
                                 var x = startPoint.x + offset;
-                                Battle.CreateBullet(SkillData.Bullet.Value, new Vector3(x, startPoint.y, startPoint.z), new Vector3(x, startPoint.y, startPoint.z - MaxDistance), target, this);
+                                Battle.CreateBullet(SkillData.Bullet.Value, new Vector3(x, startPoint.y, startPoint.z), new Vector3(x, startPoint.y, startPoint.z - MaxDistance), null, this);
                             }
                         }
                         break;

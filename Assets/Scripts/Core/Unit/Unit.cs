@@ -905,7 +905,7 @@ public class Unit
 
         ApplyDamageModification(damageInfo);
 
-        if (damageInfo.FinalDamage > damageInfo.ExpectedDamage * 1.5f) UnitModel.ShowCrit(damageInfo);
+        if (damageInfo.FinalDamage >= damageInfo.ExpectedDamage * 1.5f) UnitModel.ShowCrit(damageInfo);
 
         //if (damageInfo.DamageType == DamageTypeEnum.LoseHP) Debug.Log($"{UnitData.Name}受到{damageInfo.FinalDamage}点生命流失");
 
@@ -937,7 +937,7 @@ public class Unit
 
     public float basicDamageCalculation(DamageInfo damageInfo, bool isExpect = false)
     {
-        float damage = damageInfo.Attack * damageInfo.DamageRate;
+        float damage = damageInfo.Attack * (isExpect ? 1 : damageInfo.DamageRate);
         
         float defIgnore = isExpect ? 0 : damageInfo.DefIgnore;
         float defIgnoreRate = isExpect ? 0 : damageInfo.DefIgnoreRate;

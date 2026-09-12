@@ -4990,7 +4990,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 3e71399a01c08eb4f9f3932db021a6ec, type: 2}
-  - {fileID: 2100000, guid: 3e71399a01c08eb4f9f3932db021a6ec, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -10022,7 +10021,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 48bb58ff8dd99ff47bd6da44a6e19940, type: 2}
-  - {fileID: 2100000, guid: 48bb58ff8dd99ff47bd6da44a6e19940, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -10083,6 +10081,7 @@ GameObject:
   m_Component:
   - component: {fileID: 932141898162166844}
   - component: {fileID: -7096638294573511407}
+  - component: {fileID: 3152205080415970011}
   m_Layer: 15
   m_Name: common_item_recycle_trail_01
   m_TagString: Untagged
@@ -10098,7 +10097,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4644839115752688461}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.826, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -10120,6 +10119,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 0
   TR: []
+  IsHide: 0
+--- !u!114 &3152205080415970011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4644839115752688461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baad9ea8d4c17114cb265d2bb221f7d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5686253996721014353
 GameObject:
   m_ObjectHideFlags: 0
@@ -14992,7 +15004,6 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bae1ed95fc4919a4db9ba5fe4ffff727, type: 2}
   - {fileID: 2100000, guid: bae1ed95fc4919a4db9ba5fe4ffff727, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -19876,7 +19887,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: aa91271febc8f004d93a9f33b1dab964, type: 2}
-  - {fileID: 2100000, guid: aa91271febc8f004d93a9f33b1dab964, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -19953,7 +19963,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7861460449304090204}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
+  m_LocalPosition: {x: -0.155, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -24707,7 +24717,6 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
   - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -29590,7 +29599,6 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ac4d1dd02e04f1548b25cf5c6314d8e5, type: 2}
   - {fileID: 2100000, guid: ac4d1dd02e04f1548b25cf5c6314d8e5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
