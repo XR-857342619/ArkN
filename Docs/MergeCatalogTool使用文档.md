@@ -724,3 +724,24 @@ Assets/StreamingAssets/aa/Android/
 
 > 说明：`Tools/merge_catalogs.ps1` 与 `Tools/generate_extra_catalog.ps1` 目前主要按 Windows 平台脚本维护。
 > Android 平台合并建议优先使用 Unity 编辑器中的 `Tools > Merge Catalog > Open Merge Window`，该入口已支持平台自动识别。
+
+---
+
+## 14. 实现说明：正向合并优先使用 PowerShell 原始合并
+
+Unity 编辑器中的 `Merge + Copy Bundles` 与 `Merge Catalog Only` 在 Windows 编辑器下会优先调用已验证的：
+
+```
+Tools/merge_catalogs.ps1
+```
+
+原因：
+
+- Unity 原生 `ContentCatalogData.SetData` 会重建 key / bucket / entry 顺序；
+- 本项目对原始 catalog 的 bucket 顺序较敏感；
+- 直接使用 `SetData` 合并出的 catalog 会导致资源加载异常；
+- `merge_catalogs.ps1` 使用原始二进制数据合并，能保留 branch1 原有顺序和结构。
+
+因此正向合并的最终结果以 PowerShell 脚本输出为准。
+
+如果 PowerShell 脚本不存在或执行失败，才会回退到 C# 原生合并逻辑。

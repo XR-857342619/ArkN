@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -48,6 +50,12 @@ public static class MergeCatalogTool
 
     public static void MergeCatalogs(string b1Catalog, string b1BundleRoot, string b2Catalog, string b2BundleRoot, string outputCatalog, bool copyBundles)
     {
+
+        // B2 Bundle Root 必须和 B2 catalog 同目录，避免 GUI 误填到 aa 上层目录。
+        var b2CatalogDir = Path.GetDirectoryName(b2Catalog);
+        if (!string.IsNullOrEmpty(b2CatalogDir) && Directory.Exists(b2CatalogDir))
+            b2BundleRoot = b2CatalogDir;
+
         if (string.IsNullOrEmpty(b1Catalog) || !File.Exists(b1Catalog))
         {
             Debug.LogError("[Merge] B1 catalog path is invalid or does not exist.");
@@ -74,6 +82,11 @@ public static class MergeCatalogTool
         var outputDir = Path.GetDirectoryName(outputCatalog);
         if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
             Directory.CreateDirectory(outputDir);
+
+        // 优先使用已验证的 PowerShell 原始二进制合并脚本。
+        // Unity 原生 SetData 合并会重建 key/bucket 顺序，已验证会导致此项目资源加载异常。
+        if (TryRunPowerShellMerge(b1Catalog, b1BundleRoot, b2Catalog, b2BundleRoot, outputCatalog, copyBundles))
+            return;
 
         var b1 = LoadCatalog(b1Catalog);
         var b2 = LoadCatalog(b2Catalog);
@@ -123,7 +136,8 @@ public static class MergeCatalogTool
         }
 
         var mergedEntries = new List<ContentCatalogDataEntry>(b1Entries);
-        var addedB2BundleInternalIds = new HashSet<string>();
+        var b2BundleInternalIds = new HashSet<string>(
+            b2Entries.Where(e => e.Provider == ProviderAssetBundle).Select(e => e.InternalId));
         int skippedAddress = 0;
         int skippedDuplicateBundle = 0;
         int addedB2 = 0;
@@ -157,9 +171,6 @@ public static class MergeCatalogTool
                     e.Dependencies[i] = mapped;
             }
 
-            if (isBundleEntry)
-                addedB2BundleInternalIds.Add(e.InternalId);
-
             mergedEntries.Add(e);
             addedB2++;
         }
@@ -176,7 +187,15 @@ public static class MergeCatalogTool
         Debug.Log($"[Merge] B1 entries={b1Entries.Count} B2 entries={b2Entries.Count} addedB2={addedB2} skippedAddress={skippedAddress} skippedDuplicateBundle={skippedDuplicateBundle} total={mergedEntries.Count}");
 
         if (copyBundles)
-            CopyB2Bundles(b1BundleRoot, b2BundleRoot, addedB2BundleInternalIds);
+        {
+            // 复制最终 merged catalog 中实际引用的 B2 bundle。
+            // 不依赖“本次新增”，这样在重复执行/已合并过的 catalog 上也能补回缺失 bundle。
+            var mergedBundleInternalIds = new HashSet<string>(
+                mergedEntries.Where(e => e.Provider == ProviderAssetBundle).Select(e => e.InternalId));
+            var b2BundlesToCopy = new HashSet<string>(
+                b2BundleInternalIds.Where(id => mergedBundleInternalIds.Contains(id)));
+            CopyB2Bundles(b1BundleRoot, b2BundleRoot, b2BundlesToCopy);
+        }
         else
             Debug.Log("[Merge] bundle copy skipped.");
     }
@@ -190,6 +209,16 @@ public static class MergeCatalogTool
         string outputBundleRoot,
         string outputAddressList)
     {
+
+        // 自动按 catalog 所在目录推导 bundle 根目录，避免 GUI 误填。
+        var mainCatalogDir = Path.GetDirectoryName(mainCatalog);
+        if (!string.IsNullOrEmpty(mainCatalogDir) && Directory.Exists(mainCatalogDir))
+            mainBundleRoot = mainCatalogDir;
+
+        var extraSourceCatalogDir = Path.GetDirectoryName(extraSourceCatalog);
+        if (!string.IsNullOrEmpty(extraSourceCatalogDir) && Directory.Exists(extraSourceCatalogDir))
+            extraSourceBundleRoot = extraSourceCatalogDir;
+
         if (string.IsNullOrEmpty(mainCatalog) || !File.Exists(mainCatalog))
         {
             Debug.LogError("[Extra] Main catalog path is invalid or does not exist.");
@@ -406,6 +435,70 @@ public static class MergeCatalogTool
         Debug.Log($"{logPrefix} bundle copy done: copied={copied} skippedSame={skippedSame} conflictsDifferent={conflictDifferent} missing={missing}");
     }
 
+    static bool TryRunPowerShellMerge(string b1Catalog, string b1BundleRoot, string b2Catalog, string b2BundleRoot, string outputCatalog, bool copyBundles)
+    {
+#if UNITY_EDITOR_WIN
+        try
+        {
+            var projectRoot = Directory.GetParent(Application.dataPath)?.FullName;
+            if (string.IsNullOrEmpty(projectRoot))
+                return false;
+
+            var scriptPath = Path.Combine(projectRoot, "Tools", "merge_catalogs.ps1");
+            if (!File.Exists(scriptPath))
+            {
+                Debug.LogWarning($"[Merge] PowerShell merge script not found: {scriptPath}");
+                return false;
+            }
+
+            string Q(string s) => "\"" + (s ?? string.Empty).Replace("\"", "\\\"") + "\"";
+            var args = $"-NoProfile -ExecutionPolicy Bypass -File {Q(scriptPath)} " +
+                       $"-B1Catalog {Q(b1Catalog)} -B1BundleRoot {Q(b1BundleRoot)} " +
+                       $"-B2Catalog {Q(b2Catalog)} -B2BundleRoot {Q(b2BundleRoot)} " +
+                       $"-OutputCatalog {Q(outputCatalog)}";
+            if (!copyBundles)
+                args += " -CopyBundles:$false";
+
+            var psi = new ProcessStartInfo("powershell.exe", args)
+            {
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            using (var process = Process.Start(psi))
+            {
+                if (process == null)
+                    return false;
+
+                var stdout = process.StandardOutput.ReadToEnd();
+                var stderr = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+
+                if (!string.IsNullOrEmpty(stdout))
+                    Debug.Log("[Merge][PowerShell] " + stdout.Trim());
+                if (!string.IsNullOrEmpty(stderr))
+                    Debug.LogWarning("[Merge][PowerShell] " + stderr.Trim());
+
+                if (process.ExitCode != 0)
+                {
+                    Debug.LogError($"[Merge] PowerShell merge failed with exit code {process.ExitCode}.");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[Merge] PowerShell merge failed, fallback to native merge. " + e);
+            return false;
+        }
+#else
+        return false;
+#endif
+    }
     static bool FilesEqual(string pathA, string pathB)
     {
         using (var md5 = System.Security.Cryptography.MD5.Create())

@@ -137,6 +137,15 @@ public class MergeCatalogWindow : EditorWindow
         {
             var output = string.IsNullOrEmpty(outputCatalog) ? b1Catalog : outputCatalog;
 
+            // B2 Bundle Root 必须和 B2 catalog 同目录（即 Addressables.RuntimePath 所在目录），
+            // 否则会去错误的 StandaloneWindows64 / Android 目录找源 bundle。
+            var b2CatalogDir = Path.GetDirectoryName(b2Catalog);
+            if (!string.IsNullOrEmpty(b2CatalogDir))
+            {
+                b2BundleRoot = b2CatalogDir;
+                EditorPrefs.SetString(PrefB2BundleRoot, b2BundleRoot);
+            }
+
             // 复制 bundle 时，B1 Bundle Root 自动跟随输出 catalog 所在目录，
             // 避免误填成 branch2 的 aa 目录导致所有 bundle 被误判为“已存在”。
             if (copy && !string.IsNullOrEmpty(output))

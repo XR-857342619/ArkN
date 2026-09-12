@@ -533,53 +533,56 @@ Move-Item -Path $tmp -Destination $OutputCatalog -Force
 Write-Host "[Merge] Wrote $OutputCatalog ($((Get-Item $OutputCatalog).Length) bytes)"
 
 if ($CopyBundles) {
-$firstBundleInternalId = $null
-for ($bi=0; $bi -lt $b2.EntryCount; $bi++) {
-    if ($b2MergedIndex[$bi] -lt 0) { continue }
-    $be = $b2.Entries[$bi]
-    if ($b2.ProviderIds[$be.ProviderIndex] -ne $b1ProviderAssetBundle) { continue }
-    $firstBundleInternalId = $b2.InternalIds[$be.InternalIdIndex]
-    break
-}
-$platformFolder = if ($firstBundleInternalId) { Get-PlatformFolder $firstBundleInternalId } else { 'StandaloneWindows64' }
-$destBase = Join-Path $B1BundleRoot $platformFolder
-$srcBase = Join-Path $B2BundleRoot $platformFolder
-$copyCount = 0
-$skipCount = 0
-$errorCount = 0
-$missingCount = 0
-for ($i=0; $i -lt $b2.EntryCount; $i++) {
-    if ($b2MergedIndex[$i] -lt 0) { continue }
-    $e = $b2.Entries[$i]
-    if ($b2.ProviderIds[$e.ProviderIndex] -ne $b1ProviderAssetBundle) { continue }
-    $internalId = $b2.InternalIds[$e.InternalIdIndex]
-    $suffix = (Get-BundleKey $internalId).Replace('/','\')
-    $srcFile = Join-Path $srcBase $suffix
-    $destFile = Join-Path $destBase $suffix
-    if (-not (Test-Path $srcFile)) {
-        Write-Warning "[Merge] Missing B2 source bundle: $suffix"
-        $missingCount++
-        continue
-    }
-    $destDir = Split-Path $destFile -Parent
-    if (-not (Test-Path $destDir)) {
-        New-Item -ItemType Directory -Force -Path $destDir | Out-Null
-    }
-    if (Test-Path $destFile) {
-        $h1 = (Get-FileHash $destFile -Algorithm MD5).Hash
-        $h2 = (Get-FileHash $srcFile -Algorithm MD5).Hash
-        if ($h1 -eq $h2) {
-            $skipCount++
-            continue
-        } else {
-            Write-Warning "[Merge] Conflicting bundle with different content: $suffix"
-            $errorCount++
-            continue
+    $mergedInternalIdSet = New-Object 'System.Collections.Generic.HashSet[string]'
+    foreach ($id in $mergedInternalIds) { $null = $mergedInternalIdSet.Add($id) }
+
+    # 复制最终 merged catalog 中实际引用的 B2 bundle。
+    # 不依赖“本次新增”，这样在重复执行/已合并过的 catalog 上也能补回缺失 bundle。
+    $b2BundlesToCopy = New-Object 'System.Collections.Generic.List[string]'
+    for ($bi=0; $bi -lt $b2.EntryCount; $bi++) {
+        $be = $b2.Entries[$bi]
+        if ($b2.ProviderIds[$be.ProviderIndex] -ne $b1ProviderAssetBundle) { continue }
+        $internalId = $b2.InternalIds[$be.InternalIdIndex]
+        if ($mergedInternalIdSet.Contains($internalId)) {
+            $b2BundlesToCopy.Add($internalId)
         }
     }
-    Copy-Item -Path $srcFile -Destination $destFile -Force
-    $copyCount++
-}
-Write-Host "[Merge] Bundle copy done: copied=$copyCount skippedSame=$skipCount conflictsDifferent=$errorCount missing=$missingCount"
+
+    $platformFolder = if ($b2BundlesToCopy.Count -gt 0) { Get-PlatformFolder $b2BundlesToCopy[0] } else { 'StandaloneWindows64' }
+    $destBase = Join-Path $B1BundleRoot $platformFolder
+    $srcBase = Join-Path $B2BundleRoot $platformFolder
+    $copyCount = 0
+    $skipCount = 0
+    $errorCount = 0
+    $missingCount = 0
+    foreach ($internalId in $b2BundlesToCopy) {
+        $suffix = (Get-BundleKey $internalId).Replace('/','\')
+        $srcFile = Join-Path $srcBase $suffix
+        $destFile = Join-Path $destBase $suffix
+        if (-not (Test-Path $srcFile)) {
+            Write-Warning "[Merge] Missing B2 source bundle: $suffix"
+            $missingCount++
+            continue
+        }
+        $destDir = Split-Path $destFile -Parent
+        if (-not (Test-Path $destDir)) {
+            New-Item -ItemType Directory -Force -Path $destDir | Out-Null
+        }
+        if (Test-Path $destFile) {
+            $h1 = (Get-FileHash $destFile -Algorithm MD5).Hash
+            $h2 = (Get-FileHash $srcFile -Algorithm MD5).Hash
+            if ($h1 -eq $h2) {
+                $skipCount++
+                continue
+            } else {
+                Write-Warning "[Merge] Conflicting bundle with different content: $suffix"
+                $errorCount++
+                continue
+            }
+        }
+        Copy-Item -Path $srcFile -Destination $destFile -Force
+        $copyCount++
+    }
+    Write-Host "[Merge] Bundle copy done: copied=$copyCount skippedSame=$skipCount conflictsDifferent=$errorCount missing=$missingCount"
 }
 
