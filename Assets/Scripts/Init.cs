@@ -39,11 +39,12 @@ public class Init : MonoBehaviour
         landing?.SetProgress(0.04f, "正在加载附加资源...");
         await LoadExtraCatalogAsync();
         await Task.Yield();
-
+#if UNITY_ANDROID
         // 2.5. 首次启动时复制 StreamingAssets 到持久化路径（Android 必须）
         landing?.SetProgress(0.05f, "正在复制初始资源...");
         await RunCopyOnFirstLaunch();
         await Task.Yield();
+#endif
 
         // 3. 分帧加载其余 UI 包
         await LoadUiPackages(landing);
