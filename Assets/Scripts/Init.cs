@@ -65,7 +65,9 @@ public class Init : MonoBehaviour
 
         // 6. 加载/播放背景音乐
         landing?.SetProgress(0.85f, "正在加载音频...");
-        AudioManager.Instance.PlayBackgroundAudio("main");
+        // 存档加载完成后，先把主音量/分通道音量同步到 AudioManager，再播放 BGM
+        AudioManager.Instance?.RefreshVolumes();
+        AudioManager.Instance.PlayBackgroundAudio("生命流");
         await Task.Yield();
 
         // 7. 完成，淡出加载页并进入主界面

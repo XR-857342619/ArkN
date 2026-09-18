@@ -73,9 +73,32 @@ namespace MainUI
                 m_settingC.selectedIndex = 0;
                 SaveHelper.SaveData();
             });
-            m_bgm.onChanged.Add(() =>
+            // 主音量（0~100 → 0~1）
+            m_mainVolume.onChanged.Add(() =>
             {
-                GameData.Instance.Bgm = (float)m_bgm.value / 100f;
+                float value = (float)m_mainVolume.value / 100f;
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.SetMasterVolume(value);
+                else
+                    GameData.Instance.Bgm = value;
+            });
+            // BGM 通道音量
+            m_bgmVolume.onChanged.Add(() =>
+            {
+                float value = (float)m_bgmVolume.value / 100f;
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.SetBackgroundVolume(value);
+                else
+                    GameData.Instance.BgmVolume = value;
+            });
+            // 音效（SE）通道音量
+            m_SEVolume.onChanged.Add(() =>
+            {
+                float value = (float)m_SEVolume.value / 100f;
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.SetSoundEffectVolume(value);
+                else
+                    GameData.Instance.SoundEffectVolume = value;
             });
             m_Export.onClick.Add(async () =>
             {
@@ -181,7 +204,9 @@ namespace MainUI
 
         public void Flush()
         {
-            m_bgm.value = GameData.Instance.Bgm * 100;
+            m_mainVolume.value = GameData.Instance.Bgm * 100;
+            m_bgmVolume.value = GameData.Instance.BgmVolume * 100;
+            m_SEVolume.value = GameData.Instance.SoundEffectVolume * 100;
             m_ShowElement.selected = GameData.Instance.showElement;
             m_ShowHp.selected = GameData.Instance.showHP;
             m_Name.text = GameData.Instance.Name;

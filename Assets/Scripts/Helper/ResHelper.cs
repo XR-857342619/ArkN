@@ -21,6 +21,14 @@ public class ResHelper
     private static readonly HashSet<int> units = new HashSet<int>();
     private static readonly HashSet<int> skills = new HashSet<int>();
 
+    // ===== 引用计数缓存（按需异步加载、用完释放，适合音频等会被反复播放的资源）=====
+    // 已加载句柄：路径 -> Addressables Handle
+    private static readonly Dictionary<string, AsyncOperationHandle> refHandles = new Dictionary<string, AsyncOperationHandle>();
+    // 引用计数：路径 -> 当前持有者数量
+    private static readonly Dictionary<string, int> refCounts = new Dictionary<string, int>();
+    // 正在加载中的任务：路径 -> Task，避免同一资源并发重复加载
+    private static readonly Dictionary<string, Task<AsyncOperationHandle>> refLoadingTasks = new Dictionary<string, Task<AsyncOperationHandle>>();
+
     public static T GetAsset<T>(string path)
     {
         var op = Addressables.LoadAssetAsync<T>(path);
@@ -29,7 +37,9 @@ public class ResHelper
         {
             return op.Result;
         }
-        throw new Exception($"Addressables 加载失败: {path}, Status={op.Status}, Error={op.OperationException}");
+        Debug.LogWarning($"Addressables 加载失败: {path}, Status={op.Status}, Error={op.OperationException}");
+        return default;
+        //throw new Exception($"Addressables 加载失败: {path}, Status={op.Status}, Error={op.OperationException}");
     }
 
     public static async Task<T> GetAssetAsync<T>(string path)
@@ -41,6 +51,117 @@ public class ResHelper
             return op.Result;
         }
         throw new Exception($"Addressables 加载失败: {path}, Status={op.Status}, Error={op.OperationException}");
+    }
+
+    // ===== 引用计数异步加载/释放（GetAssetRefAsync 必须与 ReleaseAsset 成对使用）=====
+
+    /// <summary>
+    /// 按引用计数异步加载资源：同一路径只会真正加载一次，重复调用返回同一实例并让引用计数 +1。
+    /// 每次调用都必须成对调用 ReleaseAsset，计数归零时才会真正释放 Addressables 句柄。
+    /// </summary>
+    public static async Task<T> GetAssetRefAsync<T>(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+            throw new ArgumentNullException(nameof(path), "资源路径不能为空");
+
+        Task<AsyncOperationHandle> loadingTask;
+        lock (preloadLock)
+        {
+            // 已加载完成：直接复用并增加计数
+            if (refHandles.ContainsKey(path))
+            {
+                refCounts[path] = refCounts.TryGetValue(path, out var count) ? count + 1 : 1;
+                return (T)refHandles[path].Result;
+            }
+
+            // 正在加载：复用同一个 Task，避免并发重复加载
+            if (!refLoadingTasks.TryGetValue(path, out loadingTask))
+            {
+                var handle = Addressables.LoadAssetAsync<T>(path);
+                loadingTask = LoadRefHandleAsync(handle, path);
+                refLoadingTasks[path] = loadingTask;
+            }
+        }
+
+        AsyncOperationHandle loaded;
+        try
+        {
+            loaded = await loadingTask;
+        }
+        catch
+        {
+            lock (preloadLock) { refLoadingTasks.Remove(path); }
+            throw;
+        }
+
+        lock (preloadLock)
+        {
+            refLoadingTasks.Remove(path);
+            if (!refHandles.ContainsKey(path))
+                refHandles[path] = loaded;
+            refCounts[path] = refCounts.TryGetValue(path, out var count) ? count + 1 : 1;
+            return (T)refHandles[path].Result;
+        }
+    }
+
+    private static async Task<AsyncOperationHandle> LoadRefHandleAsync(AsyncOperationHandle handle, string path)
+    {
+        await handle.Task;
+        if (handle.Status != AsyncOperationStatus.Succeeded)
+        {
+            if (handle.IsValid()) Addressables.Release(handle);
+            throw new Exception($"Addressables 加载失败: {path}, Status={handle.Status}, Error={handle.OperationException}");
+        }
+        return handle;
+    }
+
+    /// <summary>
+    /// 释放一次引用计数（与 GetAssetRefAsync 配对）。
+    /// 计数归零时才真正释放 Addressables 句柄；返回是否发生了实际释放。
+    /// </summary>
+    public static bool ReleaseAsset(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return false;
+
+        AsyncOperationHandle handle = default;
+        lock (preloadLock)
+        {
+            if (!refCounts.TryGetValue(path, out var count)) return false;
+
+            count--;
+            if (count > 0)
+            {
+                refCounts[path] = count;
+                return false;
+            }
+
+            refCounts.Remove(path);
+            if (refHandles.TryGetValue(path, out handle))
+                refHandles.Remove(path);
+        }
+
+        if (handle.IsValid())
+            Addressables.Release(handle);
+        return true;
+    }
+
+    /// <summary>释放全部引用计数资源（例如退出到登录界面 / 应用关闭时调用）。</summary>
+    public static void ReleaseAllRefAssets()
+    {
+        List<AsyncOperationHandle> handles = new List<AsyncOperationHandle>();
+        lock (preloadLock)
+        {
+            foreach (var kv in refHandles)
+            {
+                if (kv.Value.IsValid()) handles.Add(kv.Value);
+            }
+            refHandles.Clear();
+            refCounts.Clear();
+            refLoadingTasks.Clear();
+        }
+
+        foreach (var handle in handles)
+            Addressables.Release(handle);
     }
 
     public static GameObject Instantiate(string path)

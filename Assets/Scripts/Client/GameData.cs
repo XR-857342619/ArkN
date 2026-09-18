@@ -12,7 +12,14 @@ public class GameData
     public Team[] Teams = new Team[4];
     public string Name;
     //public string MainPageUnitId;
+    // 历史字段名 Bgm，现语义为「主音量 Master」，由设置面板的 m_mainVolume 滑条控制（0~1）。
+    // 保留字段名是为了兼容旧存档；对外请优先通过 AudioManager 的接口读写。
     public float Bgm = 1;
+    // 分通道音量（0~1），最终音量 = 主音量 * 通道音量。
+    // 由设置面板的 m_bgmVolume / m_SEVolume 滑条分别控制 BGM / 音效通道（0~1）。
+    public float BgmVolume = 1;
+    public float VoiceVolume = 1;
+    public float SoundEffectVolume = 1;
     public bool showHP = false;
     public bool showElement = false;
     public List<string> ExcelList = new List<string>();

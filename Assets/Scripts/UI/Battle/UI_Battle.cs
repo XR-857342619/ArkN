@@ -500,6 +500,7 @@ namespace BattleUI
             if (sk.CanOpen())
             {
                 sk.DoOpen();
+                AudioManager.Instance.PlaySoundEffectAudio("开大");
                 m_state.selectedIndex = 0;
                 //Debug.Log("sate:0");
             }

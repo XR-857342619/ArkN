@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080">
-  <controller name="settingC" exported="true" pages="0,,1," selected="0"/>
-  <controller name="subSetting" exported="true" pages="0,,1,,2,,3," selected="2"/>
-  <controller name="selectExcel" pages="0,,1," selected="1"/>
+  <controller name="settingC" exported="true" pages="0,,1," selected="1"/>
+  <controller name="subSetting" exported="true" pages="0,,1,,2,,3," selected="1"/>
+  <controller name="selectExcel" pages="0,,1," selected="0"/>
   <displayList>
     <image id="n25_r5qv" name="n25" src="r5qvr53" fileName="场景_视野.png" xy="0,0" size="1920,1080" aspect="true">
       <relation target="" sidePair="width-width,height-height,center-center,middle-middle"/>
@@ -75,21 +75,21 @@
       <relation target="n15_10uur" sidePair="right-right%"/>
       <Button title="游戏" titleFontSize="50" selectedTitle="游戏" controller="subSetting" page="0"/>
     </component>
-    <component id="n43_a7vb" name="n43" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,303" size="275,83" group="n44_a7vb">
+    <component id="n43_a7vb" name="n43" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,303" size="275,83" group="n44_a7vb" grayed="true">
       <gearLook controller="subSetting" pages="0,2" values="1,0,0,1|1,0,0,1" default="1,0,1,1"/>
       <relation target="n42_a7vb" sidePair="top-top%"/>
       <relation target="" sidePair="left-left%"/>
       <relation target="n15_10uur" sidePair="right-right%"/>
       <Button title="声音" titleFontSize="50" selectedTitle="声音" controller="subSetting" page="1"/>
     </component>
-    <component id="n99_6ew9" name="ExportBtn" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,406" size="275,83" group="n44_a7vb">
+    <component id="n99_6ew9" name="ExportBtn" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,406" size="275,83" group="n44_a7vb" grayed="true">
       <gearLook controller="subSetting" pages="0,2" values="1,0,0,1|1,0,0,1" default="1,0,1,1"/>
       <relation target="n42_a7vb" sidePair="top-top%"/>
       <relation target="" sidePair="left-left%"/>
       <relation target="n15_10uur" sidePair="right-right%"/>
       <Button title="导表设置" titleFontSize="50" selectedTitle="导表设置" controller="subSetting" page="2"/>
     </component>
-    <component id="n105_pf8n" name="importSpine" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,509" size="275,83" group="n44_a7vb" visible="false">
+    <component id="n105_pf8n" name="importSpine" src="a7vbr58" fileName="SubSettingBtn.xml" xy="50,509" size="275,83" group="n44_a7vb" visible="false" grayed="true">
       <gearLook controller="subSetting" pages="0,2,3" values="0,0,1,0|1,0,0,1|1,0,1,0" default="1,0,1,1"/>
       <relation target="n42_a7vb" sidePair="top-top%"/>
       <relation target="" sidePair="left-left%"/>
@@ -97,16 +97,34 @@
       <Button title="Spine导入" titleFontSize="50" selectedTitle="Spine导入" controller="subSetting" page="3"/>
     </component>
     <group id="n44_a7vb" name="settinglist" xy="50,200" size="275,392" group="n19_10uur"/>
-    <component id="n16_10uur" name="bgm" src="10uur4y" fileName="Slider1.xml" xy="612,211" size="745,30" group="n82_qn1s">
+    <component id="n16_10uur" name="mainVolume" src="10uur4y" fileName="Slider1.xml" xy="629,211" size="745,30" group="n82_qn1s">
       <gearDisplay controller="subSetting" pages="1"/>
       <relation target="n17_10uur" sidePair="left-left%,top-top"/>
       <Slider value="50" max="100"/>
     </component>
-    <text id="n17_10uur" name="n17" xy="458,205" size="125,40" group="n82_qn1s" fontSize="29" text="Bgm音量">
+    <text id="n17_10uur" name="n17" xy="493,205" size="90,40" group="n82_qn1s" fontSize="29" text="主音量">
       <gearDisplay controller="subSetting" pages="1"/>
       <relation target="n15_10uur" sidePair="right-left%,top-top%"/>
     </text>
-    <group id="n82_qn1s" name="bgmG" xy="458,205" size="899,40" group="n19_10uur" advanced="true">
+    <component id="n115_ikuc" name="bgmVolume" src="10uur4y" fileName="Slider1.xml" xy="629,276" size="745,30" group="n82_qn1s">
+      <gearDisplay controller="subSetting" pages="1"/>
+      <relation target="n116_ikuc" sidePair="left-left%,top-top"/>
+      <Slider value="50" max="100"/>
+    </component>
+    <text id="n116_ikuc" name="n116" xy="475,270" size="125,40" group="n82_qn1s" fontSize="29" text="Bgm音量">
+      <gearDisplay controller="subSetting" pages="1"/>
+      <relation target="n15_10uur" sidePair="right-left%,top-top%"/>
+    </text>
+    <component id="n117_ikuc" name="SEVolume" src="10uur4y" fileName="Slider1.xml" xy="629,341" size="745,30" group="n82_qn1s">
+      <gearDisplay controller="subSetting" pages="1"/>
+      <relation target="n118_ikuc" sidePair="left-left%,top-top"/>
+      <Slider value="50" max="100"/>
+    </component>
+    <text id="n118_ikuc" name="n118" xy="478,335" size="119,40" group="n82_qn1s" fontSize="29" text="音效音量">
+      <gearDisplay controller="subSetting" pages="1"/>
+      <relation target="n15_10uur" sidePair="right-left%,top-top%"/>
+    </text>
+    <group id="n82_qn1s" name="SESetting" xy="475,205" size="899,170" group="n19_10uur" advanced="true">
       <gearDisplay controller="subSetting" pages="1"/>
     </group>
     <text id="n75_qn1s" name="n75" xy="453,300" size="364,54" group="n83_qn1s" fontSize="40" text="显示损伤条详细数值">

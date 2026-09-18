@@ -145,6 +145,9 @@ public class BattleManager : MonoBehaviour
             }
         }
 
+        loadingUI.SetProgress(0.96f, "正在加载音效...");
+        await AudioManager.Instance.PreloadSoundEffects("落地", "死亡", "开大");
+
         loadingUI.SetProgress(0.98f, "正在进入战斗...");
         Pause = false;
         var battleUI = UIManager.Instance.ChangeView<BattleUI.UI_Battle>(BattleUI.UI_Battle.URL);
@@ -164,7 +167,7 @@ public class BattleManager : MonoBehaviour
         }
         EffectManager.Instance.ReturnAll();
         BulletManager.Instance.ReturnAll();
-        AudioManager.Instance.PlayBackgroundAudio("main");
+        AudioManager.Instance.PlayBackgroundAudio("生命流");
         //var path = Battle.Map.FindPath(Battle.Map.Grids[1, 3], Battle.Map.Grids[8, 1]);
         //foreach (var grid in path)
         //{
@@ -190,6 +193,7 @@ public class BattleManager : MonoBehaviour
         }
 
         ExtextureLoader.Instance.ClearCache();
+        AudioManager.Instance.ReleasePreloadedSoundEffects();
         ResHelper.ReleasePreloadedAssets();
     }
     public void ReSetPreviwSetting()

@@ -1898,11 +1898,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: 933ae5c6da2200148a36f91f7f853b4e
-    m_Address: Assets/Bundles/Audio/battle
+    m_Address: "Assets/Bundles/Audio/\u6267\u68CB\u8005\u4E4B\u9AA8"
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: 3ae3e4b5c2fc906469cad0f9e8a4ee02
-    m_Address: Assets/Bundles/Audio/main
+    m_Address: "Assets/Bundles/Audio/\u751F\u547D\u6D41"
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: 841119e1d3e954344b6fce7e36b95683
@@ -12043,6 +12043,26 @@ MonoBehaviour:
     m_SerializedLabels: []
   - m_GUID: 48d9786cd6e66c64987c7cb36c6f0695
     m_Address: Assets/Bundles/Units/char_1052_kalts2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8f46a3a268d61a34cb7a826c3eb2906b
+    m_Address: "Assets/Bundles/Audio/\u7EC8\u5C40\u62B5\u6297\u8005"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 31e299bba1e8a5a4db81b5fc1a08fa6f
+    m_Address: "Assets/Bundles/Audio/\u8840\u6DB2"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f34574214c33c5c4fbbce78261a3325f
+    m_Address: "Assets/Bundles/Audio/\u5F00\u5927"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 500a87c4e7b876f4183311d8167a67bc
+    m_Address: "Assets/Bundles/Audio/\u6B7B\u4EA1"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ce75c5ce1fddd0c4daf24bb0d931a84f
+    m_Address: "Assets/Bundles/Audio/\u843D\u5730"
     m_ReadOnly: 0
     m_SerializedLabels: []
   m_ReadOnly: 0

@@ -485,6 +485,7 @@ namespace Units
         public override void DoDie(object source)
         {
             base.DoDie(source);
+            AudioManager.Instance.PlaySoundEffectAudio("死亡");
 
             var leaveEffect = EffectManager.Instance.GetEffect(Database.Instance.GetIndex<EffectData>("离场"));
             leaveEffect.Init(this, this, Position, Direction);

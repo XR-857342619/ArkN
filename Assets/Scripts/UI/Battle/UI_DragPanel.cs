@@ -1,4 +1,4 @@
-﻿using FairyGUI;
+using FairyGUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,6 +83,7 @@ namespace BattleUI
             else
             {
                 Parent.SelectPlayerUnit.JoinMap();
+                AudioManager.Instance.PlaySoundEffectAudio("落地");
                 Parent.selectedUnit = null;
                 //BattleCamera.Instance.FocusUnit = null;
                 Parent.m_state.selectedIndex = 0;

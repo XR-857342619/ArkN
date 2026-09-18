@@ -67,6 +67,12 @@ public class Skill
     public int UseCount;
     public int AnimationIndex;
 
+    /// <summary>
+    /// [保留] 技能动画轮播开关（c3a0a642）：启用后每次施放依次取 ModelAnimation 中的下一个动画名。
+    /// 目前暂不实际使用，保持 false。
+    /// </summary>
+    public static bool UseCarouselAnimation = false;
+
     public Effect ReadyEffect;
 
     public CountDown LoopingStart = new CountDown();
@@ -541,6 +547,41 @@ public class Skill
         return Unit.UnitModel.GetSkillDelay(animationName, lastState, out fullDuration, out beginDuration);
     }
 
+    /// <summary>
+    /// 获取本次技能使用的动画序列。
+    /// ModelAnimation 配置多个动画名时，整体作为“一次技能动作的多阶段动画序列”交由 GetSkillDelay 处理（前摇+后续动画）。
+    /// </summary>
+    protected virtual string[] GetSkillAnimation()
+    {
+        if (UseCarouselAnimation) return GetCarouselAnimation();
+
+        var animation = SkillData.ModelAnimation;
+        if (SkillData.ModelAnimationDown != null && Unit is Units.干员 u && u.Direction_E == DirectionEnum.Up)
+            animation = SkillData.ModelAnimationDown;
+        return animation;
+    }
+
+    /// <summary>
+    /// [保留] 技能动画轮播逻辑（c3a0a642）：每次施放按顺序取 ModelAnimation 中的下一个动画名，作为单段动画播放。
+    /// 目前暂不实际使用；如需启用，将 UseCarouselAnimation 置为 true 即可。
+    /// </summary>
+    protected virtual string[] GetCarouselAnimation()
+    {
+        if (SkillData.ModelAnimation == null || SkillData.ModelAnimation.Length == 0)
+            return SkillData.ModelAnimation;
+
+        int animIndex = AnimationIndex % SkillData.ModelAnimation.Length;
+        AnimationIndex++;
+
+        var animation = new[] { SkillData.ModelAnimation[animIndex] };
+        if (SkillData.ModelAnimationDown != null && Unit is Units.干员 u && u.Direction_E == DirectionEnum.Up)
+        {
+            int downIndex = SkillData.ModelAnimationDown.Length > 0 ? animIndex % SkillData.ModelAnimationDown.Length : 0;
+            animation = new[] { SkillData.ModelAnimationDown[downIndex] };
+        }
+        return animation;
+    }
+
     float lastSpeed = 1;
     /// <summary>
     /// 技能抬手
@@ -594,15 +635,7 @@ public class Skill
         }
         else
         {
-            int animIndex = AnimationIndex % SkillData.ModelAnimation.Length;
-            AnimationIndex++;
-
-            var animation = new[] { SkillData.ModelAnimation[animIndex] };
-            if (SkillData.ModelAnimationDown != null && Unit is Units.干员 u && u.Direction_E == DirectionEnum.Up)
-            {
-                int downIndex = SkillData.ModelAnimationDown.Length > 0 ? animIndex % SkillData.ModelAnimationDown.Length : 0;
-                animation = new[] { SkillData.ModelAnimationDown[downIndex] };
-            }
+            var animation = GetSkillAnimation();
             var duration = GetSkillDelay(SkillData.OverwriteAnimation == null ? animation : SkillData.OverwriteAnimation, Unit.GetAnimation(), out float fullDuration, out float beginDuration);
             //.SkeletonAnimation.skeleton.data.Animations.Find(x => x.Name == "Attack");
             if (SkillData.AnimationTime != null) duration = SkillData.AnimationTime.Value;
