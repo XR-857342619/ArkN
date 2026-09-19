@@ -1529,6 +1529,18 @@ public class Skill
         Battle.TriggerDatas.Pop();
     }
 
+    /// <summary>
+    /// 本技能造成的伤害击杀了目标时由 Unit.DoDie 调用。
+    /// JsonSkill 通过重写它派发 OnKill。
+    /// </summary>
+    public virtual void NotifyKillTarget(Unit deadTarget) { }
+
+    /// <summary>
+    /// 技能持有者死亡时由 Unit.DoDie 调用。
+    /// JsonSkill 通过重写它派发 OnDeath。
+    /// </summary>
+    public virtual void NotifyOwnerDeath() { }
+
     protected virtual void OnBeAttack(Unit target)
     {
         //Debug.Log(target.UnitData.Name +"被攻击");

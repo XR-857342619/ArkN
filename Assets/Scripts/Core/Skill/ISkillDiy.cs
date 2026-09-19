@@ -140,4 +140,28 @@ public class SkillContext
         this.BaseAttackRange = skill.Unit.AttackRange;
         this.ExAttackRange = skill.SkillData.AttackRange;
     }
+
+    /// <summary>
+    /// 复制一份上下文快照，主要供持续型效果器（ISkillEffectTick）跨帧保存激活时刻的数据。
+    /// 注意：Targets / TargetPositions / AttackPoints 会是副本，不受后续 Clear 影响。
+    /// </summary>
+    public SkillContext Clone()
+    {
+        return new SkillContext(Skill)
+        {
+            Caster = Caster,
+            Skill = Skill,
+            Targets = Targets != null ? new List<Unit>(Targets) : new List<Unit>(),
+            TargetPositions = TargetPositions != null ? new List<Vector3>(TargetPositions) : null,
+            Parameters = Parameters,
+            CurrentDamage = CurrentDamage,
+            TargetTeam = TargetTeam,
+            DeadFind = DeadFind,
+            BaseAttackPoints = BaseAttackPoints != null ? new List<Vector2Int>(BaseAttackPoints) : null,
+            ExAttackPoints = ExAttackPoints != null ? new List<Vector2Int>(ExAttackPoints) : null,
+            BaseAttackRange = BaseAttackRange,
+            ExAttackRange = ExAttackRange,
+            targetFilterEnum = targetFilterEnum,
+        };
+    }
 }

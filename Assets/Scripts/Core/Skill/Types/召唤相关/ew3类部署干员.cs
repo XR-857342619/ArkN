@@ -82,6 +82,8 @@ namespace Skills
 
                 Operator.ChangePos((int)tile.Pos.x, (int)tile.Pos.z, direction);
                 Operator.JoinMap(true);
+                Operator.Parent = Unit;
+                Unit.Children.Add(Operator);
             }
             else
             {

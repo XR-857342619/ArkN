@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -17,6 +17,9 @@ public class SkillBaseConfig
     public string ReadyType;
     public float Cooldown;
     public float OpenTime;
+
+    /// <summary>JSON 技能的持续(loop)阶段时长：>0 固定秒数；<0 直到技能结束；0 由持续效果自行结束。</summary>
+    public float LoopTime;
     public int BurstCount;
     public float BurstDelay;
     public bool BurstFind;

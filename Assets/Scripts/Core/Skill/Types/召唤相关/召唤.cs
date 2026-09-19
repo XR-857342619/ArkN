@@ -176,6 +176,7 @@ namespace Skills
             {
                 unit.currentPathIndex = parent.currentPathIndex;
             }
+            caster.Children.Add(unit);
             unit.Parent = caster;
         }
 

@@ -370,7 +370,71 @@ Assets/Bundles/Data/SkillJson.txt
 - `击中`
 - 等常见写法
 
-注意：当前 `JsonSkill` 实际派发的时机主要是 `OnInit / OnStart / OnCast / OnHit / OnBreak / OnEnd`，`OnAttack / OnLoop* / OnKill / OnDeath` 目前主要在枚举和校验层支持，尚未全部接入宿主派发。
+#### 7.3.1 逐帧派发与持续(loop)阶段
+
+`JsonSkill` 已接入**持续(loop)阶段**，由 `SkillBaseConfig.LoopTime` 控制时长：
+
+- `LoopTime > 0`：从本次施法结束起固定持续该秒数；
+- `LoopTime < 0`：持续到技能结束 / 被打断；
+- `LoopTime = 0`（默认）：不主动开启 loop；仅当本次施法注册了可自行结束的持续型效果（`ISkillEffectTick`）时开启，并在所有持续效果结束后自动关闭。
+
+loop 阶段的派发顺序：
+
+```
+技能施法结束
+  └─ OnLoopStart          一次
+        ├─ OnLoopTick      每帧（同时推进所有 ISkillEffectTick）
+        └─ OnLoopEnd       一次（自然结束 / BreakCast / Finish）
+```
+
+各触发时机对应的派发位置：
+
+| Trigger | 派发位置 | 说明 |
+|---|---|---|
+| `OnInit` | `JsonSkill.Init` | 技能创建时一次 |
+| `OnStart` | `JsonSkill.OnSkillOpen` | 技能开启（DoOpen）时一次 |
+| `OnCast` | `JsonSkill.Cast` / `Burst` | 施放生效点（连发时每段各一次） |
+| `OnAttack` | `JsonSkill.OnAttack`（由 `Hit(Unit)` 调用） | 命中单位时，与旧 `TriggerEnum.攻击` 同一时机 |
+| `OnHit` | `JsonSkill.Hit` | 命中结算（子弹命中 / 直接调用 Hit）时 |
+| `OnKill` | `JsonSkill.NotifyKillTarget`（由 `Unit.DoDie` 调用） | 本技能造成的伤害击杀目标时 |
+| `OnDeath` | `JsonSkill.NotifyOwnerDeath`（由 `Unit.DoDie` 调用） | 技能持有者死亡时 |
+| `OnLoopStart` | `JsonSkill.Update` / `TryBeginLoop` | loop 开始一次 |
+| `OnLoopTick` | `JsonSkill.UpdateLoop` | loop 期间每帧 |
+| `OnLoopEnd` | `JsonSkill.Update` / `EndLoop` | loop 结束 / 打断 / Finish 时一次 |
+| `OnBreak` | `JsonSkill.BreakCast` | 抬手被打断时 |
+| `OnEnd` | `JsonSkill.Finish` | 技能销毁 / 结束时 |
+
+注意：
+- `OnLoopStart / OnLoopTick / OnLoopEnd` 需要配合 `LoopTime` 或 `ISkillEffectTick` 使用；只配 `OnLoopTick` 且 `LoopTime = 0` 时会被跳过并打警告。
+- `OnLoopTick` 节点的 `Execute` 每帧调用一次，适合做 DoT 之类的重复效果；需要跨帧保存状态的效果请实现 `ISkillEffectTick`。
+- `OnAttack` 与 `OnHit` 都在 `Hit(Unit)` 路径上（`OnAttack` 在前）；仅造成位置伤害的 `Hit(Vector2)` 只派发 `OnHit`。
+- `OnKill` / `OnDeath` 需要伤害来源是 `Skill`（`DamageInfo.Source is Skill`），与旧 `TriggerEnum.击杀/死亡` 的判定一致。
+
+### 7.4 持续型效果器 `ISkillEffectTick`
+
+需要逐帧更新、且要跨帧保存“本次激活”状态的效果器，额外实现 `ISkillEffectTick`：
+
+```csharp
+public class MyEffect : ISkillEffect, ISkillEffectTick
+{
+    public string Name => "我的效果";
+
+    public void Execute(SkillContext context, EffectNode node) { /* 激活瞬间逻辑 */ }
+
+    // Execute 之后调用一次；返回 true 才会进入逐帧阶段
+    public bool OnStart(SkillEffectRuntime runtime) { runtime.State = ...; return true; }
+
+    // 每帧调用；返回 false 表示本次持续结束
+    public bool OnTick(SkillEffectRuntime runtime, float deltaTime) { ... }
+
+    // 持续结束 / 被打断时调用，用于清理
+    public void OnStop(SkillEffectRuntime runtime) { runtime.State = null; }
+}
+```
+
+- 效果器实例由工厂缓存、可能被多次激活共享，**本次激活状态必须放在 `runtime.State`**，不要写在效果器字段上；
+- `runtime.Context` 是激活时刻的上下文快照（`Targets` / `TargetPositions` 不会随后续 `Clear` 失效）；
+- 自动纳入逐帧阶段的触发时机：`OnInit / OnStart / OnCast / OnAttack / OnHit / OnKill / OnDeath / OnLoopStart`（`OnLoopTick / OnLoopEnd / OnEnd / OnBreak` 不注册）。
 
 ---
 
@@ -424,7 +488,7 @@ Assets/Bundles/Data/SkillJson.txt
 | `费用` | `CostEffect` | 增减费用 | `CostCount` |
 | `属性修改` | `AttributeModifyEffect` | 修改属性 | `ModifyId` / `BuffId` / `Attribute` |
 | `触发技能` | `SkillEventEffect` | 触发其他技能 | `SkillIds` / `SkillId` |
-| `召唤` | `SummonEffect` | 召唤敌人 | `UnitId`、`Count`、`Range` |
+| `召唤` | `SummonEffect` | 召唤敌人（`部署模式=位移` 时实现 `ISkillEffectTick` 逐帧移动施法者；召唤位置取 `SkillContext.TargetPositions`） | `召唤物ID/UnitId`、`数量/Count`、`范围/Range`、`部署模式`、`位移速度` |
 | `结算事件` | `TriggerEventEffect` | 触发全局事件 | `Event` |
 
 ---

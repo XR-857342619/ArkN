@@ -4,129 +4,220 @@ using Units;
 using UnityEngine;
 
 /// <summary>
-/// 召唤效果器：可从任意单位召唤敌人类小怪。
-/// 当施法者没有波次信息时，会创建无路径信息的 WaveInfo，使被召唤敌人原地不动、不会破门。
-/// Data: UnitId, Count, Range, 召唤位置, 部署模式
+/// 召唤效果器（JsonSkill 版）：召唤逻辑与 Skills.召唤 保持一致。
+/// <para>召唤位置由 <see cref="SkillContext.TargetPositions"/> 提供，不再根据“召唤位置”字段自行选点。</para>
+/// <para>“位移”部署模式实现 <see cref="ISkillEffectTick"/>，在 loop 阶段逐帧把施法者移动到目标点。</para>
+/// Data: 召唤物ID(UnitId)、数量(Count)、范围(Range)、部署模式、位移速度
 /// </summary>
-public class SummonEffect : ISkillEffect
+public class SummonEffect : ISkillEffect, ISkillEffectTick
 {
     public string Name => "召唤";
+
+    private class SummonParams
+    {
+        public string UnitId;
+        public int Count;
+        public float Range;
+        public string SetMod;
+        public float Speed;
+    }
+
+    private class DashState
+    {
+        public Unit Unit;
+        public Vector3 Target;
+        public Vector3 Direction;
+        public float Speed;
+        public float Elapsed;
+    }
+
+    private static SummonParams Parse(EffectNode node)
+    {
+        var data = node.Data;
+        var p = new SummonParams
+        {
+            UnitId = data.GetStr("召唤物ID"),
+            Range = data.GetFloat("范围", data.GetFloat("Range", 0f)),
+            Count = data.GetInt("数量", data.GetInt("Count", 1)),
+            SetMod = data.GetStr("部署模式", "追加"),
+            Speed = data.GetFloat("位移速度", 0f),
+        };
+        if (string.IsNullOrEmpty(p.UnitId))
+            p.UnitId = data.GetStr("UnitId");
+        if (p.SetMod == "位移")
+            p.Count = 1;
+        return p;
+    }
 
     public void Execute(SkillContext context, EffectNode node)
     {
         if (context?.Caster == null || node?.Data == null) return;
 
-        var data = node.Data;
-        string unitId = data.GetStr("UnitId");
-        if (string.IsNullOrEmpty(unitId)) return;
+        var p = Parse(node);
+        if (string.IsNullOrEmpty(p.UnitId) && p.SetMod != "位移") return;
 
-        int count = data.GetInt("Count", 1);
-        float range = data.GetFloat("Range", 0f);
-        string targetPos = data.GetStr("召唤位置", "");
-        string setMod = data.GetStr("部署模式", "追加");
+        // 位移由 OnStart / OnTick 负责，不在 Execute 里生成单位
+        if (p.SetMod == "位移") return;
 
+        Unit caster = context.Caster;
+        WaveInfo waveInfo = BuildWaveInfo(caster, p.UnitId);
+
+        List<Vector2> posList = GetTargetPositions(context);
+        if (posList.Count == 0)
+        {
+            Debug.LogWarning($"SummonEffect：TargetPositions 为空，技能 {context.Skill?.Id} 无法召唤 {p.UnitId}");
+            return;
+        }
+
+        // 与 Skills.召唤.SpSkillEffect 一致：每个位置召唤 count 个，并在 range 内随机偏移
+        for (int i = 0; i < posList.Count; i++)
+        {
+            for (int j = 0; j < p.Count; j++)
+            {
+                SpawnEnemy(caster, p.UnitId, p.SetMod, GetRandomPosition(caster, posList[i], p.Range), waveInfo);
+            }
+        }
+    }
+
+    public bool OnStart(SkillEffectRuntime runtime)
+    {
+        if (runtime?.Node?.Data == null) return false;
+
+        var p = Parse(runtime.Node);
+        if (p.SetMod != "位移" || p.Speed <= 0f) return false;
+
+        Unit caster = runtime.Context?.Caster;
+        if (caster == null || !caster.Alive()) return false;
+
+        List<Vector2> posList = GetTargetPositions(runtime.Context);
+        if (posList.Count == 0) return false;
+
+        // 与 Skills.召唤 一致：多个目标时最终以最后一个位置为准
+        Vector2 dest = posList[posList.Count - 1];
+        Vector3 target = new Vector3(dest.x, caster.Position.y, dest.y);
+        Vector3 delta = target - caster.Position;
+        float distance = delta.magnitude;
+        if (distance <= 0.001f) return false;
+
+        runtime.State = new DashState
+        {
+            Unit = caster,
+            Target = target,
+            Direction = delta.normalized,
+            Speed = p.Speed,
+        };
+        return true;
+    }
+
+    public bool OnTick(SkillEffectRuntime runtime, float deltaTime)
+    {
+        if (!(runtime?.State is DashState state) || state.Unit == null) return false;
+
+        // 目标/施法者已失效则结束
+        if (!state.Unit.Alive())
+        {
+            runtime.State = null;
+            return false;
+        }
+
+        float step = state.Speed * deltaTime;
+        float remain = (state.Target - state.Unit.Position).magnitude;
+        if (step >= remain)
+        {
+            state.Unit.Position = state.Target;
+            if (state.Unit is Units.干员 op) op.ResetAttackPoint();
+            runtime.State = null;
+            return false;
+        }
+
+        state.Unit.Position += state.Direction * step;
+        state.Elapsed += deltaTime;
+        return true;
+    }
+
+    public void OnStop(SkillEffectRuntime runtime)
+    {
+        if (runtime != null) runtime.State = null;
+    }
+
+    private static WaveInfo BuildWaveInfo(Unit caster, string unitId)
+    {
         WaveInfo waveInfo;
-        if (context.Caster is Units.敌人 parent && parent.WaveData != null)
-        {
+        if (caster is Units.敌人 parent && parent.WaveData != null)
             waveInfo = JsonHelper.Clone(parent.WaveData);
-        }
         else
-        {
             waveInfo = new WaveInfo();
-        }
         waveInfo.sUnitId = unitId;
-
-        List<Vector2Int> posList = GetPosList(context, context.Caster, targetPos, range);
-        if (posList.Count == 0) return;
-
-        for (int i = 0; i < posList.Count && i < count; i++)
-        {
-            SpawnEnemy(context.Caster, unitId, setMod, posList[i], waveInfo);
-        }
+        return waveInfo;
     }
 
-    private List<Vector2Int> GetPosList(SkillContext context, Unit caster, string targetPos, float range)
+    /// <summary>读取 SkillContext.TargetPositions，并转换为地图平面坐标(x, z)。</summary>
+    private static List<Vector2> GetTargetPositions(SkillContext context)
     {
-        switch (targetPos)
+        var result = new List<Vector2>();
+        if (context?.TargetPositions == null) return result;
+
+        foreach (var pos in context.TargetPositions)
         {
-            case "使用自身位置":
-                return new List<Vector2Int> { caster.GridPos };
-
-            case "使用本技能索敌位置":
-                return context.Targets.Select(x => x.GridPos).ToList();
-
-            case "使用附加技能索敌位置":
-                if (context.Skill?.SkillData?.Skills != null && context.Skill.SkillData.Skills.Length > 0)
-                {
-                    var skill = caster.LearnSkill(context.Skill.SkillData.Skills[0]);
-                    skill.Init();
-                    return skill.GetAttackTarget().Select(x => x.GridPos).ToList();
-                }
-                return new List<Vector2Int>();
-
-            case "使用干员攻击范围位置":
-                return context.Skill?.AttackPoints != null
-                    ? new List<Vector2Int>(context.Skill.AttackPoints)
-                    : new List<Vector2Int>();
-
-            default:
-                return GetRandomPositions(caster, range);
-        }
-    }
-
-    private List<Vector2Int> GetRandomPositions(Unit caster, float range)
-    {
-        var result = new List<Vector2Int>();
-        for (int i = 0; i < 4; i++)
-        {
-            float x = caster.Battle.NextFloat(caster.GridPos.x - range, caster.GridPos.x + range);
-            float y = caster.Battle.NextFloat(caster.GridPos.y - range, caster.GridPos.y + range);
-            result.Add(new Vector2Int(Mathf.RoundToInt(x), Mathf.RoundToInt(y)));
+            result.Add(new Vector2(pos.x, pos.z));
         }
         return result;
     }
 
-    private void SpawnEnemy(Unit caster, string unitId, string setMod, Vector2Int pos, WaveInfo waveInfo)
+    /// <summary>与 Skills.召唤.GetRandomPositions 一致：在目标点周围 range 范围内随机取点。</summary>
+    private static Vector2 GetRandomPosition(Unit caster, Vector2 center, float range)
     {
-        Tile tile = caster.Battle.Map.Tiles[pos.x, pos.y];
+        float x = caster.Battle.NextFloat(center.x - range, center.x + range);
+        float y = caster.Battle.NextFloat(center.y - range, center.y + range);
+        return new Vector2(x, y);
+    }
+
+    /// <summary>与 Skills.召唤.SpawnEnemy 一致：处理“替换/追加”生成。</summary>
+    private static void SpawnEnemy(Unit caster, string unitId, string setMod, Vector2 pos, WaveInfo waveInfo)
+    {
+        Vector2Int gridPos = pos.ToV2Int();
+        if (gridPos.x < 0 || gridPos.y < 0 ||
+            gridPos.x >= caster.Battle.Map.Tiles.GetLength(0) ||
+            gridPos.y >= caster.Battle.Map.Tiles.GetLength(1))
+        {
+            Debug.LogWarning($"SummonEffect：召唤位置越界，已忽略 {pos}");
+            return;
+        }
 
         if (setMod == "替换")
         {
-            Unit old = tile.Units.FirstOrDefault(x => x is Units.敌人 && x.UnitData.Id == unitId);
+            // 与 Skills.召唤 一致：使用 FindAll 检索，可命中空中单位
+            Unit old = caster.Battle.FindAll(gridPos, 2)
+                .FirstOrDefault(x => x is Units.敌人 && x.UnitData.Id == unitId);
             if (old != null)
             {
                 old.Finish(true);
             }
         }
-        else if (setMod == "位移")
-        {
-            var enemyCaster = caster as Units.敌人;
-            Unit existing;
-            if (enemyCaster != null)
-            {
-                existing = caster.Battle.AllUnits.FirstOrDefault(x => x.UnitData.Id == unitId && x.Parent == enemyCaster);
-            }
-            else
-            {
-                existing = caster.Battle.AllUnits.FirstOrDefault(x => x.UnitData.Id == unitId && x is Units.敌人 e && string.IsNullOrEmpty(e.WaveData?.Path));
-            }
 
-            if (existing is Units.敌人 existingEnemy)
-            {
-                existingEnemy.Position = new Vector3(pos.x, existingEnemy.Position.y, pos.y);
-                existingEnemy.NeedResetPath = true;
-                return;
-            }
-        }
-
-        var unit = caster.Battle.CreateEnemy(waveInfo);
+        Units.敌人 unit = caster.Battle.CreateEnemy(waveInfo);
         if (unit == null) return;
 
-        unit.Position = new Vector3(pos.x, tile.Pos.y, pos.y);
+        // 与 Skills.召唤 一致：CreateEnemy 只触发了“出场”，这里补发“入场/自己入场”
+        caster.Battle.TriggerDatas.Push(new TriggerData()
+        {
+            Target = unit,
+        });
+        try
+        {
+            caster.Battle.Trigger(TriggerEnum.入场);
+            unit.Trigger(TriggerEnum.自己入场);
+        }
+        finally
+        {
+            caster.Battle.TriggerDatas.Pop();
+        }
+
+        unit.Position = new Vector3(pos.x, caster.Position.y, pos.y);
         if (caster is Units.敌人 parent)
         {
             unit.currentPathIndex = parent.currentPathIndex;
-            unit.Parent = parent;
         }
+        unit.Parent = caster;
     }
 }

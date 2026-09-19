@@ -402,6 +402,8 @@ public class Unit
                 else
                     sourceUnit = skill.Unit;
                 sourceUnit.Trigger(TriggerEnum.击杀);
+                // 让造成击杀的技能（JsonSkill）派发 OnKill
+                skill.NotifyKillTarget(this);
                 Battle.TriggerDatas.Pop();
             }
         }
@@ -412,6 +414,11 @@ public class Unit
             Target = this,
             User = sourceUnit,
         });
+        // 让死亡单位自身的技能（JsonSkill）派发 OnDeath
+        foreach (var skill in Skills.ToArray())
+        {
+            skill?.NotifyOwnerDeath();
+        }
         Battle.Trigger(TriggerEnum.死亡);
         Battle.TriggerDatas.Pop();
 

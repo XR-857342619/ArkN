@@ -163,7 +163,6 @@ namespace Skills
                 }
                 Operator.ChangePos(pos.x, pos.y, direction);
                 Operator.JoinMap(true);
-                //tile.Units.Add(Operator);
             }
             else
             {
@@ -173,6 +172,9 @@ namespace Skills
                 }
                 
                 if (setMod == "位移") Battle.Map.Tiles[Unit.GridPos.x, Unit.GridPos.y].Units.Add(Operator);
+
+                Operator.Parent = null;
+                Unit.Children.Remove(Operator);
 
                 Log.Debug("无法部署干员:" + Operator.UnitData.Name + "于" + pos);
                 return;
