@@ -97,6 +97,7 @@ public class SkinBrushRuntime : MonoBehaviour
 
     public static void Install(GComponent mapView)
     {
+        if (!FeatureFlags.SkinBrush) return; // 皮肤笔刷默认关闭（FeatureFlags.SkinBrush）
         if (Instance != null) { Instance.view = mapView; return; }
         var go = new GameObject("SkinBrushRuntime");
         DontDestroyOnLoad(go); // 造图界面视图被 UIManager 缓存复用，运行器跨界面存活

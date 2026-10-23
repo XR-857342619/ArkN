@@ -25,6 +25,13 @@ public static class SpineOverlayCameraUtil
     public const string LayerName = "Spine3D";
     public const string DeviceLayerName = "Device";
     public const string FxLayerName = "FxOverlay";
+    /// <summary>
+    /// 高台地块「深度代理」所在层（复用工程里一直空着的 high 层）。
+    /// 该层被主相机剔除（不参与着色），只被 DeviceDepthCamera 用替换着色器渲染
+    /// —— 只写深度不写颜色，因此高台地块能遮挡 Spine，却不影响物理与鼠标拾取。
+    /// 详见 SpineDepthOccluderUtil。
+    /// </summary>
+    public const string OccluderLayerName = "high";
     const string SpineCamName = "SpineOverlayCamera";
     const string DeviceCamName = "DeviceDepthCamera";
     const string DepthShaderName = "Custom/DeviceDepthOnly";
@@ -63,6 +70,12 @@ public static class SpineOverlayCameraUtil
         SetLayerRecursive(fxRoot.transform, fxLayer, null);
     }
 
+    /// <summary>强制重算相机配置（新增/移除层或深度代理后调用，用于立即刷新 cullingMask）。</summary>
+    public static void Refresh()
+    {
+        EnsureCameras();
+    }
+
     static bool EnsureLayers()
     {
         bool ok = LayerMask.NameToLayer(LayerName) != -1 && LayerMask.NameToLayer(DeviceLayerName) != -1;
@@ -95,6 +108,7 @@ public static class SpineOverlayCameraUtil
         int spineLayer = LayerMask.NameToLayer(LayerName);
         int deviceLayer = LayerMask.NameToLayer(DeviceLayerName);
         int fxLayer = LayerMask.NameToLayer(FxLayerName); // 可能为 -1（层未创建）：特效仍走主相机
+        int occluderLayer = LayerMask.NameToLayer(OccluderLayerName); // 可能为 -1（高台深度代理层缺失时不影响其它功能）
         Shader depthShader = Shader.Find(DepthShaderName);
 
         // ---- DeviceDepthCamera：只写装置深度，不写颜色 ----
@@ -106,6 +120,7 @@ public static class SpineOverlayCameraUtil
         if (_deviceCam != null)
         {
             _deviceCam.cullingMask = 1 << deviceLayer;
+            if (occluderLayer != -1) _deviceCam.cullingMask |= 1 << occluderLayer; // 高台深度代理：只写深度
             _deviceCam.clearFlags = CameraClearFlags.Depth;
             // 必须低于 FairyGUI StageCamera（depth=1），否则 UI 之后仍会被本方案相机覆盖
             _deviceCam.depth = main.depth + 0.25f;
@@ -135,6 +150,8 @@ public static class SpineOverlayCameraUtil
             main.cullingMask &= ~(1 << spineLayer);
         if (fxLayer != -1 && (main.cullingMask & (1 << fxLayer)) != 0)
             main.cullingMask &= ~(1 << fxLayer);
+        if (occluderLayer != -1 && (main.cullingMask & (1 << occluderLayer)) != 0)
+            main.cullingMask &= ~(1 << occluderLayer); // 高台代理只走深度通道，主相机不着色
         if ((main.cullingMask & (1 << deviceLayer)) == 0)
             main.cullingMask |= 1 << deviceLayer;
 

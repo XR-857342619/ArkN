@@ -31,6 +31,10 @@ public class SkinBrushWindow : EditorWindow
         w.Show();
     }
 
+    /// <summary>皮肤笔刷默认关闭：关掉时菜单灰显，避免误用（见 FeatureFlags.SkinBrush）。</summary>
+    [MenuItem("Tools/地图换皮/皮肤笔刷", true)]
+    static bool OpenValidate() => FeatureFlags.SkinBrush;
+
     // ================= 窗口状态 =================
 
     string folder;

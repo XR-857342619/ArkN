@@ -151,7 +151,7 @@ namespace MapBuilderUI
                     check();
                     // === 皮肤笔刷补丁：保存前强制把场景皮肤数据同步进 GridInfos ===
                     // （不依赖笔刷窗口的事件同步，保证"改完即存"一定落盘）
-                    if (MapInfo != null && MapInfo.GridInfos != null)
+                    if (FeatureFlags.SkinBrush && MapInfo != null && MapInfo.GridInfos != null)
                     {
                         var mm = MapManager.Instance;
                         if (mm != null)
@@ -188,7 +188,7 @@ namespace MapBuilderUI
             // === 皮肤笔刷·运行时版：整合进游戏内造图界面（按 T 显隐、面板可拖动）。
             // 纯代码构建的 FairyGUI 面板挂在本视图下，不改 MapBuilderUI_fui.bytes；
             // 保存链路复用 m_save 的强制 SyncSkinsToGridInfos，无需额外同步。 ===
-            SkinBrushRuntime.Install(this);
+            if (FeatureFlags.SkinBrush) SkinBrushRuntime.Install(this);
         }
 
         TaskCompletionSource<bool> ovTcs;
@@ -275,7 +275,7 @@ namespace MapBuilderUI
             // 可能没跑（undoRedoPerformed 订阅随窗口 OnDisable 注销），MapInfo 里残留已撤销
             // 的皮肤 → 不保存直接进战斗时 ApplySkins 照残留数据重建 = "撤销物显现"。
             // 离开造图页前以场景为唯一真值强制重同步一次。 ===
-            if (Application.isPlaying && MapInfo != null && MapInfo.GridInfos != null)
+            if (FeatureFlags.SkinBrush && Application.isPlaying && MapInfo != null && MapInfo.GridInfos != null)
             {
                 var mmSync = MapManager.Instance;
                 if (mmSync != null)

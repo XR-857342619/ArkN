@@ -53,6 +53,7 @@ public class MapGrid : MonoBehaviour, IPointerClickHandler, ITileData
             _material = Renderer.material; // 仅克隆一次材质实例，后续高亮复用
             _color = _material.color;
         }
+        TagDepthOccluder();
     }
 
     public void AutoBuild()
@@ -99,6 +100,23 @@ public class MapGrid : MonoBehaviour, IPointerClickHandler, ITileData
         // === 皮肤笔刷补丁：白膜重建后恢复皮肤状态（重新隐藏显示、按数据复位对位），不影响任何判定 ===
         var skinData = GetComponent<GridSkinData>();
         if (skinData != null) skinData.OnTileRebuilt();
+
+        // === 高台深度遮挡：给高台格子生成只写深度的代理网格，让 Spine 被高台真实遮挡 ===
+        TagDepthOccluder();
+    }
+
+    /// <summary>
+    /// 高台格子（FarAttackGrid）生成「只写深度」的代理网格（high 层），由
+    /// SpineOverlayCameraUtil 的 DeviceDepthCamera 渲染 —— 于是 Spine 单位能被高台真实遮挡。
+    /// 代理只带 MeshFilter/MeshRenderer、没有 Collider，且挂在 go 之下，
+    /// 因此不影响原有 Layer、物理碰撞与鼠标拾取射线。
+    /// 总开关：FeatureFlags.HighTileDepthOcclusion。
+    /// </summary>
+    void TagDepthOccluder()
+    {
+        if (!FarAttackGrid) return;
+        // 跑过 AutoBuild 的格子用 go；场景里手工摆的格子 go 可能为空，兜底用 MapGrid 自身
+        SpineDepthOccluderUtil.Build(go != null ? go : gameObject);
     }
 
     public void ChangeHighLight(bool bo)

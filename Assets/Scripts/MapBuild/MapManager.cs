@@ -197,7 +197,8 @@ public class MapManager : MonoBehaviour
                 mapGrid.transform.parent = transform;
                 mapGrid.AutoBuild();
                 // === 皮肤笔刷补丁：按存档中的 Skin 数据还原皮肤（只处理视觉，不触碰任何机制字段） ===
-                if (g.Skin != null && !string.IsNullOrEmpty(g.Skin.SkinName))
+                // 皮肤笔刷默认关闭，见 FeatureFlags.SkinBrush
+                if (FeatureFlags.SkinBrush && g.Skin != null && !string.IsNullOrEmpty(g.Skin.SkinName))
                 {
                     var skinData = mapGrid.gameObject.AddComponent<GridSkinData>();
                     skinData.Data = g.Skin.Clone();
@@ -222,6 +223,7 @@ public class MapManager : MonoBehaviour
     /// </summary>
     public void ApplySkins(GridInfo[,] infos)
     {
+        if (!FeatureFlags.SkinBrush) return; // 皮肤笔刷默认关闭（FeatureFlags.SkinBrush），不进任何还原逻辑
         if (infos == null) return;
         int w = infos.GetLength(0), h = infos.GetLength(1);
 
