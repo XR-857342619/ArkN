@@ -56,19 +56,23 @@ namespace DIY
             folderList = Database.Instance.GetExcelPathNames(folderpaths);
 #endif
             GameObject spineGo = ResHelper.Instantiate("Assets/Bundles/Units/char_002_amiya");
-            spineGo.transform.localPosition = new Vector3(280, -150, 100);
+            spineGo.transform.localPosition = new Vector3(280, -340, 100);
             spineGo.transform.localRotation = Quaternion.Euler(-60, 0, 0);
-            spineGo.transform.localScale = Vector3.one * 150;
+            spineGo.transform.localScale = Vector3.one * 220;
             GGraph holder = m_spineMode.asGraph;
             _currentWrapper = new GoWrapper(spineGo);
             holder.SetNativeObject(_currentWrapper);
+
+            InitAnimationControls();
+            SetupPreviewAnimations(spineGo);
+            _currentWrapper.CacheRenderers();
 
             m_exit.onClick.Add(() =>
             {
                 UIManager.Instance.ChangeView<MainUI.UI_Main>(MainUI.UI_Main.URL);
             });
 #if !UNITY_ANDROID
-            m_Unit.onClick.Add(() =>
+            m_UnitModel.onClick.Add(() =>
             {
                 pageIndex = 0;
             });
@@ -157,14 +161,6 @@ namespace DIY
                 
                 GameObject modelGo;
                 loadModel(model, out modelGo);
-                if (modelGo is not null && modelGo.GetComponentsInChildren<SkeletonAnimation>(true).Length > 0)
-                {
-                    SkeletonAnimation front = modelGo.transform.GetChild(1).GetComponent<SkeletonAnimation>();
-                    front.loop = false;
-                    front.AnimationName = "default";
-                }
-                // 更新渲染器缓存，以确保新的 GameObject 正确显示
-                _currentWrapper.CacheRenderers();
 
                 m_modeName.m_text.text = model;
                 m_mode.alpha = 0;
@@ -312,43 +308,30 @@ namespace DIY
 
             GameObject model;
             loadModel(obj.data.ToString(), out model);
-
-            if (model is not null && model.GetComponentsInChildren<SkeletonAnimation>(true).Length > 0)
-            {
-                SkeletonAnimation front = model.transform.GetChild(1).GetComponent<SkeletonAnimation>();
-                front.loop = false;
-                front.AnimationName = "default";
-            }
-            // 更新渲染器缓存，以确保新的 GameObject 正确显示
-            _currentWrapper.CacheRenderers();
         }
 
         private void loadModel(string modelName, out GameObject model)
         {
             model = ResHelper.Instantiate("Assets/Bundles/Units/" + modelName);
 
-            model.transform.localPosition = new Vector3(280, -150, 500);
-            model.transform.localScale = Vector3.one * 150;
+            if (model == null)
+            {
+                ClearPreviewAnimations();
+                return;
+            }
+
+            model.transform.localPosition = new Vector3(280, -340, -220);
+            model.transform.localScale = Vector3.one * 220;
 
             if (model.GetComponentsInChildren<SkeletonAnimation>(true).Length > 0)
             {
                 model.transform.localRotation = Quaternion.Euler(-60, 0, 0);
-
-                SkeletonAnimation front = model.transform.GetChild(1).GetComponent<SkeletonAnimation>();
-                
-                front.loop = true;
-                front.AnimationName = "Idle";
-
-                SkeletonAnimation back = model.transform.Find("model_back")?.GetComponent<SkeletonAnimation>() ?? null;
-                if (back is not null)
-                {
-                    back.AnimationName = "Idle";
-                    back.gameObject.SetActive(false);
-                }
+                SetupPreviewAnimations(model);
             }
             else
             {
                 model.transform.localRotation = Quaternion.Euler(-15, 45, -15);
+                ClearPreviewAnimations();
             }
 
             // 4. 创建 GoWrapper 来包装这个 GameObject

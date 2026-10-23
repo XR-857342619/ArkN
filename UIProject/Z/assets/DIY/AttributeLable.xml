@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="500,65" extention="Label">
-  <controller name="type" exported="true" pages="0,text,1,bool" selected="0"/>
+  <controller name="type" exported="true" pages="0,text,1,bool,3,combox" selected="2"/>
   <displayList>
     <graph id="n1_o8qy" name="n1" xy="0,0" size="500,65" type="rect" lineSize="2" fillColor="#ffe4e4e4" corner="15">
       <relation target="" sidePair="width-width,height-height"/>
@@ -24,5 +24,11 @@
       <relation target="n4_o8qy" sidePair="leftext-right%"/>
       <relation target="" sidePair="rightext-right%"/>
     </text>
+    <component id="n8_bz1p" name="combox" src="o8qyb" fileName="ComboBox1.xml" xy="64,6" size="430,54">
+      <gearDisplay controller="type" pages="3"/>
+      <relation target="n4_o8qy" sidePair="leftext-right%"/>
+      <relation target="" sidePair="rightext-right%"/>
+      <ComboBox visibleItemCount="10"/>
+    </component>
   </displayList>
 </component>

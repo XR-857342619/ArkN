@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="280,60" extention="Label">
+  <displayList>
+    <graph id="n1_bz1p" name="n1" xy="0,0" size="280,60" type="rect" corner="15">
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <text id="n0_bz1p" name="title" xy="0,0" size="280,60" fontSize="30" align="center" vAlign="middle" autoSize="none" singleLine="true" text="aaaaaaaaaaa">
+      <relation target="" sidePair="width-width,height-height"/>
+    </text>
+  </displayList>
+</component>

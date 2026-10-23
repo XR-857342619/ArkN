@@ -10,6 +10,7 @@ namespace DIY
         public Controller m_type;
         public GButton m_bool;
         public GTextInput m_text;
+        public GComboBox m_combox;
         public const string URL = "ui://0tzprgeuo8qyj";
 
         public static UI_AttributeLable CreateInstance()
@@ -24,6 +25,7 @@ namespace DIY
             m_type = GetControllerAt(0);
             m_bool = (GButton)GetChildAt(3);
             m_text = (GTextInput)GetChildAt(4);
+            m_combox = (GComboBox)GetChildAt(5);
             Init();
         }
         partial void Init();

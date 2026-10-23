@@ -22,6 +22,8 @@
     <component id="n7nor" name="AttributeLable_skill.xml" path="/"/>
     <component id="n7nos" name="iconLabel.xml" path="/"/>
     <component id="ig0mu" name="blockBtn.xml" path="/"/>
+    <component id="bz1pv" name="AnimationLabel.xml" path="/"/>
+    <component id="bz1pw" name="AnimationBtn.xml" path="/"/>
   </resources>
   <publish name="" genCode="true"/>
 </packageDescription>
