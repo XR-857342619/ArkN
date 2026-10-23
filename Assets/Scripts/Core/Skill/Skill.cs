@@ -67,12 +67,6 @@ public class Skill
     public int UseCount;
     public int AnimationIndex;
 
-    /// <summary>
-    /// [保留] 技能动画轮播开关（c3a0a642）：启用后每次施放依次取 ModelAnimation 中的下一个动画名。
-    /// 目前暂不实际使用，保持 false。
-    /// </summary>
-    public static bool UseCarouselAnimation = false;
-
     public Effect ReadyEffect;
 
     public CountDown LoopingStart = new CountDown();
@@ -549,11 +543,12 @@ public class Skill
 
     /// <summary>
     /// 获取本次技能使用的动画序列。
-    /// ModelAnimation 配置多个动画名时，整体作为“一次技能动作的多阶段动画序列”交由 GetSkillDelay 处理（前摇+后续动画）。
+    /// SkillData.RotatingAnimation 为 true 时轮播播放 ModelAnimation（每次施放依次取下一个动画名）。
+    /// 为 false 时，ModelAnimation 配置多个动画名则整体作为“一次技能动作的多阶段动画序列”交由 GetSkillDelay 处理（前摇+后续动画）。
     /// </summary>
     protected virtual string[] GetSkillAnimation()
     {
-        if (UseCarouselAnimation) return GetCarouselAnimation();
+        if (SkillData.RotatingAnimation) return GetCarouselAnimation();
 
         var animation = SkillData.ModelAnimation;
         if (SkillData.ModelAnimationDown != null && Unit is Units.干员 u && u.Direction_E == DirectionEnum.Up)
@@ -562,8 +557,8 @@ public class Skill
     }
 
     /// <summary>
-    /// [保留] 技能动画轮播逻辑（c3a0a642）：每次施放按顺序取 ModelAnimation 中的下一个动画名，作为单段动画播放。
-    /// 目前暂不实际使用；如需启用，将 UseCarouselAnimation 置为 true 即可。
+    /// 技能动画轮播逻辑（c3a0a642）：每次施放按顺序取 ModelAnimation 中的下一个动画名，作为单段动画播放。
+    /// 由 SkillData.RotatingAnimation 控制（默认 false，即默认按多阶段动画序列播放）。
     /// </summary>
     protected virtual string[] GetCarouselAnimation()
     {

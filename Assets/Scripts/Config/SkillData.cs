@@ -79,6 +79,7 @@ public class SkillData : IConfig
       public bool PowerStopNeed;
       public PowerRecoverTypeEnum PowerUseType;
       public string[] ModelAnimation;
+      public bool RotatingAnimation;
       public float? AnimationTime;
       public string[] ModelAnimationDown;
       public string[] OverwriteAnimation;
