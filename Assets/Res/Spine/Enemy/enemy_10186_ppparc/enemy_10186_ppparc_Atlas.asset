@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6b194f808b1af6499c93410e504af42, type: 3}
   m_Name: enemy_10186_ppparc_Atlas
   m_EditorClassIdentifier: 
-  atlasFile: {fileID: 4900000, guid: 969b6de25f80049439d9d87ceaa94415, type: 3}
+  atlasFile: {fileID: 4900000, guid: 3c10ca2a66a422e4686849a5f6dbc343, type: 3}
   materials:
-  - {fileID: 2100000, guid: 382daf698dac7614292650279be13f98, type: 2}
+  - {fileID: 2100000, guid: 52b9c84fbd77cc346bafce9478118a83, type: 2}

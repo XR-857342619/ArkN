@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: enemy_10185_pppshd_2_SkeletonData
   m_EditorClassIdentifier: 
   atlasAssets:
-  - {fileID: 11400000, guid: 7c3c6ce2e964edd409d9e96301914356, type: 2}
-  scale: 0.0026999998
-  skeletonJSON: {fileID: 4900000, guid: 2153603d9518a314690a4529b4728725, type: 3}
+  - {fileID: 11400000, guid: 20e0a9238df11e74f81b202d61501cd7, type: 2}
+  scale: 0.0027
+  skeletonJSON: {fileID: 4900000, guid: 6177ddec882ad6b4e94e6ad1f44180d7, type: 3}
   isUpgradingBlendModeMaterials: 0
   blendModeMaterials:
     requiresBlendModeMaterials: 0
-    applyAdditiveMaterial: 0
+    applyAdditiveMaterial: 1
     additiveMaterials: []
     multiplyMaterials: []
     screenMaterials: []

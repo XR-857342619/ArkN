@@ -1,0 +1,6 @@
+扫描范围: 选中项 | 共 1 个 prefab | 引用错位 1 个 | 跳过(无Spine资源或非Spine) 0 个 | 已修复 1 个
+
+[错位] enemy_1589_pppdth.prefab
+    SkeletonData: enemy_1031_mrogue_2_SkeletonData  =>  应为 enemy_1589_pppdth_SkeletonData
+    Material:     enemy_1031_mrogue_2_Material  =>  应为 enemy_1589_pppdth_Material
+    => 已修复并保存

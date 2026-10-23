@@ -516,20 +516,57 @@ public class Database
     public Dictionary<string, MapInfo> Maps = new Dictionary<string, MapInfo>();
     public MapInfo GetMap(string packageName, string mapName)
     {
-        if (Maps.TryGetValue(packageName + ":" + mapName, out MapInfo result))
+        string key = packageName + ":" + mapName;
+        if (Maps.TryGetValue(key, out MapInfo result) && result != null)
         {
             return result;
         }
-        else
+
+        // 1) 编辑器本地存档 .txt（SaveHelper.Save 的编辑器分支）——最高优先级。
+        // v3.5 修复「假保存」：旧逻辑先读 Addressables（= 上次构建时的旧 bundle 副本），
+        // 只要地图被打过包，重新进 Play 会话加载的就是旧版地图——刚保存的调整全部
+        // "看起来没保存"，且此时再保存一次还会用旧数据回滚覆盖新存档。
+        // 编辑器下 .txt 是 m_save 的直接落盘物，永远是最新真值，必须先读。
+        string str = string.Empty;
+#if UNITY_EDITOR
         {
-            var str = SaveHelper.LoadBaseFile(mapName);
-            if (string.IsNullOrEmpty(str))
-                str = SaveHelper.LoadMap("/Map/" + packageName + "/" + mapName + ".map");
-            result = JsonHelper.FromJson<MapInfo>(str);
-            Maps.Add(packageName+ ":" +mapName, result);
-            //Debug.Log(str);
-            return result;
+            var editorPath = System.IO.Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "Assets/Bundles/Data/Map/" + packageName + "/" + mapName + ".txt");
+            if (File.Exists(editorPath))
+            {
+                try { str = File.ReadAllText(editorPath); }
+                catch (Exception e) { Debug.LogError($"[Database] 读取地图存档失败 {editorPath}: {e.Message}"); }
+            }
         }
+#endif
+        // 2) Addressables（打包后 / 已注册资产；编辑器下仅在本地 .txt 不存在时兜底）
+        if (string.IsNullOrEmpty(str))
+            str = SaveHelper.LoadBaseFile(mapName);
+
+        // 3) 真机存档文件 .map
+        if (string.IsNullOrEmpty(str))
+            str = SaveHelper.LoadMap("/Map/" + packageName + "/" + mapName + ".map");
+
+        // 加载/解析失败：不把 null 缓存进 Maps（否则该地图在本会话内永远无法恢复），
+        // 直接报错返回，待存档文件就位后可重新加载
+        if (string.IsNullOrEmpty(str))
+        {
+            Debug.LogError($"[Database] 地图加载失败：{packageName}/{mapName}（Addressables 未注册该地图，且对应存档文件不存在）");
+            Maps.Remove(key);
+            return null;
+        }
+
+        result = JsonHelper.FromJson<MapInfo>(str);
+        if (result == null)
+        {
+            Debug.LogError($"[Database] 地图解析失败：{packageName}/{mapName}");
+            Maps.Remove(key);
+            return null;
+        }
+
+        Maps[key] = result;
+        return result;
     }
 
     public List<string> GetMapPackages()

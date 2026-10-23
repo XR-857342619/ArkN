@@ -1,0 +1,2 @@
+{"Id":"shchmr特效测试命中","Type":"普通Buff","LastingEffect":397,"LastTime":6}
+{"Id":"shchmr特效测试循环","Type":"普通Buff","LastingEffect":398}

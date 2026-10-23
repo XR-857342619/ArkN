@@ -103,9 +103,13 @@ namespace MapBuilderUI
             if (MapInfo.UnitInfos == null || MapInfo.UnitInfos.Count == 0) return;
             foreach (var unitInfo in MapInfo.UnitInfos)
             {
-                var g = p.Spawn(ResHelper.GetAsset<GameObject>(PathHelper.UnitPath + Database.Instance.Get<UnitData>(unitInfo.UnitId).Model).transform, MapManager.Instance.Grids[unitInfo.X, unitInfo.Y].transform.position);
+                var unitData = Database.Instance.Get<UnitData>(unitInfo.UnitId);
+                var g = p.Spawn(ResHelper.GetAsset<GameObject>(PathHelper.UnitPath + unitData.Model).transform, MapManager.Instance.Grids[unitInfo.X, unitInfo.Y].transform.position);
                 var m = g.GetComponent<UnitModel>();
                 GameObject.Destroy(m);//防止捣乱
+                // 中立单位（装置）切到 Device 层，保持与战斗内表现一致
+                if (unitData.Type == "中立单位")
+                    SpineOverlayCameraUtil.ApplyDevice(g.gameObject);
                 Points.Add(g);
                 g.transform.eulerAngles = new Vector3(0, Vector2.SignedAngle(unitInfo.Direction, Vector2.right), 0);
                 //if (unitInfo.UnitId == "红门")

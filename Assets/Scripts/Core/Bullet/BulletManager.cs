@@ -17,10 +17,23 @@ public class BulletManager
 
     public BulletModel Get(string model)
     {
+        bool fromAb = false;
         if (!bulletPrefabs.TryGetValue(model, out var prefab) || prefab == null)
         {
             var go = ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + model);
             prefab = go != null ? go.GetComponent<BulletModel>() : null;
+            if (prefab == null)
+            {
+                // AB 特效兜底：工程内没有该 prefab 时，从 arkfx 运行时包加载并动态补挂驱动组件
+                // （方舟 AB prefab 没有 BulletModel/Effect，Bullet.CreateModel 依赖这两个组件）
+                var abGo = ArkFxLoader.LoadPrefabByName(model);
+                if (abGo != null)
+                {
+                    if (abGo.GetComponent<Effect>() == null) abGo.AddComponent<Effect>();
+                    prefab = abGo.GetComponent<BulletModel>() ?? abGo.AddComponent<BulletModel>();
+                    fromAb = true;
+                }
+            }
             if (prefab == null)
             {
                 Debug.LogError($"子弹模型加载失败或缺少 BulletModel: {PathHelper.EffectPath + model}");
@@ -29,7 +42,10 @@ public class BulletManager
             bulletPrefabs[model] = prefab;
         }
 
-        return Pool.Spawn(prefab, Vector3.zero);
+        var spawned = Pool.Spawn(prefab, Vector3.zero);
+        // AB 来源的子弹：实例化后踢动效；驱动组件已烘焙进 prefab，克隆自带不会重复
+        if (fromAb && spawned != null) ArkFxLoader.Kick(spawned.gameObject, model);
+        return spawned;
     }
 
     public void Return(BulletModel bulletModel)
