@@ -117,16 +117,20 @@ public class GameData
         
         LoadCardDataFromExcel();
 
-        if (instance.Teams[0] == null)
+        if(instance.Teams is null)
+{
+            instance.Teams = new Team[4];
+        }
+        for (int i = 0; i < instance.Teams.Length; i++)
         {
-            for (int i = 0; i < Instance.Teams.Length; i++)
+            if (instance.Teams[i] == null)
             {
                 instance.Teams[i] = new Team();
+                Name = "玩家名字";
+                SaveHelper.SaveData();
             }
-            //MainPageUnitId = Cards[0].UnitId;
-            Name = "玩家名字";
-            SaveHelper.SaveData();
         }
+
         if (instance.ExcelList == null)
         {
             //Debug.Log("初始化ExcelList");

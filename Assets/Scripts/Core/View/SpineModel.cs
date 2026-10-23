@@ -26,6 +26,14 @@ public class SpineModel : UnitModel
         //skeletonRenderer = SkeletonAnimation.GetComponent<SkeletonRenderer>();
         Renderer.GetPropertyBlock(mpb);
         Shadow = transform.GetChild(0);
+        // 双摄像机方案：整体切到 Spine3D 层，由叠加相机盖在所有 3D 模型上方
+        SpineOverlayCameraUtil.Apply(gameObject);
+    }
+
+    private void OnEnable()
+    {
+        // 兜底：若激活时主相机尚未就绪（Awake 时 Camera.main 为 null），激活时再补一次
+        SpineOverlayCameraUtil.Apply(gameObject);
     }
 
     public override void Init(Unit unit)
