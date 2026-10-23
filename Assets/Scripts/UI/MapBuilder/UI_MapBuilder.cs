@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using FairyGUI;
 
 namespace MapBuilderUI
 {
@@ -21,13 +22,21 @@ namespace MapBuilderUI
             {
                 m_StartPage.m_quickLoad.items = m_StartPage.m_quickLoad.values = Database.Instance.GetMaps(m_StartPage.m_MapPackageIndex.value).ToArray();
             });
-            m_exit.onClick.Add(() => 
-            { 
-                UIManager.Instance.ChangeView<MainUI.UI_Main>(MainUI.UI_Main.URL); 
+            m_exit.onClick.Add(() =>
+            {
+                UIManager.Instance.ChangeView<MainUI.UI_Main>(MainUI.UI_Main.URL);
                 MapManager.Instance?.ShowPath(null);
                 if (m_state.selectedIndex != 0)
-                    if (!string.IsNullOrEmpty(scene)) SceneManager.UnloadSceneAsync(scene);
-                    else SceneManager.UnloadSceneAsync("MapBuilder");m_MidPage.Despawn(); 
+                {
+                    // === 修复场景卸载泄漏：原逻辑只卸 scene / "MapBuilder" 其中一个，
+                    // 另一个连同它的方向光永远留在内存里；下次进图再叠一份光 → 越进越亮（过曝），
+                    // 且本次 Play 会话内不可恢复。现在退出时把两者都卸干净。 ===
+                    if (!string.IsNullOrEmpty(scene) && SceneManager.GetSceneByName(scene).isLoaded)
+                        SceneManager.UnloadSceneAsync(scene);
+                    if (SceneManager.GetSceneByName("MapBuilder").isLoaded)
+                        SceneManager.UnloadSceneAsync("MapBuilder");
+                }
+                m_MidPage.Despawn();
             });
             m_back.onClick.Add(goMain);
             //m_DoPath.onClick.Add(() => { m_state.selectedIndex = 3; AstarPath.active.Scan(); m_PathPage.Fresh(); m_PathPage.FreshPoints(); });
@@ -95,26 +104,41 @@ namespace MapBuilderUI
                     changeCamera();
                     MapManager.Instance.Build(MapInfo.GridInfos);
                     goMain();
-                //}
-                //else
-                //{
-                //    MapInfo.Scene = scene;
-                //    await SceneManager.LoadSceneAsync(scene, LoadSceneMode.Additive);
-                //    var grids = MapManager.Instance.gameObject.GetComponentsInChildren<MapGrid>();
-                //    MapInfo.GridInfos = new GridInfo[grids.Max(x => x.X + 1), grids.Max(x => x.Y + 1)];
-                //    foreach (var g in grids)
-                //    {
-                //        MapInfo.GridInfos[g.X, g.Y] = new GridInfo()
-                //        {
-                //            X = g.X,
-                //            Y = g.Y,
-                //            CanBuildUnit = g.CanBuildUnit,
-                //            FarAttack = g.FarAttackGrid,
-                //            CanMove = g.CanMove,
-                //        };
-                //    }
-                //    goMain();
-                //}
+                // === 2026-09-26 修复 68 连错：作者移除了 FUI 的 SceneName 输入框（MapBuilderUI_fui.bytes
+                // 同步更新，m_SceneName 绑定已不存在），只注释了上面 if 头三行，没注释配对的 else 块
+                // → 孤儿大括号 + 无 if 的 else，语法崩塌级联报错。此处补齐注释：场景直载路
+                // （else 分支，含 GridSkinData 皮肤采集补丁）随该功能一并禁用，原代码留档如下。 ===
+                /*
+                }
+                else
+                {
+                    MapInfo.Scene = scene;
+                    await SceneManager.LoadSceneAsync(scene, LoadSceneMode.Additive);
+                    var grids = MapManager.Instance.gameObject.GetComponentsInChildren<MapGrid>();
+                    MapInfo.GridInfos = new GridInfo[grids.Max(x => x.X + 1), grids.Max(x => x.Y + 1)];
+                    foreach (var g in grids)
+                    {
+                        // === 皮肤笔刷补丁：读取场景格子上已保存的皮肤数据，进战斗时可还原 ===
+                        var skinData = g.GetComponent<GridSkinData>();
+                        MapInfo.GridInfos[g.X, g.Y] = new GridInfo()
+                        {
+                            X = g.X,
+                            Y = g.Y,
+                            CanBuildUnit = g.CanBuildUnit,
+                            FarAttack = g.FarAttackGrid,
+                            CanMove = g.CanMove,
+                            Skin = skinData != null && !string.IsNullOrEmpty(skinData.Data.SkinName)
+                                ? skinData.Data.Clone()
+                                : null,
+                            // 组合模式：一并保存叠加层
+                            SkinExtras = skinData != null && skinData.ExtraSkins.Count > 0
+                                ? skinData.ExtraSkins.Where(x => x != null).Select(x => x.Clone()).ToList()
+                                : null,
+                        };
+                    }
+                    goMain();
+                }
+                */
                 m_MidPage.UpdatePoints();
             });
             m_yes.onClick.Add(() => ovTcs.SetResult(true));
@@ -122,22 +146,49 @@ namespace MapBuilderUI
 
             m_save.onClick.Add(async () =>
             {
-                check();
-                if (SaveHelper.ExistFile(m_StartPage.m_SMapPackageIndex.text, "/Map/" + m_StartPage.m_SMapPackageIndex.text + "/" + m_StartPage.m_FileName.text))
+                try
                 {
-                    var result = await ShowCancelWindow();
-                    if (!result) return;
+                    check();
+                    // === 皮肤笔刷补丁：保存前强制把场景皮肤数据同步进 GridInfos ===
+                    // （不依赖笔刷窗口的事件同步，保证"改完即存"一定落盘）
+                    if (FeatureFlags.SkinBrush && MapInfo != null && MapInfo.GridInfos != null)
+                    {
+                        var mm = MapManager.Instance;
+                        if (mm != null)
+                            GridSkinData.SyncSkinsToGridInfos(MapInfo.GridInfos, mm.GetComponentsInChildren<MapGrid>());
+                    }
+                    if (SaveHelper.ExistFile(m_StartPage.m_SMapPackageIndex.text, "/Map/" + m_StartPage.m_SMapPackageIndex.text + "/" + m_StartPage.m_FileName.text))
+                    {
+                        var result = await ShowCancelWindow();
+                        if (!result)
+                        {
+                            Debug.LogWarning($"[MapBuilder] 已取消覆盖「{m_StartPage.m_FileName.text}」，本次未保存");
+                            return;
+                        }
+                    }
+                    var json = JsonHelper.ToJson(MapInfo);
+                    SaveHelper.Save(json, m_StartPage.m_SMapPackageIndex.text, "/Map/" + m_StartPage.m_SMapPackageIndex.text + "/" + m_StartPage.m_FileName.text);
+                    Database.Instance.Maps.Remove(m_StartPage.m_SMapPackageIndex.text+ ":" +m_StartPage.m_FileName.text);
+                    Database.Instance.Maps.Add(m_StartPage.m_SMapPackageIndex.text + ":" + m_StartPage.m_FileName.text, MapInfo);
+                    m_saveSuccess.Play();
+                    Debug.Log($"[MapBuilder] 地图已保存：{m_StartPage.m_SMapPackageIndex.text}/{m_StartPage.m_FileName.text}.txt（{json.Length / 1024} KB）");
                 }
-                SaveHelper.Save(JsonHelper.ToJson(MapInfo), m_StartPage.m_SMapPackageIndex.text, "/Map/" + m_StartPage.m_SMapPackageIndex.text + "/" + m_StartPage.m_FileName.text);
-                Database.Instance.Maps.Remove(m_StartPage.m_SMapPackageIndex.text+ ":" +m_StartPage.m_FileName.text);
-                Database.Instance.Maps.Add(m_StartPage.m_SMapPackageIndex.text + ":" + m_StartPage.m_FileName.text, MapInfo);
-                m_saveSuccess.Play();
+                catch (Exception e)
+                {
+                    // async 回调异常不会弹窗，必须显式报出来：此前 check() 越界/文件被占用都表现为"点了保存没反应"
+                    Debug.LogError($"[MapBuilder] 保存失败：{e.GetType().Name}: {e.Message}\n{e.StackTrace}");
+                }
             });
             m_StartPage.m_quickLoad.onChanged.Add(() =>
             {
                 m_StartPage.m_FileName.text = m_StartPage.m_quickLoad.text;
                 m_StartPage.m_load.onClick.Call();
             });
+
+            // === 皮肤笔刷·运行时版：整合进游戏内造图界面（按 T 显隐、面板可拖动）。
+            // 纯代码构建的 FairyGUI 面板挂在本视图下，不改 MapBuilderUI_fui.bytes；
+            // 保存链路复用 m_save 的强制 SyncSkinsToGridInfos，无需额外同步。 ===
+            if (FeatureFlags.SkinBrush) SkinBrushRuntime.Install(this);
         }
 
         TaskCompletionSource<bool> ovTcs;
@@ -206,6 +257,12 @@ namespace MapBuilderUI
             {
                 if (!MapInfo.PathInfos.Any(x=>x.Name== waveInfo.Path))
                 {
+                    // 空路径表时取 [0] 会越界 → 整个保存流程在写盘前崩掉（表现为"点保存无效"）
+                    if (MapInfo.PathInfos.Count == 0)
+                    {
+                        Debug.LogWarning("[MapBuilder] check 跳过：地图有波次但没有任何路径，波次路径引用未修正");
+                        break;
+                    }
                     waveInfo.Path = MapInfo.PathInfos[0].Name;
                 }
             }
@@ -214,6 +271,16 @@ namespace MapBuilderUI
         void goMain()
         {
             if (m_state.selectedIndex == 6) MapManager.Instance.EndBrush();
+            // === v3.5 皮肤防复活：撤销/笔刷窗口关闭等场景下 OnUndoRedo 的 MapInfo 重同步
+            // 可能没跑（undoRedoPerformed 订阅随窗口 OnDisable 注销），MapInfo 里残留已撤销
+            // 的皮肤 → 不保存直接进战斗时 ApplySkins 照残留数据重建 = "撤销物显现"。
+            // 离开造图页前以场景为唯一真值强制重同步一次。 ===
+            if (FeatureFlags.SkinBrush && Application.isPlaying && MapInfo != null && MapInfo.GridInfos != null)
+            {
+                var mmSync = MapManager.Instance;
+                if (mmSync != null)
+                    GridSkinData.SyncSkinsToGridInfos(MapInfo.GridInfos, mmSync.GetComponentsInChildren<MapGrid>());
+            }
             m_PathPage.NowPoints = null;
             m_PathPage.NowSelect = null;
             if (string.IsNullOrEmpty(scene))

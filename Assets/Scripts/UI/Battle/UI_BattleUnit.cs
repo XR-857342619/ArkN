@@ -67,6 +67,7 @@ namespace BattleUI
         public void Flush()
         {
             if (Unit == null) return;
+            if (Unit.UnitModel == null) return; // 模型加载失败的敌人（如 shchmr）跳过 UI 刷新，避免 NRE
 
             if (Unit is Units.敌人 enemy && !enemy.Visiable)
             {

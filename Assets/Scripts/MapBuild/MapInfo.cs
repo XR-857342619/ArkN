@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public class MapInfo
@@ -33,6 +31,10 @@ public class GridInfo
     public bool CanBuildUnit;
     public bool FarAttack;
     public bool CanMove;
+    /// <summary>皮肤数据（皮肤笔刷写入，随 JSON 存档；旧存档该字段为 null，自动兼容）</summary>
+    public SkinInfo Skin;
+    /// <summary>组合模式叠加的皮肤数据（主皮肤在 Skin；旧存档该字段为 null，自动兼容）</summary>
+    public List<SkinInfo> SkinExtras;
 }
 
 public class UnitInfo

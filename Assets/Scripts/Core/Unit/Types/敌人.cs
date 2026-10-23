@@ -83,10 +83,15 @@ namespace Units
             BattleUI.UI_Battle.Instance.CreateUIUnit(this);
 
             hideBase = true;
-            Start.Set(UnitModel.GetAnimationDuration("Start"));
-            if (Start.Finished()) StartEnd();
+            if (UnitModel != null)
+            {
+                Start.Set(UnitModel.GetAnimationDuration("Start"));
+                if (Start.Finished()) StartEnd();
+                else
+                    SetStatus(StateEnum.Start);
+            }
             else
-                SetStatus(StateEnum.Start);
+                SetStatus(StateEnum.Idle); // 模型缺失：跳过出场动画，直接待机
         }
 
         public void StartEnd()

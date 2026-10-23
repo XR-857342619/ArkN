@@ -196,9 +196,86 @@ public class MapManager : MonoBehaviour
                 mapGrid.FarAttackGrid = g.FarAttack;
                 mapGrid.transform.parent = transform;
                 mapGrid.AutoBuild();
+                // === 皮肤笔刷补丁：按存档中的 Skin 数据还原皮肤（只处理视觉，不触碰任何机制字段） ===
+                // 皮肤笔刷默认关闭，见 FeatureFlags.SkinBrush
+                if (FeatureFlags.SkinBrush && g.Skin != null && !string.IsNullOrEmpty(g.Skin.SkinName))
+                {
+                    var skinData = mapGrid.gameObject.AddComponent<GridSkinData>();
+                    skinData.Data = g.Skin.Clone();
+                    skinData.ReapplyFromData();
+                    // 组合模式：还原叠加皮肤层
+                    if (g.SkinExtras != null)
+                        foreach (var ex in g.SkinExtras)
+                            if (ex != null && !string.IsNullOrEmpty(ex.SkinName))
+                                skinData.AddExtraFromData(ex);
+                }
                 mapGrids[i * infos.GetLength(1) + j] = mapGrid;
             }
         }
         init();
+    }
+
+    /// <summary>
+    /// === 皮肤笔刷补丁 ===
+    /// 对场景中已存在的格子按存档数据还原皮肤（场景地图进入战斗时调用，
+    /// 因为场景地图不经过 Build 重建，皮肤数据来自 MapInfo.GridInfos）。
+    /// 只处理视觉，不触碰任何机制字段；GridInfo.Skin 为空则不动该格。
+    /// </summary>
+    public void ApplySkins(GridInfo[,] infos)
+    {
+        if (!FeatureFlags.SkinBrush) return; // 皮肤笔刷默认关闭（FeatureFlags.SkinBrush），不进任何还原逻辑
+        if (infos == null) return;
+        int w = infos.GetLength(0), h = infos.GetLength(1);
+
+        var grids = GetComponentsInChildren<MapGrid>(true);
+        if (grids == null || grids.Length == 0)
+            grids = FindObjectsOfType<MapGrid>();
+
+        foreach (var grid in grids)
+        {
+            if (grid == null) continue;
+            if (grid.X < 0 || grid.Y < 0 || grid.X >= w || grid.Y >= h) continue;
+            var g = infos[grid.X, grid.Y];
+            if (g == null || g.Skin == null || string.IsNullOrEmpty(g.Skin.SkinName)) continue;
+
+            var data = grid.GetComponent<GridSkinData>();
+            // === 组合模式：同步叠加层存档数据 ===
+            var extras = g.SkinExtras != null
+                ? g.SkinExtras.Where(x => x != null && !string.IsNullOrEmpty(x.SkinName)).Select(x => x.Clone()).ToList()
+                : new List<SkinInfo>();
+            if (data == null)
+            {
+                data = grid.gameObject.AddComponent<GridSkinData>();
+                data.Data = g.Skin.Clone();
+                data.ReapplyFromData();
+                foreach (var ex in extras) data.AddExtraFromData(ex);
+            }
+            else
+            {
+                // 已有皮肤数据/实例：以存档为准更新（实例缺失则重建）
+                data.Data = g.Skin.Clone();
+                data.ExtraSkins = extras;
+                // v3.5：已有叠加层实例数 > 存档数据层数时，裁掉尾部多余实例。
+                // 否则残留的旧叠加层既是"多出来的子物体"，又让 ReapplyExtras 的层序按
+                // 兄弟顺序错位（层序 = 兄弟顺序，多一层则后面全部偏一层）。
+                var kids = data.GetSkinChildren();
+                for (int i = kids.Count - 1; i >= 1 + extras.Count; i--)
+                {
+                    if (Application.isPlaying) Destroy(kids[i]);
+                    else DestroyImmediate(kids[i]);
+                }
+                if (data.GetSkinChildren().Count == 0)
+                {
+                    data.ReapplyFromData();
+                    data.ReapplyExtras();
+                }
+                else
+                {
+                    if (data.Data.TileHidden) data.HideTileRenderers();
+                    data.ApplySkinTransform();
+                    data.ReapplyExtras();
+                }
+            }
+        }
     }
 }

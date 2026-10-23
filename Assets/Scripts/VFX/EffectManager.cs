@@ -40,9 +40,16 @@ public class EffectManager : MonoBehaviour
             return null;
         }
 
+        bool fromAb = false;
         if (!effectPrefabs.TryGetValue(id, out var prefab) || prefab == null)
         {
             var go = ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + config.Prefab);
+            if (go == null)
+            {
+                // AB 特效兜底：工程内没有该 prefab 时，从 arkfx 运行时包加载并补挂驱动组件
+                go = ArkFxLoader.LoadPrefabByName(config.Prefab);
+                if (go != null) { go.AddComponent<Effect>(); fromAb = true; }
+            }
             if (go == null)
             {
                 Debug.LogError($"特效 Prefab 加载失败: {PathHelper.EffectPath + config.Prefab}");
@@ -59,6 +66,8 @@ public class EffectManager : MonoBehaviour
 
         var result = pool.Spawn(prefab, Vector3.zero, Quaternion.identity);
         if (result == null) return null;
+        // AB 来源的特效：实例化后踢动效（粒子/动画器）；驱动组件已烘焙进 prefab，克隆自带不会重复
+        if (fromAb) ArkFxLoader.Kick(result.gameObject, config.Prefab);
 
         result.Id = id;
         result.SetLifeTime(config.LifeTime);

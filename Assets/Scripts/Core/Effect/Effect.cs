@@ -23,6 +23,8 @@ public class Effect : MonoBehaviour
     {
         PS = GetComponentsInChildren<ParticleSystem>();
         TR = GetComponentsInChildren<TrailRenderer>();
+        // 切到 FxOverlay 层：由 SpineOverlayCamera 一并渲染，与 Spine 按深度排序（层未创建时内部自动跳过）
+        SpineOverlayCameraUtil.ApplyFx(gameObject);
     }
 
     /// <summary>

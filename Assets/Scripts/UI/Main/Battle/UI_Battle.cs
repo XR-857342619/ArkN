@@ -231,6 +231,12 @@ namespace MainUI
             }
 
             var mapInfo = Database.Instance.GetMap(mapPackageName, battleLevel);
+            if (mapInfo == null)
+            {
+                // 地图存档缺失：给出提示并终止本次开战流程（SetInfo 内部会显示缺失说明）
+                TipManager.Instance.ShowTip($"地图 {mapPackageName}/{battleLevel} 没有存档数据，无法进入");
+                return;
+            }
             m_levelInfo.SetInfo(mapPackageName, battleLevel);
             m_showLevelInfo.selectedIndex = 1;
 

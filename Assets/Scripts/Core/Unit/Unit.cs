@@ -835,9 +835,9 @@ public class Unit
 
     public virtual void CreateModel()
     {
-        if (string.IsNullOrEmpty(UnitData.Model)) return;
-
         GameObject go = null;
+        if (!string.IsNullOrEmpty(UnitData.Model))
+        {
         SpineData spineData = Database.Instance.Get<SpineData>(UnitData.Model);
 
         // 外部 Spine 模型：直接走 SpineImportHelper，避免先尝试加载不存在的普通 Prefab。
@@ -859,14 +859,27 @@ public class Unit
             go = ResHelper.Instantiate(PathHelper.UnitPath + UnitData.Model);
         }
 
+        }
+
         if (go == null)
         {
-            Debug.LogError("模型" + UnitData.Model + "加载失败");
-            TipManager.Instance.ShowTip("模型" + UnitData.Model + "加载失败");
-            return;
+            var reason = string.IsNullOrEmpty(UnitData.Model) ? "未配置模型" : "模型加载失败";
+            Debug.LogWarning("模型" + UnitData.Model + reason + "（使用占位空模型，单位不可见但可参与战斗）");
+            TipManager.Instance.ShowTip("模型" + UnitData.Model + reason);
+            // 占位空模型：UnitModel 基类所有虚方法都有安全默认实现，
+            // 保证后续 UnitModel.xxx 访问不产生 NRE，敌人仍可走完整战斗逻辑
+            go = new GameObject(UnitData.Model + "_stub");
+            go.AddComponent<UnitModel>();
         }
 
         UnitModel = go.GetComponent<UnitModel>();
+        // 中立单位（装置类 prefab）切到 Device 层：由 DeviceDepthCamera 写入装置深度，
+        // 与 Spine 重合时正常深度计算，与普通 3D 模型也保持正常深度显示。
+        // 例外：Ablititys 含 "NoDepth" 的透明装置不进 Device 层（留在主相机正常渲染，
+        // Spine 叠加相机会直接盖在其上——透明装置可视区域即透出 Spine）。
+        bool transparentDevice = UnitData.Ablititys != null && UnitData.Ablititys.ContainsKey("NoDepth");
+        if (UnitData.Type == "中立单位" && !transparentDevice)
+            SpineOverlayCameraUtil.ApplyDevice(go);
         UnitModel.Init(this);
         // 初始化完成后立即按当前所在地块对齐地面，避免穿模
         UnitModel.AlignHeight();
