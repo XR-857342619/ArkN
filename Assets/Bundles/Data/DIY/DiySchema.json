@@ -1,0 +1,2127 @@
+{
+    "version": 1,
+    "sourceFolder": "Assets/Scripts/Config",
+    "classes": [
+        {
+            "className": "BuffData",
+            "sourceFile": "Assets/Scripts/Config/BuffData.cs",
+            "disabled": false,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Type",
+                    "type": "string",
+                    "label": "Type",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Name",
+                    "type": "string",
+                    "label": "名称",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "StopLess",
+                    "type": "int",
+                    "label": "阻挡数小于启用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "StopNeed",
+                    "type": "int",
+                    "label": "阻挡启用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "RoundNeed",
+                    "type": "int",
+                    "label": "周围检测",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "UnSourceCheck",
+                    "type": "bool",
+                    "label": "非同源覆盖",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "IfSwitch",
+                    "type": "bool",
+                    "label": "切换类Buff",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "LastingEffect",
+                    "type": "int?",
+                    "label": "持续特效",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "LastTime",
+                    "type": "float",
+                    "label": "默认持续时间",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Upgrade",
+                    "type": "int?",
+                    "label": "Buff升级",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Resist",
+                    "type": "bool",
+                    "label": "可抵抗",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "DeadRemain",
+                    "type": "bool",
+                    "label": "死亡保留",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "RelyBuff",
+                    "type": "int?",
+                    "label": "依赖Buff",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "NotCancelable",
+                    "type": "bool",
+                    "label": "不可取消",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Data",
+                    "type": "Dictionary<string,object>",
+                    "label": "自定义数据",
+                    "isDefault": false,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "BulletData",
+            "sourceFile": "Assets/Scripts/Config/BulletData.cs",
+            "disabled": false,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Type",
+                    "type": "string",
+                    "label": "Type",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Model",
+                    "type": "string",
+                    "label": "子弹模型",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Line",
+                    "type": "string",
+                    "label": "Line",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Speed",
+                    "type": "float",
+                    "label": "速度",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "FaceCamera",
+                    "type": "int",
+                    "label": "面向相机",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ScaleX",
+                    "type": "int",
+                    "label": "X缩放",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "EffectBase",
+                    "type": "int",
+                    "label": "EffectBase",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Modifys",
+                    "type": "int[]",
+                    "label": "修饰器",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Data",
+                    "type": "Dictionary<string,object>",
+                    "label": "自定义数据",
+                    "isDefault": true,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "CardData",
+            "sourceFile": "Assets/Scripts/Config/CardData.cs",
+            "disabled": false,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "units",
+                    "type": "int[]",
+                    "label": "单位名称",
+                    "isDefault": true,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "ContractData",
+            "sourceFile": "Assets/Scripts/Config/ContractData.cs",
+            "disabled": false,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Icon",
+                    "type": "string",
+                    "label": "图标",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Name",
+                    "type": "string",
+                    "label": "名称",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Description",
+                    "type": "string",
+                    "label": "描述",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Group",
+                    "type": "int",
+                    "label": "分组",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Skills",
+                    "type": "int[]",
+                    "label": "Skills",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "TeamLimit",
+                    "type": "int",
+                    "label": "编队限制",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "ProfessionLimit",
+                    "type": "UnitTypeEnum[]",
+                    "label": "职业限制",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "MapHp",
+                    "type": "int",
+                    "label": "重设关卡生命值",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Level",
+                    "type": "int",
+                    "label": "Level",
+                    "isDefault": false,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "DungeonLevelData",
+            "sourceFile": "Assets/Scripts/Config/DungeonLevelData.cs",
+            "disabled": true,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "TeamCount",
+                    "type": "int",
+                    "label": "TeamCount",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "BuildCount",
+                    "type": "int",
+                    "label": "BuildCount",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Exp",
+                    "type": "int",
+                    "label": "Exp",
+                    "isDefault": false,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "EffectData",
+            "sourceFile": "Assets/Scripts/Config/EffectData.cs",
+            "disabled": false,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Prefab",
+                    "type": "string",
+                    "label": "模型",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "StartPos",
+                    "type": "int",
+                    "label": "起始位置",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Offset",
+                    "type": "Vector3",
+                    "label": "偏移",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "BindPoint",
+                    "type": "string",
+                    "label": "绑定点",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "BoneFollow",
+                    "type": "bool",
+                    "label": "BoneFollow",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ForwardOnly",
+                    "type": "bool",
+                    "label": "ForwardOnly",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ParentFollow",
+                    "type": "int",
+                    "label": "ParentFollow",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ScaleXFollow",
+                    "type": "int",
+                    "label": "ScaleXFollow",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ForwordDirection",
+                    "type": "int",
+                    "label": "ForwordDirection",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "FaceCamera",
+                    "type": "float",
+                    "label": "FaceCamera",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "LifeTime",
+                    "type": "float",
+                    "label": "生命周期",
+                    "isDefault": true,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "EventData",
+            "sourceFile": "Assets/Scripts/Config/EventData.cs",
+            "disabled": true,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Group",
+                    "type": "string",
+                    "label": "Group",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "EventId",
+                    "type": "string",
+                    "label": "EventId",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Description",
+                    "type": "string",
+                    "label": "Description",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Choices",
+                    "type": "string[]",
+                    "label": "Choices",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "ChoicesTitle",
+                    "type": "string[]",
+                    "label": "ChoicesTitle",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Next",
+                    "type": "string[]",
+                    "label": "Next",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Branch",
+                    "type": "int[]",
+                    "label": "Branch",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Rewards",
+                    "type": "int[]",
+                    "label": "Rewards",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AutoReward",
+                    "type": "bool",
+                    "label": "AutoReward",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Background",
+                    "type": "string",
+                    "label": "Background",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Tile",
+                    "type": "string",
+                    "label": "Tile",
+                    "isDefault": false,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "MapTileData",
+            "sourceFile": "Assets/Scripts/Config/MapTileData.cs",
+            "disabled": true,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Type",
+                    "type": "DungeonTileTypeEnum",
+                    "label": "Type",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Model",
+                    "type": "string",
+                    "label": "Model",
+                    "isDefault": false,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "ModifyData",
+            "sourceFile": "Assets/Scripts/Config/ModifyData.cs",
+            "disabled": false,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Type",
+                    "type": "string",
+                    "label": "Type",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Buff",
+                    "type": "int?",
+                    "label": "有Buff启用",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Data",
+                    "type": "Dictionary<string,object>",
+                    "label": "Data",
+                    "isDefault": true,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "RelicData",
+            "sourceFile": "Assets/Scripts/Config/RelicData.cs",
+            "disabled": true,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Icon",
+                    "type": "string",
+                    "label": "Icon",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Effect",
+                    "type": "string",
+                    "label": "Effect",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Descripiton",
+                    "type": "string",
+                    "label": "Descripiton",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Name",
+                    "type": "string",
+                    "label": "Name",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Rare",
+                    "type": "int",
+                    "label": "Rare",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Profession",
+                    "type": "UnitTypeEnum[]",
+                    "label": "Profession",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "CardCount",
+                    "type": "int",
+                    "label": "CardCount",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "BuildCount",
+                    "type": "int",
+                    "label": "BuildCount",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Hope",
+                    "type": "int",
+                    "label": "Hope",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Gold",
+                    "type": "int",
+                    "label": "Gold",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "GoldDropRate",
+                    "type": "float",
+                    "label": "GoldDropRate",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Skills",
+                    "type": "SkillData[]",
+                    "label": "Skills",
+                    "isDefault": false,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "RewardData",
+            "sourceFile": "Assets/Scripts/Config/RewardData.cs",
+            "disabled": true,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "RewardItem",
+                    "type": "int[]",
+                    "label": "RewardItem",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Weights",
+                    "type": "int[]",
+                    "label": "Weights",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "RewardGold",
+                    "type": "int",
+                    "label": "RewardGold",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "RewardPoint",
+                    "type": "int",
+                    "label": "RewardPoint",
+                    "isDefault": false,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "SkillData",
+            "sourceFile": "Assets/Scripts/Config/SkillData.cs",
+            "disabled": false,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Type",
+                    "type": "string",
+                    "label": "Type",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Name",
+                    "type": "string",
+                    "label": "技能名称",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Desc",
+                    "type": "string",
+                    "label": "技能描述",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Icon",
+                    "type": "string",
+                    "label": "技能图标",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Upgrade",
+                    "type": "int",
+                    "label": "专精等级",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "SkillCondition",
+                    "type": "string",
+                    "label": "技能条件表达式",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "IgnoreStun",
+                    "type": "bool",
+                    "label": "无视眩晕",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "ReadyType",
+                    "type": "SkillReadyEnum",
+                    "label": "激活方式",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "UseType",
+                    "type": "SkillUseTypeEnum",
+                    "label": "使用方式",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Trigger",
+                    "type": "TriggerEnum",
+                    "label": "激活时点",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "SkillCost",
+                    "type": "int",
+                    "label": "技能消耗费用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "MaxUseCount",
+                    "type": "int",
+                    "label": "最大使用次数限制",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "EnableBuff",
+                    "type": "int[]",
+                    "label": "有Buff启用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "DisableBuff",
+                    "type": "int[]",
+                    "label": "有Buff禁用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "TargetEnableBuff",
+                    "type": "int[]",
+                    "label": "目标有Buff启用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "TargetDisableBuff",
+                    "type": "int[]",
+                    "label": "目标有Buff禁用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "OpenDisable",
+                    "type": "bool",
+                    "label": "技能开启时禁用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "SelfHpLess",
+                    "type": "float",
+                    "label": "自身血量低于启用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "TargetHpLess",
+                    "type": "float",
+                    "label": "目标血量低于启用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "TargetHpMore",
+                    "type": "float",
+                    "label": "目标血量高于启用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AutoUse",
+                    "type": "bool",
+                    "label": "自动使用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "NoTargetAlsoUse",
+                    "type": "bool",
+                    "label": "无目标也使用",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "RegetTarget",
+                    "type": "bool",
+                    "label": "生效时重新索敌",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "StopBreak",
+                    "type": "bool",
+                    "label": "阻挡打断",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "EffectiveRate",
+                    "type": "float",
+                    "label": "生效概率",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "StopOtherSkill",
+                    "type": "bool",
+                    "label": "开启时打断其他",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "TargetTeam",
+                    "type": "int",
+                    "label": "敌对组",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AttackFly",
+                    "type": "bool",
+                    "label": "可对空",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "UseEventUser",
+                    "type": "bool",
+                    "label": "使用事件来源",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "UseEventTarget",
+                    "type": "bool",
+                    "label": "使用事件目标",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "TargetFilter",
+                    "type": "SkillTargetFilterEnum",
+                    "label": "过滤器",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "DeadFind",
+                    "type": "bool",
+                    "label": "包括死亡单位",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "ProfessionLimit",
+                    "type": "UnitTypeEnum",
+                    "label": "职业限定",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "UnitLimit",
+                    "type": "int[]",
+                    "label": "单位限定",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "RareLimit",
+                    "type": "int",
+                    "label": "星级限定",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "PosLimit",
+                    "type": "int",
+                    "label": "部署位置限定",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "CostLimit",
+                    "type": "int",
+                    "label": "费用限定",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "MidLimit",
+                    "type": "bool",
+                    "label": "可攻击装置",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AttackOrder",
+                    "type": "AttackTargetOrderEnum",
+                    "label": "索敌优先级1",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "AttackOrder2",
+                    "type": "AttackTargetOrder2Enum",
+                    "label": "索敌优先级2",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "OrderTag",
+                    "type": "string",
+                    "label": "优先tag",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "OrderBuff",
+                    "type": "string",
+                    "label": "优先Buff",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "OrderExpression",
+                    "type": "string",
+                    "label": "自定义优先级表达式",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AttackPoints",
+                    "type": "Vector2Int[]",
+                    "label": "攻击范围(网格)",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "AttackPoint",
+                    "type": "bool",
+                    "label": "锁地板",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AttackRange",
+                    "type": "float",
+                    "label": "攻击范围(圆)",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "AttackAreaWithMain",
+                    "type": "bool",
+                    "label": "跟随普攻的攻击范围",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "DamageType",
+                    "type": "DamageTypeEnum",
+                    "label": "伤害类型",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "IfHeal",
+                    "type": "bool",
+                    "label": "是否治疗",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "DamageRate",
+                    "type": "float",
+                    "label": "伤害倍率",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "DamageWithFrameRate",
+                    "type": "bool",
+                    "label": "倍率乘以cd",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "DamageBase",
+                    "type": "int",
+                    "label": "伤害倍率基准",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "LifeSteal",
+                    "type": "float",
+                    "label": "吸血",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "DamageCount",
+                    "type": "int",
+                    "label": "索敌目标数",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "BurstCount",
+                    "type": "int",
+                    "label": "连击次数",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "BurstDelay",
+                    "type": "float",
+                    "label": "连击间隔",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "BurstFind",
+                    "type": "bool",
+                    "label": "连击重新索敌",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AreaPoints",
+                    "type": "Vector2Int[]",
+                    "label": "溅射范围(网格)",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AreaNoCheck",
+                    "type": "bool",
+                    "label": "AreaNoCheck",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AreaRange",
+                    "type": "float",
+                    "label": "溅射范围(半径)",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AreaMainDamage",
+                    "type": "float",
+                    "label": "溅射主体伤害",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AreaDamage",
+                    "type": "float",
+                    "label": "溅射伤害",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "PushPower",
+                    "type": "int",
+                    "label": "推/拉力等级",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "CostCount",
+                    "type": "int",
+                    "label": "技能回费",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Skills",
+                    "type": "int[]",
+                    "label": "关联技能",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "ExSkills",
+                    "type": "int[]",
+                    "label": "附加技能",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "ExSkillWeight",
+                    "type": "int[]",
+                    "label": "附加技能权重",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "UpgradeSkill",
+                    "type": "int?",
+                    "label": "技能升级目标",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Cooldown",
+                    "type": "float",
+                    "label": "技能CD",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "OpenTime",
+                    "type": "float",
+                    "label": "技能持续时间",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "CanStop",
+                    "type": "bool",
+                    "label": "可关闭",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "StartPower",
+                    "type": "float",
+                    "label": "初始技力",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "MaxPower",
+                    "type": "float",
+                    "label": "最大技力",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "PowerCount",
+                    "type": "int",
+                    "label": "堆叠次数",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "PowerType",
+                    "type": "PowerRecoverTypeEnum",
+                    "label": "技力回复方式",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "PowerStopNeed",
+                    "type": "bool",
+                    "label": "技力回复需阻挡",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "PowerUseType",
+                    "type": "PowerRecoverTypeEnum",
+                    "label": "技能持续消耗方式",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ModelAnimation",
+                    "type": "string[]",
+                    "label": "技能动画",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "RotatingAnimation",
+                    "type": "bool",
+                    "label": "是否轮换播放技能动画",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AnimationTime",
+                    "type": "float?",
+                    "label": "技能动作强制抬手时间",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "ModelAnimationDown",
+                    "type": "string[]",
+                    "label": "向下技能动作",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "OverwriteAnimation",
+                    "type": "string[]",
+                    "label": "覆盖动作",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "OverwriteAnimationDown",
+                    "type": "string[]",
+                    "label": "向下覆盖动作",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AttackMode",
+                    "type": "AttackModeEnum",
+                    "label": "攻击模式",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Bullet",
+                    "type": "int?",
+                    "label": "子弹",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ShootPoint",
+                    "type": "string",
+                    "label": "子弹起始点",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Modifys",
+                    "type": "int[]",
+                    "label": "修饰器",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "ModifyDatas",
+                    "type": "int[]",
+                    "label": "修饰器数据",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "ElementInjure",
+                    "type": "Dictionary<string,object>",
+                    "label": "损伤信息",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "BuffRemoves",
+                    "type": "int[]",
+                    "label": "移除Buff",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Buffs",
+                    "type": "int[]",
+                    "label": "添加Buff",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "BuffData",
+                    "type": "float[]",
+                    "label": "Buff数据1",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "BuffData2",
+                    "type": "float[]",
+                    "label": "Buff数据2",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "BuffData3",
+                    "type": "float[]",
+                    "label": "Buff数据3",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "BuffLastTime",
+                    "type": "float?",
+                    "label": "Buff持续时间",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "BuffChance",
+                    "type": "float[]",
+                    "label": "Buff添加概率",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "BuffRely",
+                    "type": "bool",
+                    "label": "Buff依赖",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Data",
+                    "type": "Dictionary<string,object>",
+                    "label": "自定义数据",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ReadyEffect",
+                    "type": "int?",
+                    "label": "就绪特效",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "StartEffect",
+                    "type": "int[]",
+                    "label": "起始特效",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "CastEffect",
+                    "type": "int[]",
+                    "label": "生效特效",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "HitEffect",
+                    "type": "int?",
+                    "label": "命中特效",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "EffectEffect",
+                    "type": "int?",
+                    "label": "生效特效",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "GatherEffect",
+                    "type": "int?",
+                    "label": "聚集特效",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "LoopStartEffect",
+                    "type": "int?",
+                    "label": "循环启动特效",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "LoopCastEffect",
+                    "type": "int?",
+                    "label": "循环生效特效",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AntiHide",
+                    "type": "bool",
+                    "label": "无视隐匿",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "CanDestory",
+                    "type": "bool",
+                    "label": "可沉默",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "NotAttackFlag",
+                    "type": "bool",
+                    "label": "是隐藏主动技能",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "IgnoreSleep",
+                    "type": "bool",
+                    "label": "无视沉睡",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "IgnoreSelectable",
+                    "type": "bool",
+                    "label": "无视可选性",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "DisableScaleX",
+                    "type": "bool",
+                    "label": "禁用转身",
+                    "isDefault": false,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "SpineData",
+            "sourceFile": "Assets/Scripts/Config/SpineData.cs",
+            "disabled": false,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "OnlyFront",
+                    "type": "bool",
+                    "label": "仅正面",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "UseAppHotfixResPath",
+                    "type": "bool",
+                    "label": "使用相对路径",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "FrontAtlasPath",
+                    "type": "string",
+                    "label": "正面Atlas路径",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "FrontPngPath",
+                    "type": "string",
+                    "label": "正面Png路径",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "FrontSkelPath",
+                    "type": "string",
+                    "label": "正面Skel路径",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "BackAtlasPath",
+                    "type": "string",
+                    "label": "背面Atlas路径",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "BackPngPath",
+                    "type": "string",
+                    "label": "背面Png路径",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "BackSkelPath",
+                    "type": "string",
+                    "label": "背面Skel路径",
+                    "isDefault": true,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "SystemData",
+            "sourceFile": "Assets/Scripts/Config/SystemData.cs",
+            "disabled": true,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "StartUnits",
+                    "type": "UnitData[]",
+                    "label": "StartUnits",
+                    "isDefault": false,
+                    "group": ""
+                }
+            ]
+        },
+        {
+            "className": "UnitData",
+            "sourceFile": "Assets/Scripts/Config/UnitData.cs",
+            "disabled": false,
+            "fields": [
+                {
+                    "name": "Id",
+                    "type": "string",
+                    "label": "Id",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Type",
+                    "type": "string",
+                    "label": "Type",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Test",
+                    "type": "bool",
+                    "label": "在测试阶段",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Model",
+                    "type": "string",
+                    "label": "模型",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ModelScale",
+                    "type": "float",
+                    "label": "模型缩放",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ModelOffset",
+                    "type": "Vector3",
+                    "label": "模型偏移",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "engName",
+                    "type": "string",
+                    "label": "英文名",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Upgrade",
+                    "type": "int",
+                    "label": "精英化等级",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Level",
+                    "type": "int",
+                    "label": "等级",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Hp",
+                    "type": "int",
+                    "label": "血量",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "HpEx",
+                    "type": "int",
+                    "label": "潜能额外血量",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Attack",
+                    "type": "int",
+                    "label": "攻击",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "AttackEx",
+                    "type": "int",
+                    "label": "潜能额外攻击",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Defence",
+                    "type": "int",
+                    "label": "防御",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "DefenceEx",
+                    "type": "int",
+                    "label": "潜能额外防御",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "MagicDefence",
+                    "type": "int",
+                    "label": "法抗",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "MagicDefenceEx",
+                    "type": "int",
+                    "label": "潜能额外法抗",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Cost",
+                    "type": "int",
+                    "label": "费用",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "CostEx",
+                    "type": "int",
+                    "label": "潜能费用缩减",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "CostAdd",
+                    "type": "float",
+                    "label": "再部署费用增长倍率",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ResetTime",
+                    "type": "int",
+                    "label": "再部署时间",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ResetTimeEx",
+                    "type": "int",
+                    "label": "潜能再部署时间缩减",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "ExAgi",
+                    "type": "float",
+                    "label": "潜能额外攻速",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "MinDamageRate",
+                    "type": "float",
+                    "label": "抛光倍率",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AttackGap",
+                    "type": "float",
+                    "label": "攻击间隔",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Weight",
+                    "type": "int",
+                    "label": "重量",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Speed",
+                    "type": "float",
+                    "label": "移速",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "BuildCountCost",
+                    "type": "int",
+                    "label": "部署占用",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "NotReturn",
+                    "type": "bool",
+                    "label": "撤离后不返回",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "RedeployPolicy",
+                    "type": "string",
+                    "label": "部署策略",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "BuildCountLimit",
+                    "type": "int",
+                    "label": "部署数量限制",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Hatred",
+                    "type": "int",
+                    "label": "仇恨等级",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Team",
+                    "type": "int",
+                    "label": "阵营",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Name",
+                    "type": "string",
+                    "label": "名称",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "HitPointName",
+                    "type": "string",
+                    "label": "受击位置",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Skills",
+                    "type": "int[]",
+                    "label": "常驻技能",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "MainSkill",
+                    "type": "int[]",
+                    "label": "可选技能",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "HpBarType",
+                    "type": "string",
+                    "label": "血条类型",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "SpBarType",
+                    "type": "string",
+                    "label": "技力条类型",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Height",
+                    "type": "float",
+                    "label": "高度",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "CanSetPos",
+                    "type": "string[]",
+                    "label": "可部署位置",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "StopCount",
+                    "type": "int",
+                    "label": "阻挡数",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "LeaveReturn",
+                    "type": "float",
+                    "label": "撤退返费倍率",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "NotUseTile",
+                    "type": "bool",
+                    "label": "不占用地板",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "HpRecover",
+                    "type": "float",
+                    "label": "生命值回复速率",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "WithoutCheckCount",
+                    "type": "bool",
+                    "label": "不参与击杀计数",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Damage",
+                    "type": "int",
+                    "label": "关卡伤害",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "IgnoreBuff",
+                    "type": "int[]",
+                    "label": "Buff免疫",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Radius",
+                    "type": "float",
+                    "label": "半径",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Size",
+                    "type": "Vector2Int",
+                    "label": "大小(网格,大型Boss专用)",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "CanStop",
+                    "type": "bool",
+                    "label": "可阻挡",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "StopAttackOnly",
+                    "type": "bool",
+                    "label": "仅阻挡可攻击",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "LifeTime",
+                    "type": "float",
+                    "label": "生命周期",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Profession",
+                    "type": "UnitTypeEnum",
+                    "label": "职业",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Profession2",
+                    "type": "string",
+                    "label": "子职业",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "HeadIcon",
+                    "type": "string",
+                    "label": "头像",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "HalfIcon",
+                    "type": "string",
+                    "label": "半身像",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "StandPic",
+                    "type": "string",
+                    "label": "立绘",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "StandPicPos",
+                    "type": "float[]",
+                    "label": "立绘偏移",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Rare",
+                    "type": "int",
+                    "label": "稀有度",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "SetPos",
+                    "type": "string",
+                    "label": "可部署位置描述",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "Tags",
+                    "type": "string[]",
+                    "label": "Tags",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "AblitityInfo",
+                    "type": "string",
+                    "label": "特性/能力",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "Ablititys",
+                    "type": "Dictionary<string,object>",
+                    "label": "天赋信息",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "StartAnimation",
+                    "type": "string[]",
+                    "label": "入场动画",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "DefaultAnimation",
+                    "type": "string[]",
+                    "label": "默认动画",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "IdleAnimation",
+                    "type": "string[]",
+                    "label": "闲置动画",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "MoveAnimation",
+                    "type": "string[]",
+                    "label": "移动动画",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "DeadAnimation",
+                    "type": "string[]",
+                    "label": "死亡动画",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "StunAnimation",
+                    "type": "string[]",
+                    "label": "眩晕动画",
+                    "isDefault": true,
+                    "group": ""
+                },
+                {
+                    "name": "ForwardAnimation",
+                    "type": "string[]",
+                    "label": "ForwardAnimation",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "DieAnimation",
+                    "type": "string[]",
+                    "label": "DieAnimation",
+                    "isDefault": false,
+                    "group": ""
+                },
+                {
+                    "name": "MaxAnimationScale",
+                    "type": "float",
+                    "label": "MaxAnimationScale",
+                    "isDefault": false,
+                    "group": ""
+                }
+            ]
+        }
+    ]
+}
