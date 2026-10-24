@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,13 +18,14 @@ namespace DiyEditor
     [Serializable]
     public class DiySchemaFile
     {
-        public int version = 1;
+        public int version = DiySchemaGeneratorWindow.CurrentSchemaVersion;
         public string sourceFolder = "Assets/Scripts/Config";
         public List<DiySchemaClass> classes = new List<DiySchemaClass>();
     }
 
     /// <summary>
     /// 一个配置类对应一个分页。
+    /// UnitData 下会有 干员 / 敌人 / 中立单位 三份 variants。
     /// </summary>
     [Serializable]
     public class DiySchemaClass
@@ -33,6 +36,24 @@ namespace DiyEditor
         /// <summary>是否禁用此配置类（废弃项）。</summary>
         public bool disabled;
 
+        public List<DiySchemaVariant> variants = new List<DiySchemaVariant>();
+
+        /// <summary>
+        /// 旧版本 JSON 的字段列表。读取时会自动迁移到 variants，保存时置空不再输出。
+        /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<DiySchemaField> fields;
+    }
+
+    /// <summary>
+    /// 配置类下的一套字段配置。
+    /// 普通配置类只有一个 default variant；UnitData 有三个单位类型 variant。
+    /// </summary>
+    [Serializable]
+    public class DiySchemaVariant
+    {
+        public string key;
+        public string displayName;
         public List<DiySchemaField> fields = new List<DiySchemaField>();
     }
 
@@ -53,6 +74,14 @@ namespace DiyEditor
 
         /// <summary>字段分组名。</summary>
         public string group;
+
+        /// <summary>默认值原始输入，规则与 Excel 单元格值一致。</summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string defaultValue;
+
+        /// <summary>默认值经过 Excel 同款规则转换后的 JSON 字面量。</summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string defaultJson;
     }
 
     /// <summary>
@@ -60,17 +89,29 @@ namespace DiyEditor
     /// </summary>
     public class DiySchemaGeneratorWindow : EditorWindow
     {
+        public const int CurrentSchemaVersion = 2;
+
         private const string ConfigFolder = "Assets/Scripts/Config";
         private const string DefaultOutputPath = "Assets/Bundles/Data/DIY/DiySchema.json";
         private const string OutputPathPrefKey = "DiySchemaGenerator.OutputPath";
 
-        private string outputPath = DefaultOutputPath;
-        private DiySchemaFile schema = new DiySchemaFile();
-        private int selectedClassIndex = 0;
-        private Vector2 classScroll;
-        private Vector2 fieldScroll;
-        private bool dirty;
-        private string lastSavedTime = "";
+        private class VariantDefinition
+        {
+            public string Key;
+            public string DisplayName;
+        }
+
+        private static readonly VariantDefinition[] DefaultVariantDefinitions =
+        {
+            new VariantDefinition { Key = "default", DisplayName = "默认" }
+        };
+
+        private static readonly VariantDefinition[] UnitDataVariantDefinitions =
+        {
+            new VariantDefinition { Key = "opreator", DisplayName = "干员" },
+            new VariantDefinition { Key = "enemy", DisplayName = "敌人" },
+            new VariantDefinition { Key = "normal", DisplayName = "中立单位" }
+        };
 
         private class ConfigFieldDescriptor
         {
@@ -86,11 +127,28 @@ namespace DiyEditor
             public List<ConfigFieldDescriptor> Fields;
         }
 
+        private string outputPath = DefaultOutputPath;
+        private DiySchemaFile schema = new DiySchemaFile();
+        private int selectedClassIndex = 0;
+        private int selectedVariantIndex = 0;
+        private Vector2 classScroll;
+        private Vector2 fieldScroll;
+        private bool dirty;
+        private string lastSavedTime = "";
+
+        /// <summary>字段 -> 默认值转换失败原因，仅用于界面提示，不写入 JSON。</summary>
+        private readonly Dictionary<DiySchemaField, string> conversionErrors =
+            new Dictionary<DiySchemaField, string>();
+
+        /// <summary>表名 -> Id 列表，用于把引用字段的 Id 转换为数组下标。</summary>
+        private readonly Dictionary<string, List<string>> referenceIds =
+            new Dictionary<string, List<string>>(StringComparer.Ordinal);
+
         [MenuItem("Tools/DIY/配置字段JSON生成器")]
         public static void Open()
         {
             var window = GetWindow<DiySchemaGeneratorWindow>("DIY 配置字段");
-            window.minSize = new Vector2(980, 540);
+            window.minSize = new Vector2(1280, 560);
             window.Show();
         }
 
@@ -181,6 +239,7 @@ namespace DiyEditor
                 if (GUILayout.Button(title, GUILayout.Height(24)))
                 {
                     selectedClassIndex = i;
+                    selectedVariantIndex = 0;
                     fieldScroll = Vector2.zero;
                     GUI.FocusControl(null);
                 }
@@ -196,6 +255,9 @@ namespace DiyEditor
         {
             var configClass = schema.classes[selectedClassIndex];
             if (configClass == null) return;
+
+            if (configClass.variants == null)
+                configClass.variants = new List<DiySchemaVariant>();
 
             EditorGUILayout.BeginVertical("box", GUILayout.ExpandWidth(true));
 
@@ -219,8 +281,45 @@ namespace DiyEditor
                     MessageType.Info);
             }
 
-            EditorGUILayout.Space();
+            if (configClass.variants.Count == 0)
+            {
+                EditorGUILayout.HelpBox("此配置类没有任何 variants，请点击“重新载入”重新生成。", MessageType.Warning);
+                EditorGUILayout.EndVertical();
+                return;
+            }
 
+            selectedVariantIndex = Mathf.Clamp(selectedVariantIndex, 0, configClass.variants.Count - 1);
+
+            if (configClass.variants.Count > 1)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("属性配置", EditorStyles.boldLabel);
+
+                string[] variantNames = configClass.variants
+                    .Select(v => string.IsNullOrEmpty(v?.displayName) ? (v?.key ?? "未命名") : v.displayName)
+                    .ToArray();
+
+                int newVariantIndex = GUILayout.Toolbar(selectedVariantIndex, variantNames);
+                if (newVariantIndex != selectedVariantIndex)
+                {
+                    selectedVariantIndex = newVariantIndex;
+                    fieldScroll = Vector2.zero;
+                    GUI.FocusControl(null);
+                }
+            }
+
+            var variant = configClass.variants[selectedVariantIndex];
+            if (variant == null)
+            {
+                EditorGUILayout.HelpBox("当前 variant 为空，请点击“重新载入”重新生成。", MessageType.Warning);
+                EditorGUILayout.EndVertical();
+                return;
+            }
+
+            if (variant.fields == null)
+                variant.fields = new List<DiySchemaField>();
+
+            EditorGUILayout.Space();
             DrawFieldHeader();
 
             fieldScroll = EditorGUILayout.BeginScrollView(
@@ -228,21 +327,14 @@ namespace DiyEditor
                 GUILayout.ExpandHeight(true),
                 GUILayout.ExpandWidth(true));
 
-            if (configClass.fields == null)
-                configClass.fields = new List<DiySchemaField>();
-
-            EditorGUI.BeginChangeCheck();
             using (new EditorGUI.DisabledScope(configClass.disabled))
             {
-                foreach (var field in configClass.fields)
+                foreach (var field in variant.fields)
                 {
                     if (field == null) continue;
                     DrawFieldRow(field);
                 }
             }
-
-            if (EditorGUI.EndChangeCheck())
-                MarkDirty();
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
@@ -252,42 +344,90 @@ namespace DiyEditor
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-            GUILayout.Label("字段名", EditorStyles.boldLabel, GUILayout.Width(190));
-            GUILayout.Label("类型", EditorStyles.boldLabel, GUILayout.Width(170));
-            GUILayout.Label("中文备注", EditorStyles.boldLabel, GUILayout.ExpandWidth(true));
-            GUILayout.Label("默认属性", EditorStyles.boldLabel, GUILayout.Width(70));
-            GUILayout.Label("分组", EditorStyles.boldLabel, GUILayout.ExpandWidth(true));
+            GUILayout.Label("字段名", EditorStyles.boldLabel, GUILayout.Width(150));
+            GUILayout.Label("类型", EditorStyles.boldLabel, GUILayout.Width(115));
+            GUILayout.Label("中文备注", EditorStyles.boldLabel, GUILayout.MinWidth(90), GUILayout.ExpandWidth(true));
+            GUILayout.Label("默认属性", EditorStyles.boldLabel, GUILayout.Width(55));
+            GUILayout.Label("分组", EditorStyles.boldLabel, GUILayout.Width(105));
+            GUILayout.Label("默认值(原始输入)", EditorStyles.boldLabel, GUILayout.Width(170));
+            GUILayout.Label("默认值(JSON)", EditorStyles.boldLabel, GUILayout.Width(170));
 
             EditorGUILayout.EndHorizontal();
         }
 
         private void DrawFieldRow(DiySchemaField field)
         {
+            EditorGUI.BeginChangeCheck();
+
             EditorGUILayout.BeginHorizontal();
 
-            GUILayout.Label(field.name ?? "", GUILayout.Width(190));
-            GUILayout.Label(field.type ?? "", EditorStyles.miniLabel, GUILayout.Width(170));
+            GUILayout.Label(field.name ?? "", GUILayout.Width(150));
+            GUILayout.Label(field.type ?? "", EditorStyles.miniLabel, GUILayout.Width(115));
 
-            field.label = EditorGUILayout.TextField(field.label ?? "", GUILayout.ExpandWidth(true));
-            field.isDefault = EditorGUILayout.Toggle(field.isDefault, GUILayout.Width(70));
-            field.group = EditorGUILayout.TextField(field.group ?? "", GUILayout.ExpandWidth(true));
+            field.label = EditorGUILayout.TextField(
+                field.label ?? "",
+                GUILayout.MinWidth(90),
+                GUILayout.ExpandWidth(true));
+
+            field.isDefault = EditorGUILayout.Toggle(field.isDefault, GUILayout.Width(55));
+
+            field.group = EditorGUILayout.TextField(field.group ?? "", GUILayout.Width(105));
+
+            field.defaultValue = EditorGUILayout.TextField(field.defaultValue ?? "", GUILayout.Width(170));
+
+            bool hasError = conversionErrors.TryGetValue(field, out var error);
+            string convertedText = hasError ? "转换失败" : (field.defaultJson ?? "");
+            string tooltip = hasError ? error : convertedText;
+
+            var oldColor = GUI.color;
+            if (hasError)
+                GUI.color = new Color(1f, 0.45f, 0.45f);
+
+            GUILayout.Label(
+                new GUIContent(convertedText, tooltip),
+                EditorStyles.miniLabel,
+                GUILayout.Width(170));
+
+            GUI.color = oldColor;
 
             EditorGUILayout.EndHorizontal();
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                ConvertFieldDefault(field);
+                MarkDirty();
+            }
         }
 
         private void DrawFooter()
         {
-            int totalFields = schema.classes
-                .Where(c => c != null && c.fields != null)
-                .Sum(c => c.fields.Count);
+            int totalFields = 0;
+            int defaultFields = 0;
 
-            int defaultFields = schema.classes
-                .Where(c => c != null && c.fields != null)
-                .SelectMany(c => c.fields)
-                .Count(f => f != null && f.isDefault);
+            foreach (var configClass in schema.classes)
+            {
+                if (configClass?.variants == null) continue;
+
+                foreach (var variant in configClass.variants)
+                {
+                    if (variant?.fields == null) continue;
+
+                    totalFields += variant.fields.Count;
+                    defaultFields += variant.fields.Count(f => f != null && f.isDefault);
+                }
+            }
 
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
-            GUILayout.Label($"配置类: {schema.classes.Count}    字段总数: {totalFields}    默认属性: {defaultFields}");
+            GUILayout.Label($"配置类: {schema.classes.Count}    字段条目: {totalFields}    默认属性: {defaultFields}");
+
+            if (conversionErrors.Count > 0)
+            {
+                var oldColor = GUI.color;
+                GUI.color = new Color(1f, 0.45f, 0.45f);
+                GUILayout.Label($"默认值转换失败: {conversionErrors.Count}");
+                GUI.color = oldColor;
+            }
+
             GUILayout.FlexibleSpace();
             GUILayout.Label(dirty ? "有未保存修改" : (string.IsNullOrEmpty(lastSavedTime) ? "" : "已保存: " + lastSavedTime));
             EditorGUILayout.EndHorizontal();
@@ -295,32 +435,19 @@ namespace DiyEditor
 
         /// <summary>
         /// 重新扫描配置类，并与已有 JSON 合并：
-        /// - 已有字段保留中文备注、默认属性、分组；
+        /// - 已有字段保留中文备注、默认属性、分组、默认值；
         /// - 新增字段自动追加；
         /// - 已不存在的字段会被移除；
-        /// - 已禁用状态会保留。
+        /// - 已禁用状态会保留；
+        /// - 旧版单 fields 结构会自动迁移为 variants。
         /// </summary>
         private void ReloadFromDisk()
         {
             var descriptors = DiscoverConfigTypes();
+            BuildReferenceIds(descriptors);
 
-            DiySchemaFile existing = null;
-            if (File.Exists(outputPath))
-            {
-                try
-                {
-                    string json = File.ReadAllText(outputPath, Encoding.UTF8);
-                    existing = JsonUtility.FromJson<DiySchemaFile>(json);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogWarning($"[DiySchemaGenerator] 读取已有 JSON 失败，将重新生成: {outputPath}\n{e}");
-                }
-            }
-            else
-            {
-                Debug.Log($"[DiySchemaGenerator] 未找到已有 JSON，将新建: {outputPath}");
-            }
+            DiySchemaFile existing = LoadExistingSchema();
+            NormalizeExistingClasses(existing);
 
             var existingClassMap = new Dictionary<string, DiySchemaClass>(StringComparer.Ordinal);
             if (existing != null && existing.classes != null)
@@ -336,7 +463,7 @@ namespace DiyEditor
 
             var newSchema = new DiySchemaFile
             {
-                version = existing?.version > 0 ? existing.version : 1,
+                version = CurrentSchemaVersion,
                 sourceFolder = ConfigFolder,
                 classes = new List<DiySchemaClass>()
             };
@@ -349,9 +476,90 @@ namespace DiyEditor
 
             schema = newSchema;
             selectedClassIndex = Mathf.Clamp(selectedClassIndex, 0, Mathf.Max(0, schema.classes.Count - 1));
+            selectedVariantIndex = 0;
             dirty = false;
 
+            RefreshAllFieldDefaults();
+
             Debug.Log($"[DiySchemaGenerator] 已载入 {schema.classes.Count} 个配置类（{outputPath}）");
+        }
+
+        private DiySchemaFile LoadExistingSchema()
+        {
+            if (!File.Exists(outputPath))
+            {
+                Debug.Log($"[DiySchemaGenerator] 未找到已有 JSON，将新建: {outputPath}");
+                return null;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(outputPath, Encoding.UTF8);
+                return JsonConvert.DeserializeObject<DiySchemaFile>(json);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[DiySchemaGenerator] 读取已有 JSON 失败，将重新生成: {outputPath}\n{e}");
+                return null;
+            }
+        }
+
+        private static void NormalizeExistingClasses(DiySchemaFile existing)
+        {
+            if (existing?.classes == null) return;
+
+            foreach (var configClass in existing.classes)
+            {
+                if (configClass == null) continue;
+
+                if (configClass.variants == null)
+                    configClass.variants = new List<DiySchemaVariant>();
+
+                if (configClass.variants.Count > 0)
+                {
+                    foreach (var variant in configClass.variants)
+                    {
+                        if (variant == null) continue;
+                        if (variant.fields == null)
+                            variant.fields = new List<DiySchemaField>();
+                        if (string.IsNullOrEmpty(variant.key))
+                            variant.key = "default";
+                        if (string.IsNullOrEmpty(variant.displayName))
+                            variant.displayName = variant.key;
+                    }
+
+                    // UnitData 必须有三份单位类型配置。旧版只有 default 时，复制为三份。
+                    if (configClass.className == "UnitData" &&
+                        configClass.variants.Count == 1 &&
+                        configClass.variants[0]?.key == "default")
+                    {
+                        var legacyFields = configClass.variants[0].fields;
+                        configClass.variants = GetVariantDefinitions(configClass.className)
+                            .Select(def => new DiySchemaVariant
+                            {
+                                key = def.Key,
+                                displayName = def.DisplayName,
+                                fields = CloneFields(legacyFields)
+                            })
+                            .ToList();
+                    }
+
+                    configClass.fields = null;
+                    continue;
+                }
+
+                var oldFields = configClass.fields ?? new List<DiySchemaField>();
+                configClass.variants = GetVariantDefinitions(configClass.className)
+                    .Select(def => new DiySchemaVariant
+                    {
+                        key = def.Key,
+                        displayName = def.DisplayName,
+                        fields = CloneFields(oldFields)
+                    })
+                    .ToList();
+
+                configClass.fields = null;
+            }
         }
 
         private static DiySchemaClass MergeClass(ConfigTypeDescriptor descriptor, DiySchemaClass oldClass)
@@ -361,13 +569,45 @@ namespace DiyEditor
                 className = descriptor.Type.Name,
                 sourceFile = descriptor.AssetPath,
                 disabled = oldClass != null && oldClass.disabled,
-                fields = new List<DiySchemaField>()
+                fields = null,
+                variants = new List<DiySchemaVariant>()
             };
 
-            var oldFieldMap = new Dictionary<string, DiySchemaField>(StringComparer.Ordinal);
-            if (oldClass != null && oldClass.fields != null)
+            var oldVariantMap = new Dictionary<string, DiySchemaVariant>(StringComparer.Ordinal);
+            if (oldClass?.variants != null)
             {
-                foreach (var oldField in oldClass.fields)
+                foreach (var variant in oldClass.variants)
+                {
+                    if (variant == null || string.IsNullOrEmpty(variant.key))
+                        continue;
+
+                    oldVariantMap[variant.key] = variant;
+                }
+            }
+
+            foreach (var variantDefinition in GetVariantDefinitions(descriptor.Type.Name))
+            {
+                oldVariantMap.TryGetValue(variantDefinition.Key, out var oldVariant);
+
+                result.variants.Add(new DiySchemaVariant
+                {
+                    key = variantDefinition.Key,
+                    displayName = variantDefinition.DisplayName,
+                    fields = MergeFields(descriptor, oldVariant)
+                });
+            }
+
+            return result;
+        }
+
+        private static List<DiySchemaField> MergeFields(
+            ConfigTypeDescriptor descriptor,
+            DiySchemaVariant oldVariant)
+        {
+            var oldFieldMap = new Dictionary<string, DiySchemaField>(StringComparer.Ordinal);
+            if (oldVariant?.fields != null)
+            {
+                foreach (var oldField in oldVariant.fields)
                 {
                     if (oldField == null || string.IsNullOrEmpty(oldField.name))
                         continue;
@@ -376,21 +616,244 @@ namespace DiyEditor
                 }
             }
 
+            var result = new List<DiySchemaField>();
             foreach (var fieldDescriptor in descriptor.Fields)
             {
                 oldFieldMap.TryGetValue(fieldDescriptor.Name, out var oldField);
 
-                result.fields.Add(new DiySchemaField
+                result.Add(new DiySchemaField
                 {
                     name = fieldDescriptor.Name,
                     type = fieldDescriptor.TypeName,
                     label = oldField != null ? (oldField.label ?? "") : fieldDescriptor.Name,
                     isDefault = oldField != null && oldField.isDefault,
-                    group = oldField?.group ?? ""
+                    group = oldField?.group ?? "",
+                    defaultValue = oldField?.defaultValue,
+                    defaultJson = oldField?.defaultJson
                 });
             }
 
             return result;
+        }
+
+        private static List<DiySchemaField> CloneFields(List<DiySchemaField> fields)
+        {
+            var result = new List<DiySchemaField>();
+            if (fields == null) return result;
+
+            foreach (var field in fields)
+            {
+                if (field == null) continue;
+
+                result.Add(new DiySchemaField
+                {
+                    name = field.name,
+                    type = field.type,
+                    label = field.label,
+                    isDefault = field.isDefault,
+                    group = field.group,
+                    defaultValue = field.defaultValue,
+                    defaultJson = field.defaultJson
+                });
+            }
+
+            return result;
+        }
+
+        private static VariantDefinition[] GetVariantDefinitions(string className)
+        {
+            return string.Equals(className, "UnitData", StringComparison.Ordinal)
+                ? UnitDataVariantDefinitions
+                : DefaultVariantDefinitions;
+        }
+
+        private void RefreshAllFieldDefaults()
+        {
+            conversionErrors.Clear();
+
+            foreach (var configClass in schema.classes)
+            {
+                if (configClass?.variants == null) continue;
+
+                foreach (var variant in configClass.variants)
+                {
+                    if (variant?.fields == null) continue;
+
+                    foreach (var field in variant.fields)
+                    {
+                        ConvertFieldDefault(field);
+                    }
+                }
+            }
+        }
+
+        private void ConvertFieldDefault(DiySchemaField field)
+        {
+            if (field == null) return;
+
+            if (string.IsNullOrEmpty(field.defaultValue))
+            {
+                field.defaultValue = null;
+                field.defaultJson = null;
+                conversionErrors.Remove(field);
+                return;
+            }
+
+            if (DiyValueConverter.TryConvert(
+                    field.type,
+                    field.defaultValue,
+                    referenceIds,
+                    out string json,
+                    out string error))
+            {
+                field.defaultJson = json;
+                conversionErrors.Remove(field);
+            }
+            else
+            {
+                field.defaultJson = null;
+                conversionErrors[field] = error;
+            }
+        }
+
+        private void BuildReferenceIds(List<ConfigTypeDescriptor> descriptors)
+        {
+            referenceIds.Clear();
+
+            foreach (var descriptor in descriptors)
+            {
+                var ids = LoadReferenceIds(descriptor.Type.Name);
+                if (ids.Count > 0)
+                    referenceIds[descriptor.Type.Name] = ids;
+            }
+        }
+
+        /// <summary>
+        /// 从现有 JSON 数据文件读取某张表的 Id 顺序。
+        /// 兼容旧版 Data/&lt;Table&gt;.txt 与 Data/&lt;Table&gt;/_index.txt。
+        /// </summary>
+        private static List<string> LoadReferenceIds(string tableName)
+        {
+            var result = new List<string>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+
+            void Add(string id)
+            {
+                if (string.IsNullOrEmpty(id)) return;
+                if (seen.Add(id)) result.Add(id);
+            }
+
+            // 方案一的数据文件：优先读取 Data/<Table>.json 或 Data/DIY/<Table>.json
+            string[] jsonCandidates =
+            {
+                "Assets/Bundles/Data/" + tableName + ".json",
+                "Assets/Bundles/Data/DIY/" + tableName + ".json"
+            };
+
+            foreach (string jsonPath in jsonCandidates)
+            {
+                if (!File.Exists(jsonPath)) continue;
+                if (TryReadIdsFromJson(jsonPath, Add) && result.Count > 0)
+                    break;
+            }
+
+            if (result.Count == 0)
+            {
+                string indexFile = "Assets/Bundles/Data/" + tableName + "/_index.txt";
+                if (File.Exists(indexFile))
+                {
+                    foreach (string line in File.ReadAllLines(indexFile, Encoding.UTF8))
+                        Add(line.Trim());
+                }
+            }
+
+            if (result.Count == 0)
+            {
+                string legacyTextFile = "Assets/Bundles/Data/" + tableName + ".txt";
+                if (File.Exists(legacyTextFile))
+                    TryReadIdsFromLegacyText(legacyTextFile, Add);
+            }
+
+            // 与 Excel 导表一致：UnitData 的索引 0 固定为占位行。
+            if (tableName == "UnitData" && !seen.Contains("0"))
+                result.Insert(0, "0");
+
+            return result;
+        }
+
+        private static bool TryReadIdsFromJson(string path, Action<string> add)
+        {
+            try
+            {
+                JToken root = JToken.Parse(File.ReadAllText(path, Encoding.UTF8));
+
+                if (root is JArray array)
+                {
+                    foreach (var token in array)
+                        AddTokenId(token, add);
+                    return true;
+                }
+
+                if (root is JObject obj)
+                {
+                    string id = obj["Id"]?.ToString();
+                    if (!string.IsNullOrEmpty(id))
+                    {
+                        add(id);
+                        return true;
+                    }
+
+                    // 兼容 { "id_1": {...}, "id_2": {...} } 的字典格式
+                    foreach (var property in obj.Properties())
+                        add(property.Name);
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[DiySchemaGenerator] 读取引用 Id 失败: {path}\n{e.Message}");
+            }
+
+            return false;
+        }
+
+        private static void TryReadIdsFromLegacyText(string path, Action<string> add)
+        {
+            try
+            {
+                foreach (string line in File.ReadAllLines(path, Encoding.UTF8))
+                {
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+
+                    try
+                    {
+                        var obj = JObject.Parse(line);
+                        AddTokenId(obj, add);
+                    }
+                    catch
+                    {
+                        // 非 JSON 行忽略
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[DiySchemaGenerator] 读取旧版引用 Id 失败: {path}\n{e.Message}");
+            }
+        }
+
+        private static void AddTokenId(JToken token, Action<string> add)
+        {
+            if (token is JObject obj)
+            {
+                string id = obj["Id"]?.ToString();
+                if (!string.IsNullOrEmpty(id))
+                    add(id);
+            }
+            else if (token.Type == JTokenType.String)
+            {
+                add(token.ToString());
+            }
         }
 
         private static List<ConfigTypeDescriptor> DiscoverConfigTypes()
@@ -542,19 +1005,45 @@ namespace DiyEditor
                 return;
             }
 
+            if (conversionErrors.Count > 0)
+            {
+                bool continueSave = EditorUtility.DisplayDialog(
+                    "存在转换失败的默认值",
+                    $"当前有 {conversionErrors.Count} 个字段的默认值转换失败，这些字段的 defaultJson 不会被写入。\n是否继续保存？",
+                    "继续保存",
+                    "取消");
+
+                if (!continueSave)
+                    return;
+            }
+
             try
             {
                 if (schema == null)
                     schema = new DiySchemaFile();
 
-                schema.version = 1;
+                schema.version = CurrentSchemaVersion;
                 schema.sourceFolder = ConfigFolder;
+
+                // 旧版 fields 已迁移到 variants，不再输出。
+                foreach (var configClass in schema.classes)
+                {
+                    if (configClass != null)
+                        configClass.fields = null;
+                }
 
                 string directory = Path.GetDirectoryName(outputPath);
                 if (!string.IsNullOrEmpty(directory))
                     Directory.CreateDirectory(directory);
 
-                string json = JsonUtility.ToJson(schema, true);
+                string json = JsonConvert.SerializeObject(
+                    schema,
+                    new JsonSerializerSettings
+                    {
+                        Formatting = Formatting.Indented,
+                        NullValueHandling = NullValueHandling.Ignore
+                    });
+
                 File.WriteAllText(outputPath, json, new UTF8Encoding(false));
 
                 AssetDatabase.Refresh();
