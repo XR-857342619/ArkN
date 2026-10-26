@@ -455,3 +455,38 @@ Unity 6000.0.40f1  →  PROBE_RESULT total=197 supported=197    (全部支持)
 - 迁移成本见 §14（约 1 周，最大风险是 Spine 资源 GUID 重导入）
 - 不升级的唯一替代路线是"替换 shader"，但那会让 `_UVTween` / `_Rotation` / Disturb / Dissolve
   等特性全部失效，等于放弃"还原原版特效"这个目标
+
+---
+
+## 16. P1 · UV 实现验收结果（2026-10-26，Unity 2021.3.39f1）
+
+### 验收方法
+
+用菜单 **`Tools/ArkFx/6. 采样选中特效的 UV 偏移（约 2 秒）`**：
+每帧采样所有 Renderer 的 `_MainTex` offset，输出取值范围、首末值、是否越界/回绕。
+
+### 已验证项
+
+| # | 验证点 | 目标（prefab / 节点） | 原版参数 | 期望 | 实测 | 结论 |
+|---|---|---|---|---|---|---|
+| 1 | **×2 速度系数** | `aglina_skill_02_start` / `huan` | `xspeed=-0.5` | -1.0 /秒 | **≈1/秒** | ✅ |
+| 2 | **主贴图走 `mainTextureOffset`** | 同上 | — | `_MainTex_ST` 在变、无 `_UVTween` 写入 | 相符 | ✅ |
+| 3 | **`keepInitOffset`** | 同上 | — | y 保持材质烘焙值 `-0.88` 不变 | 相符 | ✅ |
+| 4 | **`protectMainUV` 回绕** | `aglina_skill_03_start_summer#5` / `lanliu` | `yspeed=-0.5, protect=true` | offset 被包裹在 `[0,1)` 内循环 | **符合预期** | ✅ |
+
+对照项：`huan`（`protect=false`）的 offset 一路减到负值不回绕 —— 与 `lanliu` 形成正确反差。
+
+### 待验证项
+
+| # | 验证点 | 目标 | 判据 |
+|---|---|---|---|
+| 5 | 第二贴图 `<name>_ST` 向量 | `kalts_skill_03_buff` / `canying1`（`_DisturTex`，`secondXSpeed=0.2, secondYSpeed=-0.3`） | Diag 里 `_DisturTex_ST` 的 **z/w**（offset）按 +0.4 / -0.6 每秒变化，x/y（scale）不变 |
+| 6 | UV 旋转矩阵 | 任一含 `FxUVRotation` 的 prefab | Diag 里 `_Rotation0=(0,-1,1,0)`（angle=90° 时 `(cos,-sin,sin,cos)`），未启用的为 `(1,0,0,1)` |
+
+### 过程中修掉的实现缺陷
+
+| 缺陷 | 影响 | 修复 |
+|---|---|---|
+| `ApplyMissingScriptFallback` 判重没检查 v6 组件 | 每次 `Kick`（含对象池复用）重复 `AddComponent<ArkFxUVTweenV6>`，**UV 速度按次叠加** | 改为任一 ArkFx 替身组件存在即跳过 |
+| `ArkFxDiag` 用了 `:S2` 非法格式符 | Unity 2021.3 下抛 `FormatException`，诊断器完全不可用 | 改为 `:F2` / `:F1` |
+| `ArkFxDiag` 不打印 ArkFx 组件 | 无法验收 UV | 新增 ArkFx 组件段 + 材质当前生效 ST / 旋转矩阵 |
