@@ -490,3 +490,30 @@ Unity 6000.0.40f1  →  PROBE_RESULT total=197 supported=197    (全部支持)
 | `ApplyMissingScriptFallback` 判重没检查 v6 组件 | 每次 `Kick`（含对象池复用）重复 `AddComponent<ArkFxUVTweenV6>`，**UV 速度按次叠加** | 改为任一 ArkFx 替身组件存在即跳过 |
 | `ArkFxDiag` 用了 `:S2` 非法格式符 | Unity 2021.3 下抛 `FormatException`，诊断器完全不可用 | 改为 `:F2` / `:F1` |
 | `ArkFxDiag` 不打印 ArkFx 组件 | 无法验收 UV | 新增 ArkFx 组件段 + 材质当前生效 ST / 旋转矩阵 |
+
+---
+
+## 17. P2 · FxDelay 验收结果（2026-10-26）
+
+> **结论：FxDelay + ArkFxTicker 实测通过。**
+
+### 实现要点（三处必须的偏离）
+
+| # | 原版做法 | 为什么不能照抄 | 我们的做法 |
+|---|---|---|---|
+| 1 | `OnEnable` 里 `SetActive(false)` | `BakePrefab` 会把组件加到 AB 的 prefab **资产**上，在 OnEnable 里禁用会永久禁用资产节点 | 改由宿主 `OnPlay()` 上膛 |
+| 2 | `Invoke("_DelayFunc", t)` | 节点隐藏后自身的 Invoke/协程不再推进 | 改由 `ArkFxTicker`（`DontDestroyOnLoad` 全局时钟）驱动 |
+| 3 | 隐藏自己所在的 GameObject | **144/145 个 FxDelay 挂在特效根节点**，隐藏根会让 `ArkFxEffectHost.Update` 一起停掉 | 计时放在宿主之外 |
+
+### 验收中发现并修复的两个叠加 bug
+
+| bug | 现象 | 修复 |
+|---|---|---|
+| `EffectData.LifeTime` 无默认值（89/369 行没填） | 特效一生成就回池，只活一帧 | 字段加默认值 `5f` |
+| `GetEffect` 先 `Kick` 后 `ResetEffect` | `ResetEffect → host.Recycle()` 把 FxDelay 刚隐藏的根节点又激活，延迟被抵消 | 改为先 `ResetEffect` 再 `Kick` |
+
+### 遗留事项（计划在 P3 一并处理）
+
+- `ArkFxDelay.OnRecycle()` 里的"强制激活"假设了调用方一定是回池场景；
+  若将来有别的路径在对象存活时调 `Recycle()`，会误触发激活。
+- 拟改为显式传参或拆分接口。
