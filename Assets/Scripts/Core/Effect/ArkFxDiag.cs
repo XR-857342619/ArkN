@@ -85,8 +85,8 @@ public static class ArkFxDiag
     {
         var main = ps.main;
         var em = ps.emission;
-        sb.AppendLine($"  ParticleSystem: isPlaying={ps.isPlaying} isEmitting={ps.isEmitting} loop={main.loop} duration={main.duration:S2}s");
-        sb.AppendLine($"    startColor({main.startColor.mode})={ColorOf(main.startColor.colorMin)}~{ColorOf(main.startColor.colorMax)} startSize={main.startSize.constant:S2} startLifetime={main.startLifetime.constant:S2} rate={em.rateOverTime.constant:S1} max={main.maxParticles}");
+        sb.AppendLine($"  ParticleSystem: isPlaying={ps.isPlaying} isEmitting={ps.isEmitting} loop={main.loop} duration={main.duration:F2}s");
+        sb.AppendLine($"    startColor({main.startColor.mode})={ColorOf(main.startColor.colorMin)}~{ColorOf(main.startColor.colorMax)} startSize={main.startSize.constant:F2} startLifetime={main.startLifetime.constant:F2} rate={em.rateOverTime.constant:F1} max={main.maxParticles}");
     }
 
     static void DumpAnim(StringBuilder sb, Animator an)
@@ -96,7 +96,7 @@ public static class ArkFxDiag
         var clips = an.runtimeAnimatorController != null ? an.runtimeAnimatorController.animationClips : null;
         if (clips != null)
             foreach (var c in clips)
-                sb.AppendLine($"    clip: {c.name} ({c.length:S2}s)");
+                sb.AppendLine($"    clip: {c.name} ({c.length:F2}s)");
     }
 
     static string ColorOf(Color c) => $"({c.r:F2},{c.g:F2},{c.b:F2},{c.a:F2})";
