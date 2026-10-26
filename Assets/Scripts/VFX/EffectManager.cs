@@ -40,7 +40,6 @@ public class EffectManager : MonoBehaviour
             return null;
         }
 
-        bool fromAb = false;
         if (!effectPrefabs.TryGetValue(id, out var prefab) || prefab == null)
         {
             var go = ArkFxLoader.ForceAbSource
@@ -50,7 +49,7 @@ public class EffectManager : MonoBehaviour
             {
                 // AB 特效兜底：工程内没有该 prefab 时，从 arkfx 运行时包加载并补挂驱动组件
                 go = ArkFxLoader.LoadPrefabByName(config.Prefab);
-                if (go != null) { go.AddComponent<Effect>(); fromAb = true; }
+                if (go != null) go.AddComponent<Effect>();
             }
             if (go == null)
             {
@@ -75,7 +74,12 @@ public class EffectManager : MonoBehaviour
         // 反过来的话，ResetEffect 会把 ArkFxDelay 刚隐藏的根节点重新激活，延迟被抵消。
         result.ResetEffect();
         // AB 来源的特效：实例化后踢动效（粒子/动画器）；驱动组件已烘焙进 prefab，克隆自带不会重复
-        if (fromAb) ArkFxLoader.Kick(result.gameObject, config.Prefab);
+        // 注意：不能用局部变量 fromAb —— prefab 被 effectPrefabs 缓存后，
+        // 第二次起不会再走加载分支，fromAb 恒为 false，Kick 就永远不会被调用
+        // （表现为：粒子不播、发射器不发射、FxDelay 不上膛）。
+        // 改用 prefab 上是否有 ArkFxEffectHost 来判定（BakePrefab 会给 AB prefab 挂宿主）。
+        if (prefab.GetComponent<ArkFxEffectHost>() != null)
+            ArkFxLoader.Kick(result.gameObject, config.Prefab);
         return result;
     }
 

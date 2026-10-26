@@ -17,7 +17,6 @@ public class BulletManager
 
     public BulletModel Get(string model)
     {
-        bool fromAb = false;
         if (!bulletPrefabs.TryGetValue(model, out var prefab) || prefab == null)
         {
             var go = ArkFxLoader.ForceAbSource
@@ -33,7 +32,6 @@ public class BulletManager
                 {
                     if (abGo.GetComponent<Effect>() == null) abGo.AddComponent<Effect>();
                     prefab = abGo.GetComponent<BulletModel>() ?? abGo.AddComponent<BulletModel>();
-                    fromAb = true;
                 }
             }
             if (prefab == null)
@@ -46,7 +44,9 @@ public class BulletManager
 
         var spawned = Pool.Spawn(prefab, Vector3.zero);
         // AB 来源的子弹：实例化后踢动效；驱动组件已烘焙进 prefab，克隆自带不会重复
-        if (fromAb && spawned != null) ArkFxLoader.Kick(spawned.gameObject, model);
+        // 同样不能用局部 fromAb（缓存后第二次起恒为 false），改用宿主组件判定
+        if (spawned != null && prefab.GetComponent<ArkFxEffectHost>() != null)
+            ArkFxLoader.Kick(spawned.gameObject, model);
         return spawned;
     }
 
