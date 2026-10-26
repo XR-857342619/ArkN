@@ -44,6 +44,12 @@ public class Init : MonoBehaviour
         landing?.SetProgress(0.05f, "正在复制初始资源...");
         await RunCopyOnFirstLaunch();
         await Task.Yield();
+
+        // 2.6 ArkFx 特效包补加载
+        // ArkFxBootstrap 在 BeforeSceneLoad 就跑了，那时 persistentDataPath 下还没有拷贝产物
+        // （首次启动的拷贝刚在上面完成），所以这里补一次。LoadAll 内部幂等，桌面端直接返回。
+        ArkFxLoader.LoadAll(ArkFxLoader.AbDir);
+        await Task.Yield();
 #endif
 
         // 3. 分帧加载其余 UI 包

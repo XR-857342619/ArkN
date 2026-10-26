@@ -18,8 +18,14 @@ public static class ArkFxLoader
     static bool _loaded;
     static string _loadDir;
 
+    /// <summary>
+    /// 特效包目录。
+    /// 桌面端 PathHelper.AppHotfixResPath == StreamingAssets；
+    /// 移动端它是 persistentDataPath（由 StreamingAssetsCopyUtility 首次启动时把
+    /// StreamingAssets 整体拷过去），否则 APK 内的 jar: 路径无法用文件系统 API 读取。
+    /// </summary>
     public static string AbDir =>
-        Path.Combine(Application.streamingAssetsPath, "arkfx");
+        Path.Combine(PathHelper.AppHotfixResPath, "arkfx");
 
     /// <summary>游戏启动时调用一次（ArkFxBootstrap 自动调）</summary>
     public static void LoadAll(string abDir)

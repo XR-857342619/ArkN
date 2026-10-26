@@ -6,7 +6,11 @@ using System.Collections.Generic;
 
 public static class StreamingAssetsCopyUtility
 {
-    private const string FIRST_LAUNCH_KEY = "FirstLaunchCopyDone";
+    /// 拷贝内容版本号：StreamingAssets 内容有大改动（如新增 arkfx 的 101 个 AB 包）时 +1，
+    /// 让已安装的客户端重新拷一次，避免用到 persistentDataPath 里的旧副本。
+    private const int COPY_VERSION = 2;
+
+    private static string FirstLaunchKey => "FirstLaunchCopyDone_v" + COPY_VERSION;
 
     /// <summary>
     /// 检查是否首次启动，如果是则开始复制。
@@ -15,7 +19,7 @@ public static class StreamingAssetsCopyUtility
     public static IEnumerator CopyOnFirstLaunch()
     {
         // 检查是否已经复制过
-        if (PlayerPrefs.GetInt(FIRST_LAUNCH_KEY, 0) == 1)
+        if (PlayerPrefs.GetInt(FirstLaunchKey, 0) == 1)
         {
             Debug.Log("Already copied streaming assets, skip.");
             yield break;
@@ -77,6 +81,7 @@ public static class StreamingAssetsCopyUtility
         string sourceRoot = PathHelper.AppResPath4Web.TrimEnd('/'); // Android 为 jar URI，iOS/OSX 带 file:// 前缀
 
         // 4. 逐个复制
+        int failed = 0;
         foreach (string relPath in relativePaths)
         {
             string rel = relPath.Replace('\\', '/').TrimStart('/');
@@ -95,6 +100,7 @@ public static class StreamingAssetsCopyUtility
                 if (req.result != UnityWebRequest.Result.Success)
                 {
                     Debug.LogWarning($"Failed to copy {rel}: {req.error}");
+                    failed++;
                     continue; // 跳过此文件，继续下一个
                 }
 
@@ -104,14 +110,20 @@ public static class StreamingAssetsCopyUtility
             }
         }
 
-        // 5. 标记已完成
+        // 5. 有失败则不标记完成，下次启动会自动重试（否则缺文件会永久缺失）
+        if (failed > 0)
+        {
+            Debug.LogWarning($"Copy finished with {failed} failed file(s); will retry on next launch.");
+            yield break;
+        }
+
         MarkDone();
         Debug.Log("Copy completed.");
     }
 
     private static void MarkDone()
     {
-        PlayerPrefs.SetInt(FIRST_LAUNCH_KEY, 1);
+        PlayerPrefs.SetInt(FirstLaunchKey, 1);
         PlayerPrefs.Save();
     }
 }
