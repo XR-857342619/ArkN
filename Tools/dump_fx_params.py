@@ -22,7 +22,8 @@ import sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # 已实现替身的类 -> 字段映射（字段名与原版 serialized 名一致）
-SUPPORTED = ("FxUVTweener", "FxUVTweenerAdvance", "FxUVRotation", "FxDelay")
+SUPPORTED = ("FxUVTweener", "FxUVTweenerAdvance", "FxUVRotation", "FxDelay",
+             "OnPlayEmitter", "OnFinishEmitter", "RandomEmitter", "OnPlayEmitterIf")
 
 
 def patch_unitypy():
@@ -148,6 +149,26 @@ def entries_for_prefab(root_go, scripts):
                         })
                     if extras:
                         e["extras"] = extras
+            elif short in ("OnPlayEmitter", "OnFinishEmitter", "OnPlayEmitterIf"):
+                e["effects"] = [x for x in (t.get("_effects") or []) if isinstance(x, str)]
+                e["instant"] = bool(t.get("_instant", False))
+                e["preDelay"] = float(t.get("_preDelay", 0.0))
+                e["clearWhenFinish"] = bool(t.get("_clearWhenFinish", True))
+                e["useFaceVector"] = bool(t.get("_useFaceVector", False))
+                e["useSourceEffectPos"] = bool(t.get("_useSourceEffectPos", False))
+                if short == "OnPlayEmitterIf":
+                    e["buffKey"] = t.get("_buffKey") or ""
+                    e["playWhenFaceToBack"] = bool(t.get("_playWhenFaceToBack", False))
+            elif short == "RandomEmitter":
+                e["effect"] = t.get("_effect") or ""
+                e["count"] = int(t.get("_count", 1))
+                e["delayPerEffect"] = float(t.get("_delayPerEffect", 0.0))
+                e["preDelay"] = float(t.get("_preDelay", 0.0))
+                def _v3(d):
+                    d = d or {}
+                    return {"x": float(d.get("x", 0.0)), "y": float(d.get("y", 0.0)), "z": float(d.get("z", 0.0))}
+                e["randomRangeFrom"] = _v3(t.get("_randomRangeFrom"))
+                e["randomRangeTo"] = _v3(t.get("_randomRangeTo"))
             elif short == "FxDelay":
                 e["delayTime"] = float(t.get("_delayTime", 0.0))
             else:  # FxUVRotation

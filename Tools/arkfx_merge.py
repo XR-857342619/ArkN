@@ -392,6 +392,34 @@ def repack(src, dst, verify=True, expect_cabs=None):
 
 
 # --------------------------------------------------------------------------
+
+def collect_emitter_refs(path):
+    """扫一个包里所有 MonoBehaviour，收集发射器引用的子特效名。
+    不解析脚本类名（省去 MonoScript 依赖），直接按字段名识别：
+    任何带 _effects(数组) 或 _effect(单个) 字符串字段的组件都按发射器处理。"""
+    import UnityPy
+    refs = []
+    try:
+        patch_unitypy(True)
+        env = UnityPy.load(path)
+        for o in env.objects:
+            if o.type.name != "MonoBehaviour":
+                continue
+            try:
+                t = o.read_typetree()
+            except Exception:
+                continue
+            v = t.get("_effects")
+            if isinstance(v, list):
+                refs += [x for x in v if isinstance(x, str) and x]
+            v1 = t.get("_effect")
+            if isinstance(v1, str) and v1:
+                refs.append(v1)
+    except Exception:
+        pass
+    return refs
+
+
 def main():
     default_src = r"D:\UnityWork\解包\Windows\battle\prefabs\effects"
     ap = argparse.ArgumentParser()
@@ -405,6 +433,8 @@ def main():
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--force", action="store_true", help="已存在的输出也重打")
+    ap.add_argument("--no-emitter-expand", action="store_true",
+                    help="不递归纳入发射器引用的子特效（默认会纳入）")
     ap.add_argument("--keep-scripts", action="store_true",
                     help="保留纯 MonoScript 依赖包（默认跳过，ArkFx 用替身不需要）")
     args = ap.parse_args()
@@ -454,6 +484,33 @@ def main():
         print(f"      选中 {len(chosen)} 个包 / {sum(meta[p]['bytes'] for p in chosen)/1e6:.1f} MB")
         if miss:
             print(f"      缺失（多为工程自建名，忽略即可）: {miss[:10]}")
+
+    # ---- 2.5 发射器子特效递归展开 ----
+    # 发射器（OnPlayEmitter 等）会按名字生成子特效，这些子特效可能不在表里，
+    # 若没被选中就会在运行时「找不到 prefab」。这里做一次闭包展开。
+    if not args.no_emitter_expand:
+        name2path = {}
+        for _p, _m in meta.items():
+            for _n in _m.get("prefabs", ()):
+                name2path.setdefault(_n, _p)
+        chosen_set = set(chosen)
+        frontier = list(chosen)
+        added = []
+        while frontier:
+            nxt = []
+            for path in frontier:
+                for ref in collect_emitter_refs(path):
+                    tgt = name2path.get(ref)
+                    if tgt and tgt not in chosen_set:
+                        chosen_set.add(tgt)
+                        nxt.append(tgt)
+                        added.append(ref)
+            frontier = nxt
+        if added:
+            print(f"      发射器闭包：额外纳入 {len(added)} 个子特效，新增 {len(chosen_set) - len(chosen)} 个包")
+        else:
+            print("      发射器闭包：无需额外纳入（引用的子特效都已在选中包里）")
+        chosen = sorted(chosen_set, key=lambda p: os.path.basename(p))
 
     # ---- 3. 依赖传递闭包 ----
     deps_needed = set()

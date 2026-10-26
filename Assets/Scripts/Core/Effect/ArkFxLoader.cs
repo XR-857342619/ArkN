@@ -159,6 +159,20 @@ public static class ArkFxLoader
         public int tweenRepeat;
         public float tweenAnmTime;
         public FxExtraMap[] extras;
+        // —— 发射器专用 ——
+        public string[] effects;
+        public string effect;
+        public bool instant;
+        public float preDelay;
+        public bool clearWhenFinish;
+        public bool useFaceVector;
+        public bool useSourceEffectPos;
+        public int count;
+        public float delayPerEffect;
+        public Vector3 randomRangeFrom;
+        public Vector3 randomRangeTo;
+        public string buffKey;
+        public bool playWhenFaceToBack;
         // —— FxDelay 专用 ——
         public float delayTime;
         // —— FxUVRotation 专用（fxparams.json 里没有时保持默认值）——
@@ -448,6 +462,40 @@ public static class ArkFxLoader
         }
     }
 
+    /// <summary>挂 OnPlay 发射器（含 OnPlayEmitterIf；条件判定暂未实现，按无条件处理）。</summary>
+    static void AttachOnPlayEmitter(GameObject go, FxParamEntry e)
+    {
+        var em = go.GetComponent<ArkFxOnPlayEmitter>();
+        if (em == null) em = go.AddComponent<ArkFxOnPlayEmitter>();
+        em.effects = e.effects;
+        em.instant = e.instant;
+        em.preDelay = e.preDelay;
+        em.clearWhenFinish = e.clearWhenFinish;
+        em.useFaceVector = e.useFaceVector;
+    }
+
+    /// <summary>挂 OnFinish 发射器。</summary>
+    static void AttachOnFinishEmitter(GameObject go, FxParamEntry e)
+    {
+        var em = go.GetComponent<ArkFxOnFinishEmitter>();
+        if (em == null) em = go.AddComponent<ArkFxOnFinishEmitter>();
+        em.effects = e.effects;
+        em.clearWhenFinish = e.clearWhenFinish;
+    }
+
+    /// <summary>挂随机发射器。</summary>
+    static void AttachRandomEmitter(GameObject go, FxParamEntry e)
+    {
+        var em = go.GetComponent<ArkFxRandomEmitter>();
+        if (em == null) em = go.AddComponent<ArkFxRandomEmitter>();
+        em.effect = e.effect;
+        em.count = e.count <= 0 ? 1 : e.count;
+        em.delayPerEffect = e.delayPerEffect;
+        em.preDelay = e.preDelay;
+        em.randomRangeFrom = e.randomRangeFrom;
+        em.randomRangeTo = e.randomRangeTo;
+    }
+
     /// <summary>挂延迟激活替身（FxDelay）。</summary>
     static void AttachDelay(GameObject go, FxParamEntry e)
     {
@@ -505,6 +553,18 @@ public static class ArkFxLoader
             else if (e.cls == "FxDelay")
             {
                 AttachDelay(node.gameObject, e);
+            }
+            else if (e.cls == "OnPlayEmitter" || e.cls == "OnPlayEmitterIf")
+            {
+                AttachOnPlayEmitter(node.gameObject, e);
+            }
+            else if (e.cls == "OnFinishEmitter")
+            {
+                AttachOnFinishEmitter(node.gameObject, e);
+            }
+            else if (e.cls == "RandomEmitter")
+            {
+                AttachRandomEmitter(node.gameObject, e);
             }
             else if (node.gameObject.GetComponent<ArkFxScriptStub>() == null)
             {

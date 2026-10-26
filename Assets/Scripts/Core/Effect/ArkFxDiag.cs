@@ -75,6 +75,21 @@ public static class ArkFxDiag
         if (b == null) return;
         sb.AppendLine($"  [ArkFx] {b.GetType().Name} enabled={b.enabled} playbackSpeed={b.PlaybackSpeed}");
 
+        var emit = b as ArkFxEmitterBase;
+        if (emit != null)
+        {
+            var onPlay = b as ArkFxOnPlayEmitter;
+            var onFinish = b as ArkFxOnFinishEmitter;
+            var rand = b as ArkFxRandomEmitter;
+            string detail = onPlay != null ? ("effects=" + (onPlay.effects == null ? "null" : string.Join(",", onPlay.effects)) + " instant=" + onPlay.instant)
+                          : onFinish != null ? ("effects=" + (onFinish.effects == null ? "null" : string.Join(",", onFinish.effects)))
+                          : rand != null ? ("effect=" + rand.effect + " count=" + rand.count + " delayPerEffect=" + rand.delayPerEffect.ToString("F2"))
+                          : "?";
+            sb.AppendLine($"      {detail} preDelay={emit.preDelay:F2} clearWhenFinish={emit.clearWhenFinish}");
+            sb.AppendLine($"      已发射子特效={emit.SpawnedCount}  waitingActive={emit.IsPending}");
+            return;
+        }
+
         var delay = b as ArkFxDelay;
         if (delay != null)
         {

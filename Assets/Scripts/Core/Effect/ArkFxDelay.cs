@@ -86,6 +86,7 @@ public class ArkFxDelay : ArkFxBehaviour
         _armed = false;
         _waiting = false;
         _elapsed = 0f;
-        if (!gameObject.activeSelf) gameObject.SetActive(true);
+        // 不在这里强制 SetActive(true)：回池后的激活由 Pool.Spawn 负责。
+        // 之前在这里激活会把"刚被 OnPlay 隐藏"的节点立刻点亮，抵消掉延迟。
     }
 }
