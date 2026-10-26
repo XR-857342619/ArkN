@@ -190,5 +190,78 @@ public static class ArkFxDebugMenu
 
     [MenuItem("Tools/ArkFx/5. 打印选中对象每个材质的 shader 状态", true)]
     static bool CheckMaterialsValidate() { return Selection.activeGameObject != null; }
+
+    // ---- 6. UV 偏移采样：验证 protectMainUV 回绕 ----
+    static Transform _sampleRoot;
+    static float _sampleT0;
+    static Dictionary<string, List<Vector2>> _sampleData;
+
+    [MenuItem("Tools/ArkFx/6. 采样选中特效的 UV 偏移（约 2 秒）", false, 6)]
+    static void SampleUV()
+    {
+        var go = Selection.activeGameObject;
+        if (go == null) { Debug.LogWarning("[ArkFx] 先在 Hierarchy 选中一个特效实例"); return; }
+        _sampleRoot = go.transform;
+        _sampleData = new Dictionary<string, List<Vector2>>();
+        _sampleT0 = (float)EditorApplication.timeSinceStartup;
+        EditorApplication.update -= SampleTick;
+        EditorApplication.update += SampleTick;
+        Debug.Log("[ArkFx] 开始采样 UV 偏移（约 2 秒）...");
+    }
+
+    [MenuItem("Tools/ArkFx/6. 采样选中特效的 UV 偏移（约 2 秒）", true)]
+    static bool SampleUVValidate() { return Selection.activeGameObject != null; }
+
+    static void SampleTick()
+    {
+        float t = (float)EditorApplication.timeSinceStartup - _sampleT0;
+        foreach (var r in _sampleRoot.GetComponentsInChildren<Renderer>(true))
+        {
+            var m = r.sharedMaterial;
+            if (m == null || !m.HasProperty("_MainTex")) continue;
+            string key = r.transform.name;
+            List<Vector2> list;
+            if (!_sampleData.TryGetValue(key, out list))
+            {
+                list = new List<Vector2>();
+                _sampleData[key] = list;
+            }
+            list.Add(m.mainTextureOffset);
+        }
+        if (t < 2f) return;
+
+        EditorApplication.update -= SampleTick;
+
+        var sb = new StringBuilder();
+        sb.AppendLine("[ArkFx] UV 偏移采样结果（2 秒）");
+        sb.AppendLine("  节点 | 采样数 | x范围 | y范围 | 首值 | 末值 | 判定");
+        foreach (var kv in _sampleData)
+        {
+            var v = kv.Value;
+            if (v.Count < 3) continue;
+            float minx = float.MaxValue, maxx = float.MinValue, miny = float.MaxValue, maxy = float.MinValue;
+            int wraps = 0;
+            for (int i = 0; i < v.Count; i++)
+            {
+                if (v[i].x < minx) minx = v[i].x;
+                if (v[i].x > maxx) maxx = v[i].x;
+                if (v[i].y < miny) miny = v[i].y;
+                if (v[i].y > maxy) maxy = v[i].y;
+                if (i > 0)
+                {
+                    if (Mathf.Abs(v[i].x - v[i - 1].x) > 0.5f) wraps++;
+                    if (Mathf.Abs(v[i].y - v[i - 1].y) > 0.5f) wraps++;
+                }
+            }
+            bool inRange = minx >= -0.01f && miny >= -0.01f && maxx <= 1.01f && maxy <= 1.01f;
+            bool moving = Mathf.Abs(maxx - minx) > 0.01f || Mathf.Abs(maxy - miny) > 0.01f;
+            string verdict = !moving ? "静止（该节点无 UV 动画）"
+                : (inRange ? (wraps > 0 ? "✅ 在 [0,1) 内回绕（protectMainUV 生效）" : "在 [0,1) 内（未观察到回绕）")
+                           : "❌ 越界（未包裹，protectMainUV 未生效）");
+            sb.AppendLine($"  {kv.Key} | {v.Count} | x[{minx:F3},{maxx:F3}] | y[{miny:F3},{maxy:F3}] | "
+                + $"({v[0].x:F3},{v[0].y:F3}) | ({v[v.Count - 1].x:F3},{v[v.Count - 1].y:F3}) | {verdict}");
+        }
+        Debug.Log(sb.ToString());
+    }
 }
 #endif
