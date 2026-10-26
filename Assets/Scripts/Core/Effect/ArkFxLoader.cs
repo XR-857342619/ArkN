@@ -336,8 +336,8 @@ public static class ArkFxLoader
         }
 
         BakePrefab(prefab, prefabName);
-        if (ForceAbSource)
-            Debug.Log($"[ArkFx] 命中 AB 特效: {prefabName}（来源包 {prefab.name}）");
+        //if (ForceAbSource)
+        //    Debug.Log($"[ArkFx] 命中 AB 特效: {prefabName}（来源包 {prefab.name}）");
         return prefab;
     }
 
