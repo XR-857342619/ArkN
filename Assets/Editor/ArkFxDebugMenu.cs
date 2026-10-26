@@ -1,14 +1,15 @@
 // ============================================================
-// ArkFxDebugMenu - ArkFx 验收用的编辑器菜单（P0/P1）
+// ArkFxDebugMenu - ArkFx 验收用的编辑器菜单
 //
-//   0. 切换 特效来源 工程内 <-> 原版AB   （PlayerPrefs 持久化，重进 Play 仍有效）
+//   0. 切换 特效来源 工程内 <-> 原版AB   （PlayerPrefs 持久化）
 //   1. 切换 UV 实现 v5 <-> v6
 //   2. 打印选中对象的 ArkFxDiag
 //   3. 统计场景里的 ArkFx 组件
-//   4. 检查 AB 里的 Shader 是否可用       （品红问题定位）
+//   4. 检查 AB 里的 Shader 是否可用       （编辑模式即可跑，不依赖 Play）
 //   5. 打印选中对象每个材质的 shader 状态
 // ============================================================
 #if UNITY_EDITOR
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEditor;
@@ -16,6 +17,8 @@ using UnityEngine;
 
 public static class ArkFxDebugMenu
 {
+    static string ArkFxDir { get { return Path.Combine(Application.dataPath, "StreamingAssets", "arkfx"); } }
+
     static string LogPath(string file)
     {
         string dir = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Logs"));
@@ -28,7 +31,7 @@ public static class ArkFxDebugMenu
     {
         ArkFxLoader.ForceAbSource = !ArkFxLoader.ForceAbSource;
         Debug.Log("[ArkFx] 特效来源已切换为：" + (ArkFxLoader.ForceAbSource ? "原版 AB（arkfx）" : "工程内 Addressables")
-            + "。开关已写入 PlayerPrefs，重新进 Play 仍有效；请重新进 Play 生效。");
+            + "。已写入 PlayerPrefs，重新进 Play 生效。");
     }
 
     [MenuItem("Tools/ArkFx/1. 切换 UV 实现 v5 <-> v6", false, 1)]
@@ -67,7 +70,7 @@ public static class ArkFxDebugMenu
         var v5 = Object.FindObjectsOfType<ArkFxUVTween>();
         var stub = Object.FindObjectsOfType<ArkFxScriptStub>();
         var sb = new StringBuilder();
-        sb.AppendLine("[ArkFx] 场景组件统计");
+        sb.AppendLine("[ArkFx] 场景组件统计  (Play=" + Application.isPlaying + ")");
         sb.AppendLine("  ArkFxEffectHost      : " + host.Length);
         sb.AppendLine("  ArkFxUVTweenV6       : " + v6.Length);
         sb.AppendLine("  ArkFxUVTweenAdvanceV6: " + v6a.Length);
@@ -82,40 +85,61 @@ public static class ArkFxDebugMenu
         Debug.Log(sb.ToString());
     }
 
+    // ---- 4. Shader 可用性：自己扫目录加载，编辑模式也能跑 ----
     [MenuItem("Tools/ArkFx/4. 检查 AB 里的 Shader 是否可用", false, 4)]
     static void CheckShaders()
     {
-        int nb = 0, total = 0, unsupported = 0, nullShader = 0;
-        var report = new StringBuilder();
-        report.AppendLine("# ArkFx Shader 支持性报告 " + System.DateTime.Now);
-        report.AppendLine("# API=" + SystemInfo.graphicsDeviceType + " ShaderLevel=" + SystemInfo.graphicsShaderLevel
-            + " maxTex=" + SystemInfo.maxTextureSize);
-
-        foreach (var b in AssetBundle.GetAllLoadedAssetBundles())
+        if (!Directory.Exists(ArkFxDir))
         {
-            if (b == null) continue;
-            nb++;
-            Shader[] shaders;
-            try { shaders = b.LoadAllAssets<Shader>(); }
-            catch { continue; }
-            foreach (var sh in shaders)
-            {
-                if (sh == null) { nullShader++; continue; }
-                total++;
-                bool ok = sh.isSupported;
-                if (!ok) unsupported++;
-                report.AppendLine((ok ? "OK   " : "FAIL ") + sh.name + "\t(bundle=" + b.name + ", pass=" + sh.passCount + ")");
-            }
+            Debug.LogError("[ArkFx] 找不到目录: " + ArkFxDir);
+            return;
         }
 
-        string verdict;
-        if (total == 0) verdict = "一个 shader 都没加载到：依赖包 _deps/1b70e77f_lz4.ab 未加载，或 shader 读取失败";
-        else if (unsupported == total) verdict = "全部不支持 → Unity 版本不兼容";
-        else if (unsupported > total / 2) verdict = "绝大多数不支持 → 大概率仍是版本不兼容；请查看 ArkFxShaders.txt 里少数 OK 的是什么";
-        else verdict = "多数可用，品红来自个别 shader，见 ArkFxShaders.txt";
+        var files = Directory.GetFiles(ArkFxDir, "*.ab", SearchOption.AllDirectories);
+        var loaded = new List<AssetBundle>();
+        var seen = new HashSet<string>();
+        var all = new List<Shader>();
+        int bundleOk = 0, bundleFail = 0;
 
-        Debug.Log("[ArkFx] bundle " + nb + " 个 | Shader " + total + " | 不支持 " + unsupported + " | 空 " + nullShader
-            + "\n  API=" + SystemInfo.graphicsDeviceType + " ShaderLevel=" + SystemInfo.graphicsShaderLevel
+        foreach (var f in files)
+        {
+            var ab = AssetBundle.LoadFromFile(f);
+            if (ab == null) { bundleFail++; Debug.LogWarning("[ArkFx] BUNDLE_FAIL " + f); continue; }
+            loaded.Add(ab);
+            bundleOk++;
+            var ss = ab.LoadAllAssets<Shader>();
+            foreach (var s in ss)
+                if (s != null && seen.Add(s.name)) all.Add(s);
+        }
+
+        int ok = 0, fail = 0;
+        var report = new StringBuilder();
+        report.AppendLine("# ArkFx Shader 检查");
+        report.AppendLine("# Unity   : " + Application.unityVersion);
+        report.AppendLine("# API     : " + SystemInfo.graphicsDeviceType + " / ShaderLevel " + SystemInfo.graphicsShaderLevel);
+        report.AppendLine("# 目录    : " + ArkFxDir);
+        report.AppendLine("# bundle  : 成功 " + bundleOk + " / 失败 " + bundleFail + " / 共 " + files.Length);
+        report.AppendLine();
+
+        foreach (var s in all)
+        {
+            bool sup = s.isSupported;
+            if (sup) ok++; else fail++;
+            report.AppendLine((sup ? "OK   " : "FAIL ") + s.name);
+        }
+
+        foreach (var ab in loaded) ab.Unload(false);
+
+        string verdict;
+        if (bundleOk == 0) verdict = "一个包都没加载成功 —— 检查目录与包格式";
+        else if (all.Count == 0) verdict = "包能加载但没有 shader —— 目录不对";
+        else if (fail == 0) verdict = "全部 shader 可用 ✅";
+        else if (ok == 0) verdict = "全部不可用 —— 引擎版本问题";
+        else verdict = "部分可用 " + ok + "/" + all.Count;
+
+        Debug.Log("[ArkFx] bundle " + bundleOk + "/" + files.Length + " 成功 | Shader " + all.Count
+            + " | 不支持 " + fail + " | Unity=" + Application.unityVersion
+            + "\n  API=" + SystemInfo.graphicsDeviceType
             + "\n  → " + verdict);
 
         try
