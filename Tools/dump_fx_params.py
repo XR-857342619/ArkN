@@ -223,42 +223,32 @@ def main():
         files = [os.path.join(src, b["source"]) for b in man["bundles"]]
     print(f"扫描 {len(files)} 个包 ...")
 
-    # UnityPy 只有按目录加载时才会聚合 container 并解析跨包依赖（MonoScript 在匿名包里），
-    # 所以这里建一个硬链接"农场"，把所有输入摆到同一目录再加载。
-    import shutil
-    import tempfile
-    tmp = os.path.join(tempfile.gettempdir(), "arkfx_probe")
-    shutil.rmtree(tmp, ignore_errors=True)
-    os.makedirs(tmp, exist_ok=True)
-    for f in files:
-        d = os.path.join(tmp, os.path.basename(f))
-        if os.path.exists(d):
-            d = os.path.join(tmp, "%04d_%s" % (len(os.listdir(tmp)), os.path.basename(f)))
-        try:
-            os.link(f, d)
-        except Exception:
-            shutil.copy2(f, d)
-    if os.path.isfile(args.script_bundle):
-        shutil.copy2(args.script_bundle, os.path.join(tmp, "zz_scripts.ab"))
-
-    env = UnityPy.load(tmp)
-    print("对象数:", len(env.objects), " container:", len(env.container))
-    scripts = load_script_names(env)
-    print("可识别的 MonoBehaviour 类名:", len(scripts))
-
+    # 逐包处理：全量打包时 570+ 个包一次性载入会占用数 GB 内存（实测曾导致卡死）。
+    # 单包里同时载入 MonoScript 包即可解析类名，处理完立刻释放。
+    extra = [args.script_bundle] if os.path.isfile(args.script_bundle) else []
     prefabs = []
     total_entries = 0
-    for path in [c for c in env.container if c.lower().endswith(".prefab")]:
+    for idx, f in enumerate(files, 1):
         try:
-            go = env.container[path].read()
-        except Exception:
+            env = UnityPy.load(f, *extra) if extra else UnityPy.load(f)
+        except Exception as e:
+            print(f"  [跳过] {os.path.basename(f)}: {type(e).__name__}")
             continue
-        entries = entries_for_prefab(go, scripts)
-        if not entries:
-            continue
-        name = os.path.splitext(os.path.basename(path))[0]
-        prefabs.append({"prefab": name, "entries": entries})
-        total_entries += len(entries)
+        scripts = load_script_names(env)
+        for path in [c for c in env.container if c.lower().endswith(".prefab")]:
+            try:
+                go = env.container[path].read()
+            except Exception:
+                continue
+            entries = entries_for_prefab(go, scripts)
+            if not entries:
+                continue
+            name = os.path.splitext(os.path.basename(path))[0]
+            prefabs.append({"prefab": name, "entries": entries})
+            total_entries += len(entries)
+        del env
+        if idx % 50 == 0:
+            print(f"  {idx}/{len(files)} 已处理，累计 {len(prefabs)} 个 prefab / {total_entries} 条", flush=True)
 
     doc = {"version": 1, "prefabs": prefabs}
     os.makedirs(os.path.dirname(args.out), exist_ok=True)

@@ -655,8 +655,13 @@ def main():
             fh.write("| prefab 名 | 所在包（abFile） |\n|---|---|\n")
             for n in sorted(prefab_index):
                 fh.write(f"| `{n}` | `{os.path.basename(prefab_index[n])}` |\n")
+        txt = os.path.join(out, "prefab列表.txt")
+        with open(txt, "w", encoding="utf-8") as fh:
+            for n in sorted(prefab_index):
+                fh.write(n + "\n")
         print(f"      {os.path.join(out, '_manifest.json')}")
         print(f"      {md}")
+        print(f"      {txt}")
 
     if args.dry_run:
         plan = sum(os.path.getsize(s) for s, _d, _c in jobs)

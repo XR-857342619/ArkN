@@ -15,6 +15,10 @@ public static class ArkFxLoader
     static readonly List<AssetBundle> _bundles = new List<AssetBundle>();
     static readonly Dictionary<string, AssetBundle> _byPath = new Dictionary<string, AssetBundle>();
     static readonly Dictionary<string, AssetBundle> _byName = new Dictionary<string, AssetBundle>(); // key = 文件名(小写)
+    // prefab 短名(小写) -> 所在包。全量打包（570+ 包）时逐个 LoadAsset 太慢，建索引后 O(1)
+    static readonly Dictionary<string, AssetBundle> _prefabIndex = new Dictionary<string, AssetBundle>();
+    static readonly HashSet<string> _prefabMissing = new HashSet<string>();   // 负缓存，避免反复全扫
+    static bool _prefabIndexReady;
     static bool _loaded;
     static string _loadDir;
 
@@ -63,6 +67,7 @@ public static class ArkFxLoader
         }
 
         _loaded = true;
+        BuildPrefabIndex();
         LoadParams();   // 提前加载：让启动日志就能确认 fxparams.json 是否可用
         Debug.Log($"[ArkFxLoader] 已加载 {_bundles.Count} 个包 | abDir={abDir} | 目录存在={Directory.Exists(abDir)}"
                   + $" | .ab 总数={all.Length} | fxparams={(_params == null ? "未加载" : _params.Count + " 个 prefab")}");
@@ -238,10 +243,10 @@ public static class ArkFxLoader
     /// </summary>
     // ---- 验收开关：用 PlayerPrefs 持久化，避免"重新进 Play 就失效" ----
     const string PrefUseV6 = "ArkFx.UseV6";
-    const string PrefForceAb = "ArkFx.ForceAbSource";
+    const string PrefPreferAb = "ArkFx.PreferAbSource";
 
     static bool _useV6 = true;
-    static bool _forceAbSource;
+    static bool _preferAbSource = true;
 
     /// <summary>
     /// 是否使用 IDA 实证版（v6）的 UV 替身组件。
@@ -255,14 +260,15 @@ public static class ArkFxLoader
     }
 
     /// <summary>
-    /// 强制走 AB 特效（跳过工程内 Assets/Bundles/Effect 的同名 prefab）。
-    /// 验收用：工程内已有 414 个同名 prefab，默认情况下 AB 分支永远不会被命中。
+    /// 特效来源优先级。
+    /// true（默认）= 先用 arkfx 里的原版 AB，找不到再回落工程内 Assets/Bundles/Effect；
+    /// false        = 先用工程内 prefab，找不到再回落 AB（旧行为，便于对比/排障）。
     /// 编辑器菜单 Tools/ArkFx/0 可切换；值存在 PlayerPrefs 里，重进 Play 仍然有效。
     /// </summary>
-    public static bool ForceAbSource
+    public static bool PreferAbSource
     {
-        get { return _forceAbSource; }
-        set { _forceAbSource = value; PlayerPrefs.SetInt(PrefForceAb, value ? 1 : 0); PlayerPrefs.Save(); }
+        get { return _preferAbSource; }
+        set { _preferAbSource = value; PlayerPrefs.SetInt(PrefPreferAb, value ? 1 : 0); PlayerPrefs.Save(); }
     }
 
     /// <summary>最早时机恢复验收开关（SubsystemRegistration 早于 ArkFxBootstrap 的 BeforeSceneLoad）。</summary>
@@ -270,7 +276,7 @@ public static class ArkFxLoader
     static void RestoreDebugSwitches()
     {
         _useV6 = PlayerPrefs.GetInt(PrefUseV6, 1) != 0;
-        _forceAbSource = PlayerPrefs.GetInt(PrefForceAb, 0) != 0;
+        _preferAbSource = PlayerPrefs.GetInt(PrefPreferAb, 1) != 0;
     }
 
     /// <summary>
@@ -332,6 +338,33 @@ public static class ArkFxLoader
     // ================= 按名加载（表驱动兜底：EffectData / BulletData 用） =================
 
     /// <summary>
+    /// <summary>扫描所有已加载包里的 prefab 名，建立 短名 -> 包 的索引。</summary>
+    static void BuildPrefabIndex()
+    {
+        _prefabIndex.Clear();
+        _prefabMissing.Clear();
+        _prefabIndexReady = true;
+        int n = 0;
+        foreach (var b in _bundles)
+        {
+            if (b == null) continue;
+            string[] names;
+            try { names = b.GetAllAssetNames(); }
+            catch { continue; }
+            foreach (var full in names)
+            {
+                if (!full.EndsWith(".prefab", System.StringComparison.OrdinalIgnoreCase)) continue;
+                var shortName = Path.GetFileNameWithoutExtension(full).ToLowerInvariant();
+                if (!_prefabIndex.ContainsKey(shortName))
+                {
+                    _prefabIndex[shortName] = b;
+                    n++;
+                }
+            }
+        }
+        Debug.Log($"[ArkFxLoader] prefab 索引建立完成：{n} 个");
+    }
+
     /// 按 prefab 名在所有已登记的 arkfx 包里找特效，返回“prefab 资产”（不实例化），
     /// 供 EffectManager/BulletManager 的对象池当克隆模板。
     /// 驱动组件（UV 替身/原版脚本存档/亮度压暗/缺脚本兜底）会烘焙进 prefab 资产，
@@ -343,17 +376,31 @@ public static class ArkFxLoader
         if (string.IsNullOrEmpty(prefabName)) return null;
         if (!_loaded) LoadAll(AbDir);
 
+        string key = prefabName.ToLowerInvariant();
+        if (_prefabMissing.Contains(key)) return null;   // 负缓存：已经确认没有，别再全扫
+
         GameObject prefab = null;
         if (_loaded)
-            foreach (var b in _bundles)
-            {
-                if (b == null) continue;
-                prefab = TryLoadPrefab(b, prefabName);
-                if (prefab != null) break;
-            }
+        {
+            if (!_prefabIndexReady) BuildPrefabIndex();
+
+            // 1) 索引命中（全量 570+ 包时的主路径）
+            if (_prefabIndex.TryGetValue(key, out var hitBundle) && hitBundle != null)
+                prefab = TryLoadPrefab(hitBundle, prefabName);
+
+            // 2) 索引未命中：兜底线性扫一遍（索引构建后新增的包 / 名字大小写异常等）
+            if (prefab == null)
+                foreach (var b in _bundles)
+                {
+                    if (b == null) continue;
+                    prefab = TryLoadPrefab(b, prefabName);
+                    if (prefab != null) break;
+                }
+        }
         if (prefab == null)
         {
-            Debug.LogError($"[ArkFxLoader] 所有 arkfx 包里都没找到 prefab: {prefabName}");
+            _prefabMissing.Add(key);
+            Debug.LogWarning($"[ArkFxLoader] arkfx 里没有这个 prefab: {prefabName}");
             return null;
         }
 

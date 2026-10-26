@@ -42,14 +42,22 @@ public class EffectManager : MonoBehaviour
 
         if (!effectPrefabs.TryGetValue(id, out var prefab) || prefab == null)
         {
-            var go = ArkFxLoader.ForceAbSource
-                ? null
-                : ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + config.Prefab);
+            // 来源优先级：默认「原版 AB 优先」，AB 里没有才回落工程内 prefab
+            // （开关见 ArkFxLoader.PreferAbSource / 菜单 Tools/ArkFx/0）
+            GameObject go = null;
+            bool fromAb = false;
+            if (ArkFxLoader.PreferAbSource)
+            {
+                go = ArkFxLoader.LoadPrefabByName(config.Prefab);
+                if (go != null) { go.AddComponent<Effect>(); fromAb = true; }
+            }
             if (go == null)
             {
-                // AB 特效兜底：工程内没有该 prefab 时，从 arkfx 运行时包加载并补挂驱动组件
-                go = ArkFxLoader.LoadPrefabByName(config.Prefab);
-                if (go != null) go.AddComponent<Effect>();
+                go = ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + config.Prefab);
+            }
+            else if (!fromAb && go.GetComponent<Effect>() == null)
+            {
+                go.AddComponent<Effect>();
             }
             if (go == null)
             {

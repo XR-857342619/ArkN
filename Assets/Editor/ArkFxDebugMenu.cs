@@ -26,11 +26,12 @@ public static class ArkFxDebugMenu
         return Path.Combine(dir, file);
     }
 
-    [MenuItem("Tools/ArkFx/0. 切换 特效来源 工程内 <-> 原版AB", false, 0)]
+    [MenuItem("Tools/ArkFx/0. 切换 特效来源优先级 AB优先 <-> 工程内优先", false, 0)]
     static void ToggleSource()
     {
-        ArkFxLoader.ForceAbSource = !ArkFxLoader.ForceAbSource;
-        Debug.Log("[ArkFx] 特效来源已切换为：" + (ArkFxLoader.ForceAbSource ? "原版 AB（arkfx）" : "工程内 Addressables")
+        ArkFxLoader.PreferAbSource = !ArkFxLoader.PreferAbSource;
+        Debug.Log("[ArkFx] 特效来源优先级："
+            + (ArkFxLoader.PreferAbSource ? "原版 AB 优先（找不到再回落工程内）" : "工程内 prefab 优先")
             + "。已写入 PlayerPrefs，重新进 Play 生效。");
     }
 
@@ -78,7 +79,7 @@ public static class ArkFxDebugMenu
         sb.AppendLine("  ArkFxUVTween (v5)    : " + v5.Length);
         sb.AppendLine("  ArkFxScriptStub      : " + stub.Length);
         sb.AppendLine("  UseV6 开关           : " + ArkFxLoader.UseV6);
-        sb.AppendLine("  特效来源             : " + (ArkFxLoader.ForceAbSource ? "原版 AB" : "工程内 Addressables"));
+        sb.AppendLine("  来源优先级           : " + (ArkFxLoader.PreferAbSource ? "原版 AB 优先" : "工程内优先"));
         int busy = 0, finished = 0;
         foreach (var h in host) { if (h.IsBusy) busy++; if (h.Finished) finished++; }
         sb.AppendLine("  宿主状态             : " + finished + " 个已结束 / " + busy + " 个等待中");

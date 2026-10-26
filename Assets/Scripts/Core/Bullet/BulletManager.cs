@@ -19,20 +19,21 @@ public class BulletManager
     {
         if (!bulletPrefabs.TryGetValue(model, out var prefab) || prefab == null)
         {
-            var go = ArkFxLoader.ForceAbSource
-                ? null
-                : ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + model);
-            prefab = go != null ? go.GetComponent<BulletModel>() : null;
-            if (prefab == null)
+            // 来源优先级：默认「原版 AB 优先」，AB 里没有才回落工程内 prefab
+            GameObject go = null;
+            if (ArkFxLoader.PreferAbSource)
             {
-                // AB 特效兜底：工程内没有该 prefab 时，从 arkfx 运行时包加载并动态补挂驱动组件
-                // （方舟 AB prefab 没有 BulletModel/Effect，Bullet.CreateModel 依赖这两个组件）
                 var abGo = ArkFxLoader.LoadPrefabByName(model);
                 if (abGo != null)
                 {
                     if (abGo.GetComponent<Effect>() == null) abGo.AddComponent<Effect>();
                     prefab = abGo.GetComponent<BulletModel>() ?? abGo.AddComponent<BulletModel>();
                 }
+            }
+            if (prefab == null)
+            {
+                go = ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + model);
+                prefab = go != null ? go.GetComponent<BulletModel>() : null;
             }
             if (prefab == null)
             {
@@ -61,10 +62,21 @@ public class BulletManager
     {
         if (!linePrefabs.TryGetValue(model, out var prefab) || prefab == null)
         {
-            var go = ArkFxLoader.ForceAbSource
-                ? null
-                : ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + model);
-            prefab = go != null ? go.GetComponent<PullLineModel>() : null;
+            // 与 Get 一致的来源优先级：原版 AB 优先，找不到再回落工程内
+            if (ArkFxLoader.PreferAbSource)
+            {
+                var abGo = ArkFxLoader.LoadPrefabByName(model);
+                if (abGo != null)
+                {
+                    if (abGo.GetComponent<Effect>() == null) abGo.AddComponent<Effect>();
+                    prefab = abGo.GetComponent<PullLineModel>() ?? abGo.AddComponent<PullLineModel>();
+                }
+            }
+            if (prefab == null)
+            {
+                var go = ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + model);
+                prefab = go != null ? go.GetComponent<PullLineModel>() : null;
+            }
             if (prefab == null)
             {
                 Debug.LogError($"拉线模型加载失败或缺少 PullLineModel: {PathHelper.EffectPath + model}");
