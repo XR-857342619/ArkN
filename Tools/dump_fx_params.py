@@ -23,7 +23,8 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # 已实现替身的类 -> 字段映射（字段名与原版 serialized 名一致）
 SUPPORTED = ("FxUVTweener", "FxUVTweenerAdvance", "FxUVRotation", "FxDelay",
-             "OnPlayEmitter", "OnFinishEmitter", "RandomEmitter", "OnPlayEmitterIf")
+             "OnPlayEmitter", "OnFinishEmitter", "RandomEmitter", "OnPlayEmitterIf",
+             "FollowMountPoint")
 
 
 def patch_unitypy():
@@ -149,6 +150,13 @@ def entries_for_prefab(root_go, scripts):
                         })
                     if extras:
                         e["extras"] = extras
+            elif short == "FollowMountPoint":
+                e["mountPointType"] = int(t.get("_mountPointType", 0))
+                e["followScale"] = float(t.get("_followScale", 0.0))
+                e["followScaleSign"] = int(t.get("_followScaleSign", 0))
+                e["scaleMultiplier"] = float(t.get("_scaleMultiplier", 1.0))
+                e["keepOriginRotation"] = bool(t.get("_keepOriginRotation", False))
+                e["pauseWhenMountPointInvalid"] = bool(t.get("_pauseWhenMountPointInvalid", False))
             elif short in ("OnPlayEmitter", "OnFinishEmitter", "OnPlayEmitterIf"):
                 e["effects"] = [x for x in (t.get("_effects") or []) if isinstance(x, str)]
                 e["instant"] = bool(t.get("_instant", False))
