@@ -147,7 +147,8 @@ public static class ArkFxDiag
                     if (tex != null)
                         sb.AppendLine($"    tex {pname}: {tex.name} {tex.width}x{tex.height} wrap={tex.wrapMode} scale={m.GetTextureScale(pname)} offset={m.GetTextureOffset(pname)}");
                     else
-                        sb.AppendLine($"    tex {pname}: !! NULL——贴图没加载（查依赖 AB）!!");
+                        sb.AppendLine($"    tex {pname}: <未赋值>（材质未设置该贴图 → 走 shader 默认值；"
+                                    + "若原版此处应贴图，才是依赖包缺失）");
                     break;
                 case ShaderPropertyType.Color:
                     sb.AppendLine($"    color {pname}: {m.GetColor(pname)}");
