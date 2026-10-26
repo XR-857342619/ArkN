@@ -517,3 +517,46 @@ Unity 6000.0.40f1  →  PROBE_RESULT total=197 supported=197    (全部支持)
 - `ArkFxDelay.OnRecycle()` 里的"强制激活"假设了调用方一定是回池场景；
   若将来有别的路径在对象存活时调 `Recycle()`，会误触发激活。
 - 拟改为显式传参或拆分接口。
+
+---
+
+## 18. P3 · Emitters 验收结果（2026-10-26）
+
+> **结论：4 类发射器实测通过**（`agoat2_skill_03_buff_01` → 5 个子特效正常生成）。
+
+### 验收输出
+
+```
+[ArkFx] ArkFxOnPlayEmitter enabled=True playbackSpeed=1
+    effects=agoat2_skill_03_weapon_01,...,05 instant=False preDelay=0.00 clearWhenFinish=True
+    已发射子特效=5  waitingActive=False
+```
+
+Hierarchy 中出现 5 个独立的 `agoat2_skill_03_weapon_0X(Clone)` 对象。
+
+### 验收中发现并修复的严重 bug（P1/P2 就已存在）
+
+**现象**：第一次释放特效子特效正常，**第二次起 `已发射子特效=0`**，粒子也不播。
+
+**根因**：`EffectManager.GetEffect` 里的 `fromAb` 是**局部变量**，只在"首次加载 prefab"分支被置 true。
+prefab 进 `effectPrefabs` 缓存后，第二次起不再走加载分支 → `fromAb` 恒为 false →
+`ArkFxLoader.Kick()` 永不调用 → `ArkFxEffectHost.Play()` 不执行 →
+**所有 ArkFx 组件（发射器 / FxDelay / 粒子）都收不到 OnPlay**。
+
+**修复**：改用 **prefab 上是否存在 `ArkFxEffectHost`** 判定 AB 来源
+（`BakePrefab` 会给 AB prefab 挂宿主，工程内 prefab 没有），
+`BulletManager.Get` 同步修复。
+
+### ⚠️ 新增回归用例（必须做）
+
+> **连放两次同一个技能，第二次的特效行为必须与第一次一致。**
+
+因为 `EffectManager.effectPrefabs` / `BulletManager.bulletPrefabs` / `Pool<T>` 三层都有缓存，
+"只在第一次正确"这类 bug 非常隐蔽。此后所有 ArkFx 验收都要覆盖：
+- 第 1 次释放：粒子播 / 子特效发射 / 延迟生效
+- **第 2 次释放：同上（关键）**
+- 对象池复用（连放 3 次以上）
+
+### 遗留
+
+- `OnPlayEmitterIf` 的 buff / 朝向条件判定尚未实现，当前按无条件发射处理（仅 2 个实例）。
