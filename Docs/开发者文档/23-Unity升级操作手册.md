@@ -6,6 +6,9 @@
 > - 闸门实测（空工程 probe）：`bundles_ok=101 shaders=196 supported=196 unsupported=0` ✅
 > - 曾用中国版 `2021.3.39f1c1` 验证同样通过，但**正式采用国际版**（与现有工程同发行版）
 >
+> **升级已完成（2026-10-26）**：工程已跑在 2021.3.39f1 上，特效不再品红。
+> 提交记录与 Spine 修复结论见文末附录 A / B。
+>
 > 目的：让方舟原版特效的 shader 能够运行。
 > 依据：[22-ArkFx-P0P1验收手册 §15](22-ArkFx-P0P1验收手册.md) 的实测结论——
 > 同一份 shader 包在 **2021.2.10f1 只有 2/197 可用**，在 **Unity 6000.0.40f1 是 197/197 可用**。
@@ -311,3 +314,68 @@ git diff --stat -- "*.meta" | tail -5
 4. 选带 UV 动画的特效（如 `kalts_skill_03_buff`）跑 Diag，确认 offset 在动
 
 全部通过后，就可以继续 P2（`FxDelay`）/ P3（Emitters）了。
+
+---
+
+## 附录 A · 阶段 4 实测结论：⚠️ Spine 修复工具**不可批量使用**
+
+### 实测数据（2026-10-26）
+
+```
+Tools/Spine引用修复/1-扫描错误引用(只报告)
+→ 共 2440 个 prefab | 引用错位 475 个 | 跳过 29 个
+```
+
+看起来要修 475 个，实际逐条分析后：
+
+| 分类 | 数量 | 说明 |
+|---|---|---|
+| 错位 prefab 总数 | 475 | |
+| **全部字段名字相同 → 假阳性** | **468** | front/back 同名资产被误判 |
+| 有字段名字不同 → 可能真错位 | 7 | 其中只有 5 个是真问题 |
+| 字段级 null 引用 | 4 | 真的坏了 |
+
+### 根因：工具按文件名匹配，遇到同名资产就随机挑一个
+
+```
+Assets/Res/Spine/Unit/char_002_amiya/back/char_002_amiya_SkeletonData.asset   (guid 150298a5…)
+Assets/Res/Spine/Unit/char_002_amiya/front/char_002_amiya_SkeletonData.asset  (guid 03c6bd16…)
+```
+
+prefab 里两个 `SkeletonAnimation` **分别正确地**引用了 back 和 front。
+工具的 `FindSkeletonData(model + "_SkeletonData")` 用 `AssetDatabase.FindAssets` 取第一个匹配，
+于是把另一个正确引用判成"错位"——**执行修复会把 front/back 覆盖成同一个**。
+
+### 正确做法
+
+1. **绝不**在 `Assets/Bundles/Units` 上整体执行 `2-修复选中的Prefab`
+2. 只对扫描报告里「当前值与期望值**名字不同**」或「当前值为 null」的条目，**逐个选中**再修
+3. 修之前先确认该模型**没有**同名 front/back 资产（`find Assets/Res/Spine -name "<模型>_SkeletonData.asset" | wc -l`）
+
+### 本次实际修了 5 个
+
+| prefab | 问题 | 处理 |
+|---|---|---|
+| `char_4172_xingzh` | SkeletonData/Material 指向 `char_002_amiya_*` | ✅ 重建自身 Spine 资产并指回自己 |
+| `enemy_1011_wizard` | MeshRenderer 材质为空 | ✅ 补回 |
+| `enemy_1011_wizard_2` | 同上 | ✅ 补回 |
+| `token_10027_ironmn_pile3` | 材质名带 `$0_` 前缀，且该模型有 3 套资产 | ⚠️ 未动，需人工确认 |
+| `trap_012_mine` | `_Material-Multiply` vs `_Material` | ⚠️ 未动，多半是刻意的混合变体 |
+
+> **结论：这次升级并没有破坏 Spine 引用**（没做批量重导入，只是让 Unity 原地升级），
+> 真正需要修的只有 5 个历史遗留问题。
+
+---
+
+## 附录 B · 本次升级的提交记录
+
+```
+e10695ccc  fix(tools): ArkFx 菜单 4 改为自扫描加载，不再依赖 Play 模式
+347a71a09  fix: 修正升版后暴露的 Spine 引用错位
+70ec015c4  chore: 升版后资源重序列化（机械变更，无逻辑改动）
+b9df493b2  chore: 升级 Unity 到 2021.3.39f1（版本与包配置）
+```
+
+变更规模：约 3785 个文件（其中 2937 个 `.mat` 为 serializedVersion 机械变更）。
+
+**回滚点**：`D:\backup\backupzhou-master-20261026.bundle`（升级前的完整历史）
