@@ -43,10 +43,92 @@ public static class ArkFxDiag
 
             foreach (var an in t.GetComponents<Animator>())
                 DumpAnim(sb, an);
+
+            // ArkFx 替身组件：UV 验收的关键信息都在这里
+            foreach (var b in t.GetComponents<ArkFxBehaviour>())
+                DumpBehaviour(sb, b, t);
+
+            var hostC = t.GetComponent<ArkFxEffectHost>();
+            if (hostC != null)
+                sb.AppendLine($"  [ArkFx] ArkFxEffectHost finished={hostC.Finished} paused={hostC.Paused} isBusy={hostC.IsBusy}");
+
+            var v5C = t.GetComponent<ArkFxUVTween>();
+            if (v5C != null)
+                sb.AppendLine($"  [ArkFx] ArkFxUVTween(v5) mainSpeed={v5C.mainSpeed} protectMainUV={v5C.protectMainUV} duration={v5C.duration:F2} extras={v5C.extras?.Count ?? 0}");
+
+            var stubC = t.GetComponent<ArkFxScriptStub>();
+            if (stubC != null)
+                sb.AppendLine($"  [ArkFx] ArkFxScriptStub 原版类名={stubC.className}");
         }
         sb.AppendLine();
         sb.AppendLine("==== ArkFxDiag end ====");
         return sb.ToString();
+    }
+
+
+    /// <summary>
+    /// 打印 ArkFx 替身组件的参数与「当前实际生效值」。
+    /// UV 验收就是看这里的 offset 有没有随时间变化。
+    /// </summary>
+    static void DumpBehaviour(StringBuilder sb, ArkFxBehaviour b, Transform owner)
+    {
+        if (b == null) return;
+        sb.AppendLine($"  [ArkFx] {b.GetType().Name} enabled={b.enabled} playbackSpeed={b.PlaybackSpeed}");
+
+        var rot = b as ArkFxUVRotation;
+        if (rot != null)
+        {
+            sb.AppendLine($"      propertyName={rot.propertyName}");
+            sb.AppendLine($"      rotateTex=[{rot.rotateTex1},{rot.rotateTex2},{rot.rotateTex3},{rot.rotateTex4}]");
+            sb.AppendLine($"      angle=[{rot.angle1:F1},{rot.angle2:F1},{rot.angle3:F1},{rot.angle4:F1}]");
+            var r = owner.GetComponent<Renderer>();
+            if (r != null)
+            {
+                var mpb = new MaterialPropertyBlock();
+                r.GetPropertyBlock(mpb);
+                int id = Shader.PropertyToID("_HG_UV_ROTATION");
+                sb.AppendLine($"      当前 _HG_UV_ROTATION={mpb.GetFloat(id):F2}");
+                for (int i = 0; i < 4; i++)
+                {
+                    int rid = Shader.PropertyToID((rot.propertyName ?? "_Rotation") + i);
+                    sb.AppendLine($"      当前 {(rot.propertyName ?? "_Rotation") + i}={mpb.GetVector(rid)}");
+                }
+            }
+            return;
+        }
+
+        var tw6 = b as ArkFxUVTweenV6;
+        if (tw6 != null)
+        {
+            sb.AppendLine($"      mainSpeed={tw6.mainSpeed} protectMainUV={tw6.protectMainUV} keepInitOffset={tw6.keepInitOffset}");
+            sb.AppendLine($"      useSecondMap={tw6.useSecondMap} secondMapName={tw6.secondMapName} secondSpeed={tw6.secondSpeed} protectSecondUV={tw6.protectSecondUV}");
+            DumpLiveST(sb, owner, tw6.secondMapName);
+            return;
+        }
+
+        var adv = b as ArkFxUVTweenAdvanceV6;
+        if (adv != null)
+        {
+            sb.AppendLine($"      mainSpeed={adv.mainSpeed} tweenRepeat={adv.tweenRepeat} tweenAnmTime={adv.tweenAnmTime:F2} keepInitOffset={adv.keepInitOffset}");
+            sb.AppendLine($"      useSecondMap={adv.useSecondMap} secondMapName={adv.secondMapName} secondSpeed={adv.secondSpeed} extraMaps={adv.extraMaps?.Count ?? 0}");
+            DumpLiveST(sb, owner, adv.secondMapName);
+            return;
+        }
+
+    }
+
+    /// <summary>打印材质上「当前实际生效」的 ST（mainTextureOffset 与第二贴图 _ST 向量）</summary>
+    static void DumpLiveST(StringBuilder sb, Transform owner, string secondMapName)
+    {
+        var r = owner.GetComponent<Renderer>();
+        if (r == null) return;
+        var mat = r.sharedMaterial;
+        if (mat == null) { sb.AppendLine("      材质为 null，无法读取 ST"); return; }
+        var off = mat.mainTextureOffset;
+        var scale = mat.mainTextureScale;
+        sb.AppendLine($"      当前 _MainTex_ST: offset=({off.x:F4},{off.y:F4}) scale=({scale.x:F2},{scale.y:F2})");
+        if (!string.IsNullOrEmpty(secondMapName) && mat.HasProperty(secondMapName + "_ST"))
+            sb.AppendLine($"      当前 {secondMapName}_ST={mat.GetVector(secondMapName + "_ST")}");
     }
 
     static void DumpMaterial(StringBuilder sb, int idx, Material m)

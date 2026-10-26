@@ -553,9 +553,14 @@ public static class ArkFxLoader
             foreach (var c in t.gameObject.GetComponents<Component>())
                 if (c == null) { hasMissing = true; break; } // null 占位 = Missing Script
             if (!hasMissing) continue;
-            if (t.GetComponent<Renderer>() != null
-                && t.GetComponent<ArkFxUVTween>() == null
-                && t.GetComponent<ArkFxScriptStub>() == null)
+            if (t.GetComponent<Renderer>() == null) continue;
+            // 幂等：任何 ArkFx 替身组件存在就跳过，否则每次 Kick（含对象池复用）
+            // 都会重复 AddComponent，导致 UV 速度按次叠加
+            if (t.GetComponent<ArkFxUVTween>() != null) continue;
+            if (t.GetComponent<ArkFxUVTweenV6>() != null) continue;
+            if (t.GetComponent<ArkFxUVTweenAdvanceV6>() != null) continue;
+            if (t.GetComponent<ArkFxUVRotation>() != null) continue;
+            if (t.GetComponent<ArkFxScriptStub>() != null) continue;
             {
                 // 无参数兜底：用 sfsui 系列逆出的典型值，别留 0（0 = 完全不动）
                 if (UseV6)
