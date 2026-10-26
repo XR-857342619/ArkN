@@ -43,7 +43,9 @@ public class EffectManager : MonoBehaviour
         bool fromAb = false;
         if (!effectPrefabs.TryGetValue(id, out var prefab) || prefab == null)
         {
-            var go = ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + config.Prefab);
+            var go = ArkFxLoader.ForceAbSource
+                ? null
+                : ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + config.Prefab);
             if (go == null)
             {
                 // AB 特效兜底：工程内没有该 prefab 时，从 arkfx 运行时包加载并补挂驱动组件

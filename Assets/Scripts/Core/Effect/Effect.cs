@@ -33,6 +33,9 @@ public class Effect : MonoBehaviour
     public void ResetEffect()
     {
         StopAllCoroutines();
+        // 通知 ArkFx 生命周期宿主：回池了，下次 Play 要重新走一遍 OnPlay
+        var fxHost = GetComponent<ArkFxEffectHost>();
+        if (fxHost != null) fxHost.Recycle();
         IsHide = false;
         Parent = null;
         _bullet = null;

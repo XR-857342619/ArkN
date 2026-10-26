@@ -57,7 +57,9 @@ public static class ArkFxLoader
         }
 
         _loaded = true;
-        Debug.Log($"[ArkFxLoader] 已加载 {_bundles.Count} 个包 | abDir={abDir} | 目录存在={Directory.Exists(abDir)} | .ab 总数={all.Length}");
+        LoadParams();   // 提前加载：让启动日志就能确认 fxparams.json 是否可用
+        Debug.Log($"[ArkFxLoader] 已加载 {_bundles.Count} 个包 | abDir={abDir} | 目录存在={Directory.Exists(abDir)}"
+                  + $" | .ab 总数={all.Length} | fxparams={(_params == null ? "未加载" : _params.Count + " 个 prefab")}");
     }
 
     static void Register(string f)
@@ -157,6 +159,10 @@ public static class ArkFxLoader
         public int tweenRepeat;
         public float tweenAnmTime;
         public FxExtraMap[] extras;
+        // —— FxUVRotation 专用（fxparams.json 里没有时保持默认值）——
+        public string rotPropertyName;
+        public bool rotateTex1, rotateTex2, rotateTex3, rotateTex4;
+        public float angle1, angle2, angle3, angle4;
         public string raw;
     }
 
@@ -177,9 +183,17 @@ public static class ArkFxLoader
         try
         {
             var p = Path.Combine(AbDir, "fxparams.json");
-            if (!File.Exists(p)) return;
+            if (!File.Exists(p))
+            {
+                Debug.LogWarning("[ArkFxLoader] 未找到 fxparams.json（UV 参数只能用兜底值）: " + p);
+                return;
+            }
             var doc = JsonUtility.FromJson<FxParamFile>(File.ReadAllText(p));
-            if (doc?.prefabs == null) return;
+            if (doc?.prefabs == null)
+            {
+                Debug.LogWarning("[ArkFxLoader] fxparams.json 内容为空或 prefabs 字段缺失: " + p);
+                return;
+            }
             _params = new Dictionary<string, FxParamEntry[]>(doc.prefabs.Length);
             foreach (var pf in doc.prefabs)
                 if (!string.IsNullOrEmpty(pf?.prefab))
@@ -196,6 +210,48 @@ public static class ArkFxLoader
     public static float Brightness = 1f;
 
     /// <summary>
+    /// 是否使用 IDA 实证版（v6）的 UV 替身组件。
+    /// true  = ArkFxUVTweenV6 / ArkFxUVTweenAdvanceV6 / ArkFxUVRotation（推荐）
+    /// false = 旧版 ArkFxUVTween（v5，_UVTween 理论，仅用于 A/B 对比与回滚）
+    /// </summary>
+    // ---- 验收开关：用 PlayerPrefs 持久化，避免"重新进 Play 就失效" ----
+    const string PrefUseV6 = "ArkFx.UseV6";
+    const string PrefForceAb = "ArkFx.ForceAbSource";
+
+    static bool _useV6 = true;
+    static bool _forceAbSource;
+
+    /// <summary>
+    /// 是否使用 IDA 实证版（v6）的 UV 替身组件。
+    /// true  = ArkFxUVTweenV6 / ArkFxUVTweenAdvanceV6 / ArkFxUVRotation（推荐）
+    /// false = 旧版 ArkFxUVTween（v5，_UVTween 理论，仅用于 A/B 对比与回滚）
+    /// </summary>
+    public static bool UseV6
+    {
+        get { return _useV6; }
+        set { _useV6 = value; PlayerPrefs.SetInt(PrefUseV6, value ? 1 : 0); PlayerPrefs.Save(); }
+    }
+
+    /// <summary>
+    /// 强制走 AB 特效（跳过工程内 Assets/Bundles/Effect 的同名 prefab）。
+    /// 验收用：工程内已有 414 个同名 prefab，默认情况下 AB 分支永远不会被命中。
+    /// 编辑器菜单 Tools/ArkFx/0 可切换；值存在 PlayerPrefs 里，重进 Play 仍然有效。
+    /// </summary>
+    public static bool ForceAbSource
+    {
+        get { return _forceAbSource; }
+        set { _forceAbSource = value; PlayerPrefs.SetInt(PrefForceAb, value ? 1 : 0); PlayerPrefs.Save(); }
+    }
+
+    /// <summary>最早时机恢复验收开关（SubsystemRegistration 早于 ArkFxBootstrap 的 BeforeSceneLoad）。</summary>
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void RestoreDebugSwitches()
+    {
+        _useV6 = PlayerPrefs.GetInt(PrefUseV6, 1) != 0;
+        _forceAbSource = PlayerPrefs.GetInt(PrefForceAb, 0) != 0;
+    }
+
+    /// <summary>
     /// 游戏特效机的替身：实例化后把所有粒子和动画"踢起来"。
     /// 方舟 prefab 内的驱动脚本（Missing Script）在裸 Instantiate 下不会运行，
     /// 只有 playOnAwake 的粒子会播；playOnAwake=false 的子系统和
@@ -206,9 +262,18 @@ public static class ArkFxLoader
         if (fx == null) return;
         ApplyFxParams(fx, prefabName);
 
-        foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
+        // 生命周期骨架：挂宿主并统一驱动（粒子播放、行为组件 OnPlay、结束判定都在宿主里）
+        var host = ArkFxEffectHost.Ensure(fx);
+        if (host != null)
         {
-            if (ps != null && !ps.isPlaying) ps.Play(true);
+            host.Refresh();
+            host.Play();
+        }
+        else
+        {
+            // 兜底：宿主创建失败时仍保证粒子能播
+            foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
+                if (ps != null && !ps.isPlaying) ps.Play(true);
         }
         ApplyBrightness(fx);
         foreach (var anim in fx.GetComponentsInChildren<Animator>(true))
@@ -271,6 +336,8 @@ public static class ArkFxLoader
         }
 
         BakePrefab(prefab, prefabName);
+        if (ForceAbSource)
+            Debug.Log($"[ArkFx] 命中 AB 特效: {prefabName}（来源包 {prefab.name}）");
         return prefab;
     }
 
@@ -298,11 +365,101 @@ public static class ArkFxLoader
         ApplyFxParams(prefab, prefabName);
         ApplyMissingScriptFallback(prefab);
         ApplyBrightness(prefab);
+        ArkFxEffectHost.Ensure(prefab);
         if (prefab.GetComponent<ArkFxScriptStub>() == null)
         {
             var marker = prefab.AddComponent<ArkFxScriptStub>();
             marker.className = "_baked";
         }
+    }
+
+    // ================= 原版脚本替身的挂载（v5 / v6 双轨） =================
+
+    /// <summary>挂 IDA 实证版 UV 滚动（FxUVTweener / FxUVTweenerAdvance）。</summary>
+    static void AttachTweenV6(GameObject go, FxParamEntry e)
+    {
+        bool isAdvance = e.cls == "FxUVTweenerAdvance";
+        if (isAdvance)
+        {
+            var tw = go.GetComponent<ArkFxUVTweenAdvanceV6>();
+            if (tw == null) tw = go.AddComponent<ArkFxUVTweenAdvanceV6>();
+            tw.keepInitOffset = e.keepInitOffset;
+            tw.useSharedMaterial = e.useSharedMaterial;
+            tw.mainSpeed = new Vector2(e.xspeed, e.yspeed);
+            tw.useSecondMap = e.useSecondMap;
+            tw.secondMapName = string.IsNullOrEmpty(e.secondMapName) ? "_DisturTex" : e.secondMapName;
+            tw.secondSpeed = new Vector2(e.secondXSpeed, e.secondYSpeed);
+            tw.tweenAnmTime = e.tweenAnmTime;
+            tw.tweenRepeat = e.tweenRepeat != 0;      // 原版 tweenRepeat 是 bool
+            if (e.extras != null)
+            {
+                tw.extraMaps = new List<ArkFxUVTweenAdvanceV6.MapSetting>(e.extras.Length);
+                foreach (var m in e.extras)
+                    if (m != null && !string.IsNullOrEmpty(m.mapName))
+                        tw.extraMaps.Add(new ArkFxUVTweenAdvanceV6.MapSetting {
+                            enabled = true,
+                            mapName = m.mapName,
+                            speed = new Vector2(m.xSpeed, m.ySpeed),
+                            st = new Vector4(m.sx, m.sy, m.ox, m.oy)
+                        });
+            }
+        }
+        else
+        {
+            var tw = go.GetComponent<ArkFxUVTweenV6>();
+            if (tw == null) tw = go.AddComponent<ArkFxUVTweenV6>();
+            tw.keepInitOffset = e.keepInitOffset;
+            tw.useSharedMaterial = e.useSharedMaterial;
+            tw.protectMainUV = e.protectMainUV;
+            tw.mainSpeed = new Vector2(e.xspeed, e.yspeed);
+            tw.useSecondMap = e.useSecondMap;
+            tw.protectSecondUV = e.protectSecondUV;
+            tw.secondMapName = string.IsNullOrEmpty(e.secondMapName) ? "_DisturTex" : e.secondMapName;
+            tw.secondSpeed = new Vector2(e.secondXSpeed, e.secondYSpeed);
+        }
+    }
+
+    /// <summary>挂旧版 UV 滚动（仅 A/B 对比与回滚用，语义已被证伪）。</summary>
+    static void AttachTweenV5(GameObject go, FxParamEntry e)
+    {
+        var tw = go.GetComponent<ArkFxUVTween>();
+        if (tw == null) tw = go.AddComponent<ArkFxUVTween>();
+        tw.keepInitOffset = e.keepInitOffset;
+        tw.useSharedMaterial = e.useSharedMaterial;
+        tw.protectMainUV = e.protectMainUV;
+        tw.mainSpeed = new Vector2(e.xspeed, e.yspeed);
+        tw.useSecondMap = e.useSecondMap;
+        tw.protectSecondUV = e.protectSecondUV;
+        tw.secondMapName = string.IsNullOrEmpty(e.secondMapName) ? "_DisturTex" : e.secondMapName;
+        tw.secondSpeed = new Vector2(e.secondXSpeed, e.secondYSpeed);
+        tw.duration = e.cls == "FxUVTweenerAdvance" ? e.tweenAnmTime : 0f;
+        if (e.extras != null)
+        {
+            tw.extras = new List<ArkFxUVTween.ExtraMap>(e.extras.Length);
+            foreach (var m in e.extras)
+                if (m != null && !string.IsNullOrEmpty(m.mapName))
+                    tw.extras.Add(new ArkFxUVTween.ExtraMap {
+                        mapName = m.mapName,
+                        speed = new Vector2(m.xSpeed, m.ySpeed),
+                        st = new Vector4(m.sx, m.sy, m.ox, m.oy)
+                    });
+        }
+    }
+
+    /// <summary>挂 UV 旋转替身（FxUVRotation）。</summary>
+    static void AttachRotation(GameObject go, FxParamEntry e)
+    {
+        var rot = go.GetComponent<ArkFxUVRotation>();
+        if (rot == null) rot = go.AddComponent<ArkFxUVRotation>();
+        rot.propertyName = string.IsNullOrEmpty(e.rotPropertyName) ? "_Rotation" : e.rotPropertyName;
+        rot.rotateTex1 = e.rotateTex1;
+        rot.rotateTex2 = e.rotateTex2;
+        rot.rotateTex3 = e.rotateTex3;
+        rot.rotateTex4 = e.rotateTex4;
+        rot.angle1 = e.angle1;
+        rot.angle2 = e.angle2;
+        rot.angle3 = e.angle3;
+        rot.angle4 = e.angle4;
     }
 
     /// <summary>按 fxparams.json 把原版缺脚本组件还原到各节点（幂等：已有组件不重复加）</summary>
@@ -328,28 +485,12 @@ public static class ArkFxLoader
 
             if (e.cls == "FxUVTweener" || e.cls == "FxUVTweenerAdvance")
             {
-                var tw = node.gameObject.GetComponent<ArkFxUVTween>();
-                if (tw == null) tw = node.gameObject.AddComponent<ArkFxUVTween>();
-                tw.keepInitOffset = e.keepInitOffset;
-                tw.useSharedMaterial = e.useSharedMaterial;
-                tw.protectMainUV = e.protectMainUV;
-                tw.mainSpeed = new Vector2(e.xspeed, e.yspeed);
-                tw.useSecondMap = e.useSecondMap;
-                tw.protectSecondUV = e.protectSecondUV;
-                tw.secondMapName = string.IsNullOrEmpty(e.secondMapName) ? "_DisturTex" : e.secondMapName;
-                tw.secondSpeed = new Vector2(e.secondXSpeed, e.secondYSpeed);
-                tw.duration = e.cls == "FxUVTweenerAdvance" ? e.tweenAnmTime : 0f;
-                if (e.extras != null)
-                {
-                    tw.extras = new List<ArkFxUVTween.ExtraMap>(e.extras.Length);
-                    foreach (var m in e.extras)
-                        if (m != null && !string.IsNullOrEmpty(m.mapName))
-                            tw.extras.Add(new ArkFxUVTween.ExtraMap {
-                                mapName = m.mapName,
-                                speed = new Vector2(m.xSpeed, m.ySpeed),
-                                st = new Vector4(m.sx, m.sy, m.ox, m.oy)
-                            });
-                }
+                if (UseV6) AttachTweenV6(node.gameObject, e);
+                else AttachTweenV5(node.gameObject, e);
+            }
+            else if (e.cls == "FxUVRotation")
+            {
+                AttachRotation(node.gameObject, e);
             }
             else if (node.gameObject.GetComponent<ArkFxScriptStub>() == null)
             {
@@ -417,8 +558,16 @@ public static class ArkFxLoader
                 && t.GetComponent<ArkFxScriptStub>() == null)
             {
                 // 无参数兜底：用 sfsui 系列逆出的典型值，别留 0（0 = 完全不动）
-                var tw = t.gameObject.AddComponent<ArkFxUVTween>();
-                tw.mainSpeed = new Vector2(0f, -0.25f);
+                if (UseV6)
+                {
+                    var tw6 = t.gameObject.AddComponent<ArkFxUVTweenV6>();
+                    tw6.mainSpeed = new Vector2(0f, -0.25f);
+                }
+                else
+                {
+                    var tw = t.gameObject.AddComponent<ArkFxUVTween>();
+                    tw.mainSpeed = new Vector2(0f, -0.25f);
+                }
             }
         }
     }

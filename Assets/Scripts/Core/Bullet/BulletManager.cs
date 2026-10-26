@@ -20,7 +20,9 @@ public class BulletManager
         bool fromAb = false;
         if (!bulletPrefabs.TryGetValue(model, out var prefab) || prefab == null)
         {
-            var go = ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + model);
+            var go = ArkFxLoader.ForceAbSource
+                ? null
+                : ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + model);
             prefab = go != null ? go.GetComponent<BulletModel>() : null;
             if (prefab == null)
             {
@@ -59,7 +61,9 @@ public class BulletManager
     {
         if (!linePrefabs.TryGetValue(model, out var prefab) || prefab == null)
         {
-            var go = ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + model);
+            var go = ArkFxLoader.ForceAbSource
+                ? null
+                : ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + model);
             prefab = go != null ? go.GetComponent<PullLineModel>() : null;
             if (prefab == null)
             {

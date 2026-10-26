@@ -1,5 +1,6 @@
 using FairyGUI;
 using FairyGUI.Utils;
+using Newtonsoft.Json.Linq;
 using Spine.Unity;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,7 +21,16 @@ namespace DIY
         public bool isNew = false;
         public bool isOp = false;
         public List<string> unitList = new List<string>();
-        public string folderPath = UnityEngine.Application.streamingAssetsPath + "/Excel/";
+
+        /// <summary>StreamingAssets/Data 下的配置根目录。</summary>
+        public string dataRootPath = UnityEngine.Application.streamingAssetsPath + "/Data";
+        /// <summary>当前选中的配置文件完整路径。</summary>
+        public string jsonFilePath = "";
+        /// <summary>当前配置文件解析出的全部 UnitData。</summary>
+        public List<UnitData> currentUnitDatas = new List<UnitData>();
+        /// <summary>Id -> UnitData，供下拉框选中后直接使用，不依赖 Database。</summary>
+        public Dictionary<string, UnitData> unitDataById = new Dictionary<string, UnitData>();
+
         public List<string> folderList = new List<string>();
         public string folder = "";
 
@@ -42,19 +52,12 @@ namespace DIY
         };
         public IReadOnlyList<string> spineList => SpineResourceManager.Instance.AllSpineKeys.AsReadOnly();
 
-        public string excelPath = "";
         public string model = "";
         public int attributeIndex = 0;
         List<Dictionary<(int, int), GLabel>> changeList = new List<Dictionary<(int row, int col), GLabel>>();
 
         partial void Init()
         {
-#if !UNITY_ANDROID
-            //unitList = ExcelHelper.GetUnitList();
-            ExcelHelper.ExportClass(new List<string>() { UnityEngine.Application.streamingAssetsPath + "/Excel/Main/battle.xlsx" });
-            List<string> folderpaths = Directory.GetDirectories(folderPath).ToList();
-            folderList = Database.Instance.GetExcelPathNames(folderpaths);
-#endif
             GameObject spineGo = ResHelper.Instantiate("Assets/Bundles/Units/char_002_amiya");
             spineGo.transform.localPosition = new Vector3(280, -340, 100);
             spineGo.transform.localRotation = Quaternion.Euler(-60, 0, 0);
@@ -86,54 +89,26 @@ namespace DIY
                 //if (isNew)
                 freshChengeList2New();
             });
-            m_folders.items = folderList.ToArray();
             m_folders.onChanged.Add(() =>
             {
-                folder = folderList[m_folders.selectedIndex];
-                freshExcel(folder);
-            });
-            m_excels.onChanged.Add(() =>
-            {
-#if UNITY_EDITOR
-                excelPath = PathHelper.ExcelResPath + "/Excel/" + folder + "/" + m_excels.items[m_excels.selectedIndex];
-#else
-                excelPath = UnityEngine.Application.streamingAssetsPath + "/Excel/" + folder + "/" + m_excels.items[m_excels.selectedIndex];
-#endif
+                if (m_folders.items == null || m_folders.items.Length == 0)
+                    return;
 
-                unitInfos = ExcelHelper.GetUnitList(excelPath);
-
-                lastRow = unitInfos.Values.Last() + 1;
-                searchItem();
-                foreach (var i in unitInfos.Keys)
-                {
-                    unitIndexs[i.Item1] = unitInfos[i];
-                }
+                int index = Mathf.Clamp(m_folders.selectedIndex, 0, folderList.Count - 1);
+                folder = folderList[index];
+                freshJsonFiles(folder);
             });
+            m_jsonFiles.onChanged.Add(OnJsonFileChanged);
             m_unitNameInput.onChanged.Add(searchItem);
-            //Debug.Log(attributeDic.Keys.ToList()[0]);
-            //m_selectUnitAttribute.items = attributeDic["UnitData"].ToArray();
-            m_unitType.onChanged.Add(() => {
-                searchItem();
+            m_unitType.onChanged.Add(() =>
+            {
+                isOp = m_unitType.selectedPage == "opreator";
                 freshAttribute();
-                m_mode.alpha = 1;
-                m_HP.m_text.text = "";
-                m_Def.m_text.text = "";
-                m_MicDef.m_text.text = "";
-                m_Atk.m_text.text = "";
-                m_Cost.m_text.text = "";
-                m_OpStopCount.m_text.text = "";
-                m_EnStopCount.m_text.text = "";
-                m_OpAtkGap.m_text.text = "";
-                m_EnAtkGap.m_text.text = "";
-                m_ResetTime.m_text.text = "";
-                m_Weight.m_text.text = "";
-                m_NotUseTile.m_bool.selected = false;
-                if (m_unitType.selectedPage == "opreator")
-                    isOp = true;
-                else
-                    isOp = false;
-                //m_selectUnitAttribute.items = attributeNames[m_unitType.selectedIndex];
+                searchItem();
             });
+
+            // 初始化 StreamingAssets/Data 下的配置文件夹与 JSON 文件列表
+            RefreshFolderList();
             m_isNewBtn.onChanged.Add(() =>
             {
                 isNew = m_isNewBtn.selected;
@@ -147,41 +122,7 @@ namespace DIY
                 //m_mode.alpha = 0;
             });
 #if !UNITY_ANDROID
-            m_selectUnitCombobox.onChanged.Add(() =>
-            {
-                //if (isNew)
-                m_mode.alpha = 1;
-                m_unitName.m_text.text = m_selectUnitCombobox.items[m_selectUnitCombobox.selectedIndex].Split("/")[0];
-                //if (m_unitType.selectedIndex != 0)
-                //{
-                int index = Database.Instance.GetIndex<UnitData>(m_selectUnitCombobox.items[m_selectUnitCombobox.selectedIndex].Split("/")[1]);
-                selectUnit = Database.Instance.Get<UnitData>(index);
-                string model = selectUnit.Model;
-                string icon = selectUnit.HeadIcon;
-                
-                GameObject modelGo;
-                loadModel(model, out modelGo);
-
-                m_modeName.m_text.text = model;
-                m_mode.alpha = 0;
-                if (m_unitType.selectedIndex != 0)
-                    m_unitIcon.url = "ui://Res/" + icon;
-                else
-                    m_unitIcon.url = "ui://Res/头像_装置_障碍物";
-                //}
-                m_HP.m_text.text = selectUnit.Hp.ToString();
-                m_Def.m_text.text = selectUnit.Defence.ToString();
-                m_MicDef.m_text.text = selectUnit.MagicDefence.ToString();
-                m_Atk.m_text.text = selectUnit.Attack.ToString();
-                m_Cost.m_text.text = selectUnit.Cost.ToString();
-                m_OpStopCount.m_text.text = selectUnit.StopCount.ToString();
-                m_EnStopCount.m_text.text = selectUnit.StopCount.ToString();
-                m_OpAtkGap.m_text.text = selectUnit.AttackGap.ToString();
-                m_EnAtkGap.m_text.text = selectUnit.AttackGap.ToString();
-                m_ResetTime.m_text.text = selectUnit.ResetTime.ToString();
-                m_Weight.m_text.text = selectUnit.Weight.ToString();
-                m_NotUseTile.m_bool.selected = selectUnit.NotUseTile;
-            });
+            m_selectUnitCombobox.onChanged.Add(OnSelectedUnitChanged);
             //freshAttribute();
             m_newUnitAttribute.onClick.Add(addAttribute);
 
@@ -193,72 +134,7 @@ namespace DIY
             //SpineResourceManager.Instance.LoadAllSpineResources();
 #endif
         }
-        #if !UNITY_ANDROID
-        private void freshExcel(string folder)
-        {
-            m_excels.items = new string[0];
-            string path = folderPath + $"/{folder}/";
-            List<string> names = Directory.GetFiles(path).ToList().Select(x => Path.GetFileName(x)).ToList();
-            List<string> todel = new List<string>();
-            foreach (string name in names)
-            {
-                if (name.StartsWith("~$") || name.EndsWith(".meta"))
-                    todel.Add(name);
-            }
-            names.RemoveAll(x => todel.Contains(x));
-            if (names.Count == 0)
-                m_tip.text = $"{m_tip.text}\n{folder}下没有Excel文件";
-            m_excels.items = names.ToArray();
-            //excelPath = UnityEngine.Application.streamingAssetsPath + "/Excel/" + folder + "/" + names[0];
-#if UNITY_EDITOR
-                excelPath = PathHelper.ExcelResPath + "/Excel/" + folder + "/" + names[0];
-#else
-            excelPath = UnityEngine.Application.streamingAssetsPath + "/Excel/" + folder + "/" + names[0];
-#endif
-            //Debug.Log(excelPath);
-            unitInfos.Clear();
 
-            unitInfos = ExcelHelper.GetUnitList(excelPath);
-
-            lastRow = unitInfos.Values.Last() + 1;
-            searchItem();
-            attributes.Clear();
-            //Debug.Log(attributes["UnitData"].ToString());
-            foreach (var i in unitInfos.Keys)
-            {
-                unitIndexs[i.Item1] = unitInfos[i];
-            }
-        }
-#endif
-        private void searchItem()
-        {
-            //if (isNew) return;
-            if (m_excels.items.Length == 0)
-            {
-                m_selectUnitCombobox.items = new string[0];
-                return;
-            }
-            //unitInfos.Values.ToList().Select(x => x.Item2 = unitTypes[m_unitType.selectedIndex])
-            Dictionary<int, string> unitList = new Dictionary<int, string>();
-            //for (int i = 0; i < ExcelHelper.GetExcelRow(excelPath, "UnitData").row - 1; i++)
-            //Debug.Log(ExcelHelper.GetExcelRow(excelPath, "UnitData").row - 1);
-            //Debug.Log(unitInfos.Keys.ToList()[unitInfos.Count - 1]);
-            foreach (var i in unitInfos.Keys)
-            {
-                if (i.Item2 == unitTypes[m_unitType.selectedIndex])
-                    unitList[unitInfos[i]] = i.Item1;
-            }
-            if (m_unitNameInput.text == "")
-            {
-                //Debug.Log(unitInfos.Values.ToList()[0]);
-                m_selectUnitCombobox.items = unitList.Values.ToArray();
-            }
-            else
-            {
-                List<string> result = unitList.Values.ToList().Where(x => x.Contains(m_unitNameInput.text)).ToList();
-                m_selectUnitCombobox.items = result.ToArray();
-            }
-        }
         private void freshIcon()
         {
             var rows = spineList;
@@ -348,19 +224,27 @@ namespace DIY
 #if !UNITY_ANDROID
         private void freshAttribute()
         {
-            attributes = ExcelHelper.GetAttributes(UnityEngine.Application.streamingAssetsPath + "/Excel/temp.xlsx");
-            List<string> tmp = new List<string>();
-            tmp.AddRange(attributes[funPages[pageIndex]].Keys.ToList());
-            foreach (string s in attributeNames[m_unitType.selectedIndex])
-            {
-                tmp.Remove(s);
-            }
-            m_selectUnitAttribute.items = tmp.ToArray();
+            // 属性元数据已与 Excel 解绑，后续从 DiySchema.json 读取。
+            // 在 JSON 属性系统接入前，先清空下拉框，避免继续访问 Excel 模板。
+            attributes.Clear();
+            if (m_selectUnitAttribute != null)
+                m_selectUnitAttribute.items = new string[0];
         }
 
 
         private void addAttribute()
         {
+            if (m_selectUnitAttribute == null ||
+                m_selectUnitAttribute.items == null ||
+                m_selectUnitAttribute.items.Length == 0)
+            {
+                m_tip.text = m_tip.text + "\n属性配置尚未从 DiySchema.json 加载";
+                return;
+            }
+
+            if (m_selectUnitCombobox.items == null || m_selectUnitCombobox.items.Length == 0)
+                return;
+
             string attribute = m_selectUnitAttribute.items[m_selectUnitAttribute.selectedIndex];
             int row = isNew ? lastRow : unitIndexs[m_selectUnitCombobox.items[m_selectUnitCombobox.selectedIndex]];
             int col = attributes[funPages[pageIndex]][attribute];
@@ -380,7 +264,8 @@ namespace DIY
             }
             if (flag)
             {
-                string data = ExcelHelper.GetCellData(excelPath, funPages[pageIndex], change.Keys.ToList()[0]);
+                // 属性值后续从 JSON schema / 选中记录的 JObject 中读取。
+                string data = "";
                 m_addUnitAttribute.AddItemFromPool();
                 bool isBool = attribute.Split(":")[1] == "bool";
                 GLabel obj = m_addUnitAttribute.GetChildAt(m_addUnitAttribute.numItems - 1).asLabel;
@@ -406,75 +291,9 @@ namespace DIY
 
         private void save2Excel(EventContext evt)
         {
-            GButton button = (GButton)evt.sender;
-            string mode = button.GetChild("title").text;
-            bool flag = mode == "保存" ? true : false;
-            string sheetName = funPages[pageIndex];
-            List<(int row, int col, string data)> dataList = new List<(int row, int col, string data)>();
-            int _row = isNew ? lastRow : unitIndexs[m_selectUnitCombobox.items[m_selectUnitCombobox.selectedIndex]];
-            dataList.Add((_row, 11, m_HP.m_text.text));
-            dataList.Add((_row, 15, m_Def.m_text.text));
-            dataList.Add((_row, 17, m_MicDef.m_text.text));
-            dataList.Add((_row, 13, m_Atk.m_text.text));
-            dataList.Add((_row, 19, m_Cost.m_text.text));
-            if (m_OpAtkGap.m_text.text == "")
-                dataList.Add((_row, 26, m_EnAtkGap.m_text.text));
-            else
-                dataList.Add((_row, 26, m_OpAtkGap.m_text.text));
-            if (m_OpStopCount.m_text.text == "")
-                dataList.Add((_row, 41, m_EnStopCount.m_text.text));
-            else
-                dataList.Add((_row, 41, m_OpStopCount.m_text.text));
-            dataList.Add((_row, 22, m_ResetTime.m_text.text));
-            dataList.Add((_row, 27, m_Weight.m_text.text));
-            dataList.Add((_row, 43, m_NotUseTile.m_bool.selected ? "1" : "0"));
-            dataList.Add((_row, 56, m_unitIcon.url.Split("/").Last()));
-            dataList.Add((_row, 6, m_modeName.m_text.text));
-            dataList.Add((_row, 33, m_unitName.m_text.text));
-            if (isOp)
-            {
-                string unitId = ExcelHelper.GetCellData(excelPath, "UnitData", (_row, 1));
-                if (unitId != m_unitName.m_text.text && unitId != "")
-                {
-                    dataList.Add((0, 0, unitId));
-                    m_tip.text = m_tip.text + "\n检测到UnitName变更,已自动同步到CardData";
-                }
-            }
-            //if (isNew)
-            //{
-            //    dataList.Add(());
-            //}
-            foreach (var i in changeList)
-            {
-                (int row, int col) = flag ? i.Keys.ToList()[0] : (4, i.Keys.ToList()[0].Item2);
-               GLabel label = i.Values.ToList()[0];
-               string data = "";
-                if (label.GetController("type").selectedPage == "bool")
-                {
-                    data = label.GetChild("bool").asButton.selected ? "1" : "0";
-                }
-                else
-                {
-                    data = label.GetChild("text").asTextInput.text;
-                }
-                dataList.Add((row, col, data));
-            }
-            if (flag)
-            {
-                m_tip.text = m_tip.text + "\n" + ExcelHelper.ModifyExcel(excelPath, sheetName, dataList,
-                    isNew ? unitIndexs[m_selectUnitCombobox.items[m_selectUnitCombobox.selectedIndex]] : 0,
-                    isOp);
-                lastRow++;
-            }
-            else
-            {
-                string newExcelPath = $"{UnityEngine.Application.streamingAssetsPath}/Excel/{folder}/新单位_{m_unitName.m_text.text}.xlsx";
-                dataList.Add((4, 1, $"新单位_{m_unitName.m_text.text}"));
-                m_tip.text = m_tip.text + "\n另存为ing...";
-                m_tip.text = m_tip.text + "\n" + ExcelHelper.CreatExcel(newExcelPath, sheetName, dataList,
-                    excelPath, unitIndexs[m_selectUnitCombobox.items[m_selectUnitCombobox.selectedIndex]],
-                    isOp);
-            }
+            // 当前读取链路已经切换到 StreamingAssets/Data 下的 JSON/TXT。
+            // 保存链路将在后续步骤迁移到 JSON。
+            m_tip.text = m_tip.text + "\n保存功能尚未迁移到 JSON 数据源";
         }
 
         private void saveAsNewExcel()

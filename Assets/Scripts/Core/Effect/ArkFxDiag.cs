@@ -52,7 +52,7 @@ public static class ArkFxDiag
     static void DumpMaterial(StringBuilder sb, int idx, Material m)
     {
         if (m == null) { sb.AppendLine($"  材质[{idx}]: !! NULL !!"); return; }
-        sb.AppendLine($"  材质[{idx}]: {m.name} | shader={m.shader.name} | queue={m.renderQueue}");
+        sb.AppendLine($"  材质[{idx}]: {m.name} | shader={m.shader.name} | supported={m.shader.isSupported} | queue={m.renderQueue}");
         var sh = m.shader;
         int n = sh.GetPropertyCount();
         for (int i = 0; i < n; i++)

@@ -1,0 +1,466 @@
+{
+ "Torappu.Battle.Effects.ParticleEffect": {
+  "count": 1078,
+  "fields": [
+   "_allowAutoReuse",
+   "_bodyTransofrm",
+   "_delayToFinish",
+   "_delayToPlay",
+   "_disableBattleEffectShrink",
+   "_flipZ",
+   "_heightOffset",
+   "_holdByOwner",
+   "_ignoredByParticleEffectManager",
+   "_inactiveOnFinish",
+   "_isLoop",
+   "_leftIsDefault",
+   "_limitedPlaybackSpeed",
+   "_mainDir",
+   "_maxLifetime",
+   "_overwriteHeight",
+   "_preloadCnt",
+   "_randomPlayDelay",
+   "_rotateType",
+   "_rotationY",
+   "_rotationZ",
+   "_spawnLocation",
+   "_subFXDelayConfigs",
+   "_toggleMeshRendererWhenPause",
+   "_useBodyRotation",
+   "_usePlaybackSpeed"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Fx.FxLODSetting": {
+  "count": 35,
+  "fields": [
+   "_disableObjects",
+   "_particleDetailsHookers"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Fx.FxUVTweener": {
+  "count": 333,
+  "fields": [
+   "keepInitOffset",
+   "protectMainUV",
+   "protectSecondUV",
+   "secondMapName",
+   "secondXSpeed",
+   "secondYSpeed",
+   "useSecondMap",
+   "useSharedMaterial",
+   "xspeed",
+   "yspeed"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "已实现(ArkFxUVTween, 语义部分靠猜)"
+ },
+ "Torappu.Battle.Effects.FollowMountPoint": {
+  "count": 144,
+  "fields": [
+   "_followScale",
+   "_followScaleSign",
+   "_keepOriginRotation",
+   "_mountPointType",
+   "_onlyPauseWhenMountPointInvalid",
+   "_pauseWhenFollowScaleNearlyZero",
+   "_pauseWhenMountPointInvalid",
+   "_scaleMultiplier",
+   "_useBehaviourPause"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.FollowDirection": {
+  "count": 70,
+  "fields": [
+   "_flipWhenFaceToVertical",
+   "_leftIsDefault",
+   "_lerpDuration",
+   "_onlyFollowOnPlay",
+   "_reverseWhenFaceToBack",
+   "_useDirectionLerp",
+   "_useFaceSwitcherFaceLORR",
+   "_useFaceToInsteadOfFaceVector",
+   "_useFourDir",
+   "_useOwnerDirection",
+   "_useOwnerMoveDirection"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Fx.FxDelay": {
+  "count": 145,
+  "fields": [
+   "_delayTime"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.ProjectileEffect": {
+  "count": 98,
+  "fields": [
+   "_allowAutoReuse",
+   "_bodyTransofrm",
+   "_delayToFinish",
+   "_flipIfLeft",
+   "_inactiveOnFinish",
+   "_inactiveOnHit",
+   "_mainDir",
+   "_preloadCnt",
+   "_randomAngle",
+   "_resetMainDir",
+   "_rotate180Y",
+   "_subFXDelayConfigs"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.SetAnimatorFloatByCondition": {
+  "count": 6,
+  "fields": [
+   "_isInt",
+   "_paramName",
+   "_source"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Fx.FxUVRotation": {
+  "count": 111,
+  "fields": [
+   "_angle2",
+   "_angle3",
+   "_angle4",
+   "_propertyName",
+   "_rotateTex1",
+   "_rotateTex2",
+   "_rotateTex3",
+   "_rotateTex4",
+   "angle1"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.OnPlayEmitter": {
+  "count": 40,
+  "fields": [
+   "_clearWhenFinish",
+   "_effects",
+   "_instant",
+   "_keepPauseSync",
+   "_preDelay",
+   "_useFaceVector",
+   "_useSourceEffectPos"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.BuffProgressFloatSource": {
+  "count": 6,
+  "fields": [
+   "_buffKey",
+   "_curve",
+   "_defaultVal",
+   "_finishedVal",
+   "_maxKey",
+   "_progressKey"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.SwitchableRightEffect": {
+  "count": 9,
+  "fields": [
+   "_onlyCheckOnPlay",
+   "_reactivationMode",
+   "_reverseLeftRight",
+   "_rightEffect"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.SwitchableEffectByFaceDirection": {
+  "count": 1,
+  "fields": [
+   "_downEffect",
+   "_leftEffect",
+   "_oneShot",
+   "_upEffect",
+   "_useBehaviourPause",
+   "_useDeployDirection"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.SwitchableBackEffect": {
+  "count": 16,
+  "fields": [
+   "_backEffect",
+   "_createEffectOnStart",
+   "_forceCheckInUpdate",
+   "_oneShot",
+   "_predictFaceDirection",
+   "_predictOnlyWhenDirectionNonBack",
+   "_preserveBackWhenPredictingDirection",
+   "_syncPlayBackSpeed",
+   "_useBehaviourPause"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Fx.FxUVTweenerAdvance": {
+  "count": 72,
+  "fields": [
+   "extraMapSettings",
+   "keepInitOffset",
+   "secondMapName",
+   "secondXSpeed",
+   "secondYSpeed",
+   "tweenAnmTime",
+   "tweenRepeat",
+   "useSecondMap",
+   "useSharedMaterial",
+   "xspeed",
+   "yspeed"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "已实现(ArkFxUVTween, 语义部分靠猜)"
+ },
+ "Torappu.Battle.Effects.FollowOwner": {
+  "count": 12,
+  "fields": [],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.OnFinishEmitter": {
+  "count": 5,
+  "fields": [
+   "_effects",
+   "_useEffectPosition",
+   "_useFaceVector"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.OnPlayEmitterIf": {
+  "count": 2,
+  "fields": [
+   "_buffKey",
+   "_checkType",
+   "_clearWhenFinish",
+   "_effects",
+   "_instant",
+   "_keepPauseSync",
+   "_motionMode",
+   "_playWhenFaceToBack",
+   "_preDelay",
+   "_useFaceVector",
+   "_useSourceEffectPos"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.PauseAnotherEffect": {
+  "count": 2,
+  "fields": [
+   "_checkUpdate",
+   "_effect",
+   "_preDelay"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.PauseEffectIf": {
+  "count": 27,
+  "fields": [
+   "_characterSharedBlackboardKeyList",
+   "_checkAbnormalCombo",
+   "_checkAbnormalFlag",
+   "_checkAbnormalImmune",
+   "_checkCharacterSharedBlackboardKey",
+   "_checkContainBuff",
+   "_checkDisappear",
+   "_checkFaceToBack",
+   "_checkFaceToRight",
+   "_checkNotInAbnormalFlag",
+   "_checkOnPlay",
+   "_checkState",
+   "_checkUnitModeIndex",
+   "_disableMeshRendererWhenPause",
+   "_pauseWhenAbnormalCombo",
+   "_pauseWhenAbnormalFlag",
+   "_pauseWhenAbnormalFlags",
+   "_pauseWhenAbnormalImmune",
+   "_pauseWhenCharState",
+   "_pauseWhenContainBuffKey",
+   "_pauseWhenContainBuffKeyList",
+   "_pauseWhenModeIndexList",
+   "_pauseWhenNotInAbnormalFlag",
+   "_requireAllConditions"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.EmptyEffect": {
+  "count": 14,
+  "fields": [
+   "_allowAutoReuse",
+   "_bodyTransofrm",
+   "_delayToFinish",
+   "_preloadCnt",
+   "_subFXDelayConfigs"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.ColorModifier": {
+  "count": 11,
+  "fields": [
+   "_color",
+   "_pauseIfOwnerDisappear"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.CameraEffect": {
+  "count": 3,
+  "fields": [
+   "_maxLifeTime",
+   "_spawnOffset"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.FlyToPredefinedLocation": {
+  "count": 5,
+  "fields": [
+   "_duration",
+   "_easeType",
+   "_ignorePlayerSide",
+   "_inversStartEnd",
+   "_isIndependentUpdate",
+   "_location"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.SwitchableMultiEffectByBuffStackCnt": {
+  "count": 1,
+  "fields": [
+   "_buffKey",
+   "_effects",
+   "_onlyUpdateOnPlay",
+   "_updateInterval",
+   "_updateOnPlay"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.PauseEffectIfRenderInvisible": {
+  "count": 3,
+  "fields": [
+   "_finishIfInvisible"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.PauseEffectIfDisappeared": {
+  "count": 1,
+  "fields": [],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.FollowOwnerSpineWithCertainHeight": {
+  "count": 1,
+  "fields": [
+   "_offset",
+   "_useOffset",
+   "_useYOffsetWithSpineTiltRate"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.OnPlayAudioPlayer": {
+  "count": 3,
+  "fields": [
+   "_audioSignal",
+   "_delayToEmit",
+   "_followOwnerDirection",
+   "_offset"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.FollowOwnerRootTileHeight": {
+  "count": 1,
+  "fields": [],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.PauseEffectIfRacingEnemy": {
+  "count": 1,
+  "fields": [
+   "_characterSharedBlackboardKeyList",
+   "_checkAbnormalCombo",
+   "_checkAbnormalFlag",
+   "_checkAbnormalImmune",
+   "_checkCharacterSharedBlackboardKey",
+   "_checkContainBuff",
+   "_checkDisappear",
+   "_checkFaceToBack",
+   "_checkFaceToRight",
+   "_checkNotInAbnormalFlag",
+   "_checkOnPlay",
+   "_checkState",
+   "_checkUnitModeIndex",
+   "_compareType",
+   "_disableMeshRendererWhenPause",
+   "_pauseRacingMoveSpeed",
+   "_pauseWhenAbnormalCombo",
+   "_pauseWhenAbnormalFlag",
+   "_pauseWhenAbnormalFlags",
+   "_pauseWhenAbnormalImmune",
+   "_pauseWhenCharState",
+   "_pauseWhenContainBuffKey",
+   "_pauseWhenContainBuffKeyList",
+   "_pauseWhenModeIndexList",
+   "_pauseWhenNotInAbnormalFlag",
+   "_requireAllConditions"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.RandomEmitter": {
+  "count": 3,
+  "fields": [
+   "_count",
+   "_delayPerEffect",
+   "_effect",
+   "_preDelay",
+   "_randomRangeFrom",
+   "_randomRangeTo"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.FollowCamera": {
+  "count": 1,
+  "fields": [],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ },
+ "Torappu.Battle.Effects.SwitchableEffectByModeIndex": {
+  "count": 1,
+  "fields": [
+   "_onlyUpdateOnPlay",
+   "_optionalEffects",
+   "_updateInterval"
+  ],
+  "asm": "Assembly-CSharp.dll",
+  "arkfx_status": "未实现(仅 ArkFxScriptStub 存档)"
+ }
+}
