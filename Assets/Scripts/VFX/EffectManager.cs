@@ -68,12 +68,14 @@ public class EffectManager : MonoBehaviour
 
         var result = pool.Spawn(prefab, Vector3.zero, Quaternion.identity);
         if (result == null) return null;
-        // AB 来源的特效：实例化后踢动效（粒子/动画器）；驱动组件已烘焙进 prefab，克隆自带不会重复
-        if (fromAb) ArkFxLoader.Kick(result.gameObject, config.Prefab);
 
         result.Id = id;
         result.SetLifeTime(config.LifeTime);
+        // 必须先清理池化残留（内部会调 ArkFxEffectHost.Recycle），再 Kick。
+        // 反过来的话，ResetEffect 会把 ArkFxDelay 刚隐藏的根节点重新激活，延迟被抵消。
         result.ResetEffect();
+        // AB 来源的特效：实例化后踢动效（粒子/动画器）；驱动组件已烘焙进 prefab，克隆自带不会重复
+        if (fromAb) ArkFxLoader.Kick(result.gameObject, config.Prefab);
         return result;
     }
 
