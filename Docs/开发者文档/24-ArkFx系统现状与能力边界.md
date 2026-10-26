@@ -117,8 +117,9 @@ EffectManager.GetEffect(id) / BulletManager.Get(model)
 
 | 指标 | 数值 |
 |---|---|
-| 支持的 AB | 101 个（76 主包 + 25 依赖），1193 个 prefab |
-| 有参数驱动的 prefab | 430 个（`fxparams.json`） |
+| 支持的 AB | **621 个（570 主包 + 51 依赖），311 MB** |
+| 包内 prefab 总数 | **14665 个（方舟原版特效全量）** |
+| 有参数驱动的 prefab | **7620 个（`fxparams.json`，13812 条参数）** |
 | 原版脚本类 | 34 种 / 2261 个实例 |
 | **已实现替身** | **8 种 / 711 个实例（31.4%）** |
 | 表内特效命中 | EffectData 343 → 330；BulletData 57 → 52 |
@@ -172,7 +173,7 @@ EffectManager.GetEffect(id) / BulletManager.Get(model)
 | 7 | `ProjectileEffect`（98） | 弹道逻辑已由 `BulletManager` 接管，多半无需实现 |
 | 8 | `FollowDirection`（70） | 朝向跟随，与 `EffectData.ForwordDirection` 部分重叠 |
 | 9 | ~~安卓支持~~ | ✅ **已完成**（拷贝到 persistentDataPath，见 §5.5） |
-| 10 | 全量打包 | `arkfx_merge.py --all` 可把 570 个包全打进来（约 250MB） |
+| 10 | ~~全量打包~~ | ✅ **已完成**（621 包 / 311MB / 14665 prefab，见 §5.6） |
 
 ### 6.4 工程债
 
@@ -245,3 +246,84 @@ Addressables 把读取抽象成 URL 请求，所以天生支持 APK 内路径；
 省掉 77 MB 双份存储，但 `ArkFxLoader.LoadAll` / `LoadPrefabByName` 需要从同步改异步，
 牵动 `EffectManager.GetEffect` / `BulletManager.Get` 的调用链（这两个目前是同步返回 prefab），改造量大。
 若将来存储敏感，再评估。
+
+---
+
+## 5.6 全量打包 + AB 优先加载（2026-10-26）
+
+### 为什么改
+
+只按配置表挑包时有个死结：
+
+> **没有任何途径知道原版有哪些特效名** —— 表里没有的名字不会被 `arkfx_merge.py` 打包，
+> 于是"能用的特效数"永远等于表里已写的数量，不会增长。
+
+所以改成 **「先全量入库，再用表挑选」**：
+
+```
+第 1 步：把所有原版包都打进 arkfx（用 prefab列表.txt 枚举出全部特效名）
+第 2 步：想用哪个，就在 Excel 表里填它的 Prefab 名
+```
+
+> 另一个动机：`Extra catalog` 加载的另一个项目的 AB 包本质上也是在补特效。
+> 如果 ArkFx 的特效足够全，就可以考虑把那个依赖整个砍掉。
+
+### 现状
+
+| 项 | 数值 |
+|---|---|
+| arkfx 包数 | 621（570 主包 + 51 依赖） |
+| 体积 | **311 MB**（StreamingAssets 合计 333 MB） |
+| 包内 prefab | **14665 个** |
+| 有参数驱动 | 7620 个 / 13812 条 |
+| 表当前引用 | 398 个（380 在包内） |
+
+### 新增产物：`prefab列表.txt`
+
+`Assets/StreamingAssets/arkfx/prefab列表.txt` —— **14665 行，一行一个 prefab 名**，可直接 grep：
+```
+absin_attack_01_hit
+absin_attack_01_hit_epoque#28
+aglina_skill_02_start
+...
+```
+另有 `prefab清单.md`（名字 → 所在 ab 包）和 `_manifest.json`（机器可读）。
+
+### 加载优先级改为 AB 优先
+
+```csharp
+EffectManager.GetEffect(id):
+    if (ArkFxLoader.PreferAbSource)          // 默认 true
+        go = ArkFxLoader.LoadPrefabByName(config.Prefab);   // ① 先找原版 AB
+    if (go == null)
+        go = ResHelper.GetAsset<GameObject>(...);            // ② 再回落工程内
+```
+
+`BulletManager.Get` / `GetLine` 同步修改。菜单 0 文案改为「AB优先 ↔ 工程内优先」，
+开关存 PlayerPrefs。
+
+**为什么要索引**：全量 621 个包时，`LoadPrefabByName` 若逐个 `LoadAsset` 扫描会非常慢。
+现在 `LoadAll` 时建一次 `短名 → 包` 索引（`GetAllAssetNames`），查找 O(1)；
+并加了**负缓存**（确认不存在的名字不再全扫）。
+
+### 使用方式：启用任意一个原版特效
+
+```
+1. 打开 Assets/StreamingAssets/arkfx/prefab列表.txt，搜到想要的 prefab 名
+2. 在 Excel 的 EffectData 表加一行：Id=xxx, Prefab=<那个名字>
+3. 导表 → 生成 Data/EffectData/*.txt
+4. 让玩法（SkillData/BuffData）在合适时机调 GetEffect(该 Id)
+```
+
+**不需要重新打包 arkfx**（全量已在库里），也不需要重跑 `dump_fx_params.py`（参数已按 prefab 名全量导出）。
+
+### 代价
+
+| 项 | 数值 |
+|---|---|
+| StreamingAssets | 333 MB（原 94 MB → +239 MB） |
+| APK | +311 MB |
+| 设备存储（安卓拷贝） | 再 +333 MB |
+| 首次启动拷贝（安卓） | 文件数 837，其中 621 个 .ab |
+| 启动时 AB 注册 | 621 次 `LoadFromFile`（只读头，实测可接受） |
+| 内存 | 索引约 14665 个字符串键 |
