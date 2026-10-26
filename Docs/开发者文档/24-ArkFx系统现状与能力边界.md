@@ -109,7 +109,7 @@ EffectManager.GetEffect(id) / BulletManager.Get(model)
 | 项 | 要求 | 说明 |
 |---|---|---|
 | Unity 版本 | **2021.3.39f1** | 素材包用该版本编译 shader；2021.2 下 196 个 shader 只有 2 个可用（全部品红） |
-| 平台 | **仅 PC/Standalone** | 实现用 `Directory.GetFiles` + `AssetBundle.LoadFromFile`，安卓 StreamingAssets 在 APK 内，**整段失效** |
+| 平台 | **PC / Android 均可**（Android 需走 persistentDataPath 拷贝，见 §5.5） | 见 §5.5 |
 | 渲染管线 | Built-in | 方舟 shader 是 Built-in RP 编写 |
 | 图形 API | D3D11 | 包内只有 D3D11 变体 |
 
@@ -171,7 +171,7 @@ EffectManager.GetEffect(id) / BulletManager.Get(model)
 |---|---|---|
 | 7 | `ProjectileEffect`（98） | 弹道逻辑已由 `BulletManager` 接管，多半无需实现 |
 | 8 | `FollowDirection`（70） | 朝向跟随，与 `EffectData.ForwordDirection` 部分重叠 |
-| 9 | 安卓支持 | 需把加载层改成 `UnityWebRequestAssetBundle` 或先拷到 `persistentDataPath` |
+| 9 | ~~安卓支持~~ | ✅ **已完成**（拷贝到 persistentDataPath，见 §5.5） |
 | 10 | 全量打包 | `arkfx_merge.py --all` 可把 570 个包全打进来（约 250MB） |
 
 ### 6.4 工程债
@@ -194,3 +194,54 @@ EffectManager.GetEffect(id) / BulletManager.Get(model)
 | 特效不动 | 看 Diag 里 `[ArkFx]` 段有没有对应组件；`Tools/ArkFx/6` 采样 UV 偏移 |
 | 子特效不出 | Diag 里 `已发射子特效=N`；Console 找 `子特效缺失` |
 | 切回工程内特效 | `Tools/ArkFx/0`（PlayerPrefs 持久化） |
+
+---
+
+## 5.5 Android 适配（2026-10-26 完成）
+
+### 为什么必须特殊处理
+
+| | Addressables（extra catalog） | ArkFx（改造前） |
+|---|---|---|
+| 怎么发现包 | 读 `catalog.json`（`UnityWebRequest.Get`） | `Directory.GetFiles(dir, "*.ab", AllDirectories)` |
+| 怎么加载包 | 本地文件走 `LoadFromFile`；`jar:`/`http` 走 **`UnityWebRequestAssetBundle`** | 直接 `AssetBundle.LoadFromFile(path)` |
+| Android 上的 StreamingAssets | `jar:file:///data/app/…/base.apk!/assets/…`，**是 URI 不是文件系统路径** | ❌ 整段失效 |
+
+**结论：差别不在"包在不在外部"，而在读取 API。**
+Addressables 把读取抽象成 URL 请求，所以天生支持 APK 内路径；ArkFx 用的是纯文件系统 API。
+
+### 采用的方案：首次启动拷贝到 persistentDataPath
+
+工程里已有 `Assets/Scripts/StreamingAssetsCopyUtility.cs`
+（把 `filelist.txt` 列出的文件用 `UnityWebRequest` 从 StreamingAssets 拷到 `PathHelper.AppHotfixResPath`），
+直接复用。
+
+| # | 改动 | 文件 |
+|---|---|---|
+| 1 | `AbDir` 改为 `Path.Combine(PathHelper.AppHotfixResPath, "arkfx")`<br>（桌面端 == StreamingAssets；移动端 == `persistentDataPath/<productName>/`） | `ArkFxLoader.cs` / `ArkFxBootstrap.cs` / `ArkFxSlot.cs` |
+| 2 | 拷贝完成后补一次 `ArkFxLoader.LoadAll(AbDir)`<br>（`ArkFxBootstrap` 跑在 `BeforeSceneLoad`，首启时拷贝还没完成；`LoadAll` 幂等） | `Init.cs` §2.6 |
+| 3 | 完成标记改为**版本化 key**（`FirstLaunchCopyDone_v2`）<br>AB 内容变更时把 `COPY_VERSION` +1 即可强制重拷 | `StreamingAssetsCopyUtility.cs` |
+| 4 | 有文件拷贝失败时**不再标记完成**，下次启动自动重试 | 同上 |
+| 5 | 移动端首启「目录不存在」的 Warning 降级为 Log | `ArkFxBootstrap.cs` |
+
+### 前置条件
+
+`Assets/StreamingAssets/filelist.txt` 必须包含 `arkfx` 下 **全部 101 个 .ab**（外加 `fxparams.json` / `_manifest.json` / `prefab清单.md`）。
+由菜单 **`Tools/生成StreamingAssets文件列表`** 生成（当前 316 条，其中 arkfx 104 条）。
+
+### 代价与约束
+
+| 项 | 数值 / 说明 |
+|---|---|
+| APK 体积 | **+77 MB**（StreamingAssets 会打进包） |
+| 设备存储 | **再 +77 MB**（persistentDataPath 副本），合计双份 |
+| 首次启动 | 101 个 AB 逐个 `UnityWebRequest` 下载写盘，低端机可能数秒~十几秒 |
+| 更新 AB 后 | 必须把 `StreamingAssetsCopyUtility.COPY_VERSION` +1，否则客户端仍用旧副本 |
+| 内存 | 101 个包一次性 `LoadFromFile`（LZ4HC 压缩态映射），实测 PC 正常；低端机需观察 |
+
+### 未采用的方案（记录备查）
+
+**改为 `UnityWebRequestAssetBundle` 直接从 APK 读**：
+省掉 77 MB 双份存储，但 `ArkFxLoader.LoadAll` / `LoadPrefabByName` 需要从同步改异步，
+牵动 `EffectManager.GetEffect` / `BulletManager.Get` 的调用链（这两个目前是同步返回 prefab），改造量大。
+若将来存储敏感，再评估。
