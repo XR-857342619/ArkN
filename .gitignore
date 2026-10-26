@@ -110,3 +110,6 @@ Desktop.ini
 __pycache__/
 *.pyc
 /Docs/开发者文档/arkfx_re
+
+# git bundle 备份文件（防止误提交）
+*.bundle
