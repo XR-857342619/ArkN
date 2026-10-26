@@ -379,3 +379,42 @@ b9df493b2  chore: 升级 Unity 到 2021.3.39f1（版本与包配置）
 变更规模：约 3785 个文件（其中 2937 个 `.mat` 为 serializedVersion 机械变更）。
 
 **回滚点**：`D:\backup\backupzhou-master-20261026.bundle`（升级前的完整历史）
+
+---
+
+## 附录 C · 升级结果确认（2026-10-26）
+
+### 回归结论
+
+> **升级引擎后整个项目没有受到太大影响，各系统运转正常。**
+
+| 验收项 | 结果 |
+|---|---|
+| 编辑器版本 | ✅ 2021.3.39f1（国际版 `fb3b7b32f191`） |
+| 编译 | ✅ 无 error（ArkFx / Astar / FairyGUI / Spine 均通过） |
+| AB 加载 | ✅ 101/101 |
+| Shader | ✅ 196/196 `isSupported` |
+| 游戏内特效 | ✅ 不再品红 |
+| 各系统 | ✅ 运转正常 |
+| extra_catalog.json | ✅ 已重新生成（1.9 MB） |
+
+### 过程中遇到并解决的问题
+
+| 现象 | 性质 | 处理 |
+|---|---|---|
+| 303 条 `Unable to read header from archive file` | 容器格式（UnityPy 写 format 8，2021.2 只认 7） | 已在 `arkfx_merge.py` 用 `write_unityfs()` 手写容器 |
+| 全部特效品红 | shader 由 2021.3 编译，2021.2 `isSupported=false` | 升级引擎（本文档主线） |
+| Spine 扫描报 475 个错位 | **468 个是假阳性**（front/back 同名资产） | 只修真正错的 5 个，见附录 A |
+| `extra_catalog.json` 加载失败 | 删 `Library` 时把自定义合并产物删掉了 | 重跑 `Tools/generate_extra_catalog.ps1` |
+| `The referenced script ... is missing` | AB prefab 携带的原版 Torappu 脚本 | **预期行为**，ArkFx 用 `ArkFxScriptStub`/替身组件处理 |
+| `Missing built-in guistyle ToolbarSeach*` | 编辑器 UI 皮肤噪音 | 忽略，打包后无 |
+
+### ⚠️ 新增到发布流程的硬性步骤
+
+```
+1. 构建 Addressables（Build → New Build）
+2. 立刻执行 Tools/generate_extra_catalog.ps1   ← 否则 extra_catalog.json 与主 catalog 不匹配
+3. 进 Play 验证 Console 出现 [Init] Extra catalog loaded
+```
+
+因为 `Library/com.unity.addressables/aa/Windows/` 是**可再生产物**，任何一次清 Library / 重建 Addressables 都会让 `extra_catalog.json` 失效。
