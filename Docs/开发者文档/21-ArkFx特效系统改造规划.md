@@ -404,3 +404,73 @@ Assets/Scripts/Core/Effect/
 - ✅ **P2**（FxDelay 逻辑完整，5 行代码）
 - ✅ **P3**（Emitters 需要打包脚本先支持递归展开）
 - ⚠️ **P4/P5** 需要先做一次 Spine 骨骼顺序校验（半天）
+
+---
+
+## 11. P4 结论（2026-10-26）：❌ 取消
+
+### 原计划
+用 prefab 自带的 `Torappu.Battle.Effects.FollowMountPoint._mountPointType`
+解析出挂点，从而让 `EffectData` 删掉 `BindPoint` / `BoneFollow` / `ParentFollow`（12 → 6 字段）。
+
+### 实测证伪
+
+**证据 1 —— 不是骨骼数组下标**
+
+`Tools/ArkFx/7` 打印骨架骨骼表后发现，同一个 `_mountPointType=5` 在不同单位指向不同部位：
+
+| 单位 | index 5 |
+|---|---|
+| `char_171_bldsk` | `F_Hip`（胯） |
+| `enemy_1001_bigbo` | `L_Arm`（左臂） |
+| `enemy_1002_nsabr` | `Head`（头） |
+
+**证据 2 —— 也不是固定语义枚举**
+
+把 144 个 `FollowMountPoint` 与 `EffectData.BindPoint` 交叉比对：
+
+```
+type=5 → Weapon / F_Weapon / Muzzle / Head / R_eye / Shield / Weapon2 / gong …（全都出现过）
+type=6 → Muzzle / R_eye / Weapon_B / F_R_Eye …
+```
+
+而真正只依赖 prefab 值（表里没填 `BindPoint`）的 8 个 prefab 中，
+`hsguma_skill_03_buff_02`（技能3 **眼睛**特效）与 `meteo_skill_02_start`（技能2 **抬手**）
+都是 `type=5` —— 连"语义部位"都不成立。
+
+**结论**：`_mountPointType` 是**每单位自定义的挂点编号**，由游戏自己的 animator 包装层
+按单位解释，资产侧无法推导。
+
+### 因此
+
+| 原计划 | 修正 |
+|---|---|
+| 用 `_mountPointType` 替代 `BindPoint` | ❌ 不可行 |
+| `EffectData` 12 → 6 字段 | ❌ **保留 `BindPoint`**（它才是真正的驱动者） |
+| 实现 `ArkFxFollowMountPoint` | ❌ 取消 |
+
+**实际影响面很小**：144 个 `FollowMountPoint` 中，136 个的 `EffectData` 行已填 `BindPoint`。
+剩余 8 个若位置有误，**直接补表即可**（8 行数据，不需要代码）：
+
+```
+buff_frozen / buff_cold / buff_stun / ghost_attack_01_start /
+hsguma_skill_03_buff_02 / liskam_skill_02_start_02 / meteo_skill_02_start / tiger_skill_02_buff
+```
+
+### 保留的成果
+
+- `Tools/ArkFx/7`、`7b` 骨骼索引 dump 工具（对后续排查 Spine 相关问题依然有用）
+- `dump_fx_params.py` 已支持 `FollowMountPoint`（`fxparams.json` → 430 个 prefab / 826 条）
+
+---
+
+## 12. 修正后的剩余路线
+
+| 优先级 | 类别 | 实例数 | 现状与影响 |
+|---|---|---|---|
+| **高** | `SwitchableBackEffect` / `SwitchableRightEffect` / `SwitchableEffectByFaceDirection` | 27 | 左右/背向不切换 → 朝向不对时显示错误的特效 |
+| **高** | `PauseEffectIf*` 家族 | 29 | 暂停条件未实现 → 该停的时候还在播 |
+| 中 | `FxLODSetting` | 35 | 低配降级，非必须 |
+| 中 | `ColorModifier` | 11 | 颜色叠加 |
+| 低 | `ProjectileEffect` | 98 | 弹道逻辑已由 `BulletManager` 接管 |
+| — | `FollowMountPoint` | 144 | **已证伪**，由表驱动替代 |
