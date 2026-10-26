@@ -75,6 +75,14 @@ public static class ArkFxDiag
         if (b == null) return;
         sb.AppendLine($"  [ArkFx] {b.GetType().Name} enabled={b.enabled} playbackSpeed={b.PlaybackSpeed}");
 
+        var delay = b as ArkFxDelay;
+        if (delay != null)
+        {
+            sb.AppendLine($"      delayTime={delay.delayTime:F2}s  waiting={delay.IsBusy}  "
+                        + $"activeSelf={(owner != null ? owner.gameObject.activeSelf.ToString() : "?")}");
+            return;
+        }
+
         var rot = b as ArkFxUVRotation;
         if (rot != null)
         {
