@@ -260,10 +260,7 @@ public class MapManager : MonoBehaviour
                 // 兄弟顺序错位（层序 = 兄弟顺序，多一层则后面全部偏一层）。
                 var kids = data.GetSkinChildren();
                 for (int i = kids.Count - 1; i >= 1 + extras.Count; i--)
-                {
-                    if (Application.isPlaying) Destroy(kids[i]);
-                    else DestroyImmediate(kids[i]);
-                }
+                    GridSkinData.DestroySkinInstance(kids[i]);   // R4：Addressables 实例走 ReleaseInstance
                 if (data.GetSkinChildren().Count == 0)
                 {
                     data.ReapplyFromData();

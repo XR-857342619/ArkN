@@ -16,14 +16,20 @@ public static class JsonHelper
 		//   - 序列化时，等于 default(T) 的字段不会被写入，0 值无法持久化。
 		// 这会破坏 GameData.Bgm = 1 / BgmVolume = 1 这类初始值，因此这里显式覆盖为 Include，
 		// 让字段初始值生效、并让 0 值也能正常存取。
+		// R7：注册 $type 容错 Binder。
+		// - TypeNameHandling.None 时 $type 本就被忽略，注册无副作用（地图存档走这条）；
+		// - TypeNameHandling.Auto 时 $type 会被解析（data.sav 走这条），Binder 负责
+		//   在"类挪了程序集/命名空间、甚至改了名"的情况下仍能还原，避免整份存档读不出来。
 		setting = new JsonSerializerSettings()
 		{
 			DefaultValueHandling = DefaultValueHandling.Include,
+			SerializationBinder = JsonTypeBinder.Instance,
 		};
 		typeSerializerSetting = new JsonSerializerSettings()
 		{
 			TypeNameHandling = TypeNameHandling.Auto,
 			DefaultValueHandling = DefaultValueHandling.Include,
+			SerializationBinder = JsonTypeBinder.Instance,
 		};
 		//JsonSerializerSettings setting = new Newtonsoft.Json.JsonSerializerSettings();
 		//JsonConvert.DefaultSettings = new Func<JsonSerializerSettings>(() =>

@@ -557,7 +557,18 @@ public class Database
             return null;
         }
 
-        result = JsonHelper.FromJson<MapInfo>(str);
+        // R7：解析过程要兜住异常。以前 $type 解析失败/文件被写坏等情况会直接抛 JsonSerializationException，
+        // 一路炸到调用方（表现为"点加载没反应"），这里统一转成一条明确错误 + 返回 null。
+        try
+        {
+            result = JsonHelper.FromJson<MapInfo>(str);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[Database] 地图解析异常：{packageName}/{mapName}\n" +
+                           $"{e.GetType().Name}: {e.Message}");
+            result = null;
+        }
         if (result == null)
         {
             Debug.LogError($"[Database] 地图解析失败：{packageName}/{mapName}");

@@ -68,9 +68,37 @@ public class BattleManager : MonoBehaviour
         Pause = true;
         battleTcs = new TaskCompletionSource<bool>();
         var mapInfo = Database.Instance.GetMap(battleConfig.MapPackage, battleConfig.MapName);
+        // R7：地图解析失败时 GetMap 返回 null（不抛异常），这里必须兜住，否则下面 mapInfo.Scene 直接 NRE
+        if (mapInfo == null)
+        {
+            Debug.LogError($"[BattleManager] 进入战斗失败：地图 {battleConfig.MapPackage}/{battleConfig.MapName} 读取或解析失败");
+            TipManager.Instance.ShowTip("地图数据读取失败，请检查该地图存档");
+            Pause = false;
+            UIManager.Instance.ChangeView<MainUI.UI_Main>(MainUI.UI_Main.URL);
+            return;
+        }
         loadingUI.SetProgress(0.05f, "正在读取地图数据...");
+
+        // === R5：进图前把本图用到的皮肤 prefab 先异步预载完 ===
+        // 之后 MapManager.Build / ApplySkins 里逐格 ResHelper.Instantiate 全部命中缓存，
+        // 不再在主线程上连续阻塞加载（单图最多一百多格皮肤，以前进战斗会明显卡一下）。
+        if (FeatureFlags.SkinBrush)
+        {
+            int skinCount = SkinResourcePreloader.Count(mapInfo);
+            if (skinCount > 0)
+                loadingUI.SetProgress(0.06f, $"正在预载地块皮肤 (0/{skinCount})...");
+            await SkinResourcePreloader.PrepareAsync(mapInfo, (done, total, skinName) =>
+            {
+                if (total <= 0) return;
+                float p = Mathf.Lerp(0.06f, 0.20f, (float)done / total);
+                loadingUI.SetProgress(p, done < total
+                    ? $"正在预载地块皮肤 ({done}/{total})：{skinName}"
+                    : $"地块皮肤预载完成 ({total}/{total})");
+            });
+        }
+
         var sceneName = mapInfo.Scene;
-        loadingUI.SetProgress(0.1f, "正在加载场景...");
+        loadingUI.SetProgress(0.2f, "正在加载场景...");
         if (string.IsNullOrEmpty(sceneName))
         {
             // === 防重复叠加：从造图界面直接进战斗时 MapBuilder 场景已在内存里，
@@ -93,6 +121,8 @@ public class BattleManager : MonoBehaviour
             MapManager.Instance.ApplySkins(mapInfo.GridInfos);
         }
         SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+        // 皮肤已全部实例化完毕：释放预载持有的**资产**引用（实例各自持引用，不会消失）
+        SkinResourcePreloader.ReleaseAll();
         loadingUI.SetProgress(0.25f, "场景加载完成");
         //AudioManager.Instance.PlayBackgroundAudio("battle");
         AudioManager.Instance.PlayBackgroundAudio("已至");

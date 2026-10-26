@@ -35,7 +35,7 @@ public class SkinBrushRuntime : MonoBehaviour
     GComponent view, panel, listComp, listContent;
     GTextField statusText, templateLabel, targetLabel, layerLabel;
     readonly GComponent[] modeBtns = new GComponent[6];
-    GComponent hideBtn, stripBtn;
+    GComponent hideBtn, stripBtn, anchorBtn, autoFitBtn, autoFitXZBtn;
     readonly List<GComponent> listItems = new List<GComponent>();
     GTextInput inFolder;
     GTextInput inOffX, inOffY, inOffZ, inRotX, inRotY, inRotZ, inSclX, inSclY, inSclZ;
@@ -46,6 +46,12 @@ public class SkinBrushRuntime : MonoBehaviour
     int mode = -1;              // -1=停用 0=替换 1=组合 2=特殊替换 3=调整 4=删除 5=初始化
     bool hideOriginal = true;
     bool stripColliders = true;
+    /// <summary>新画笔的锚点语义。默认 TileSurface：皮肤站在格子表面，预设全 0 即正确（见 SkinAnchor）。</summary>
+    SkinAnchor brushAnchor = SkinAnchor.TileSurface;
+    /// <summary>自动贴合：刷完按地块类型对齐包围盒（地面=顶面贴地面块顶面；高台=底面贴地面平面）。</summary>
+    bool autoFit = true;
+    /// <summary>水平纠错：把皮肤包围盒中心对齐到格子中心，纠正素材 prefab 根 transform 非 (0,0,0) 的水平偏移。</summary>
+    bool autoFitXZ = true;
     bool pickSceneTemplate;     // 下一次场景点击 = 取场景模板笔刷
     GameObject sceneTemplate;   // 场景模板笔刷（无资源地址，战斗内不可还原）
     GameObject replaceTarget;   // 特殊替换模式选中的目标
@@ -55,6 +61,11 @@ public class SkinBrushRuntime : MonoBehaviour
     string folder = DefaultFolder;
     int brushIndex;
     readonly HashSet<MapGrid> strokeGrids = new HashSet<MapGrid>();
+
+    // ---- 面板定位（R2）----
+    bool panelPlaced;           // 是否已完成首帧定位（Install 时 view 还没 SetSize/进 GRoot，宽高不可信）
+    bool panelUserMoved;        // 用户手动拖动过 → 不再自动右对齐，只做越界钳制
+    Vector2 lastRootSize;       // 上一次的屏幕尺寸，用于检测分辨率/窗口变化
 
     // ---- 列表滚动 / 缩放 ----
     float listScroll;           // 笔刷列表滚动像素
@@ -81,6 +92,12 @@ public class SkinBrushRuntime : MonoBehaviour
     GameObject previewInstance; // 当前预览的实例（放在远处独立 layer，不干扰地图）
     const float PreviewPos = 5000f;
     const int PreviewLayer = 21;
+    // 预览窗几何：内容区为正方形（与正方形 RenderTexture 一一对应，缩放不变形）
+    const float PreviewW = 300f;
+    const float PreviewContentH = 288f;                                    // 正方形内容区（与正方形 RT 一一对应）
+    const float PreviewContentY = 34f;                                     // 标题占 8..32，内容区从 34 开始
+    const float PreviewH = PreviewContentY + PreviewContentH + 8f;         // = 330
+    const int PreviewRT = 512;
 
     // ---- 撤销栈 ----
     class GridSnapshot
@@ -113,6 +130,13 @@ public class SkinBrushRuntime : MonoBehaviour
     {
         if (panel == null || view == null) return;
 
+        // ---- 面板定位（R2 修复）----
+        // Install 是在 UI_MapBuilder 的构造函数里调用的，那时 view 还没 SetSize(GRoot 尺寸)、
+        // 也还没被 AddChild 到 GRoot，拿到的 width 是包内设计尺寸（1920），
+        // 于是非 1920 宽的窗口下面板会跑到屏幕外/留空。这里改成首帧 + 每次屏幕尺寸变化时重排。
+        var rootSize = new Vector2(GRoot.inst.width, GRoot.inst.height);
+        if (!panelPlaced || rootSize != lastRootSize) PlacePanel();
+
         // T 键显隐（输入框打字时不触发；本版 FairyGUI 的输入显示对象是 InputTextField）
         if (Input.GetKeyDown(KeyCode.T) && !(Stage.inst.focus is InputTextField))
             panel.visible = !panel.visible;
@@ -124,7 +148,7 @@ public class SkinBrushRuntime : MonoBehaviour
         // 面板收起 / 界面不可见 / 未选模式 / 场景未加载：不拦截鼠标
         if (!panel.visible || !view.visible || mode < 0) return;
         if (MapManager.Instance == null) return;
-        if (Stage.isTouchOnUI) return;
+        if (Stage.isTouchOnUI || IsPointerOnBrushUI()) return;
 
         if (Input.GetMouseButtonDown(0)) strokeGrids.Clear();
 
@@ -148,7 +172,7 @@ public class SkinBrushRuntime : MonoBehaviour
         {
             pickSceneTemplate = false;
             sceneTemplate = hitGo;
-            if (templateLabel != null) templateLabel.text = hitGo.name;
+            if (templateLabel != null) templateLabel.text = Ellipsize(hitGo.name, 22);
             SetStatus($"已取场景物体为笔刷模板：{hitGo.name}\n（模板无资源地址，战斗内按存档重建时无法还原）");
             return;
         }
@@ -168,7 +192,7 @@ public class SkinBrushRuntime : MonoBehaviour
                 case 2: // 特殊替换：选中场景物体（格子本体受保护，同编辑器）
                     if (grid != null) { SetStatus("格子本体/白膜不可特殊替换\n（它们是机制载体）；请点场景中的装饰物等自由物体"); return; }
                     replaceTarget = hitGo;
-                    if (targetLabel != null) targetLabel.text = hitGo.name;
+                    if (targetLabel != null) targetLabel.text = Ellipsize(hitGo.name, 18);
                     SetStatus($"已选中目标：{hitGo.name}\n点「替换为笔刷」执行；点「取为笔刷」把它设为模板");
                     break;
                 case 3: // 调整：选中格子
@@ -227,6 +251,8 @@ public class SkinBrushRuntime : MonoBehaviour
         }
         if (hideOriginal) data.HideTileRenderers(); else data.ShowTileRenderers();
         data.ApplySkinTransform();
+        // Y 贴合与 XZ 水平纠错任一开启都要重算（RecomputeAutoFit 内部按各自的 flag 执行）
+        if (autoFit || autoFitXZ) data.RecomputeAutoFit(0);
 
         SetStatus($"已换皮 ({grid.X},{grid.Y})：{NameOf(info.SkinAddress)}");
     }
@@ -257,6 +283,7 @@ public class SkinBrushRuntime : MonoBehaviour
             if (stripColliders) StripColliders(instance);
             data.ConfigureExtra(instance, layer + 1); // 命名/置顶/sortingOrder
             data.ApplySkinTransformAt(layer + 1);
+            if (autoFit || autoFitXZ) data.RecomputeAutoFit(layer + 1);
         }
         SetStatus($"已叠加 ({grid.X},{grid.Y}) 第 {data.ExtraSkins.Count} 层：{NameOf(info.SkinAddress)}");
     }
@@ -319,6 +346,64 @@ public class SkinBrushRuntime : MonoBehaviour
         SetStatus($"已清除全图 {snaps.Count} 格皮肤（可撤销）");
     }
 
+    /// <summary>对选中格子重跑一次自动贴合（地块类型被改过时用它修正）</summary>
+    void DoRefitSelected()
+    {
+        var grid = selectedGrid;
+        if (grid == null) { SetStatus("先用「调整」模式点击一个格子选中，再点重新贴合"); return; }
+        var data = grid.GetComponent<GridSkinData>();
+        if (data == null) { SetStatus($"({grid.X},{grid.Y}) 没有皮肤数据"); return; }
+        PushUndo(Capture(grid));
+        // 以面板当前开关为准重贴（老图层 AutoFitXZ 为 false，不先同步的话按了也没反应）
+        for (int i = 0; i < data.SkinLayerCount; i++)
+        {
+            var info = data.GetSkinInfoAt(i);
+            if (info == null) continue;
+            info.AutoFit = autoFit;
+            info.AutoFitXZ = autoFitXZ;
+        }
+        int n = data.RecomputeAutoFitAll();
+        SetStatus(n > 0
+            ? $"已重新贴合 ({grid.X},{grid.Y}) {n} 层（{(data.IsHighTile ? "高台：底面贴地面平面" : "地面：顶面贴地块顶面")}）"
+            : $"({grid.X},{grid.Y}) 无需调整（未开自动贴合或无渲染体）");
+    }
+
+    /// <summary>诊断：把选中格子各层皮肤的锚点/基准/合成坐标/包围盒/竖直偏差打到状态栏与 Console</summary>
+    void DoDiagnose()
+    {
+        var grid = selectedGrid;
+        if (grid == null) { SetStatus("先用「调整」模式点击一个格子选中，再点诊断"); return; }
+        var data = grid.GetComponent<GridSkinData>();
+        if (data == null) { SetStatus($"({grid.X},{grid.Y}) 没有皮肤数据"); return; }
+
+        var lines = new List<string>();
+        lines.Add($"({grid.X},{grid.Y}) 表面世界Y={data.GetTileSurfaceWorldY():F3}  层数={data.SkinLayerCount}");
+        for (int i = 0; i < data.SkinLayerCount; i++) lines.Add(data.DescribeLayer(i));
+        var text = string.Join(System.Environment.NewLine, lines);
+        Debug.Log("[SkinBrushRT] 皮肤诊断\n" + text);
+        SetStatus(text);
+    }
+
+    static string AnchorName(SkinAnchor a)
+    {
+        switch (a)
+        {
+            case SkinAnchor.TileSurface: return "表面";
+            case SkinAnchor.GridOrigin: return "格子原点";
+            default: return "中心";
+        }
+    }
+
+    static string AnchorHint(SkinAnchor a)
+    {
+        switch (a)
+        {
+            case SkinAnchor.TileSurface: return "皮肤原点对齐格子可视表面（白膜顶面），预设全 0 即贴合";
+            case SkinAnchor.GridOrigin: return "对齐 MapGrid 原点，不含白膜偏移";
+            default: return "对齐白膜几何中心（旧语义，皮肤会下沉约 0.3）";
+        }
+    }
+
     // ---- 特殊替换 ----
 
     void DoReplaceSceneObject()
@@ -344,7 +429,8 @@ public class SkinBrushRuntime : MonoBehaviour
         instance.transform.localPosition = old.transform.localPosition;
         instance.transform.localRotation = old.transform.localRotation;
         instance.transform.localScale = old.transform.localScale;
-        Destroy(old);
+        // 统一销毁入口：目标若是 Addressables 实例（场景里由资源系统生成的装饰物）也能正确释放
+        GridSkinData.DestroySkinInstance(old);
         replaceTarget = null;
         if (targetLabel != null) targetLabel.text = "";
         SetStatus("已特殊替换（此操作不在撤销栈内）");
@@ -368,7 +454,7 @@ public class SkinBrushRuntime : MonoBehaviour
         var data = selectedGrid != null ? selectedGrid.GetComponent<GridSkinData>() : null;
         int count = data != null ? data.SkinLayerCount : 0;
         if (selectedGrid == null || count == 0) layerLabel.text = "（未选中）";
-        else layerLabel.text = $"({selectedGrid.X},{selectedGrid.Y}) 第 {selectedLayer} 层 / 共 {count} 层";
+        else layerLabel.text = $"({selectedGrid.X},{selectedGrid.Y}) 层 {selectedLayer}/{count}";
     }
 
     /// <summary>把预设输入框的值应用到选中层（位置/旋转偏移，缩放 0 视为 1）</summary>
@@ -466,36 +552,46 @@ public class SkinBrushRuntime : MonoBehaviour
         cam.farClipPlane = dist * 20f + 100f;
 
         previewWin.visible = true;
-        previewTitleText.text = $"预览：{CleanName(previewInstance)}";
+        PlacePreviewWindow();
+        previewTitleText.text = "预览：" + Ellipsize(CleanName(previewInstance), 18);
     }
 
     void EnsurePreviewWindow()
     {
         if (previewWin != null) { previewWin.visible = true; return; }
         previewWin = new GComponent();
-        previewWin.SetSize(300, 330);
+        previewWin.SetSize(PreviewW, PreviewH);
         previewWin.draggable = true;
-        AddRect(previewWin, 0, 0, 300, 330,
+        AddRect(previewWin, 0, 0, PreviewW, PreviewH,
             new Color(0.10f, 0.11f, 0.13f, 0.94f), new Color(0.45f, 0.55f, 0.65f, 1f));
-        previewTitleText = MakeText(previewWin, "预览", 8, 8, 250, 14, new Color(0.9f, 0.92f, 0.95f));
+        previewTitleText = MakeText(previewWin, "预览", 8, 8, PreviewW - 8 - 40, 14, new Color(0.9f, 0.92f, 0.95f));
         previewTitleText.textFormat.bold = true;
+        previewTitleText.singleLine = true; // 标题固定单行，超长用省略号（避免换行压到预览图上）
         previewTitleText.text = "预览（窗口1）";
-        MakeButton(previewWin, "×", 300 - 36, 6, 28, 22, () =>
+        MakeButton(previewWin, "×", (int)PreviewW - 36, 6, 28, 22, () =>
         {
             previewWin.visible = false;
             CleanupPreviewInstance();
         });
 
-        previewRT = new RenderTexture(512, 512, 24);
+        previewRT = new RenderTexture(PreviewRT, PreviewRT, 24);
         previewLoader = new GLoader();
         previewWin.AddChild(previewLoader);
-        previewLoader.SetXY(4, 30);
-        previewLoader.SetSize(292, 296);
+        previewLoader.SetXY((PreviewW - PreviewContentH) * 0.5f, PreviewContentY);
+        previewLoader.SetSize(PreviewContentH, PreviewContentH);
+        // GLoader 默认 fill = None：会按贴图原始像素(512×512)绘制且不裁剪，
+        // 于是"预览图比预览窗口大一圈"。这里改为按窗口缩放（RT 与内容区都是正方形，不会变形）。
+        previewLoader.fill = FillType.ScaleFree;
+        previewLoader.align = AlignType.Center;
+        previewLoader.verticalAlign = VertAlignType.Middle;
         previewLoader.texture = new NTexture(previewRT);
 
         view.AddChild(previewWin);
-        // 放在面板左侧（放右侧会整个压在面板上，挡住列表/预设区的点击）
-        previewWin.SetXY(Mathf.Max(0, panel.x - 300 - 8), panel.y);
+        // 兜底裁剪：任何子控件（尤其是标题文本）都不可能画到预览窗之外。
+        // 预览窗与主面板是零间隙贴合的，一旦有内容溢出就会"侵入"主面板。
+        ((Container)previewWin.displayObject).clipRect = new Rect(0f, 0f, PreviewW, PreviewH);
+        // 位置不在这里写死：由 PlacePreviewWindow() 按"面板当前全局矩形"实时计算
+        PlacePreviewWindow();
     }
 
     void EnsurePreviewRig()
@@ -530,6 +626,13 @@ public class SkinBrushRuntime : MonoBehaviour
         t.gameObject.layer = layer;
         for (int i = 0; i < t.childCount; i++)
             SetLayerRecursive(t.GetChild(i), layer);
+    }
+
+    /// <summary>超长文本省略：保留前 max 个字符，尾部用省略号</summary>
+    static string Ellipsize(string s, int max)
+    {
+        if (string.IsNullOrEmpty(s) || max <= 1 || s.Length <= max) return s;
+        return s.Substring(0, max - 1) + "…";
     }
 
     /// <summary>实例显示名：去掉 "(Clone)" 后缀</summary>
@@ -660,6 +763,10 @@ public class SkinBrushRuntime : MonoBehaviour
                 Offset = ReadPresetOffset(),
                 Rotation = new Vector3(ReadFloat(inRotX), ReadFloat(inRotY), ReadFloat(inRotZ)),
                 Scale = ReadPresetScale(),
+                TileHidden = hideOriginal,
+                Anchor = brushAnchor,
+                AutoFit = autoFit,
+                AutoFitXZ = autoFitXZ,
                 BaseLocalPos = st.localPosition,
                 BaseRotation = st.localEulerAngles,
                 BaseScale = st.localScale,
@@ -677,7 +784,7 @@ public class SkinBrushRuntime : MonoBehaviour
         var t = prefab.transform;
         return new SkinInfo
         {
-            SkinAddress = addr,
+            SkinAddress = ToAddressKey(addr),
             SkinName = NameOf(addr),
 #if UNITY_EDITOR
             // 记 GUID：战斗内重建时 GridSkinData.LoadSkinInstance 的编辑器兜底靠它（未注册 Addressables 的 prefab）
@@ -686,6 +793,10 @@ public class SkinBrushRuntime : MonoBehaviour
             Offset = ReadPresetOffset(),
             Rotation = new Vector3(ReadFloat(inRotX), ReadFloat(inRotY), ReadFloat(inRotZ)),
             Scale = ReadPresetScale(),
+            TileHidden = hideOriginal,
+            Anchor = brushAnchor,
+            AutoFit = autoFit,
+            AutoFitXZ = autoFitXZ,
             BaseLocalPos = t.localPosition,
             BaseRotation = t.localEulerAngles,
             BaseScale = t.localScale,
@@ -746,12 +857,13 @@ public class SkinBrushRuntime : MonoBehaviour
         return null;
     }
 
-    /// <summary>销毁一个皮肤实例：先脱离父级再销毁（防父级同帧销毁连带，运行时无 Undo，直接 Destroy）</summary>
+    /// <summary>
+    /// 销毁一个皮肤实例：统一走 GridSkinData.DestroySkinInstance ——
+    /// 先脱离父级（防父级同帧销毁连带），并由它负责 Addressables.ReleaseInstance（R4）。
+    /// </summary>
     static void DetachAndDestroy(GameObject go)
     {
-        if (go == null) return;
-        go.transform.SetParent(null, false);
-        Destroy(go);
+        GridSkinData.DestroySkinInstance(go);
     }
 
     static void StripColliders(GameObject go)
@@ -785,6 +897,20 @@ public class SkinBrushRuntime : MonoBehaviour
     string CurrentAddress()
     {
         return prefabAddrs.Count > 0 ? prefabAddrs[Mathf.Clamp(brushIndex, 0, prefabAddrs.Count - 1)] : null;
+    }
+
+    /// <summary>
+    /// 把"编辑器资源路径"归一化成 Addressables 地址：项目约定地址 = 资产路径去扩展名（见 Doc 06）。
+    /// 运行时面板在编辑器内枚举到的是 AssetDatabase 路径（带 .prefab），直接写进 SkinAddress
+    /// 会导致**打包后加载不到**（编辑器里靠 GUID 兜底看不出来）。
+    /// </summary>
+    static string ToAddressKey(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return path;
+        path = path.Replace('\\', '/');
+        var ext = System.IO.Path.GetExtension(path);
+        if (!string.IsNullOrEmpty(ext)) return path.Substring(0, path.Length - ext.Length);
+        return path;
     }
 
     static string NameOf(string addr)
@@ -928,6 +1054,111 @@ public class SkinBrushRuntime : MonoBehaviour
         SetStatus($"已同步 {n} 格到 MapInfo\n（点「保存」时也会自动强制同步一次）");
     }
 
+    // ================= 面板定位（R2） =================
+
+    /// <summary>
+    /// 把面板摆到屏幕右上角（按当前 GRoot 尺寸与面板缩放计算），并同步预览窗位置。
+    /// - 用户没拖过：始终右对齐 + 垂直 30（放不下则顶部对齐）；
+    /// - 用户拖过：只做越界钳制，不强行归位（可用标题栏「归位」恢复自动对齐）。
+    /// 全部用 **全局坐标** 计算再换算回父级，父级/GRoot 有缩放时也成立。
+    /// </summary>
+    void PlacePanel()
+    {
+        if (panel == null || panel.parent == null) return;
+
+        float rootW = GRoot.inst.width, rootH = GRoot.inst.height;
+        if (rootW <= 1f || rootH <= 1f) return;   // GRoot 还没就绪，下一帧再来
+
+        float w = PanelW * panel.scaleX;
+        float h = PanelH * panel.scaleY;
+        const float margin = 12f;
+
+        float gx, gy;
+        if (panelUserMoved)
+        {
+            var cur = panel.LocalToGlobal(new Rect(0f, 0f, panel.width, panel.height));
+            gx = Mathf.Clamp(cur.xMin, Mathf.Min(0f, rootW - w), Mathf.Max(0f, rootW - w));
+            gy = Mathf.Clamp(cur.yMin, Mathf.Min(0f, rootH - h), Mathf.Max(0f, rootH - h));
+        }
+        else
+        {
+            gx = Mathf.Max(0f, rootW - w - margin);
+            gy = Mathf.Clamp(30f, 0f, Mathf.Max(0f, rootH - h));
+        }
+
+        var local = panel.parent.GlobalToLocal(new Vector2(gx, gy));
+        panel.SetXY(local.x, local.y);
+
+        panelPlaced = true;
+        lastRootSize = new Vector2(rootW, rootH);
+        PlacePreviewWindow();
+    }
+
+    /// <summary>预览窗跟随面板：优先放面板左侧，左边放不下就放右侧，最后钳制在屏幕内</summary>
+    void PlacePreviewWindow()
+    {
+        if (previewWin == null || previewWin.parent == null || panel == null) return;
+        if (panel.parent == null) return;
+
+        float rootW = GRoot.inst.width, rootH = GRoot.inst.height;
+        if (rootW <= 1f || rootH <= 1f) return;
+
+        float w = previewWin.width * previewWin.scaleX;
+        float h = previewWin.height * previewWin.scaleY;
+
+        // 预览窗与主面板是**同一个父级的兄弟节点**，且都是 pivot=(0,0)、无旋转，
+        // 所以直接在父级局部空间用 panel.x/panel.y 相减即可，
+        // 预览窗右边缘 == 面板左边缘 —— 不走全局↔局部换算，从根上排除固定像素误差。
+        float x = panel.x - w;
+        float y = panel.y;
+
+        // 屏幕可视范围换算到父级局部空间，只用于"放不下时"的退化处理
+        var p0 = previewWin.parent.GlobalToLocal(Vector2.zero);
+        var p1 = previewWin.parent.GlobalToLocal(new Vector2(rootW, rootH));
+        float minX = Mathf.Min(p0.x, p1.x), maxX = Mathf.Max(p0.x, p1.x);
+        float minY = Mathf.Min(p0.y, p1.y), maxY = Mathf.Max(p0.y, p1.y);
+
+        if (x < minX) x = panel.x + panel.width * panel.scaleX;          // 左侧放不下 → 贴面板右侧
+        if (x + w > maxX) x = Mathf.Max(minX, maxX - w);                 // 右侧也放不下 → 贴屏幕右边缘
+        if (x < minX) x = minX;
+        if (y + h > maxY) y = Mathf.Max(minY, maxY - h);
+        if (y < minY) y = minY;
+
+        previewWin.SetXY(x, y);
+    }
+
+    /// <summary>
+    /// 指针是否压在笔刷面板/预览窗上。
+    /// 除了 FairyGUI 的 Stage.isTouchOnUI，这里再自己算一遍矩形，原因有两个：
+    /// ① FairyGUI 的 touchTarget 在按下那一帧可能还没更新（脚本 Update 顺序不保证），
+    ///    会出现"点面板却把格子刷了"；
+    /// ② 面板背景是纯代码 GGraph，某些情况下不作为命中目标。
+    /// </summary>
+    bool IsPointerOnBrushUI()
+    {
+        if (panel == null || panel.parent == null) return false;
+        var pt = Stage.inst.touchPosition;   // UI 全局坐标（y 轴向下）
+        if (panel.visible && panel.LocalToGlobal(new Rect(0f, 0f, panel.width, panel.height)).Contains(pt))
+            return true;
+        if (previewWin != null && previewWin.visible
+            && previewWin.parent != null
+            && previewWin.LocalToGlobal(new Rect(0f, 0f, previewWin.width, previewWin.height)).Contains(pt))
+            return true;
+        return false;
+    }
+
+    /// <summary>
+    /// 指针是否压在笔刷面板 / 预览窗上（供其它系统查询：例如造图界面的相机滚轮缩放要避开它）。
+    /// 用矩形直接判定，不依赖 FairyGUI 的 touchTarget —— 面板是纯代码 GGraph，
+    /// 某些情况下不作为命中目标，但滚轮照样会被 Input.GetAxis 读到并推走相机。
+    /// </summary>
+    public static bool IsPointerOverBrushUI()
+    {
+        var inst = Instance;
+        if (inst == null || inst.panel == null || !inst.panel.visible || inst.panel.parent == null) return false;
+        return inst.IsPointerOnBrushUI();
+    }
+
     // ================= 面板构建（纯代码 FairyGUI） =================
 
     void BuildPanel()
@@ -941,9 +1172,16 @@ public class SkinBrushRuntime : MonoBehaviour
             new Color(0.45f, 0.55f, 0.65f, 1f));
 
         // 标题 + 关闭
-        var title = MakeText(panel, "", 8, 8, 390, 14, new Color(0.9f, 0.92f, 0.95f));
+        var title = MakeText(panel, "", 8, 8, 330, 14, new Color(0.9f, 0.92f, 0.95f));
         title.textFormat.bold = true;
-        title.text = "皮肤笔刷（T 显隐 · 右下角拖动缩放）";
+        title.text = "皮肤笔刷（T 显隐 · 可拖动 · 右下角缩放）";
+        // 归位：清除"用户拖过"的标记，重新贴右上角（分辨率变化时也用得上）
+        MakeButton(panel, "归位", (int)PanelW - 36 - 48, 6, 44, 22, () =>
+        {
+            panelUserMoved = false;
+            PlacePanel();
+            SetStatus("面板已归位（右上角），可再次拖动");
+        });
         MakeButton(panel, "×", (int)PanelW - 36, 6, 28, 22, () => panel.visible = false);
 
         // ---- 模式行 ----
@@ -956,15 +1194,24 @@ public class SkinBrushRuntime : MonoBehaviour
         }
 
         // ---- 选项行 ----
-        hideBtn = MakeButton(panel, "隐藏白膜：开", 8, 74, 150, 24, () =>
+        hideBtn = MakeButton(panel, "隐藏白膜：开", 8, 74, 104, 24, () =>
         {
             hideOriginal = !hideOriginal;
             RefreshToggleVisual();
         });
-        stripBtn = MakeButton(panel, "剥离碰撞体：开", 162, 74, 150, 24, () =>
+        stripBtn = MakeButton(panel, "剥离碰撞体：开", 116, 74, 104, 24, () =>
         {
             stripColliders = !stripColliders;
             RefreshToggleVisual();
+        });
+        // 锚点三选（表面 → 中心 → 格子原点）：决定皮肤原点对齐地块的哪个位置
+        anchorBtn = MakeButton(panel, "锚点：表面", 224, 74, 132, 24, () =>
+        {
+            brushAnchor = brushAnchor == SkinAnchor.TileSurface ? SkinAnchor.TileCenter
+                : brushAnchor == SkinAnchor.TileCenter ? SkinAnchor.GridOrigin
+                : SkinAnchor.TileSurface;
+            RefreshToggleVisual();
+            SetStatus($"笔刷锚点：{AnchorName(brushAnchor)}\n{AnchorHint(brushAnchor)}");
         });
 
         // ---- 笔刷目录行 ----
@@ -1078,6 +1325,24 @@ public class SkinBrushRuntime : MonoBehaviour
             SetInput(inSclX, 1); SetInput(inSclY, 1); SetInput(inSclZ, 1);
         });
         MakeButton(panel, "读该层→预设", 332, 388, 100, 22, ReadLayerToPreset);
+        // 预设区右下角空位：自动贴合开关 + 按类型重新贴合
+        autoFitBtn = MakeButton(panel, "贴合Y：开", 246, 414, 90, 22, () =>
+        {
+            autoFit = !autoFit;
+            RefreshToggleVisual();
+            SetStatus(autoFit
+                ? "自动贴合：开" + "\n" + "地面块 → 包围盒顶面贴地面块顶面；高台块 → 包围盒底面贴地面平面"
+                : "自动贴合：关" + "\n" + "只按锚点+基准+预设摆放");
+        });
+        autoFitXZBtn = MakeButton(panel, "纠错XZ：开", 340, 414, 92, 22, () =>
+        {
+            autoFitXZ = !autoFitXZ;
+            RefreshToggleVisual();
+            SetStatus(autoFitXZ
+                ? "水平纠错(XZ)：开 —— 皮肤包围盒中心对齐格子中心（纠正素材根节点水平偏移）"
+                : "水平纠错(XZ)：关 —— X/Z 只按 模型基准 + 预设偏移 摆放");
+        });
+        MakeButton(panel, "按类型重新贴合", 246, 440, 186, 22, DoRefitSelected);
 
         // ---- 调整区 ----
         MakeText(panel, "微调：「调整」模式点击格子选中，选层后用预设数值「应用到该层」", 8, 470, 424, 12, new Color(0.6f, 0.65f, 0.7f));
@@ -1092,11 +1357,11 @@ public class SkinBrushRuntime : MonoBehaviour
         MakeText(panel, "目标", 8, 534, 36, 13, TextGray());
         targetLabel = MakeText(panel, "", 46, 534, 240, 13, new Color(0.95f, 0.9f, 0.6f));
         MakeButton(panel, "替换为笔刷", 290, 530, 86, 24, DoReplaceSceneObject);
-        MakeButton(panel, "取为笔刷", 380, 530, 52, 24, () =>
+        MakeButton(panel, "取笔刷", 380, 530, 52, 24, () =>
         {
             if (replaceTarget == null) { SetStatus("先用「特殊替换」模式点击一个场景物体"); return; }
             sceneTemplate = replaceTarget;
-            templateLabel.text = replaceTarget.name;
+            templateLabel.text = Ellipsize(replaceTarget.name, 22);
             SetStatus($"已取 {replaceTarget.name} 为笔刷模板");
         });
 
@@ -1104,6 +1369,7 @@ public class SkinBrushRuntime : MonoBehaviour
         MakeButton(panel, "撤销", 8, 564, 64, 26, DoUndo);
         MakeButton(panel, "同步到MapInfo", 76, 564, 120, 26, SyncToMapInfo);
         MakeButton(panel, "清除全图皮肤", 200, 564, 110, 26, DoClearAll);
+        MakeButton(panel, "诊断当前格", 316, 564, 116, 26, DoDiagnose);
 
         // ---- 状态栏（多行） ----
         statusText = MakeText(panel, "", 8, 600, 424, 12, new Color(0.55f, 0.85f, 0.6f));
@@ -1134,11 +1400,23 @@ public class SkinBrushRuntime : MonoBehaviour
         grip.onTouchEnd.Add((EventContext ec) =>
         {
             resizing = false;
+            PlacePanel(); // 缩放改变了实际宽高，重新贴右上角/钳制回屏幕内
         });
 
         // 挂到造图界面（后加的子物体显示在最上；随界面显隐联动）
         view.AddChild(panel);
-        panel.SetXY(Mathf.Max(0, view.width - (int)PanelW - 12), 30);
+        // 位置由 PlacePanel() 统一决定（见 Update 里的注释：此时 view 还没被 SetSize，宽度不可信）。
+        // 这里先摆一次避免出现"首帧在左上角"的闪动，但不清 panelPlaced —— 首帧 Update 会再精确摆一次
+        //（那时 view 已 AddChild 到 GRoot，GlobalToLocal 才准确）。
+        PlacePanel();
+        panelPlaced = false;
+        // 用户拖动过面板后就不再自动右对齐（否则每次分辨率变化会把用户的摆放冲掉）
+        panel.onDragEnd.Add((EventContext ec) => { panelUserMoved = true; PlacePreviewWindow(); });
+        // 拖动过程中让预览窗跟着走（否则预览窗会停在旧位置）
+        panel.onDragMove.Add((EventContext ec) =>
+        {
+            if (previewWin != null && previewWin.visible) PlacePreviewWindow();
+        });
         RefreshToggleVisual();
         RefreshModeVisual();
     }
@@ -1180,6 +1458,16 @@ public class SkinBrushRuntime : MonoBehaviour
         if (h != null) h.text = "隐藏白膜：" + (hideOriginal ? "开" : "关");
         var sp = stripBtn != null ? stripBtn.GetChildAt(1) as GTextField : null;
         if (sp != null) sp.text = "剥离碰撞体：" + (stripColliders ? "开" : "关");
+        SetButtonFill(anchorBtn, brushAnchor == SkinAnchor.TileSurface
+            ? new Color(0.2f, 0.45f, 0.3f, 1f) : new Color(0.2f, 0.24f, 0.29f, 1f));
+        var an = anchorBtn != null ? anchorBtn.GetChildAt(1) as GTextField : null;
+        if (an != null) an.text = "锚点：" + AnchorName(brushAnchor);
+        SetButtonFill(autoFitBtn, autoFit ? new Color(0.2f, 0.45f, 0.3f, 1f) : new Color(0.2f, 0.24f, 0.29f, 1f));
+        var af = autoFitBtn != null ? autoFitBtn.GetChildAt(1) as GTextField : null;
+        if (af != null) af.text = "贴合Y：" + (autoFit ? "开" : "关");
+        SetButtonFill(autoFitXZBtn, autoFitXZ ? new Color(0.2f, 0.45f, 0.3f, 1f) : new Color(0.2f, 0.24f, 0.29f, 1f));
+        var afxz = autoFitXZBtn != null ? autoFitXZBtn.GetChildAt(1) as GTextField : null;
+        if (afxz != null) afxz.text = "纠错XZ：" + (autoFitXZ ? "开" : "关");
     }
 
     void SetStatus(string s)
@@ -1207,6 +1495,10 @@ public class SkinBrushRuntime : MonoBehaviour
         parent.AddChild(t);
         t.SetXY(x, y);
         t.SetSize(w, size + 10);
+        // ★ 代码创建的 GTextField 默认 autoSize = Both：一赋 text 就把自身撑到文本自然尺寸，
+        //   SetSize 完全失效 —— 长文本会画到控件矩形之外（预览标题撑出去侵入主面板就是它），
+        //   而且 align/verticalAlign 居中也会失效。显式关掉后按宽度自动换行。
+        t.autoSize = AutoSizeType.None;
         t.textFormat.size = size; // 先设格式再加文本（TextFormat 是 class，直接改字段不触发重排）
         t.color = color;
         t.text = text;
@@ -1230,6 +1522,7 @@ public class SkinBrushRuntime : MonoBehaviour
         var t = new GTextField();
         btn.AddChild(t);
         t.SetSize(w, h);
+        t.autoSize = AutoSizeType.None; // 同上：否则文本框收缩成文字大小，居中/垂直居中全部失效
         t.textFormat.size = 13;
         t.color = new Color(0.9f, 0.92f, 0.95f);
         t.align = AlignType.Center;

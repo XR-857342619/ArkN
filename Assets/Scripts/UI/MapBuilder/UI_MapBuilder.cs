@@ -213,7 +213,11 @@ namespace MapBuilderUI
         protected override void OnUpdate()
         {
             base.OnUpdate();
-            if (m_state.selectedIndex == 2)
+            // === 滚轮/中键别被 UI 吃掉之后又漏到地图 ===
+            // 之前只要在相机页，不管指针在哪都读 Input.GetAxis("Mouse ScrollWheel")，
+            // 于是在笔刷面板里滚轮选笔刷时，地图相机也会跟着被推走。
+            // 现在指针压在 UI（笔刷面板/预览窗/底部工具栏等）时直接跳过相机操作。
+            if (m_state.selectedIndex == 2 && !IsPointerOnUI())
             {
                 Vector3 v3 = new Vector3();
                 v3.y = -Input.GetAxis("Mouse ScrollWheel") * 50;
@@ -225,6 +229,17 @@ namespace MapBuilderUI
                 MapInfo.CameraPos += v3 * Time.deltaTime;
                 changeCamera();
             }
+        }
+
+        /// <summary>
+        /// 指针是否压在 UI 上。
+        /// FairyGUI 的 isTouchOnUI 每帧按光标位置重新命中测试（hover 即生效，不需要按下），
+        /// 再叠加笔刷面板矩形兜底（面板是纯代码 GGraph，可能不作为命中目标）。
+        /// </summary>
+        static bool IsPointerOnUI()
+        {
+            if (FairyGUI.Stage.isTouchOnUI) return true;
+            return SkinBrushRuntime.IsPointerOverBrushUI();
         }
 
         public void Enter()

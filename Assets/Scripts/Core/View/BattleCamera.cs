@@ -151,7 +151,8 @@ public class BattleCamera : MonoBehaviour
                 var grid = BattleManager.Instance.Battle.Map.Tiles[tile.x, tile.y];
                 if (grid == null || grid.MapGrid == null) continue;
                 var tileAsset = ResHelper.GetAsset<GameObject>(PathHelper.OtherPath + "HighLight").GetComponent<MapTile>();
-                var go = TilePool.Spawn(tileAsset, grid.MapGrid.GetPos(), null);
+                // 换皮地块：贴片要落在**皮肤顶面**上（皮肤可能远高于白膜，尤其高台块），否则会被埋进模型里
+                var go = TilePool.Spawn(tileAsset, grid.MapGrid.GetHighlightPos(), null);
                 go.IfHeal(ifHeal);
                 Tiles.Add(go);
             }

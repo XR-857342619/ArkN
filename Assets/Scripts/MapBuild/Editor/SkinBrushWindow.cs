@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -46,6 +47,17 @@ public class SkinBrushWindow : EditorWindow
     bool deleteMode = false;              // 删除模式（点击图中物体即删除）
     bool stripColliders = true;
     bool hideOriginal = true;
+    /// <summary>新画笔的锚点语义（见 SkinAnchor）。默认 TileSurface：皮肤站在格子表面，Offset 为 0 即正确。</summary>
+    SkinAnchor brushAnchor = SkinAnchor.TileSurface;
+    /// <summary>
+    /// 自动贴合（默认开）：刷完立刻按地块类型对齐包围盒 ——
+    /// 地面块：包围盒顶面贴地面块顶面；高台块：包围盒底面贴地面平面（与地面同高，衔接无缝）。
+    /// </summary>
+    bool autoFit = true;
+    /// <summary>
+    /// 水平纠错（默认开）：把皮肤包围盒中心对齐到格子中心，纠正"素材 prefab 根 transform 非 (0,0,0)"的水平偏移。
+    /// </summary>
+    bool autoFitXZ = true;
     bool combineMode = false;             // 组合模式
     bool initMode = false;                // 初始化模式
     bool replaceMode = false;             // 特殊替换模式
@@ -71,6 +83,9 @@ public class SkinBrushWindow : EditorWindow
         folder = EditorPrefs.GetString("SkinBrush.Folder", "Assets/Bundles/DungeonTile");
         stripColliders = EditorPrefs.GetBool("SkinBrush.StripColliders", true);
         hideOriginal = EditorPrefs.GetBool("SkinBrush.HideOriginal", true);
+        brushAnchor = (SkinAnchor)EditorPrefs.GetInt("SkinBrush.Anchor", (int)SkinAnchor.TileSurface);
+        autoFit = EditorPrefs.GetBool("SkinBrush.AutoFit", true);
+        autoFitXZ = EditorPrefs.GetBool("SkinBrush.AutoFitXZ", true);
         combineMode = EditorPrefs.GetBool("SkinBrush.CombineMode", false);
         initMode = EditorPrefs.GetBool("SkinBrush.InitMode", false);
         replaceMode = EditorPrefs.GetBool("SkinBrush.ReplaceMode", false);
@@ -304,10 +319,63 @@ public class SkinBrushWindow : EditorWindow
             hideOriginal = EditorGUILayout.Toggle(
                 new GUIContent("隐藏白膜", "首层换皮时隐藏原模型 Renderer（Collider 保留）；关闭可保留原模型用于组合对照"),
                 hideOriginal);
+            brushAnchor = (SkinAnchor)EditorGUILayout.EnumPopup(
+                new GUIContent("皮肤锚点",
+                    "TileSurface(推荐)=皮肤原点对齐格子可视表面（白膜顶面，实测计算）；\n" +
+                    "TileCenter=旧语义，对齐白膜几何中心（存量老图的取值，皮肤会整体下沉约 0.3）；\n" +
+                    "GridOrigin=对齐 MapGrid 原点，不含白膜偏移。"),
+                brushAnchor);
+            autoFit = EditorGUILayout.Toggle(
+                new GUIContent("自动贴合（按地块类型）",
+                    "开：刷完立刻按包围盒对齐 ——" + "\n" +
+                    "  地面块 → 包围盒【顶面】对齐地面块顶面 (y=0)；" + "\n" +
+                    "  高台块 → 包围盒【底面】对齐地面平面 (y=0)，与相邻地面块衔接无缝。" + "\n" +
+                    "关：只按锚点+基准+预设摆放，完全手工。"),
+                autoFit);
+            autoFitXZ = EditorGUILayout.Toggle(
+                new GUIContent("水平纠错（包围盒居中）",
+                    "开：把皮肤包围盒中心对齐到格子中心（只动 X/Z）。" + "\n" +
+                    "用于纠正素材导入时 prefab 根 transform 不是 (0,0,0) 造成的水平偏移；" + "\n" +
+                    "关：X/Z 只按 模型基准 + 预设偏移 摆放。"),
+                autoFitXZ);
             if (EditorGUI.EndChangeCheck())
             {
+                EditorPrefs.SetInt("SkinBrush.Anchor", (int)brushAnchor);
+                EditorPrefs.SetBool("SkinBrush.AutoFit", autoFit);
+                EditorPrefs.SetBool("SkinBrush.AutoFitXZ", autoFitXZ);
                 EditorPrefs.SetBool("SkinBrush.StripColliders", stripColliders);
                 EditorPrefs.SetBool("SkinBrush.HideOriginal", hideOriginal);
+            }
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button(new GUIContent("按地块类型重新贴合",
+                    "对选中格子（无选中则全图）重跑一次自动贴合；地块类型被改过（地面<->高台）时用它修正")))
+                {
+                    var selGrid = Selection.activeGameObject != null
+                        ? Selection.activeGameObject.GetComponentInParent<MapGrid>() : null;
+                    var gs = selGrid != null ? new[] { selGrid } : CollectAllGrids().ToArray();
+                    int n = 0, cells = 0;
+                    Undo.IncrementCurrentGroup();
+                    int grp = Undo.GetCurrentGroup();
+                    foreach (var g in gs)
+                    {
+                        var d = g.GetComponent<GridSkinData>();
+                        if (d == null) continue;
+                        Undo.RecordObject(d, "重新贴合皮肤");
+                        for (int i = 0; i < d.SkinLayerCount; i++)
+                        {
+                            var li = d.GetSkinInfoAt(i);
+                            if (li == null) continue;
+                            li.AutoFit = autoFit;
+                            li.AutoFitXZ = autoFitXZ;
+                        }
+                        int k = d.RecomputeAutoFitAll();
+                        if (k > 0) { n += k; cells++; EditorUtility.SetDirty(d); }
+                    }
+                    Undo.CollapseUndoOperations(grp);
+                    if (Application.isPlaying) SkinPainter.TrySyncToMapInfo();
+                    status = n > 0 ? $"已重新贴合 {n} 层（{cells} 格）。" : "没有需要调整的皮肤层。";
+                }
             }
         }
 
@@ -346,6 +414,166 @@ public class SkinBrushWindow : EditorWindow
 
         if (!string.IsNullOrEmpty(status))
             EditorGUILayout.HelpBox(status, MessageType.None);
+    }
+
+    // ================= 锚点体检 / 迁移（菜单入口） =================
+
+    static List<MapGrid> CollectAllGrids()
+    {
+        var mm = MapManager.Instance;
+        var grids = mm != null
+            ? mm.GetComponentsInChildren<MapGrid>(true)
+            : UnityEngine.Object.FindObjectsOfType<MapGrid>();
+        return grids.Where(g => g != null).OrderBy(g => g.X).ThenBy(g => g.Y).ToList();
+    }
+
+    /// <summary>
+    /// 只读体检：逐格逐层打印"皮肤原点 / 锚点 / 白膜顶面 / 皮肤包围盒 / 竖直偏差"，
+    /// 用来量化"皮肤 GO 偏离原地块、主要在 Y 轴"到底偏多少、往哪个方向偏。
+    /// 报告写到 Temp/SkinAnchorReport.txt（Temp 已被 .gitignore 忽略）。
+    /// 不修改任何数据，可随时运行。
+    /// </summary>
+    [MenuItem("Tools/地图换皮/皮肤锚点体检（只读报告）")]
+    static void AuditAnchors()
+    {
+        var grids = CollectAllGrids();
+        var lines = new List<string>();
+        var layerCountByAnchor = new Dictionary<SkinAnchor, int>();
+        var prefabStat = new Dictionary<string, KeyValuePair<int, float>>(); // prefab -> (层数, Δ合计)
+        int skinnedGrids = 0, totalLayers = 0, sunk = 0, floating = 0, okCount = 0;
+        float maxAbsDelta = 0f;
+
+        foreach (var g in grids)
+        {
+            var data = g.GetComponent<GridSkinData>();
+            if (data == null) continue;
+            var children = data.GetSkinChildren();
+            if (children.Count == 0) continue;
+            skinnedGrids++;
+
+            var tile = data.FindTileModel();
+            float tileLocalY = tile != null ? tile.transform.localPosition.y : 0f;
+            float topLocalY = tile != null ? GridSkinData.GetTileTopLocalY(tile.transform, data.transform) : 0f;
+            lines.Add($"== 格子 ({g.X},{g.Y})  地块={(data.IsHighTile ? "高台" : "地面")}  白膜={tile?.name ?? "(无)"}  白膜localY={tileLocalY:F3}  顶面localY={topLocalY:F3}  表面世界Y={data.GetTileSurfaceWorldY():F3}  地面平面世界Y={data.GetGroundPlaneWorldY():F3}");
+
+            for (int layer = 0; layer < children.Count; layer++)
+            {
+                var info = data.GetSkinInfoAt(layer);
+                if (info == null) continue;
+                totalLayers++;
+                int n; layerCountByAnchor.TryGetValue(info.Anchor, out n);
+                layerCountByAnchor[info.Anchor] = n + 1;
+
+                // 贴合偏差按地块类型规则算：地面块比"包围盒顶面 vs 白膜顶面"，高台块比"包围盒底面 vs 地面平面"
+                float delta = data.GetAutoFitDelta(layer);
+                if (Mathf.Abs(delta) <= 0.02f) okCount++;
+                else if (delta < 0) sunk++;
+                else floating++;
+                if (Mathf.Abs(delta) > Mathf.Abs(maxAbsDelta)) maxAbsDelta = delta;
+
+                var key = $"{info.SkinName} [{info.Anchor}]";
+                int pn; float pd;
+                if (prefabStat.TryGetValue(key, out var kv)) { pn = kv.Key; pd = kv.Value; } else { pn = 0; pd = 0f; }
+                prefabStat[key] = new KeyValuePair<int, float>(pn + 1, pd + delta);
+
+                var dxz = data.GetAutoFitDeltaXZ(layer);
+                if (Mathf.Abs(dxz.x) > 0.02f || Mathf.Abs(dxz.y) > 0.02f)
+                    lines.Add($"   [水平偏差] ΔXZ=({dxz.x:+0.000;-0.000}, {dxz.y:+0.000;-0.000}) —— 建议开「水平纠错」后重新贴合");
+                lines.Add("   " + data.DescribeLayer(layer)
+                    + $"  Δ={delta:+0.000;-0.000}{(Mathf.Abs(delta) <= 0.02f ? " (贴合)" : (delta < 0 ? " (下沉)" : " (浮空)"))}");
+            }
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("==== 皮肤锚点体检报告 ====");
+        sb.AppendLine($"生成时间：{DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        sb.AppendLine($"FeatureFlags.SkinBrush = {FeatureFlags.SkinBrush}（关闭时本次会话不会还原皮肤，体检需在开启后于 Play 中运行）");
+        sb.AppendLine($"有皮肤的格子：{skinnedGrids}    皮肤层总数：{totalLayers}");
+        sb.AppendLine($"贴合(|Δ|<=0.02)：{okCount}    下沉：{sunk}    浮空：{floating}    最大偏差：{maxAbsDelta:+0.000;-0.000}");
+        sb.AppendLine("锚点分布：");
+        foreach (var kv in layerCountByAnchor)
+            sb.AppendLine($"    {kv.Key} : {kv.Value} 层");
+        sb.AppendLine("按 笔刷[锚点] 汇总（Δ = 按地块类型的贴合偏差，0=完美贴合 / 正=偏高 / 负=偏低）：");
+        foreach (var kv in prefabStat.OrderByDescending(x => x.Value.Key))
+            sb.AppendLine($"    {kv.Key} : {kv.Value.Key} 层, Δ平均 {(kv.Value.Key > 0 ? kv.Value.Value / kv.Value.Key : 0f):+0.000;-0.000}");
+        sb.AppendLine();
+        sb.AppendLine("---- 明细 ----");
+        foreach (var l in lines) sb.AppendLine(l);
+
+        try
+        {
+            var dir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Temp");
+            System.IO.Directory.CreateDirectory(dir);
+            var file = System.IO.Path.Combine(dir, "SkinAnchorReport.txt");
+            System.IO.File.WriteAllText(file, sb.ToString(), new UTF8Encoding(false));
+            Debug.Log($"[皮肤体检] 已写出报告：{file}\n" + sb.ToString().Substring(0, Mathf.Min(1200, sb.Length)));
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("[皮肤体检] 写报告失败：" + e);
+        }
+    }
+
+    /// <summary>
+    /// 锚点迁移：把选中格子（选中 MapGrid 或其皮肤子物体）或全图的皮肤层 Anchor 统一成新语义。
+    /// 两种模式：
+    ///   1) 保持外观 —— 同时按差值改写 Offset.y（纯重定基，画面不动，仅让数据语义统一）；
+    ///   2) 只改语义 —— 不改 Offset，画面整体位移（把老图从"地块中心"抬到"格子表面"）。
+    /// </summary>
+    [MenuItem("Tools/地图换皮/皮肤锚点迁移")]
+    static void MigrateAnchors()
+    {
+        var selGrid = Selection.activeGameObject != null ? Selection.activeGameObject.GetComponentInParent<MapGrid>() : null;
+        var grids = selGrid != null ? new List<MapGrid> { selGrid } : CollectAllGrids();
+        if (grids.Count == 0) { EditorUtility.DisplayDialog("皮肤锚点迁移", "场景里没有 MapGrid。", "好"); return; }
+
+        var targets = grids
+            .Select(g => new { g, d = g.GetComponent<GridSkinData>() })
+            .Where(x => x.d != null && x.d.GetSkinChildren().Count > 0)
+            .ToList();
+        if (targets.Count == 0) { EditorUtility.DisplayDialog("皮肤锚点迁移", "选中范围内没有已换皮的格子。", "好"); return; }
+
+        int choice = EditorUtility.DisplayDialogComplex("皮肤锚点迁移",
+            $"范围：{(selGrid != null ? "选中格子 (" + selGrid.X + "," + selGrid.Y + ")" : "全图 " + targets.Count + " 格")}\n" +
+            "目标锚点：TileSurface（格子可视表面 = 白膜顶面）\n\n" +
+            "【保持外观】在改写 Anchor 的同时补偿 Offset.y，画面完全不动，只让数据语义统一（推荐先做）。\n" +
+            "【只改语义】不改 Offset，皮肤会整体抬升到格子表面 —— 这才是修复\"皮肤下沉\"的那一步。",
+            "保持外观", "取消", "只改语义");
+        if (choice == 1) return;
+        bool keepLook = choice == 0;
+
+        Undo.IncrementCurrentGroup();
+        int group = Undo.GetCurrentGroup();
+        int changed = 0;
+        float minDy = float.MaxValue, maxDy = float.MinValue;
+
+        foreach (var t in targets)
+        {
+            var data = t.d;
+            Undo.RecordObject(data, "皮肤锚点迁移");
+            int layers = data.SkinLayerCount;
+            for (int layer = 0; layer < layers; layer++)
+            {
+                var info = data.GetSkinInfoAt(layer);
+                if (info == null) continue;
+                if (info.Anchor == SkinAnchor.TileSurface) continue;
+
+                float dy = data.GetAnchorRebaseDeltaY(info.Anchor, SkinAnchor.TileSurface);
+                info.Anchor = SkinAnchor.TileSurface;
+                if (keepLook) info.Offset.y += dy;
+                changed++;
+                if (dy < minDy) minDy = dy;
+                if (dy > maxDy) maxDy = dy;
+            }
+            EditorUtility.SetDirty(data);
+            data.ApplySkinTransform();
+        }
+        Undo.CollapseUndoOperations(group);
+
+        if (Application.isPlaying) SkinPainter.TrySyncToMapInfo();
+        string msg = $"锚点迁移完成：{changed} 层 → TileSurface（{(keepLook ? "保持外观，Offset.y 补偿 " + minDy.ToString("+0.000;-0.000") + "~" + maxDy.ToString("+0.000;-0.000") : "视觉整体上移")}），可 Ctrl+Z 撤销。";
+        Debug.Log("[皮肤锚点迁移] " + msg);
+        EditorUtility.DisplayDialog("皮肤锚点迁移", msg, "好");
     }
 
     void PickBrushFromSelection()
@@ -961,14 +1189,14 @@ public class SkinBrushWindow : EditorWindow
         {
             if (SkinPainter.HasAnySkinLayer(grid, brush)) return; // 该格已有同款皮肤层则跳过
             SkinPainter.CombinePaint(grid, brush, sceneBrushTemplate, stripColliders, hideOriginal,
-                presetOffset, presetRotation, presetScale);
+                presetOffset, presetRotation, presetScale, brushAnchor, autoFit, autoFitXZ);
             status = AnchorStatus($"已叠加皮肤 {paintedThisStroke.Count} 格", grid);
             return;
         }
 
         if (SkinPainter.HasSameSkin(grid, brush, hideOriginal)) return;
         SkinPainter.Paint(grid, brush, sceneBrushTemplate, stripColliders, hideOriginal,
-            presetOffset, presetRotation, presetScale);
+            presetOffset, presetRotation, presetScale, brushAnchor, autoFit, autoFitXZ);
         status = AnchorStatus($"已换皮 {paintedThisStroke.Count} 格", grid);
     }
 
@@ -1055,7 +1283,7 @@ static class SkinPainter
     }
 
     static SkinInfo BuildInfo(GameObject brushAsset, GameObject sceneTemplate, Transform instance,
-        Vector3 offset, Vector3 rotation, Vector3 scale, bool tileHidden)
+        Vector3 offset, Vector3 rotation, Vector3 scale, bool tileHidden, SkinAnchor anchor, bool autoFit, bool autoFitXZ)
     {
         var path = brushAsset != null ? AssetDatabase.GetAssetPath(brushAsset) : null;
         var info = new SkinInfo
@@ -1067,6 +1295,9 @@ static class SkinPainter
             Rotation = rotation,
             Scale = scale,
             TileHidden = tileHidden,
+            Anchor = anchor,
+            AutoFit = autoFit,
+            AutoFitXZ = autoFitXZ,
         };
         // 记录模型自带的局部变换作为基准：应用时以"基准 + 用户增量"计算，
         // 不再套用白膜的 localScale（tiles_ground 自带 y=0.6，是大型模型被压扁的根因）
@@ -1091,7 +1322,7 @@ static class SkinPainter
 
     public static void Paint(MapGrid grid, GameObject brushAsset, GameObject sceneTemplate,
         bool stripColliders, bool hideOriginal,
-        Vector3 offset, Vector3 rotation, Vector3 scale)
+        Vector3 offset, Vector3 rotation, Vector3 scale, SkinAnchor anchor, bool autoFit, bool autoFitXZ)
     {
         var root = grid.gameObject;
 
@@ -1119,12 +1350,14 @@ static class SkinPainter
                 Undo.DestroyObjectImmediate(c);
 
         // 4) 写入数据（含预设参数、模型原始变换基准与 Addressables 地址）
-        data.Data = BuildInfo(brushAsset, sceneTemplate, skin.transform, offset, rotation, scale, hideOriginal);
+        data.Data = BuildInfo(brushAsset, sceneTemplate, skin.transform, offset, rotation, scale, hideOriginal, anchor, autoFit, autoFitXZ);
 
         // 5) 编辑器侧手动配置主皮肤（与运行时 AttachSkin 一致，但保留 undo 登记）
         skin.name = GridSkinData.SkinChildName;
         skin.transform.SetSiblingIndex(Mathf.Min(1, root.transform.childCount - 1));
         data.ApplySkinTransform();
+        // Y 贴合与 XZ 水平纠错任一开启都要重算（RecomputeAutoFit 内部按各自的 flag 执行）
+        if (autoFit || autoFitXZ) data.RecomputeAutoFit(0);
         EditorUtility.SetDirty(data);
     }
 
@@ -1132,7 +1365,7 @@ static class SkinPainter
 
     public static void CombinePaint(MapGrid grid, GameObject brushAsset, GameObject sceneTemplate,
         bool stripColliders, bool hideOriginal,
-        Vector3 offset, Vector3 rotation, Vector3 scale)
+        Vector3 offset, Vector3 rotation, Vector3 scale, SkinAnchor anchor, bool autoFit, bool autoFitXZ)
     {
         var root = grid.gameObject;
         var data = root.GetComponent<GridSkinData>();
@@ -1140,7 +1373,7 @@ static class SkinPainter
         // 无主皮肤：退化为普通换皮（首层换皮受 hideOriginal 控制）
         if (data == null || data.GetSkinChild() == null)
         {
-            Paint(grid, brushAsset, sceneTemplate, stripColliders, hideOriginal, offset, rotation, scale);
+            Paint(grid, brushAsset, sceneTemplate, stripColliders, hideOriginal, offset, rotation, scale, anchor, autoFit, autoFitXZ);
             return;
         }
 
@@ -1162,12 +1395,13 @@ static class SkinPainter
             foreach (var c in skin.GetComponentsInChildren<Collider>(true))
                 Undo.DestroyObjectImmediate(c);
 
-        var info = BuildInfo(brushAsset, sceneTemplate, skin.transform, offset, rotation, scale, tileHidden: false);
+        var info = BuildInfo(brushAsset, sceneTemplate, skin.transform, offset, rotation, scale, tileHidden: false, anchor: anchor, autoFit: autoFit, autoFitXZ: autoFitXZ);
         data.ExtraSkins.Add(info);
 
         // 配置层级（命名/置顶/sortingOrder），层序由兄弟节点顺序保证
         data.ConfigureExtra(skin, layer);
         data.ApplySkinTransformAt(layer);
+        if (autoFit || autoFitXZ) data.RecomputeAutoFit(layer);
         EditorUtility.SetDirty(data);
     }
 
@@ -1187,8 +1421,6 @@ static class SkinPainter
     {
         var children = data.GetSkinChildren();
         var list = new List<SkinInfo>();
-        var tile = data.FindTileModel();
-        var tilePos = tile != null ? tile.transform.localPosition : Vector3.zero;
 
         for (int i = 1; i < children.Count; i++)
         {
@@ -1205,7 +1437,9 @@ static class SkinPainter
 
             if (stale)
             {
-                info = new SkinInfo();
+                // 新补出来的层沿用本格主皮肤的锚点语义（老图= TileCenter，新图= TileSurface），
+                // 否则会按枚举默认值 0(TileCenter) 摆放，与新图整体错位 0.3。
+                info = new SkinInfo { Anchor = data.Data != null ? data.Data.Anchor : SkinAnchor.TileCenter };
                 var src = PrefabUtility.GetCorrespondingObjectFromSource(child) as GameObject;
                 if (src != null && AssetDatabase.Contains(src))
                 {
@@ -1221,7 +1455,7 @@ static class SkinPainter
                 // 以子物体当前变换为基准反推：基准取"当前变换剥离白膜对齐分量"，
                 // 用户增量归零 —— 之后应用变换恢复出的就是当前外观（不会漂移）
                 var t = child.transform;
-                info.BaseLocalPos = t.localPosition - tilePos;
+                info.BaseLocalPos = t.localPosition - data.ResolveAnchorLocal(info);
                 info.BaseRotation = t.localEulerAngles;
                 info.BaseScale = t.localScale;
                 info.BaseCaptured = true;
@@ -1363,10 +1597,10 @@ static class SkinPainter
         var skin = data.GetSkinChildAt(layer);
         var info = data.GetSkinInfoAt(layer);
         if (skin == null || info == null) return;
-        var tile = data.FindTileModel();
-        var tilePos = tile != null ? tile.transform.localPosition : Vector3.zero;
 
-        info.Offset = skin.transform.localPosition - tilePos - info.GetBaseLocalPos();
+        // 锚点按该层自身的 Anchor 解析（TileCenter 老数据仍是白膜 localPosition，行为不变）
+        info.Offset = skin.transform.localPosition - data.ResolveAnchorLocal(info) - info.GetBaseLocalPos()
+            - info.GetFitOffset();
         info.Rotation = (Quaternion.Inverse(Quaternion.Euler(info.GetBaseRotation())) * skin.transform.localRotation).eulerAngles;
 
         var baseScale = info.GetBaseScale();
@@ -1387,8 +1621,6 @@ static class SkinPainter
     {
         var children = data.GetSkinChildren();
         if (children.Count == 0) return;
-        var tile = data.FindTileModel();
-        var tilePos = tile != null ? tile.transform.localPosition : Vector3.zero;
 
         for (int layer = 0; layer < children.Count; layer++)
         {
@@ -1396,7 +1628,7 @@ static class SkinPainter
             if (info == null) continue;
             var t = children[layer].transform;
 
-            Vector3 expPos = tilePos + info.GetBaseLocalPos() + info.Offset;
+            Vector3 expPos = data.ResolveAnchorLocal(info) + info.GetBaseLocalPos() + info.Offset + info.GetFitOffset();
             Quaternion expRot = Quaternion.Euler(info.GetBaseRotation()) * Quaternion.Euler(info.Rotation);
             Vector3 expScale = Vector3.Scale(info.GetBaseScale(), info.GetScaleMultiplier());
 
@@ -1469,6 +1701,7 @@ static class SkinPainter
             info.CaptureBaseTransform(skin.transform);
         }
         data.ApplySkinTransformAt(layer); // 用新基准 + 沿用增量重新摆放（尺寸/形状完整保留）
+        data.RecomputeAutoFit(layer);     // 新模型尺寸不同 → 按地块类型重新贴合
         EditorUtility.SetDirty(data);
 
         Undo.CollapseUndoOperations(group); // 替换 = 一次撤销（新模型创建 + 旧模型销毁 + 数据更新）
@@ -1550,6 +1783,7 @@ static class SkinPainter
                 // 资产根的局部变换即模型导入后的原始变换（含 FBX 单位换算结果）
                 info.CaptureBaseTransform(prefab.transform);
                 data.ApplySkinTransformAt(layer);
+                data.RecomputeAutoFit(layer); // 基准变了，自动贴合需要跟着重算
                 fixedCount++;
             }
             EditorUtility.SetDirty(data);

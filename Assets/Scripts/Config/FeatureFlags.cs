@@ -11,9 +11,12 @@ public static class FeatureFlags
     ///   - 关闭时不会安装笔刷面板（按 T 不再出现），不会采集/写入 GridInfo.Skin / SkinExtras；
     ///   - 关闭时 MapManager.ApplySkins 直接返回，不会按存档重建皮肤；
     ///   - 存档里的 Skin 字段仍会被原样保留（不丢失），重新打开后即可继续使用。
-    /// 目前已知问题：笔刷面板的 UI 布局与刷点位置存在偏移，待修复后再打开。
+    /// 历史问题（2026-10-27 v1.1 起）：
+    ///   - "皮肤比地块低 0.3/0.4（Y 轴偏移）"已修：锚点语义显式化，新画笔默认 TileSurface
+    ///     （皮肤站在格子可视表面），旧存档按 TileCenter 保持原样，见 Docs/开发者文档/25-地块皮肤笔刷系统.md。
+    ///   - 仍待处理：运行时面板的布局偏移（panel 坐标只在 Init 时算一次、无 Relation，见同文档 R2）。
     /// </summary>
-    public static bool SkinBrush = false;
+    public static bool SkinBrush = true;
 
     /// <summary>
     /// 【高台深度遮挡】让高台格子（MapGrid.FarAttackGrid == true）参与 Spine 的深度写入，
