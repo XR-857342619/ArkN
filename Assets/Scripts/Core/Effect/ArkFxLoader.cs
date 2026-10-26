@@ -159,6 +159,8 @@ public static class ArkFxLoader
         public int tweenRepeat;
         public float tweenAnmTime;
         public FxExtraMap[] extras;
+        // —— FxDelay 专用 ——
+        public float delayTime;
         // —— FxUVRotation 专用（fxparams.json 里没有时保持默认值）——
         public string rotPropertyName;
         public bool rotateTex1, rotateTex2, rotateTex3, rotateTex4;
@@ -446,6 +448,14 @@ public static class ArkFxLoader
         }
     }
 
+    /// <summary>挂延迟激活替身（FxDelay）。</summary>
+    static void AttachDelay(GameObject go, FxParamEntry e)
+    {
+        var d = go.GetComponent<ArkFxDelay>();
+        if (d == null) d = go.AddComponent<ArkFxDelay>();
+        d.delayTime = e.delayTime;
+    }
+
     /// <summary>挂 UV 旋转替身（FxUVRotation）。</summary>
     static void AttachRotation(GameObject go, FxParamEntry e)
     {
@@ -491,6 +501,10 @@ public static class ArkFxLoader
             else if (e.cls == "FxUVRotation")
             {
                 AttachRotation(node.gameObject, e);
+            }
+            else if (e.cls == "FxDelay")
+            {
+                AttachDelay(node.gameObject, e);
             }
             else if (node.gameObject.GetComponent<ArkFxScriptStub>() == null)
             {

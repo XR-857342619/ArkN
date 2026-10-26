@@ -22,7 +22,7 @@ import sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # 已实现替身的类 -> 字段映射（字段名与原版 serialized 名一致）
-SUPPORTED = ("FxUVTweener", "FxUVTweenerAdvance", "FxUVRotation")
+SUPPORTED = ("FxUVTweener", "FxUVTweenerAdvance", "FxUVRotation", "FxDelay")
 
 
 def patch_unitypy():
@@ -148,6 +148,8 @@ def entries_for_prefab(root_go, scripts):
                         })
                     if extras:
                         e["extras"] = extras
+            elif short == "FxDelay":
+                e["delayTime"] = float(t.get("_delayTime", 0.0))
             else:  # FxUVRotation
                 e.update({
                     "rotPropertyName": t.get("_propertyName") or "_Rotation",
