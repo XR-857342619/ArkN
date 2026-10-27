@@ -400,7 +400,7 @@ AssetBundle 是**平台相关**的，三层都会不匹配：
 Assets/StreamingAssets/
 ├── arkfx/            Windows 版（570 主包 + 51 依赖，311 MB，14665 prefab）
 ├── arkfx_android/    Android 版（570 主包 + 26 依赖，264 MB，14734 prefab）
-└── filelist.txt      按当前构建平台生成（见下）
+└── filelist.txt      只服务安卓首启拷贝（固定排除 arkfx/，见下）
 ```
 
 `ArkFxLoader.AbFolder` 编译期决定用哪个：
@@ -461,16 +461,37 @@ python Tools/dump_fx_params.py --src "D:\UnityWork\解包\effects_Android" ^
   --manifest "Assets\StreamingAssets\arkfx_android\_manifest.json" ^
   --out "Assets\StreamingAssets\arkfx_android\fxparams.json"
 
-# 生成当前平台的 filelist（打包前必须执行）
-python Tools/make_filelist.py --platform windows
-python Tools/make_filelist.py --platform android
+# 生成 filelist（只影响安卓首启拷贝，固定排除 Windows 专用的 arkfx/）
+python Tools/make_filelist.py
 ```
 
 ### 体积
 
-| 平台 | arkfx 目录 | filelist 条数 |
-|---|---|---|
-| Windows | 311 MB | 838（含 arkfx 625） |
-| Android | 264 MB | 813（含 arkfx_android 600） |
+### filelist 只服务安卓首启拷贝
 
-**只带当前平台那一套**（`make_filelist.py` 会排除另一套），否则 APK 与首启拷贝都会多出 300 MB。
+```csharp
+// Init.cs
+#if UNITY_ANDROID
+    await RunCopyOnFirstLaunch();     // 只有安卓会调
+#endif
+```
+```csharp
+// StreamingAssetsCopyUtility：桌面端直接跳过，连清单都不读
+bool sameRoot = (AppHotfixResPath == streamingAssetsPath);
+if (sameRoot) { MarkDone(); yield break; }
+```
+
+所以 **不需要分平台生成**：`make_filelist.py` 固定排除 Windows 专用的 `arkfx/`，
+结果永远是安卓需要的那份（当前 **813 条，arkfx_android 600 条**）。
+
+### ⚠️ 但 APK 体积是另一回事
+
+`filelist.txt` 只控制**首启拷贝到 persistentDataPath 的内容**。
+`StreamingAssets/` 下的**所有**文件仍会被打进 APK —— 包括 Windows 的 `arkfx/`（311 MB）。
+
+| 目的 | 手段 |
+|---|---|
+| 减少首启拷贝 / 设备存储 | `make_filelist.py`（已排除 arkfx） |
+| **减少 APK 体积** | 打包前**物理移走**另一平台的目录（`arkfx` 或 `arkfx_android`），或写进构建脚本 |
+
+例：出安卓包前把 `Assets/StreamingAssets/arkfx` 临时改名，打完再改回来。

@@ -1,47 +1,38 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-make_filelist.py —— 按构建平台生成 Assets/StreamingAssets/filelist.txt
+make_filelist.py —— 生成 Assets/StreamingAssets/filelist.txt
 
-背景：ArkFx 有两套平台相关的特效包
-    arkfx/          Windows（D3D11 shader + DXT 贴图）
-    arkfx_android/  Android（GLES3/Vulkan shader + ETC2/ASTC 贴图）
-两套 CAB 名相同、不能同时加载，打包时也只该带其中一套。
-而 StreamingAssetsCopyUtility 会按 filelist.txt 把文件拷到 persistentDataPath，
-若两份都列进去，安卓安装包和首启拷贝都会多出 300MB。
+用途：filelist.txt 只被 **安卓首启拷贝** 使用
+（Init.cs 里 CopyOnFirstLaunch 包在 #if UNITY_ANDROID 里；
+ 桌面端 StreamingAssetsCopyUtility 检测到 hotfix 路径 == StreamingAssets 会直接跳过，连清单都不读）。
+
+因此清单固定为「安卓需要的内容」：
+  - 列出 StreamingAssets 下所有文件
+  - **排除 arkfx/**（Windows 专用：D3D11 shader + DXT 贴图，安卓用不上，多拷 311MB）
+  - 排除 filelist.txt 自身与 .meta
 
 用法：
-    python Tools/make_filelist.py --platform windows
-    python Tools/make_filelist.py --platform android
-    python Tools/make_filelist.py                 # 不筛平台，全部列出（等价于 Unity 菜单）
+    python Tools/make_filelist.py
 """
-import argparse
 import os
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 SA = os.path.join(ROOT, "Assets", "StreamingAssets")
 
-EXCLUDE_DIRS = {
-    "windows": ["arkfx_android"],
-    "android": ["arkfx"],
-}
+# 只在 Windows 构建中使用的目录，安卓首启不需要
+EXCLUDE_TOP_DIRS = {"arkfx"}
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--platform", choices=["windows", "android", "all"], default="all")
-    args = ap.parse_args()
-
     if not os.path.isdir(SA):
         print("找不到目录: " + SA)
         return 1
 
-    skip = EXCLUDE_DIRS.get(args.platform, [])
     out = []
     for dp, dns, fns in os.walk(SA):
         rel_dir = os.path.relpath(dp, SA).replace("\\", "/")
-        top = rel_dir.split("/")[0]
-        if top in skip:
+        if rel_dir.split("/")[0] in EXCLUDE_TOP_DIRS:
             dns[:] = []
             continue
         for f in fns:
@@ -55,10 +46,10 @@ def main():
     with open(path, "w", encoding="utf-8") as fh:
         fh.write("\n".join(out) + "\n")
 
-    print(f"platform={args.platform}  排除={skip or '无'}")
     print(f"写出 {path}")
-    print(f"  共 {len(out)} 条，其中 arkfx={sum(1 for x in out if x.startswith('arkfx/'))}，"
-          f"arkfx_android={sum(1 for x in out if x.startswith('arkfx_android/'))}")
+    print(f"  共 {len(out)} 条，其中 arkfx_android="
+          f"{sum(1 for x in out if x.startswith('arkfx_android/'))}"
+          f"（已排除 arkfx/ 的 Windows 专用包）")
     return 0
 
 
