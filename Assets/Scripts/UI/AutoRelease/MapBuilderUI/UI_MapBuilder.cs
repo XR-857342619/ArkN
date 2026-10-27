@@ -29,6 +29,7 @@ namespace MapBuilderUI
         public GTextField m_mapName2;
         public GButton m_yes;
         public GButton m_no;
+        public GButton m_OpenSkinBrush;
         public Transition m_saveSuccess;
         public const string URL = "ui://wof4wytzei150";
 
@@ -63,6 +64,7 @@ namespace MapBuilderUI
             m_mapName2 = (GTextField)GetChildAt(31);
             m_yes = (GButton)GetChildAt(33);
             m_no = (GButton)GetChildAt(34);
+            m_OpenSkinBrush = (GButton)GetChildAt(36);
             m_saveSuccess = GetTransitionAt(0);
             Init();
         }

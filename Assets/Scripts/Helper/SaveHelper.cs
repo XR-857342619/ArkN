@@ -11,12 +11,17 @@ public class SaveHelper
 {
     public const string SingleSaveKey = "SingleData";
 
-    public static string LoadBaseFile(string fileName)
+    /// <summary>
+    /// 读取**打包时烘进资源包**的出厂地图（Addressables 里的 TextAsset）。
+    /// 注意：包名以前被硬编码成 "Main"，非 Main 包（如 test02）的出厂图永远读不到，
+    /// 现在改为按实际包名拼地址。
+    /// </summary>
+    public static string LoadBaseFile(string packageName, string fileName)
     {
         try
         {
-            var str = ResHelper.GetAsset<TextAsset>("Assets/Bundles/Data/Map/Main/" + fileName).text;
-            return str;
+            var asset = ResHelper.GetAsset<TextAsset>("Assets/Bundles/Data/Map/" + packageName + "/" + fileName);
+            return asset != null ? asset.text : string.Empty;
         }
         catch (Exception e)
         {
@@ -88,61 +93,31 @@ public class SaveHelper
 
         return string.Empty;
     }
+
+    /// <summary>
+    /// 读取**玩家存档**地图（热更/持久化目录下的 .map）。
+    /// 注意：
+    /// - 出厂地图是 `.txt`（StreamingAssets / Addressables 里），玩家改过的才是 `.map`，
+    ///   两者文件名不同，不会互相覆盖；
+    /// - 文件不存在 = 玩家还没改过这张图，属于**正常情况**，直接返回空、不打日志；
+    /// - 不再回退去 APK 里找 `.map`：APK 只读、永远不会有玩家存档，
+    ///   原来的 UnityWebRequest 回退会让每次读图都在主线程自旋等待一次 404。
+    /// </summary>
     public static string LoadMap(string fileName)
     {
         string filePath = PathHelper.MapResPath + fileName;
+        if (!File.Exists(filePath))
+            return string.Empty;
 
-#if UNITY_ANDROID
-        // 首次启动复制后，地图已位于持久化路径，优先用 File API 读取，避免主线程自旋阻塞
-        if (File.Exists(filePath))
+        try
         {
-            try
-            {
-                return File.ReadAllText(filePath, Encoding.UTF8);
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-                return string.Empty;
-            }
+            return File.ReadAllText(filePath, Encoding.UTF8);
         }
-
-        // 回退：从 APK 内置 StreamingAssets 读取（仅在持久化文件缺失时同步等待，属低频路径）
-        string packagePath = Application.streamingAssetsPath + fileName;
-        using (UnityWebRequest request = UnityWebRequest.Get(packagePath))
+        catch (Exception e)
         {
-            var operation = request.SendWebRequest();
-            while (!operation.isDone) { }
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                return request.downloadHandler.text;
-            }
-            else
-            {
-                Debug.LogError($"LoadMap failed: {request.error}");
-                return string.Empty;
-            }
+            Debug.LogException(e);
+            return string.Empty;
         }
-#else
-    // 原有逻辑保持不变
-    if (!File.Exists(filePath))
-        return string.Empty;
-
-    try
-    {
-        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-        {
-            byte[] bytes = new byte[stream.Length];
-            stream.Read(bytes, 0, (int)stream.Length);
-            return Encoding.UTF8.GetString(bytes);
-        }
-    }
-    catch (Exception e)
-    {
-        Debug.LogException(e);
-        return string.Empty;
-    }
-#endif
     }
 
     public static void DeleteFile(string fileName)
@@ -179,6 +154,9 @@ public class SaveHelper
         {
             Directory.CreateDirectory(dir);
         }
+        // 落盘路径直接打出来：以后"保存后重启丢失"这类问题，看一眼 Console 就知道
+        // 到底写到了哪里、和读的时候是不是同一个位置（读：Database.GetMap）
+        Debug.Log($"[SaveHelper] 保存地图：{dir + fileName}");
         FileStream txt = new FileStream(dir + fileName, FileMode.Create);
         StreamWriter sw = new StreamWriter(txt);
         sw.Write(str);

@@ -931,7 +931,6 @@ Assets/Bundles/Units/enemy_7032_xbpln
 Assets/Bundles/Units/enemy_7033_xbdrcar
 Assets/Bundles/Units/enemy_7035_epasng
 Assets/Bundles/Units/enemy_7043_xbelep
-Assets/Bundles/Units/enemy_7047_xbdit
 Assets/Bundles/Units/enemy_sp001_surtr
 Assets/Bundles/Units/recycle
 Assets/Bundles/Units/token_10018_robrta_mach_ambiencesynesthesia#3

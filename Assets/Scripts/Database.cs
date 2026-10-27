@@ -522,31 +522,40 @@ public class Database
             return result;
         }
 
-        // 1) 编辑器本地存档 .txt（SaveHelper.Save 的编辑器分支）——最高优先级。
-        // v3.5 修复「假保存」：旧逻辑先读 Addressables（= 上次构建时的旧 bundle 副本），
-        // 只要地图被打过包，重新进 Play 会话加载的就是旧版地图——刚保存的调整全部
-        // "看起来没保存"，且此时再保存一次还会用旧数据回滚覆盖新存档。
-        // 编辑器下 .txt 是 m_save 的直接落盘物，永远是最新真值，必须先读。
+        // ===== 读取优先级：玩家存档 > 出厂内置版本 =====
+        // v3.5 只修了**编辑器**这一侧（.txt 为先），打包分支仍然是"先读 Addressables、最后才读 .map"，
+        // 于是打包后凡是"随包烘进去"的地图，玩家在游戏里改完（比如刷皮肤）保存、重启游戏后
+        // 又会被内置的旧版本盖回去——表现为"局内能看到皮肤、重启就丢"。
+        // 现在两条路径统一为：本机落盘的存档文件永远最先读，内置版本只作兜底。
         string str = string.Empty;
+        string strSource = null;
+
 #if UNITY_EDITOR
+        // 1) 编辑器：Assets 下的 .txt 是 m_save 的直接落盘物（Save 的编辑器分支），最高优先级
         {
             var editorPath = System.IO.Path.Combine(
                 Directory.GetCurrentDirectory(),
                 "Assets/Bundles/Data/Map/" + packageName + "/" + mapName + ".txt");
             if (File.Exists(editorPath))
             {
-                try { str = File.ReadAllText(editorPath); }
+                try { str = File.ReadAllText(editorPath); strSource = "编辑器 .txt"; }
                 catch (Exception e) { Debug.LogError($"[Database] 读取地图存档失败 {editorPath}: {e.Message}"); }
             }
         }
 #endif
-        // 2) Addressables（打包后 / 已注册资产；编辑器下仅在本地 .txt 不存在时兜底）
+        // 2) 玩家存档：热更/持久化目录下的 .map（打包环境为最高优先级；编辑器下正常不存在）
         if (string.IsNullOrEmpty(str))
-            str = SaveHelper.LoadBaseFile(mapName);
-
-        // 3) 真机存档文件 .map
-        if (string.IsNullOrEmpty(str))
+        {
             str = SaveHelper.LoadMap("/Map/" + packageName + "/" + mapName + ".map");
+            if (!string.IsNullOrEmpty(str)) strSource = "玩家存档 .map";
+        }
+
+        // 3) 内置版本：打包时烘进 Addressables 的出厂地图，只作兜底
+        if (string.IsNullOrEmpty(str))
+        {
+            str = SaveHelper.LoadBaseFile(packageName, mapName);
+            if (!string.IsNullOrEmpty(str)) strSource = "内置 Addressables";
+        }
 
         // 加载/解析失败：不把 null 缓存进 Maps（否则该地图在本会话内永远无法恢复），
         // 直接报错返回，待存档文件就位后可重新加载
@@ -556,6 +565,8 @@ public class Database
             Maps.Remove(key);
             return null;
         }
+
+        Debug.Log($"[Database] 读取地图 {key}  来源：{strSource ?? "?"}  长度 {str.Length}");
 
         // R7：解析过程要兜住异常。以前 $type 解析失败/文件被写坏等情况会直接抛 JsonSerializationException，
         // 一路炸到调用方（表现为"点加载没反应"），这里统一转成一条明确错误 + 返回 null。
@@ -600,7 +611,16 @@ public class Database
         FileHelper.GetAllFiles(files, path);
         files.RemoveAll(x => x.EndsWith(".meta"));
         files.RemoveAll(x => x.EndsWith(".ini"));
-        return files.Select(x => System.IO.Path.GetFileNameWithoutExtension(x)).ToList();
+        // 同一个目录里可能同时存在 **出厂 .txt** 与 **玩家存档 .map**（打包环境下两者同处热更目录），
+        // 直接取文件名会出现「同名两条」，这里按名字去重（顺序保持首次出现）
+        var seen = new HashSet<string>();
+        var names = new List<string>();
+        foreach (var f in files)
+        {
+            var name = System.IO.Path.GetFileNameWithoutExtension(f);
+            if (seen.Add(name)) names.Add(name);
+        }
+        return names;
     }
     public string GetConfigPath(string packageName)
     {

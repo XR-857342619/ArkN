@@ -30,6 +30,7 @@ namespace MainUI
         public GGroup m_SESetting;
         public GButton m_ShowHp;
         public GButton m_ShowElement;
+        public GButton m_SwitchEffectsSource;
         public GGroup m_gamesteeing;
         public GTree m_ExcelList;
         public GGroup m_ExcelSetting;
@@ -73,15 +74,16 @@ namespace MainUI
             m_SESetting = (GGroup)GetChildAt(31);
             m_ShowHp = (GButton)GetChildAt(33);
             m_ShowElement = (GButton)GetChildAt(34);
-            m_gamesteeing = (GGroup)GetChildAt(36);
-            m_ExcelList = (GTree)GetChildAt(38);
-            m_ExcelSetting = (GGroup)GetChildAt(39);
-            m_subpage = (GGroup)GetChildAt(40);
-            m_InitError = (GTextField)GetChildAt(41);
-            m_rdbg = (GGraph)GetChildAt(43);
-            m_reloadList = (GTree)GetChildAt(44);
-            m_reloadComfirmBtn = (GButton)GetChildAt(47);
-            m_reloadPage = (GGroup)GetChildAt(48);
+            m_SwitchEffectsSource = (GButton)GetChildAt(37);
+            m_gamesteeing = (GGroup)GetChildAt(38);
+            m_ExcelList = (GTree)GetChildAt(40);
+            m_ExcelSetting = (GGroup)GetChildAt(41);
+            m_subpage = (GGroup)GetChildAt(42);
+            m_InitError = (GTextField)GetChildAt(43);
+            m_rdbg = (GGraph)GetChildAt(45);
+            m_reloadList = (GTree)GetChildAt(46);
+            m_reloadComfirmBtn = (GButton)GetChildAt(49);
+            m_reloadPage = (GGroup)GetChildAt(50);
             Init();
         }
         partial void Init();

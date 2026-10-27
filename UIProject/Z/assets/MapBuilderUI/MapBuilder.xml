@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1920,1080" opaque="false">
-  <controller name="state" pages="0,,1,,5,,2,,3,,4,,6," selected="0">
+  <controller name="state" pages="0,,1,,5,,2,,3,,4,,6," selected="1">
     <remark page="0" value="创建地图"/>
     <remark page="1" value="主页"/>
     <remark page="2" value="主页_地块模式"/>
@@ -107,6 +107,10 @@
       <gearDisplay controller="sure2" pages="1"/>
       <relation target="" sidePair="center-center%,middle-middle%"/>
     </group>
+    <component id="n50_hlnq" name="OpenSkinBrush" src="ei156" fileName="btn.xml" xy="27,240">
+      <gearDisplay controller="state" pages="1,5"/>
+      <Button title="皮肤笔刷"/>
+    </component>
   </displayList>
   <transition name="saveSuccess">
     <item time="0" type="Alpha" target="n40_uusj" value="1"/>

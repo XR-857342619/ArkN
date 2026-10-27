@@ -185,10 +185,34 @@ namespace MapBuilderUI
                 m_StartPage.m_load.onClick.Call();
             });
 
-            // === 皮肤笔刷·运行时版：整合进游戏内造图界面（按 T 显隐、面板可拖动）。
+            // === 皮肤笔刷·运行时版：整合进游戏内造图界面（面板可拖动、可缩放）。
             // 纯代码构建的 FairyGUI 面板挂在本视图下，不改 MapBuilderUI_fui.bytes；
             // 保存链路复用 m_save 的强制 SyncSkinsToGridInfos，无需额外同步。 ===
-            if (FeatureFlags.SkinBrush) SkinBrushRuntime.Install(this);
+            if (FeatureFlags.SkinBrush)
+            {
+                SkinBrushRuntime.Install(this);
+
+                // 界面按钮 OpenSkinBrush：开/关笔刷面板。
+                // 安卓端没有键盘（桌面端的 T 键用不上），这个按钮就是移动端唯一的入口；
+                // 桌面端也统一走同一个入口，行为一致。
+                if (m_OpenSkinBrush != null)
+                {
+                    m_OpenSkinBrush.onClick.Add(() =>
+                    {
+                        bool visible = SkinBrushRuntime.ToggleVisible();
+                        Debug.Log($"[MapBuilder] OpenSkinBrush → 皮肤笔刷面板 {(visible ? "打开" : "收起")}");
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("[MapBuilder] 未找到 OpenSkinBrush 按钮（MapBuilderUI_fui 未更新？）");
+                }
+            }
+            else
+            {
+                // 功能关闭时不显示入口，避免点了没反应
+                if (m_OpenSkinBrush != null) m_OpenSkinBrush.visible = false;
+            }
         }
 
         TaskCompletionSource<bool> ovTcs;

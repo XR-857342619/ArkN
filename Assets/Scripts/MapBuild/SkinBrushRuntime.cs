@@ -29,6 +29,8 @@ public class SkinBrushRuntime : MonoBehaviour
     /// <summary>默认笔刷目录（与编辑器笔刷 EditorPrefs 默认值一致）</summary>
     const string DefaultFolder = "Assets/Bundles/DungeonTile";
     const float PanelW = 440f, PanelH = 700f;
+    /// <summary>面板允许的缩放范围（下限放低，手机小屏也能自适应塞进屏幕）</summary>
+    const float PanelMinScale = 0.5f, PanelMaxScale = 2.0f;
     const float ItemH = 26f;
 
     // ---- 面板引用 ----
@@ -66,6 +68,7 @@ public class SkinBrushRuntime : MonoBehaviour
     bool panelPlaced;           // 是否已完成首帧定位（Install 时 view 还没 SetSize/进 GRoot，宽高不可信）
     bool panelUserMoved;        // 用户手动拖动过 → 不再自动右对齐，只做越界钳制
     Vector2 lastRootSize;       // 上一次的屏幕尺寸，用于检测分辨率/窗口变化
+    bool panelScaleInit;        // 是否已按屏幕做过一次自适应缩放（只做一次，之后尊重用户手动缩放）
 
     // ---- 列表滚动 / 缩放 ----
     float listScroll;           // 笔刷列表滚动像素
@@ -138,8 +141,9 @@ public class SkinBrushRuntime : MonoBehaviour
         if (!panelPlaced || rootSize != lastRootSize) PlacePanel();
 
         // T 键显隐（输入框打字时不触发；本版 FairyGUI 的输入显示对象是 InputTextField）
+        // 键盘 T（桌面端）。安卓没有键盘，靠造图界面上的 OpenSkinBrush 按钮 —— 走同一个入口
         if (Input.GetKeyDown(KeyCode.T) && !(Stage.inst.focus is InputTextField))
-            panel.visible = !panel.visible;
+            SetPanelVisible(!panel.visible);
 
         // 笔画批次生命周期放在所有守卫之前：鼠标在 UI 上松开时也能正常收批，防止批次悬挂到下一次点击
         if (Input.GetMouseButtonDown(0)) strokeBatch = new List<GridSnapshot>();
@@ -1069,9 +1073,26 @@ public class SkinBrushRuntime : MonoBehaviour
         float rootW = GRoot.inst.width, rootH = GRoot.inst.height;
         if (rootW <= 1f || rootH <= 1f) return;   // GRoot 还没就绪，下一帧再来
 
+        const float margin = 12f;
+
+        // 首次定位时按屏幕自适应缩放：手机小屏（或分屏）上 440×700 的原尺寸塞不下，
+        // 只做一次，之后完全尊重用户用手柄调过的缩放
+        if (!panelScaleInit)
+        {
+            panelScaleInit = true;
+            float fit = Mathf.Min(1f,
+                (rootH - margin * 2f) / PanelH,
+                (rootW - margin * 2f) / PanelW);
+            if (fit < 1f)
+            {
+                float s = Mathf.Clamp(fit, PanelMinScale, 1f);
+                panel.SetScale(s, s);
+                Debug.Log($"[SkinBrushRT] 屏幕 {rootW}x{rootH} 放不下 {PanelW}x{PanelH} 面板，自适应缩放 {s:F2}");
+            }
+        }
+
         float w = PanelW * panel.scaleX;
         float h = PanelH * panel.scaleY;
-        const float margin = 12f;
 
         float gx, gy;
         if (panelUserMoved)
@@ -1147,6 +1168,54 @@ public class SkinBrushRuntime : MonoBehaviour
         return false;
     }
 
+    /// <summary>面板当前是否可见（未安装/功能关闭时为 false）</summary>
+    public static bool IsVisible
+    {
+        get { return Instance != null && Instance.panel != null && Instance.panel.visible; }
+    }
+
+    /// <summary>
+    /// 切换面板显隐，返回切换后的可见状态。
+    /// 供 **UI 按钮**（造图界面的 OpenSkinBrush）与键盘快捷键共用 ——
+    /// 安卓端没有键盘，按钮是唯一入口；同时这里会顺带做首帧定位与自适应缩放。
+    /// </summary>
+    public static bool ToggleVisible()
+    {
+        var inst = Instance;
+        if (inst == null || inst.panel == null) return false;
+        inst.SetPanelVisible(!inst.panel.visible);
+        return inst.panel.visible;
+    }
+
+    /// <summary>显式设置面板显隐</summary>
+    public static void SetVisible(bool visible)
+    {
+        var inst = Instance;
+        if (inst == null || inst.panel == null) return;
+        inst.SetPanelVisible(visible);
+    }
+
+    void SetPanelVisible(bool visible)
+    {
+        if (panel == null) return;
+        panel.visible = visible;
+        if (visible)
+        {
+            // 重新走一次定位/自适应：打开面板时屏幕尺寸可能已经变了（手机旋转、分屏等）
+            panelPlaced = false;
+            PlacePanel();
+            PlacePreviewWindow();
+        }
+        else
+        {
+            // 收起时清掉挂起状态，避免下次打开时"第一下点击"被当成取场景模板
+            pickSceneTemplate = false;
+            listDragging = false;
+            sbDragging = false;
+            resizing = false;
+        }
+    }
+
     /// <summary>
     /// 指针是否压在笔刷面板 / 预览窗上（供其它系统查询：例如造图界面的相机滚轮缩放要避开它）。
     /// 用矩形直接判定，不依赖 FairyGUI 的 touchTarget —— 面板是纯代码 GGraph，
@@ -1166,7 +1235,9 @@ public class SkinBrushRuntime : MonoBehaviour
         panel = new GComponent();
         panel.SetSize(PanelW, PanelH);
         panel.draggable = true; // 整体可拖动（按钮/输入框/列表仍可正常交互）
-        panel.visible = true;
+        // 手机端默认**收起**：屏幕小 + 没有键盘，进造图界面就挡住半屏不合适，
+        // 由界面上的 OpenSkinBrush 按钮打开；桌面端保持"进入即可见 + T 键切换"。
+        panel.visible = !Application.isMobilePlatform;
 
         AddRect(panel, 0, 0, PanelW, PanelH, new Color(0.10f, 0.11f, 0.13f, 0.94f),
             new Color(0.45f, 0.55f, 0.65f, 1f));
@@ -1174,7 +1245,9 @@ public class SkinBrushRuntime : MonoBehaviour
         // 标题 + 关闭
         var title = MakeText(panel, "", 8, 8, 330, 14, new Color(0.9f, 0.92f, 0.95f));
         title.textFormat.bold = true;
-        title.text = "皮肤笔刷（T 显隐 · 可拖动 · 右下角缩放）";
+        title.text = Application.isMobilePlatform
+            ? "皮肤笔刷（按钮开/关 · 可拖动 · 右下角缩放）"
+            : "皮肤笔刷（T 显隐 · 可拖动 · 右下角缩放）";
         // 归位：清除"用户拖过"的标记，重新贴右上角（分辨率变化时也用得上）
         MakeButton(panel, "归位", (int)PanelW - 36 - 48, 6, 44, 22, () =>
         {
@@ -1182,7 +1255,7 @@ public class SkinBrushRuntime : MonoBehaviour
             PlacePanel();
             SetStatus("面板已归位（右上角），可再次拖动");
         });
-        MakeButton(panel, "×", (int)PanelW - 36, 6, 28, 22, () => panel.visible = false);
+        MakeButton(panel, "×", (int)PanelW - 36, 6, 28, 22, () => SetPanelVisible(false));
 
         // ---- 模式行 ----
         float[] mx = { 8, 66, 124, 204, 262, 320 };
@@ -1394,7 +1467,7 @@ public class SkinBrushRuntime : MonoBehaviour
         {
             if (!resizing) return;
             var p = Stage.inst.touchPosition;
-            float s = Mathf.Clamp(resizeScaleStart + (p.x - resizeStart.x) / 440f, 0.7f, 2.0f);
+            float s = Mathf.Clamp(resizeScaleStart + (p.x - resizeStart.x) / 440f, PanelMinScale, PanelMaxScale);
             panel.SetScale(s, s);
         });
         grip.onTouchEnd.Add((EventContext ec) =>
