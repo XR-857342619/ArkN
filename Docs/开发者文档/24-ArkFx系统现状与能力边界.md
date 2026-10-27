@@ -467,6 +467,12 @@ python Tools/make_filelist.py
 
 ### 体积
 
+| 目录 | 包数 | 体积 |
+|---|---|---|
+| `arkfx/` | 570 主包 + 51 依赖 | 311 MB（实测 316 MB） |
+| `arkfx_android/` | 570 主包 + 26 依赖 | 264 MB |
+| 合计 | — | **约 580 MB**（仓库已 gitignore，各自本地生成） |
+
 ### filelist 只服务安卓首启拷贝
 
 ```csharp
@@ -492,6 +498,31 @@ if (sameRoot) { MarkDone(); yield break; }
 | 目的 | 手段 |
 |---|---|
 | 减少首启拷贝 / 设备存储 | `make_filelist.py`（已排除 arkfx） |
-| **减少 APK 体积** | 打包前**物理移走**另一平台的目录（`arkfx` 或 `arkfx_android`），或写进构建脚本 |
+| **减少 APK 体积** | 构建钩子 `ArkFxBuildHook`（自动移走另一平台目录，见 5.9） |
 
-例：出安卓包前把 `Assets/StreamingAssets/arkfx` 临时改名，打完再改回来。
+## 5.9 构建钩子：自动移走非当前平台素材（2026-10-28）
+
+`Assets/Editor/ArkFxBuildHook.cs`
+
+| 时机 | 行为 |
+|---|---|
+| `IPreprocessBuildWithReport` | 先把遗留状态恢复（上次构建异常中断的兜底），再把「非目标平台」那一套 `Directory.Move` 到 `Library/ArkFxBuildSwap/`，然后重新生成 `filelist.txt` |
+| `IPostprocessBuildWithReport` | 无论构建成功/失败/取消，立刻移回原位并重生成 `filelist.txt` |
+| `[InitializeOnLoadMethod]` | 编辑器启动时若存在 `Library/ArkFxBuildSwap/swapped.txt`，自动恢复（防止素材卡在临时目录里） |
+
+- 移动的是**目录本身**（同盘 rename，瞬时），不是逐文件复制；实测 316 MB 目录移动 < 1 秒。
+- `callbackOrder = 0`。
+- 平台判定用 `report.summary.platform == BuildTarget.Android`：**Android → 移走 `arkfx/`；其它（含 Windows）→ 移走 `arkfx_android/`**。
+- 如果目标平台要用的那套不存在，只 `LogWarning`，不阻断构建。
+
+手动菜单：
+
+| 菜单 | 用途 |
+|---|---|
+| `Tools/ArkFx/8. 手动移出非当前平台素材（演练用）` | 按 `EditorUserBuildSettings.activeBuildTarget` 移走另一套，可用来实测「打包后确实少 300 MB」 |
+| `Tools/ArkFx/9. 恢复被移出的素材` | 手动恢复（正常情况不用，钩子会自己做） |
+
+**实测验证（2026-10-28）**：手工模拟移动 `arkfx/`（316 MB）→ `Assets/StreamingAssets/` 只剩 `arkfx_android/` → 重新生成 filelist **仍为 813 条（arkfx_android=600）**，与移动前完全一致 → 移回后目录大小/包数不变。证明 filelist 生成规则与物理移动解耦，互不影响。
+
+> 已知边界：只区分 Android / 非 Android。若将来要出 iOS 包，`ArkFxLoader.AbFolder`
+> 与钩子的 keep/drop 判断都要再加分支（iOS 该用哪套素材目前无解，需要重新解 iOS 包）。
