@@ -172,6 +172,15 @@ namespace MainUI
                 }
                 SaveHelper.SaveData();
             });
+            m_SwitchEffectsSource.onClick.Add(() =>
+            {
+                // 特效来源优先级：true = 原版 AB 优先，false = 工程内 prefab 优先
+                // ArkFxLoader.PreferAbSource 的 setter 内部会写 GameData 并立即保存存档
+                ArkFxLoader.PreferAbSource = m_SwitchEffectsSource.selected;
+                TipManager.Instance.ShowTip(m_SwitchEffectsSource.selected
+                    ? "特效来源：原版 AB 优先"
+                    : "特效来源：工程内优先");
+            });
             //m_importSpine.onClick.Add(OpenFolderDialog);
             //GTree exceltree = m_ExcelList;
             //GTreeNode rootNode = exceltree.rootNode;
@@ -209,6 +218,7 @@ namespace MainUI
             m_SEVolume.value = GameData.Instance.SoundEffectVolume * 100;
             m_ShowElement.selected = GameData.Instance.showElement;
             m_ShowHp.selected = GameData.Instance.showHP;
+            m_SwitchEffectsSource.selected = ArkFxLoader.PreferAbSource;
             m_Name.text = GameData.Instance.Name;
             m_Version.text = UnityEngine.Application.version;
             if (gameData.Teams != null && gameData.Teams.Length > 0 && gameData.Teams[0] != null && gameData.Teams[0].Cards.Count > 0)

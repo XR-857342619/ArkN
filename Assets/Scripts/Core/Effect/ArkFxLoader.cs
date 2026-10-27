@@ -243,10 +243,8 @@ public static class ArkFxLoader
     /// </summary>
     // ---- 验收开关：用 PlayerPrefs 持久化，避免"重新进 Play 就失效" ----
     const string PrefUseV6 = "ArkFx.UseV6";
-    const string PrefPreferAb = "ArkFx.PreferAbSource";
 
     static bool _useV6 = true;
-    static bool _preferAbSource = true;
 
     /// <summary>
     /// 是否使用 IDA 实证版（v6）的 UV 替身组件。
@@ -262,13 +260,20 @@ public static class ArkFxLoader
     /// <summary>
     /// 特效来源优先级。
     /// true（默认）= 先用 arkfx 里的原版 AB，找不到再回落工程内 Assets/Bundles/Effect；
-    /// false        = 先用工程内 prefab，找不到再回落 AB（旧行为，便于对比/排障）。
-    /// 编辑器菜单 Tools/ArkFx/0 可切换；值存在 PlayerPrefs 里，重进 Play 仍然有效。
+    /// false        = 先用工程内 prefab，找不到再回落 AB（便于对比/排障）。
+    /// 值存在游戏存档 data.sav（GameData.preferAbEffects）里，
+    /// 由主界面设置面板的 SwitchEffectsSource 按钮控制；编辑器菜单 Tools/ArkFx/0 也可切换。
     /// </summary>
     public static bool PreferAbSource
     {
-        get { return _preferAbSource; }
-        set { _preferAbSource = value; PlayerPrefs.SetInt(PrefPreferAb, value ? 1 : 0); PlayerPrefs.Save(); }
+        get { return GameData.Instance.preferAbEffects; }
+        set
+        {
+            var gd = GameData.Instance;
+            if (gd.preferAbEffects == value) return;
+            gd.preferAbEffects = value;
+            SaveHelper.SaveData();      // 立即落盘，避免退出时丢设置
+        }
     }
 
     /// <summary>最早时机恢复验收开关（SubsystemRegistration 早于 ArkFxBootstrap 的 BeforeSceneLoad）。</summary>
@@ -276,7 +281,7 @@ public static class ArkFxLoader
     static void RestoreDebugSwitches()
     {
         _useV6 = PlayerPrefs.GetInt(PrefUseV6, 1) != 0;
-        _preferAbSource = PlayerPrefs.GetInt(PrefPreferAb, 1) != 0;
+        // PreferAbSource 不再走 PlayerPrefs，改由存档 GameData.preferAbEffects 提供
     }
 
     /// <summary>

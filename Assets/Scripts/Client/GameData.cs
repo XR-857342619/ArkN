@@ -22,6 +22,11 @@ public class GameData
     public float SoundEffectVolume = 1;
     public bool showHP = false;
     public bool showElement = false;
+    /// <summary>
+    /// 特效来源优先级：true（默认）= 先用 arkfx 里的原版 AB，找不到再回落工程内 prefab；
+    /// false = 工程内 prefab 优先。由主界面设置面板的 SwitchEffectsSource 按钮控制。
+    /// </summary>
+    public bool preferAbEffects = true;
     public List<string> ExcelList = new List<string>();
     public List<string> ExcludedExcelList = new List<string>();
     /// <summary>

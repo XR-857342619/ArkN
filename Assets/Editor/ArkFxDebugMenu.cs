@@ -32,7 +32,7 @@ public static class ArkFxDebugMenu
         ArkFxLoader.PreferAbSource = !ArkFxLoader.PreferAbSource;
         Debug.Log("[ArkFx] 特效来源优先级："
             + (ArkFxLoader.PreferAbSource ? "原版 AB 优先（找不到再回落工程内）" : "工程内 prefab 优先")
-            + "。已写入 PlayerPrefs，重新进 Play 生效。");
+            + "。已写入游戏存档 data.sav（与主界面 SwitchEffectsSource 按钮同一个开关），重新进 Play 生效。");
     }
 
     [MenuItem("Tools/ArkFx/1. 切换 UV 实现 v5 <-> v6", false, 1)]

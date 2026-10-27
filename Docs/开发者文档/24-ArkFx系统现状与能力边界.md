@@ -327,3 +327,52 @@ EffectManager.GetEffect(id):
 | 首次启动拷贝（安卓） | 文件数 837，其中 621 个 .ab |
 | 启动时 AB 注册 | 621 次 `LoadFromFile`（只读头，实测可接受） |
 | 内存 | 索引约 14665 个字符串键 |
+
+---
+
+## 5.7 特效来源开关改为存档持久化（2026-10-26）
+
+### 变更
+
+`ArkFxLoader.PreferAbSource` 从 **PlayerPrefs** 改为 **游戏存档 `data.sav`**：
+
+```csharp
+public static bool PreferAbSource
+{
+    get { return GameData.Instance.preferAbEffects; }
+    set
+    {
+        var gd = GameData.Instance;
+        if (gd.preferAbEffects == value) return;
+        gd.preferAbEffects = value;
+        SaveHelper.SaveData();      // 立即落盘
+    }
+}
+```
+
+| 项 | 改动 |
+|---|---|
+| `GameData` | 新增字段 `public bool preferAbEffects = true;` |
+| `ArkFxLoader` | 属性改为读写 `GameData`，移除 PlayerPrefs 键 `ArkFx.PreferAbSource` |
+| 主界面设置面板 | 新增按钮 `SwitchEffectsSource` 的点击处理 + `Flush()` 回填状态 |
+| 编辑器菜单 `Tools/ArkFx/0` | 同一个开关，文案改为"写入游戏存档" |
+
+### UI 接线（`Assets/Scripts/UI/Main/UI_Main.cs`）
+
+```csharp
+// 点击
+m_SwitchEffectsSource.onClick.Add(() => {
+    ArkFxLoader.PreferAbSource = m_SwitchEffectsSource.selected;   // setter 内部写存档
+    TipManager.Instance.ShowTip(m_SwitchEffectsSource.selected ? "特效来源：原版 AB 优先" : "特效来源：工程内优先");
+});
+
+// Flush() 里回填
+m_SwitchEffectsSource.selected = ArkFxLoader.PreferAbSource;
+```
+
+### 注意
+
+- `UseV6`（v5/v6 UV 实现切换）**仍留在 PlayerPrefs**，因为它只是开发期 A/B 用的调试开关，不属于玩家设置。
+- `ArkFxBootstrap` 在 `BeforeSceneLoad` 执行，那时 `GameData` 还没 `Init`；
+  但 `PreferAbSource` 只在"生成特效"时被读取，此时存档已加载，所以无需额外同步。
+- 老存档里没有 `preferAbEffects` 字段 → Newtonsoft 用字段初值 `true`，即默认「AB 优先」，符合预期。
