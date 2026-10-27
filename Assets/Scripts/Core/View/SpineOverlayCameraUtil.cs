@@ -39,6 +39,7 @@ public static class SpineOverlayCameraUtil
     static Camera _spineCam;
     static Camera _deviceCam;
     static bool _warned;
+    static bool _warnedDepthShader;
     static bool _configLogged;
 
     /// <summary>Spine 单位：整体切到 Spine3D 层（名为 "Shadow" 的地面阴影子物体除外）。</summary>
@@ -119,16 +120,34 @@ public static class SpineOverlayCameraUtil
         }
         if (_deviceCam != null)
         {
-            _deviceCam.cullingMask = 1 << deviceLayer;
-            if (occluderLayer != -1) _deviceCam.cullingMask |= 1 << occluderLayer; // 高台深度代理：只写深度
-            _deviceCam.clearFlags = CameraClearFlags.Depth;
-            // 必须低于 FairyGUI StageCamera（depth=1），否则 UI 之后仍会被本方案相机覆盖
-            _deviceCam.depth = main.depth + 0.25f;
-            if (depthShader != null)
-                _deviceCam.SetReplacementShader(depthShader, "RenderType");
+            if (depthShader == null)
+            {
+                // 【重要】拿不到替换着色器时绝不能让它继续渲染！
+                // 没有替换着色器 = 这台相机会用物体自己的彩色材质再画一遍，而它的深度缓冲刚被
+                // Clear = Depth 清空（里面没有地形）→ 高台/装置会整块盖到画面上，埋在地下的部分
+                // 也不再被地面遮挡。典型触发条件：打包时 shader 被剥离，Shader.Find 返回 null。
+                // 正确做法是直接停用，退回“Spine 永远在最上层”的旧表现。
+                _deviceCam.cullingMask = 0;
+                _deviceCam.enabled = false;
+                if (!_warnedDepthShader)
+                {
+                    _warnedDepthShader = true;
+                    Debug.LogError($"[SpineOverlayCameraUtil] 找不到着色器 {DepthShaderName}（多半是打包时被剥离）。" +
+                                   "请加入 Project Settings → Graphics → Always Included Shaders。" +
+                                   "已停用 DeviceDepthCamera，退回旧渲染，不会出现地形重影。");
+                }
+            }
             else
-                Debug.LogWarning($"[SpineOverlayCameraUtil] 找不到着色器 {DepthShaderName}，装置深度将无法写入（Spine 与装置重合时可能无法正常遮挡）。");
-            EnsureSync(_deviceCam.gameObject);
+            {
+                _deviceCam.enabled = true;
+                _deviceCam.cullingMask = 1 << deviceLayer;
+                if (occluderLayer != -1) _deviceCam.cullingMask |= 1 << occluderLayer; // 高台深度代理：只写深度
+                _deviceCam.clearFlags = CameraClearFlags.Depth;
+                // 必须低于 FairyGUI StageCamera（depth=1），否则 UI 之后仍会被本方案相机覆盖
+                _deviceCam.depth = main.depth + 0.25f;
+                _deviceCam.SetReplacementShader(depthShader, "RenderType");
+                EnsureSync(_deviceCam.gameObject);
+            }
         }
 
         // ---- SpineOverlayCamera：Clear = Nothing（保留装置深度），渲染 Spine + 特效 ----
@@ -140,7 +159,10 @@ public static class SpineOverlayCameraUtil
         if (_spineCam != null)
         {
             _spineCam.cullingMask = fxLayer != -1 ? (1 << spineLayer) | (1 << fxLayer) : (1 << spineLayer);
-            _spineCam.clearFlags = CameraClearFlags.Nothing; // 保留 DeviceDepthCamera 的深度与主画面颜色
+            // 正常模式：Clear = Nothing，复用 DeviceDepthCamera 写的装置/高台深度（画面颜色也保留）。
+            // 降级模式（替换着色器缺失、装置深度相机已停用）：必须自己清深度，否则会继承主相机
+            // 的完整世界深度，单位会被脚下地板/前景地形切脚 —— 等于退回“永远在最上层”的旧表现。
+            _spineCam.clearFlags = depthShader != null ? CameraClearFlags.Nothing : CameraClearFlags.Depth;
             _spineCam.depth = main.depth + 0.5f; // 同样必须低于 FairyGUI StageCamera（depth=1）
             EnsureSync(_spineCam.gameObject);
         }

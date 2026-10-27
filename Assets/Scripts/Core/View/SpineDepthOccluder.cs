@@ -31,6 +31,7 @@ public static class SpineDepthOccluderUtil
     /// 代理也画不出颜色，不会出现重影。</summary>
     static Material _depthOnlyMat;
     static bool _depthOnlyMatSearched;
+    static bool _warnedNoShader;
 
     static Material GetDepthOnlyMaterial()
     {
@@ -51,6 +52,21 @@ public static class SpineDepthOccluderUtil
         if (layer == -1)
         {
             Debug.LogWarning($"[SpineDepthOccluder] 缺少渲染层「{SpineOverlayCameraUtil.OccluderLayerName}」，高台无法遮挡 Spine。");
+            return false;
+        }
+
+        // 【重要】拿不到“只写深度”材质时必须整体放弃，绝不能退回原材质：
+        // 否则代理会用彩色材质把地形再画一遍，而 DeviceDepthCamera 的深度缓冲里没有地面，
+        // 结果就是高台埋在地下的部分也露出来（打包后 shader 被剥离时就是这个现象）。
+        var depthMat = GetDepthOnlyMaterial();
+        if (depthMat == null)
+        {
+            if (!_warnedNoShader)
+            {
+                _warnedNoShader = true;
+                Debug.LogError("[SpineDepthOccluder] 找不到着色器 Custom/DeviceDepthOnly（多半是打包时被剥离）。" +
+                               "请加入 Project Settings → Graphics → Always Included Shaders。本次不生成深度代理。");
+            }
             return false;
         }
 
@@ -80,17 +96,9 @@ public static class SpineDepthOccluderUtil
             proxyFilter.sharedMesh = mf.sharedMesh;
 
             var proxyRenderer = proxy.AddComponent<MeshRenderer>();
-            var depthMat = GetDepthOnlyMaterial();
-            if (depthMat != null)
-            {
-                var mats = new Material[mf.sharedMesh.subMeshCount > 0 ? mf.sharedMesh.subMeshCount : 1];
-                for (int m = 0; m < mats.Length; m++) mats[m] = depthMat;
-                proxyRenderer.sharedMaterials = mats;
-            }
-            else
-            {
-                proxyRenderer.sharedMaterials = mr.sharedMaterials;
-            }
+            var mats = new Material[mf.sharedMesh.subMeshCount > 0 ? mf.sharedMesh.subMeshCount : 1];
+            for (int m = 0; m < mats.Length; m++) mats[m] = depthMat;
+            proxyRenderer.sharedMaterials = mats;
             proxyRenderer.shadowCastingMode = ShadowCastingMode.Off;
             proxyRenderer.receiveShadows = false;
             proxyRenderer.lightProbeUsage = LightProbeUsage.Off;
