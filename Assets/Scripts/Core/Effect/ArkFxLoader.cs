@@ -23,13 +23,31 @@ public static class ArkFxLoader
     static string _loadDir;
 
     /// <summary>
+    /// 当前构建平台对应的特效包子目录名。
+    /// AB 包是**平台相关**的（SerializedFile 的 target_platform、shader 的 D3D11/Vulkan 变体、
+    /// 贴图的 DXT/ETC2 压缩都不同），所以 Windows 版与 Android 版必须分目录存放、按平台只加载一套。
+    /// 两个目录里的 CAB 名完全相同，混在一起会互相覆盖。
+    /// </summary>
+    public static string AbFolder
+    {
+        get
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            return "arkfx_android";
+#else
+            return "arkfx";
+#endif
+        }
+    }
+
+    /// <summary>
     /// 特效包目录。
     /// 桌面端 PathHelper.AppHotfixResPath == StreamingAssets；
     /// 移动端它是 persistentDataPath（由 StreamingAssetsCopyUtility 首次启动时把
     /// StreamingAssets 整体拷过去），否则 APK 内的 jar: 路径无法用文件系统 API 读取。
     /// </summary>
     public static string AbDir =>
-        Path.Combine(PathHelper.AppHotfixResPath, "arkfx");
+        Path.Combine(PathHelper.AppHotfixResPath, AbFolder);
 
     /// <summary>游戏启动时调用一次（ArkFxBootstrap 自动调）</summary>
     public static void LoadAll(string abDir)

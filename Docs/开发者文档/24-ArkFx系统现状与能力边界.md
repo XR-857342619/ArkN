@@ -376,3 +376,101 @@ m_SwitchEffectsSource.selected = ArkFxLoader.PreferAbSource;
 - `ArkFxBootstrap` 在 `BeforeSceneLoad` 执行，那时 `GameData` 还没 `Init`；
   但 `PreferAbSource` 只在"生成特效"时被读取，此时存档已加载，所以无需额外同步。
 - 老存档里没有 `preferAbEffects` 字段 → Newtonsoft 用字段初值 `true`，即默认「AB 优先」，符合预期。
+
+---
+
+## 5.8 双平台特效包（Windows + Android，2026-10-27）
+
+### 为什么必须两套
+
+AssetBundle 是**平台相关**的，三层都会不匹配：
+
+| 层 | Windows 版 | Android 版 |
+|---|---|---|
+| SerializedFile `target_platform` | `StandaloneWindows64` | `Android` |
+| Shader 编译变体 | D3D11（`m_Platforms=[4]`） | GLES3 / Vulkan（`m_Platforms=[9,18]`） |
+| 贴图压缩 | DXT / BC | ETC2 / ASTC |
+
+任一不匹配都会导致：加载被拒 / `isSupported=false` 全品红 / 贴图花屏。
+所以**不能只拿 Windows 版给安卓用**。
+
+### 目录约定
+
+```
+Assets/StreamingAssets/
+├── arkfx/            Windows 版（570 主包 + 51 依赖，311 MB，14665 prefab）
+├── arkfx_android/    Android 版（570 主包 + 26 依赖，264 MB，14734 prefab）
+└── filelist.txt      按当前构建平台生成（见下）
+```
+
+`ArkFxLoader.AbFolder` 编译期决定用哪个：
+
+```csharp
+public static string AbFolder
+{
+    get
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        return "arkfx_android";
+#else
+        return "arkfx";
+#endif
+    }
+}
+```
+
+> ⚠️ 两套包的 **CAB 名完全相同**（同一份资源的不同平台构建），
+> 放进同一个目录会互相覆盖，**必须分目录**，且运行时只加载其中一套。
+
+### 安卓素材来源
+
+安卓版来自对应版本客户端的 Android 解包：
+
+```
+D:\UnityWork\解包\effects_Android\     570 个 effects 包
+D:\UnityWork\解包\Android\             依赖（扁平结构：[uc]shaders.ab / material.ab /
+                                       sharedbattle.ab / shaders\ / texture\ / anon\）
+```
+
+验证结论（全量）：
+
+| 项 | 结果 |
+|---|---|
+| 570 个包 | 全部 UnityFS format 8、引擎 **2021.3.39f1**（与工程同版本） |
+| 压缩 | 全部 LZ4AK（`comp=3`），现有补丁可解 |
+| `target_platform` | 全部 **Android** |
+| 依赖 CAB | 需要 46 个，安卓依赖目录覆盖 **27 个**；核心 9 个（shaders/material/sharedbattle/texture×6）**全部齐全** |
+| 未覆盖的 19 个 | 均为地图/建筑类边缘依赖，每个仅被 1~3 个包引用，不影响特效主体 |
+
+### 生成命令
+
+```bash
+# Windows 版
+python Tools/arkfx_merge.py --all --force
+
+# Android 版
+python Tools/arkfx_merge.py --all --force ^
+  --src "D:\UnityWork\解包\effects_Android" ^
+  --dep-root "D:\UnityWork\解包\Android" ^
+  --out "Assets\StreamingAssets\arkfx_android" ^
+  --series effects
+
+# 参数导出（各自一份）
+python Tools/dump_fx_params.py
+python Tools/dump_fx_params.py --src "D:\UnityWork\解包\effects_Android" ^
+  --manifest "Assets\StreamingAssets\arkfx_android\_manifest.json" ^
+  --out "Assets\StreamingAssets\arkfx_android\fxparams.json"
+
+# 生成当前平台的 filelist（打包前必须执行）
+python Tools/make_filelist.py --platform windows
+python Tools/make_filelist.py --platform android
+```
+
+### 体积
+
+| 平台 | arkfx 目录 | filelist 条数 |
+|---|---|---|
+| Windows | 311 MB | 838（含 arkfx 625） |
+| Android | 264 MB | 813（含 arkfx_android 600） |
+
+**只带当前平台那一套**（`make_filelist.py` 会排除另一套），否则 APK 与首启拷贝都会多出 300 MB。

@@ -8,9 +8,8 @@ using UnityEngine;
 public static class ArkFxBootstrap
 {
     // ab/ 目录随游戏分发的位置：StreamingAssets/arkfx/
-    /// <summary>同 ArkFxLoader.AbDir：移动端指向 persistentDataPath 下的拷贝。</summary>
-    public static string AbDir =>
-        Path.Combine(PathHelper.AppHotfixResPath, "arkfx");
+    /// <summary>同 ArkFxLoader.AbDir（含平台子目录选择）。</summary>
+    public static string AbDir => ArkFxLoader.AbDir;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void Init()

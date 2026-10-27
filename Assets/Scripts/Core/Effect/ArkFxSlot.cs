@@ -37,7 +37,7 @@ public class ArkFxSlot : MonoBehaviour
     GameObject _fx;
     Transform _socket;
 
-    static string AbDir => Path.Combine(PathHelper.AppHotfixResPath, "arkfx");
+    static string AbDir => ArkFxLoader.AbDir;
 
     void Awake() => ResolveSocket();
 
