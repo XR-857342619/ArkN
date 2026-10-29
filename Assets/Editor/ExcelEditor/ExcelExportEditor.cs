@@ -21,13 +21,67 @@ public class ExcelExportEditor
 
     };
 
+    /// <summary>
+    /// 生成配置类时需要保留的字段初始值：表名.字段名 -> 初始值表达式。
+    /// ExportClass 每次导出都会 FileMode.Create 重写 Assets/Scripts/Config/*.cs，
+    /// 手工加在生成文件里的默认值会被覆盖，所以必须在这里维护。
+    /// 目前只有 EffectData.LifeTime：表里不填时若为 0，Effect.Update 第一帧就会判定到期并回池。
+    /// </summary>
+    static readonly Dictionary<string, string> ExcelClassFieldInitializers = new Dictionary<string, string>()
+    {
+        { "EffectData.LifeTime", "5f" },
+    };
+
     [MenuItem("Tools/导出配置")]
     public static void ExportAll()
     {
+        var excelPaths = new List<string>();
+        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx", SearchOption.AllDirectories).OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
+        {
+            if (path.Contains("$") || IsInBackupFolder(path)) continue;
+            excelPaths.Add(path);
+        }
+
+        // 导出前先做全量基础校验：空 Id / 重复 Id / 跨表引用不存在 / 基础数值不合法。
+        ExcelHelper.AppendExportLog("Tools/导出配置 开始");
+        var errors = ExcelHelper.ValidateExcelFiles(excelPaths);
+        if (errors.Count > 0)
+        {
+            string preview = string.Join("\n", errors.GetRange(0, Math.Min(12, errors.Count)));
+            string more = errors.Count > 12 ? $"\n... 其余 {errors.Count - 12} 条见 Console" : "";
+            Debug.LogError("[ExcelExportEditor] 配置校验失败：\n" + string.Join("\n", errors));
+            ExcelHelper.AppendExportLog($"Tools/导出配置 中止：校验失败 {errors.Count} 条");
+            string reportPath = WriteValidationReport(errors);
+            if (!Application.isBatchMode)
+            {
+                EditorUtility.DisplayDialog("配置校验失败",
+                    $"共 {errors.Count} 个问题，已阻止导出。\n\n{preview}{more}\n\n完整报告：{reportPath}", "确定");
+            }
+            return;
+        }
+
         ExportClass();
         ExportData();
         AssetDatabase.Refresh();
+        ExcelHelper.AppendExportLog("Tools/导出配置 完成");
         Debug.Log("导出结束");
+    }
+
+    static string WriteValidationReport(List<string> errors)
+    {
+        try
+        {
+            string dir = PathHelper.ExportLogPath;
+            Directory.CreateDirectory(dir);
+            string path = Path.Combine(dir, "ExcelValidationReport.txt");
+            File.WriteAllLines(path, errors);
+            return path;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[ExcelExportEditor] 写入校验报告失败: " + e.Message);
+            return "<写入失败>";
+        }
     }
 
     public static void writeData(string fileName, string obj)
@@ -47,7 +101,7 @@ public class ExcelExportEditor
     {
         dic.Clear();
         //读取所有表的Id，用于转换索引
-        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx", SearchOption.AllDirectories))
+        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx", SearchOption.AllDirectories).OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
         {
             if (path.Contains("$") || IsInBackupFolder(path)) continue;
             IExcelDataReader reader;
@@ -88,7 +142,7 @@ public class ExcelExportEditor
             }
         }
 
-        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx", SearchOption.AllDirectories))
+        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx", SearchOption.AllDirectories).OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
         {
             if (path.Contains("$") || IsInBackupFolder(path)) continue;
             IExcelDataReader reader;
@@ -108,11 +162,23 @@ public class ExcelExportEditor
                         {
                             var fieldInfo = GetCellString(sheet, 0, i);
                             if (fieldInfo.StartsWith("#") || GetCellString(sheet, 1, i) == "Id") continue;
-                            string fieldType = GetCellString(sheet, 2, i);
-                            if (string.IsNullOrEmpty(fieldType)) continue;
-                            if (dic.ContainsKey(fieldType)) fieldType = "int?";
-                            if (dic.ContainsKey(fieldType.TrimEnd("[]".ToCharArray()))) fieldType = "int[]";
-                            sw.Write($"      public {fieldType} {GetCellString(sheet, 1, i)};\n");
+                            string declaredType = GetCellString(sheet, 2, i).Trim();
+                            if (string.IsNullOrEmpty(declaredType)) continue;
+                            bool isRefArray = declaredType.EndsWith("[]") &&
+                                              dic.ContainsKey(declaredType.Substring(0, declaredType.Length - 2));
+                            bool isRefScalar = !declaredType.EndsWith("[]") && dic.ContainsKey(declaredType);
+                            string fieldType = declaredType;
+                            if (isRefScalar) fieldType = "int?";
+                            else if (isRefArray) fieldType = "int[]";
+                            string fieldName = GetCellString(sheet, 1, i);
+                            string initializer = "";
+                            if (ExcelClassFieldInitializers.TryGetValue(sheet.TableName + "." + fieldName, out var init))
+                                initializer = " = " + init;
+                            sw.Write($"      public {fieldType} {fieldName}{initializer};\n");
+                            if (isRefScalar)
+                                sw.Write($"      [ConfigRef(\"{declaredType}\")] public string {fieldName}Id;\n");
+                            else if (isRefArray)
+                                sw.Write($"      [ConfigRef(\"{declaredType.Substring(0, declaredType.Length - 2)}\")] public string[] {fieldName}Ids;\n");
                         }
                         sw.Write("}\n");
                         sw.Close();
@@ -142,7 +208,7 @@ public class ExcelExportEditor
             File.WriteAllText(exportPath + "UnitData.txt", "{\"Id\":\"0\",\"Hp\":1}\n");
         }
 
-        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx", SearchOption.AllDirectories))
+        foreach (var path in Directory.GetFiles(excelPath, "*.xlsx", SearchOption.AllDirectories).OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
         {
             if (path.Contains("$") || IsInBackupFolder(path)) continue;
             Export(path);
@@ -191,6 +257,7 @@ public class ExcelExportEditor
                                 continue;
                             }
                             sb.Append($"\"{fieldName}\":{Convert(fieldType, fieldValue)},");
+                            ExcelHelper.AppendReferenceIdFields(sb, fieldType, fieldName, fieldValue);
                         }
                         sb.Remove(sb.Length - 1, 1);
                         sb.Append("}\n");

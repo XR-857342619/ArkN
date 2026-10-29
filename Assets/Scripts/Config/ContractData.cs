@@ -6,6 +6,7 @@ public class ContractData : IConfig
       public string Description;
       public int Group;
       public int[] Skills;
+      [ConfigRef("SkillData")] public string[] SkillsIds;
       public int TeamLimit;
       public UnitTypeEnum[] ProfessionLimit;
       public int MapHp;

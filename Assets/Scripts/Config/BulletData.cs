@@ -9,5 +9,6 @@ public class BulletData : IConfig
       public int ScaleX;
       public int EffectBase;
       public int[] Modifys;
+      [ConfigRef("ModifyData")] public string[] ModifysIds;
       public System.Collections.Generic.Dictionary<string,object> Data;
 }

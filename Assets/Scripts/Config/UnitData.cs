@@ -36,7 +36,9 @@ public class UnitData : IConfig
       public string Name;
       public string HitPointName;
       public int[] Skills;
+      [ConfigRef("SkillData")] public string[] SkillsIds;
       public int[] MainSkill;
+      [ConfigRef("SkillData")] public string[] MainSkillIds;
       public string HpBarType;
       public string SpBarType;
       public float Height;
@@ -48,6 +50,7 @@ public class UnitData : IConfig
       public bool WithoutCheckCount;
       public int Damage;
       public int[] IgnoreBuff;
+      [ConfigRef("BuffData")] public string[] IgnoreBuffIds;
       public float Radius;
       public UnityEngine.Vector2Int Size;
       public bool CanStop;

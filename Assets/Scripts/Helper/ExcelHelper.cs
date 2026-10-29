@@ -2,8 +2,11 @@ using ExcelDataReader;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -23,19 +26,581 @@ public class ExcelHelper
     private static readonly object exportErrorLock = new object();
     private static readonly List<string> exportErrors = new List<string>();
 
-    public static void Export(List<string> ExcelList)
+    // ---------------------------------------------------------------------
+    // 导表字段类型校验用的类型集合（与独立检查工具保持一致）
+    // ---------------------------------------------------------------------
+    private static readonly HashSet<string> IntegerTypes = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "int", "int32", "int64", "long",
+        "uint", "uint32", "uint64", "ulong",
+        "short", "int16", "ushort", "uint16", "byte", "sbyte"
+    };
+
+    private static readonly HashSet<string> FloatTypes = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "float", "single", "double", "decimal"
+    };
+
+    private static readonly HashSet<string> BoolTypes = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "bool", "boolean"
+    };
+
+    private static readonly HashSet<string> StringTypes = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "string", "system.string"
+    };
+
+    private static readonly HashSet<string> NoCheckTypes = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "object", "system.object"
+    };
+
+    private static readonly Dictionary<string, int> VectorComponents = new Dictionary<string, int>(StringComparer.Ordinal)
+    {
+        { "UnityEngine.Vector2", 2 },
+        { "UnityEngine.Vector2Int", 2 },
+        { "UnityEngine.Vector3", 3 },
+        { "UnityEngine.Vector3Int", 3 },
+        { "UnityEngine.Rect", 4 }
+    };
+
+    private static readonly HashSet<string> IntegerVectorTypes = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "UnityEngine.Vector2Int", "UnityEngine.Vector3Int"
+    };
+
+    public static bool Export(List<string> ExcelList)
     {
         // 过滤掉无效/旧路径并去重，避免同一 Sheet 被多次导出导致旧数据叠加
         List<string> effectiveList = FilterAndDeduplicateExcelPaths(ExcelList);
+        lock (exportErrorLock)
+        {
+            exportErrors.Clear();
+        }
 
         Debug.Log($"[ExcelHelper] 导表开始，原始路径数：{ExcelList?.Count ?? 0}，有效路径数：{effectiveList.Count}");
+        AppendExportLog($"导表开始：原始文件 {ExcelList?.Count ?? 0} 个，有效文件 {effectiveList.Count} 个");
+
+        if (effectiveList.Count == 0)
+        {
+            AppendExportLog("导表失败：没有可导出的有效 Excel 文件");
+            try { TipManager.Instance.ShowTip("导表失败：没有可导出的有效 Excel 文件"); } catch { }
+            return false;
+        }
+
         foreach (string path in effectiveList)
+        {
             Debug.Log($"[ExcelHelper] 导表路径：{path}");
+            AppendExportLog("  导表路径: " + path);
+        }
 
         // 跨表引用需要基于全部 Excel 构建 ID 索引，不能只扫描本次需要更新的文件
         var allExcelPaths = GetAllExcelPaths();
-        ExportClass(allExcelPaths.Count > 0 ? allExcelPaths : effectiveList);
-        ExportData(effectiveList);
+        var validationErrors = ValidateExcelFiles(allExcelPaths.Count > 0 ? allExcelPaths : effectiveList);
+        if (validationErrors.Count > 0)
+        {
+            AppendExportLog($"导表中止：校验失败 {validationErrors.Count} 条");
+            ShowValidationErrors(validationErrors);
+            return false;
+        }
+
+        try
+        {
+            ExportClass(allExcelPaths.Count > 0 ? allExcelPaths : effectiveList);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+            AppendExportLog("导表失败：构建 Id 索引异常 " + e.Message);
+            try { TipManager.Instance.ShowTip("导表失败：构建 Id 索引异常"); } catch { }
+            return false;
+        }
+
+        if (!ExportData(effectiveList))
+        {
+            AppendExportLog("导表失败：数据文件导出失败");
+            return false;
+        }
+
+        AppendExportLog("导表完成");
+        return true;
+    }
+
+    /// <summary>
+    /// 导出前基础校验：空 Id、重复 Id、跨表引用不存在、基础数值不合法。
+    /// 返回错误列表；Editor 入口可弹 EditorUtility，运行时入口用 TipManager。
+    /// </summary>
+    public static List<string> ValidateExcelFiles(List<string> excelPaths)
+    {
+        var errors = new List<string>();
+        var tableIds = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        var seenIds = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+        var rows = new List<(string file, string sheet, int row, string rowId, string field, string type, string value)>();
+        int ignoredEmptyIdRows = 0;
+        int ignoredUnitPlaceholderRows = 0;
+        if (excelPaths == null) return errors;
+
+        foreach (var path in excelPaths)
+        {
+            if (string.IsNullOrEmpty(path) || path.Contains("$") || !File.Exists(path)) continue;
+            try
+            {
+                using (var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    var reader = ExcelReaderFactory.CreateReader(file);
+                    foreach (System.Data.DataTable sheet in reader.AsDataSet().Tables)
+                    {
+                        if (sheet.TableName.StartsWith("#")) continue;
+                        if (!tableIds.ContainsKey(sheet.TableName))
+                        {
+                            tableIds[sheet.TableName] = new List<string>();
+                            seenIds[sheet.TableName] = new Dictionary<string, string>(StringComparer.Ordinal);
+                        }
+                        if (sheet.TableName == "UnitData" && !seenIds[sheet.TableName].ContainsKey("0"))
+                        {
+                            tableIds[sheet.TableName].Add("0");
+                            seenIds[sheet.TableName]["0"] = "<UnitData placeholder>";
+                        }
+
+                        // 方案 A：反射枚举 Units/Skills/Buffs/Modifys/Bullets 下的可实例化子类，
+                        // 不依赖易漂移的文字白名单。
+                        HashSet<string> validTypes = null;
+                        int typeColumn = -1;
+                        if (ConfigTypeRegistry.IsTypeTable(sheet.TableName))
+                        {
+                            if (!ConfigTypeRegistry.TryGetValidTypes(sheet.TableName, out validTypes))
+                            {
+                                errors.Add($"Excel \"{Path.GetFileName(path)}\" → Sheet \"{sheet.TableName}\"：Type 注册表为空或反射枚举失败，无法校验 Type（请检查程序集、命名空间或 IL2CPP link.xml）。");
+                                validTypes = null;
+                            }
+                            else
+                            {
+                                for (int c = 1; c < sheet.Columns.Count; c++)
+                                {
+                                    if (string.Equals(GetCellString(sheet, 1, c).Trim(), "Type", StringComparison.Ordinal))
+                                    {
+                                        typeColumn = c;
+                                        break;
+                                    }
+                                }
+
+                                if (typeColumn < 0)
+                                {
+                                    errors.Add($"Excel \"{Path.GetFileName(path)}\" → Sheet \"{sheet.TableName}\"：缺少字段 \"Type\"（第 2 行），无法校验 Type。");
+                                }
+                            }
+                        }
+
+                        int columns = sheet.Columns.Count;
+                        for (int r = 3; r < sheet.Rows.Count; r++)
+                        {
+                            string id = GetCellString(sheet, r, 0);
+                            bool hasData = false;
+                            for (int c = 0; c < columns; c++)
+                                if (!string.IsNullOrEmpty(GetCellString(sheet, r, c))) { hasData = true; break; }
+
+                            if (string.IsNullOrEmpty(id))
+                            {
+                                // 空 Id 行通常是编辑 Excel 时的临时/草稿数据；导出会跳过，
+                                // 不属于阻断性错误。
+                                if (hasData) ignoredEmptyIdRows++;
+                                continue;
+                            }
+                            if (id.StartsWith("#")) continue;
+
+                            // UnitData 的 Id=0 是导出器内置的占位行（0.txt），
+                            // Excel 里保留它只是为了手工查看/编辑；导出时会忽略，
+                            // 不能把它算成“重复 ID”。
+                            if (sheet.TableName == "UnitData" && id == "0")
+                            {
+                                ignoredUnitPlaceholderRows++;
+                                continue;
+                            }
+
+                            if (seenIds[sheet.TableName].TryGetValue(id, out var old))
+                                errors.Add($"Excel \"{Path.GetFileName(path)}\" → Sheet \"{sheet.TableName}\" → Id \"{id}\" → 第 {r + 1} 行：重复 ID（首次出现于 {old}）");
+                            else
+                            {
+                                seenIds[sheet.TableName][id] = $"{Path.GetFileName(path)}:{r + 1}";
+                                tableIds[sheet.TableName].Add(id);
+                            }
+
+                            // 方案 A：Type 合法性由反射注册表校验；空值/空白也在这里覆盖，
+                            // 因为后面的 rows 收集会跳过空字段。
+                            if (validTypes != null && typeColumn >= 0)
+                            {
+                                string typeValue = GetCellString(sheet, r, typeColumn);
+                                if (string.IsNullOrEmpty(typeValue))
+                                {
+                                    errors.Add($"Excel \"{Path.GetFileName(path)}\" → Sheet \"{sheet.TableName}\" → Id \"{id}\" → 第 {r + 1} 行 → 字段 \"Type\"：Type 为空，运行时无法反射创建对应子类。");
+                                }
+                                else if (typeValue != typeValue.Trim())
+                                {
+                                    errors.Add($"Excel \"{Path.GetFileName(path)}\" → Sheet \"{sheet.TableName}\" → Id \"{id}\" → 第 {r + 1} 行 → 字段 \"Type\"：Type \"{typeValue}\" 首尾包含空白，运行时将按原值查找而失败。");
+                                }
+                                else if (!validTypes.Contains(typeValue))
+                                {
+                                    string typeNamespace = ConfigTypeRegistry.GetTypeNamespace(sheet.TableName);
+                                    errors.Add($"Excel \"{Path.GetFileName(path)}\" → Sheet \"{sheet.TableName}\" → Id \"{id}\" → 第 {r + 1} 行 → 字段 \"Type\"：Type \"{typeValue}\" 在 {typeNamespace} 命名空间下不存在；如为新增子类，请检查类名/命名空间，或补充 ConfigTypeRegistry 的别名/排除配置。");
+                                }
+                            }
+
+                            for (int c = 0; c < columns; c++)
+                            {
+                                string fieldName = GetCellString(sheet, 1, c);
+                                string fieldType = GetCellString(sheet, 2, c);
+                                string value = GetCellString(sheet, r, c);
+                                if (string.IsNullOrEmpty(fieldName) || string.IsNullOrEmpty(fieldType) || string.IsNullOrEmpty(value)) continue;
+                                rows.Add((path, sheet.TableName, r + 1, id, fieldName, fieldType, value));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                errors.Add($"{Path.GetFileName(path)}：读取失败 {e.Message}");
+            }
+        }
+
+        foreach (var r in rows)
+        {
+            string baseType = GetBaseType(r.type);
+            bool isArray = IsArrayType(r.type);
+
+            // 跨表引用优先：引用字段的值是目标表 Id，不按普通基础类型处理。
+            if (tableIds.ContainsKey(baseType))
+            {
+                string[] refs = isArray
+                    ? r.value.Split(new[] { ',', '\n' }, StringSplitOptions.None)
+                    : new[] { r.value };
+
+                if (isArray && refs.Any(raw => raw.Trim().Length == 0))
+                    errors.Add($"Excel \"{Path.GetFileName(r.file)}\" → Sheet \"{r.sheet}\" → Id \"{r.rowId}\" → 字段 \"{r.field}\"：引用列表存在空项（第 {r.row} 行）");
+
+                foreach (var raw in refs)
+                {
+                    string id = raw.Trim();
+                    if (id.Length > 0 && !tableIds[baseType].Contains(id))
+                        errors.Add($"Excel \"{Path.GetFileName(r.file)}\" → Sheet \"{r.sheet}\" → Id \"{r.rowId}\" → 字段 \"{r.field}\"：无效 ID \"{id}\"（目标表 {baseType} 中不存在）");
+                }
+                continue;
+            }
+
+            // Dictionary/Data 字段：校验 JSON 语法和顶层对象。
+            if (IsJsonField(r.field, baseType))
+            {
+                string jsonError = ValidateJsonField(baseType, r.value);
+                if (!string.IsNullOrEmpty(jsonError))
+                    errors.Add($"Excel \"{Path.GetFileName(r.file)}\" → Sheet \"{r.sheet}\" → Id \"{r.rowId}\" → 字段 \"{r.field}\"：{jsonError}（第 {r.row} 行）");
+                continue;
+            }
+
+            // 基础类型：int/float/bool、数组、Vector/Rect、可空类型。
+            string basicError = ValidateBasicField(r.type, r.value);
+            if (!string.IsNullOrEmpty(basicError))
+                errors.Add($"Excel \"{Path.GetFileName(r.file)}\" → Sheet \"{r.sheet}\" → Id \"{r.rowId}\" → 字段 \"{r.field}\"：{basicError}（第 {r.row} 行）");
+        }
+
+        if (ignoredEmptyIdRows > 0)
+            Debug.Log($"[ExcelHelper] 忽略 {ignoredEmptyIdRows} 行空 Id 临时数据（导出时会跳过）");
+        if (ignoredUnitPlaceholderRows > 0)
+            Debug.Log($"[ExcelHelper] 忽略 {ignoredUnitPlaceholderRows} 行 UnitData Id=0 占位数据（导出器会生成 0.txt）");
+
+        dic = tableIds;
+        return errors;
+    }
+
+    // ---------------------------------------------------------------------
+    // 字段类型校验辅助函数（JSON / 数组 / Vector / Rect / 可空类型）
+    // ---------------------------------------------------------------------
+
+    private static string NormalizeTypeToken(string type)
+    {
+        string result = (type ?? "").Trim();
+        while (result.EndsWith("?", StringComparison.Ordinal))
+            result = result.Substring(0, result.Length - 1).Trim();
+        return result;
+    }
+
+    private static bool IsArrayType(string type)
+    {
+        return NormalizeTypeToken(type).EndsWith("[]", StringComparison.Ordinal);
+    }
+
+    private static string GetBaseType(string type)
+    {
+        string result = NormalizeTypeToken(type);
+        if (result.EndsWith("[]", StringComparison.Ordinal))
+            result = result.Substring(0, result.Length - 2).Trim();
+        return NormalizeTypeToken(result);
+    }
+
+    private static string[] SplitArrayValue(string value)
+    {
+        return (value ?? "")
+            .Replace("\r\n", "\n")
+            .Replace('\r', '\n')
+            .Split(new[] { ',', '\n' }, StringSplitOptions.None);
+    }
+
+    private static bool IsJsonField(string fieldName, string baseType)
+    {
+        string type = NormalizeTypeToken(baseType);
+        if (type.IndexOf("Dictionary", StringComparison.OrdinalIgnoreCase) >= 0)
+            return true;
+        if (string.Equals(type, "Data", StringComparison.Ordinal))
+            return true;
+        if (string.Equals((fieldName ?? "").Trim(), "Data", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Equals(type, "object", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(type, "System.Object", StringComparison.OrdinalIgnoreCase)
+                || type.StartsWith("System.Collections", StringComparison.OrdinalIgnoreCase);
+        }
+        return false;
+    }
+
+    private static string ValidateJsonField(string baseType, string value)
+    {
+        string json = value;
+        if (string.Equals(NormalizeTypeToken(baseType), "Data", StringComparison.Ordinal))
+            json = "{" + value + "}";
+
+        if (!StrictJsonValidator.TryValidateObject(json, out string strictError))
+            return "JSON 非法：" + strictError;
+        return null;
+    }
+
+    private static bool TryParseIntegerValue(string value)
+    {
+        long parsed;
+        return long.TryParse(
+            (value ?? "").Trim(),
+            NumberStyles.Integer,
+            CultureInfo.InvariantCulture,
+            out parsed);
+    }
+
+    private static bool TryParseFloatValue(string value)
+    {
+        double parsed;
+        return double.TryParse(
+                   (value ?? "").Trim(),
+                   NumberStyles.Float,
+                   CultureInfo.InvariantCulture,
+                   out parsed)
+               && !double.IsNaN(parsed)
+               && !double.IsInfinity(parsed);
+    }
+
+    private static bool TryParseBoolValue(string value)
+    {
+        string v = (value ?? "").Trim().ToLowerInvariant();
+        return v == "0" || v == "1" || v == "true" || v == "false";
+    }
+
+    private static string ValidateNumericArrayValue(string baseType, string value, bool integer)
+    {
+        string[] parts = SplitArrayValue(value);
+        if (parts.Any(part => part.Trim().Length == 0))
+            return $"{baseType}[] 存在空元素（值：\"{value}\"）";
+
+        for (int i = 0; i < parts.Length; i++)
+        {
+            string part = parts[i].Trim();
+            bool ok = integer ? TryParseIntegerValue(part) : TryParseFloatValue(part);
+            if (!ok)
+            {
+                string expected = integer ? "整数" : "浮点数";
+                return $"{baseType}[] 第 {i + 1} 个元素不是合法{expected}（值：\"{part}\"）";
+            }
+        }
+        return null;
+    }
+
+    private static string ValidateBoolArrayValue(string baseType, string value)
+    {
+        string[] parts = SplitArrayValue(value);
+        if (parts.Any(part => part.Trim().Length == 0))
+            return $"{baseType}[] 存在空元素（值：\"{value}\"）";
+
+        for (int i = 0; i < parts.Length; i++)
+        {
+            string part = parts[i].Trim();
+            if (!TryParseBoolValue(part))
+                return $"{baseType}[] 第 {i + 1} 个元素不是合法 bool（只接受 0/1/true/false，值：\"{part}\"）";
+        }
+        return null;
+    }
+
+    private static string ValidateVectorValue(
+        string typeName,
+        int expectedComponents,
+        bool integerComponents,
+        string value)
+    {
+        string[] parts = (value ?? "").Split(',');
+        if (parts.Length != expectedComponents)
+            return $"{typeName} 需要 {expectedComponents} 个分量，实际 {parts.Length} 个（值：\"{value}\"）";
+
+        for (int i = 0; i < parts.Length; i++)
+        {
+            string part = parts[i].Trim();
+            bool ok = integerComponents ? TryParseIntegerValue(part) : TryParseFloatValue(part);
+            if (!ok)
+            {
+                string expected = integerComponents ? "整数" : "数字";
+                return $"{typeName} 第 {i + 1} 个分量不是合法{expected}（值：\"{part}\"）";
+            }
+        }
+        return null;
+    }
+
+    private static string ValidateVectorArrayValue(
+        string typeName,
+        int expectedComponents,
+        bool integerComponents,
+        string value)
+    {
+        string[] points = (value ?? "").Split('#');
+        if (points.Any(point => point.Trim().Length == 0))
+            return $"{typeName}[] 存在空点（值：\"{value}\"）";
+
+        for (int pointIndex = 0; pointIndex < points.Length; pointIndex++)
+        {
+            string[] parts = points[pointIndex].Split(',');
+            if (parts.Length != expectedComponents)
+                return $"{typeName}[] 第 {pointIndex + 1} 个点需要 {expectedComponents} 个分量，实际 {parts.Length} 个（值：\"{points[pointIndex]}\"）";
+
+            for (int partIndex = 0; partIndex < parts.Length; partIndex++)
+            {
+                string part = parts[partIndex].Trim();
+                bool ok = integerComponents ? TryParseIntegerValue(part) : TryParseFloatValue(part);
+                if (!ok)
+                {
+                    string expected = integerComponents ? "整数" : "数字";
+                    return $"{typeName}[] 第 {pointIndex + 1} 个点第 {partIndex + 1} 个分量不是合法{expected}（值：\"{part}\"）";
+                }
+            }
+        }
+        return null;
+    }
+
+    private static string ValidateBasicField(string rawType, string value)
+    {
+        string type = NormalizeTypeToken(rawType);
+        bool isArray = type.EndsWith("[]", StringComparison.Ordinal);
+        string baseType = GetBaseType(type);
+
+        if (StringTypes.Contains(baseType) || NoCheckTypes.Contains(baseType))
+            return null;
+
+        if (VectorComponents.TryGetValue(baseType, out int components))
+        {
+            bool integerComponents = IntegerVectorTypes.Contains(baseType);
+            return isArray
+                ? ValidateVectorArrayValue(baseType, components, integerComponents, value)
+                : ValidateVectorValue(baseType, components, integerComponents, value);
+        }
+
+        if (IntegerTypes.Contains(baseType))
+        {
+            if (isArray) return ValidateNumericArrayValue(baseType, value, true);
+            return TryParseIntegerValue(value) ? null : $"不是合法整数（值：\"{value}\"）";
+        }
+
+        if (FloatTypes.Contains(baseType))
+        {
+            if (isArray) return ValidateNumericArrayValue(baseType, value, false);
+            return TryParseFloatValue(value) ? null : $"不是合法浮点数（值：\"{value}\"）";
+        }
+
+        if (BoolTypes.Contains(baseType))
+        {
+            if (isArray) return ValidateBoolArrayValue(baseType, value);
+            return TryParseBoolValue(value) ? null : $"不是合法 bool（只接受 0/1/true/false，值：\"{value}\"）";
+        }
+
+        // 枚举值域、未知类型、object[]/string[] 等不在本轮基础类型检查范围内。
+        return null;
+    }
+
+
+    /// <summary>
+    /// 游戏内置数据导出工具的通用运行日志（除 Console 外再落一份文件）。
+    /// 路径统一由 PathHelper.ExportLogPath 决定：
+    ///   编辑器 = 工程/Logs
+    ///   非编辑器桌面 = StreamingAssets/Logs
+    ///   移动端 = persistentDataPath/&lt;productName&gt;/Logs
+    /// </summary>
+    public static void AppendExportLog(string message)
+    {
+        try
+        {
+            string dir = PathHelper.ExportLogPath;
+            Directory.CreateDirectory(dir);
+            File.AppendAllText(Path.Combine(dir, "ExcelExport.log"),
+                $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {message}\n");
+        }
+        catch
+        {
+            // 日志写盘失败不能影响导表本身
+        }
+    }
+
+    public static void ShowValidationErrors(List<string> errors)
+    {
+        if (errors == null || errors.Count == 0) return;
+        string full = string.Join("\n", errors);
+        Debug.LogError($"[ExcelHelper] 配置校验失败，共 {errors.Count} 个问题：\n{full}");
+
+        string reportPath = null;
+        try
+        {
+            string dir = PathHelper.ExportLogPath;
+            Directory.CreateDirectory(dir);
+            reportPath = Path.Combine(dir, "ExcelValidationReport.txt");
+            File.WriteAllLines(reportPath, errors);
+        }
+        catch { }
+
+        try { TipManager.Instance.ShowTip($"配置校验失败：{errors.Count} 个问题，详见 Console" + (reportPath != null ? "：" + reportPath : "")); }
+        catch { }
+    }
+
+    /// <summary>
+    /// 追加引用列的稳定字符串 Id 字段，同时保留旧 int 索引字段：
+    ///   LastingEffect -> "LastingEffect": 154, "LastingEffectId": "重构体加攻特效"
+    ///   Buffs -> "Buffs": [...], "BuffsIds": ["...", ...]
+    /// </summary>
+    public static void AppendReferenceIdFields(StringBuilder sb, string fieldType, string fieldName, string fieldValue)
+    {
+        if (sb == null || string.IsNullOrEmpty(fieldType) || string.IsNullOrEmpty(fieldName) || string.IsNullOrEmpty(fieldValue)) return;
+        bool isArray = fieldType.EndsWith("[]");
+        string baseType = isArray ? fieldType.Substring(0, fieldType.Length - 2) : fieldType;
+        if (!dic.ContainsKey(baseType)) return;
+
+        if (!isArray)
+        {
+            sb.Append($"\"{EscapeJson(fieldName)}Id\":\"{EscapeJson(fieldValue.Trim())}\",");
+            return;
+        }
+
+        var vals = fieldValue.Split(new[] { ',', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        sb.Append($"\"{EscapeJson(fieldName)}Ids\":[");
+        for (int i = 0; i < vals.Length; i++)
+        {
+            if (i > 0) sb.Append(',');
+            sb.Append($"\"{EscapeJson(vals[i].Trim())}\"");
+        }
+        sb.Append("],");
+    }
+
+    private static string EscapeJson(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return "";
+        return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
     }
 
     private static List<string> GetAllExcelPaths()
@@ -45,6 +610,7 @@ public class ExcelHelper
         {
             result.AddRange(Database.Instance.GetExcelFileList(folder));
         }
+        result.Sort(StringComparer.OrdinalIgnoreCase);
         return result;
     }
 
@@ -149,54 +715,127 @@ public class ExcelHelper
             }
         }
     }
-        static void ExportData(List<string> ExcelList)
+    private static bool ExportData(List<string> ExcelList)
         {
-            string dataDir = PathHelper.AppHotfixResPath + "/Data/";
+            return ExportData(ExcelList, PathHelper.AppHotfixResPath + "/Data/");
+        }
+
+    private static bool ExportData(List<string> ExcelList, string dataDir)
+        {
+            if (string.IsNullOrEmpty(dataDir))
+                dataDir = PathHelper.AppHotfixResPath + "/Data/";
             Directory.CreateDirectory(dataDir);
 
-            // 并行导出每个 Excel 文件，只有修改过的 Excel 会重写对应数据文件
-            Parallel.ForEach(ExcelList.ToArray(), path =>
+            // 先写入临时目录，只有所有 Excel 都成功后才覆盖正式 Data 目录，
+            // 避免单个文件失败时留下“部分新数据 + 部分旧数据”的不一致状态。
+            string dataRoot = Path.GetDirectoryName(
+                dataDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            if (string.IsNullOrEmpty(dataRoot))
+                dataRoot = PathHelper.AppHotfixResPath;
+
+            string stagingDir = Path.Combine(
+                dataRoot,
+                "Data_ExportTemp_" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(stagingDir);
+
+            int failedFiles = 0;
+            try
             {
-                if (path.Contains("$")) return;
-                Export(path, dataDir);
-            });
-
-            // 回到主线程后统一展示子线程收集到的错误
-            FlushExportErrors();
-
-            // 生成每个类型的索引文件，保证多文件加载后索引顺序与旧版一致
-            foreach (var kv in dic)
-            {
-                string folder = dataDir + kv.Key + "/";
-                Directory.CreateDirectory(folder);
-                File.WriteAllLines(folder + "_index.txt", kv.Value);
-
-                if (kv.Key == "UnitData")
+                lock (exportErrorLock)
                 {
-                    string placeholder = folder + "0.txt";
-                    if (!File.Exists(placeholder))
-                        File.WriteAllText(placeholder, "{\"Id\":\"0\",\"Hp\":1}\n");
+                    exportErrors.Clear();
+                }
+
+                // 并行导出每个 Excel 文件到临时目录。
+                Parallel.ForEach(ExcelList.ToArray(), path =>
+                {
+                    if (path.Contains("$")) return;
+                    if (!Export(path, stagingDir))
+                        Interlocked.Increment(ref failedFiles);
+                });
+
+                bool hasCollectedErrors;
+                lock (exportErrorLock)
+                {
+                    hasCollectedErrors = exportErrors.Count > 0;
+                }
+                FlushExportErrors();
+
+                if (failedFiles > 0 || hasCollectedErrors)
+                {
+                    AppendExportLog($"导表失败：{failedFiles} 个文件导出异常，本次未写入正式 Data 目录");
+                    return false;
+                }
+
+                // 全部成功后再复制到正式 Data 目录；只覆盖本次选中的 Excel 对应文件。
+                string[] stagedFiles = Directory.GetFiles(stagingDir, "*.txt", SearchOption.AllDirectories);
+                foreach (string sourceFile in stagedFiles)
+                {
+                    string relativePath = sourceFile
+                        .Substring(stagingDir.Length)
+                        .TrimStart('/', '\\');
+                    string targetFile = Path.Combine(dataDir, relativePath);
+                    string targetDir = Path.GetDirectoryName(targetFile);
+                    if (!string.IsNullOrEmpty(targetDir))
+                        Directory.CreateDirectory(targetDir);
+                    File.Copy(sourceFile, targetFile, true);
+                }
+
+                // 生成每个类型的索引文件，保证多文件加载后索引顺序与旧版一致。
+                foreach (var kv in dic)
+                {
+                    string folder = Path.Combine(dataDir, kv.Key);
+                    Directory.CreateDirectory(folder);
+                    File.WriteAllLines(Path.Combine(folder, "_index.txt"), kv.Value);
+
+                    if (kv.Key == "UnitData")
+                    {
+                        string placeholder = Path.Combine(folder, "0.txt");
+                        if (!File.Exists(placeholder))
+                            File.WriteAllText(placeholder, "{\"Id\":\"0\",\"Hp\":1}\n");
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                AddExportError($"导出数据文件失败: {e.Message}");
+                FlushExportErrors();
+                AppendExportLog("导表失败：" + e.Message);
+                return false;
+            }
+            finally
+            {
+                try
+                {
+                    if (Directory.Exists(stagingDir))
+                        Directory.Delete(stagingDir, true);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"[ExcelHelper] 清理临时导表目录失败: {stagingDir}\n{e.Message}");
                 }
             }
         }
 
-        static void Export(string fileName, string dataDir)
+    private static bool Export(string fileName, string dataDir)
         {
-            ExcelDataReader.IExcelDataReader reader;
-            using (FileStream file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            try
             {
-                reader = ExcelDataReader.ExcelReaderFactory.CreateReader(file);
-                try
+                using (FileStream file = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
+                    var reader = ExcelDataReader.ExcelReaderFactory.CreateReader(file);
                     foreach (System.Data.DataTable sheet in reader.AsDataSet().Tables)
                     {
-                        //Debug.Log(sheet.TableName);
                         if (sheet.TableName.StartsWith("#")) continue;
 
-                        string folder = dataDir + sheet.TableName + "/";
+                        string folder = Path.Combine(dataDir, sheet.TableName);
                         Directory.CreateDirectory(folder);
-                        string outputFile = folder + Path.GetFileNameWithoutExtension(fileName) + ".txt";
-
+                        string outputFile = Path.Combine(
+                            folder,
+                            Path.GetFileNameWithoutExtension(fileName) + ".txt");
 
                         StringBuilder sb = new StringBuilder();
                         int cellCount = sheet.Columns.Count;
@@ -205,45 +844,41 @@ public class ExcelHelper
                         {
                             string Id = GetCellString(sheet, i, 0);
                             if (string.IsNullOrEmpty(Id) || Id.StartsWith("#"))
-                            {
                                 continue;
-                            }
-                            // UnitData 的 Id=0 占位行单独写入 0.txt
                             if (isUnitData && Id == "0")
-                            {
                                 continue;
-                            }
+
                             sb.Append("{");
                             for (int j = 0; j < cellCount; j++)
                             {
                                 string fieldName = GetCellString(sheet, 1, j);
                                 string fieldType = GetCellString(sheet, 2, j);
                                 if (string.IsNullOrEmpty(fieldName) || string.IsNullOrEmpty(fieldType))
-                                {
                                     continue;
-                                }
+
                                 string fieldValue = GetCellString(sheet, i, j);
                                 if (string.IsNullOrEmpty(fieldValue))
-                                {
                                     continue;
-                                }
+
                                 sb.Append($"\"{fieldName}\":{Convert(fieldType, fieldValue, fileName, sheet.TableName, fieldName)},");
+                                AppendReferenceIdFields(sb, fieldType, fieldName, fieldValue);
                             }
                             sb.Remove(sb.Length - 1, 1);
                             sb.Append("}\n");
                         }
+
                         sb.Append("\n");
                         if (sb.Length > 1) sb.Remove(sb.Length - 1, 1);
-
                         File.WriteAllText(outputFile, sb.ToString());
                     }
                 }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
-                    AddExportError($"导出失败: {fileName} -> {e.Message}");
-                }
-                file.Close();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                AddExportError($"导出失败: {fileName} -> {e.Message}");
+                return false;
             }
         }
 
@@ -352,6 +987,27 @@ public class ExcelHelper
                     {
                         var sp1 = sp[i].Split(',');
                         sbCache.Append($"{{\"x\":{sp1[0]},\"y\":{sp1[1]}}}");
+                        if (i != sp.Length - 1) sbCache.Append(",");
+                    }
+                    return $"[{sbCache}]";
+                case "UnityEngine.Vector3[]":
+                case "UnityEngine.Vector3Int[]":
+                    sbCache.Clear();
+                    sp = value.Split('#');
+                    for (int i = 0; i < sp.Length; i++)
+                    {
+                        var sp1 = sp[i].Split(',');
+                        sbCache.Append($"{{\"x\":{sp1[0]},\"y\":{sp1[1]},\"z\":{sp1[2]}}}");
+                        if (i != sp.Length - 1) sbCache.Append(",");
+                    }
+                    return $"[{sbCache}]";
+                case "UnityEngine.Rect[]":
+                    sbCache.Clear();
+                    sp = value.Split('#');
+                    for (int i = 0; i < sp.Length; i++)
+                    {
+                        var sp1 = sp[i].Split(',');
+                        sbCache.Append($"{{\"x\":{sp1[0]},\"y\":{sp1[1]},\"width\":{sp1[2]},\"height\":{sp1[3]}}}");
                         if (i != sp.Length - 1) sbCache.Append(",");
                     }
                     return $"[{sbCache}]";

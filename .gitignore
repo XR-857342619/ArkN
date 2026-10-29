@@ -116,3 +116,5 @@ __pycache__/
 
 # Spine 修复工具的报告文件
 Assets/Bundles/Units/Spine*Report.txt
+/Tools/ExcelConfigChecker/tests
+/Tools/ExcelConfigChecker/ExcelConfigCheckReport_20261030_010909_387.txt

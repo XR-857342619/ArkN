@@ -4,7 +4,9 @@
 dump_fx_params.py —— 从方舟 AB 的内嵌 typetree 导出原版脚本参数 → fxparams.json
 
 ArkFxLoader.ApplyFxParams 读这个文件，把原版 prefab 上的
-FxUVTweener / FxUVTweenerAdvance / FxUVRotation 参数还原到替身组件上。
+FxUVTweener / FxUVTweenerAdvance / FxUVRotation 等已实现替身的参数还原到组件上；
+尚未实现的 Switchable* / PauseEffectIf* / ColorModifier / FxLODSetting 等类
+则把 typetree 序列化进 raw 字段，运行时挂到 ArkFxScriptStub.rawJson 存档。
 
 数据来源：AB 里 MonoBehaviour 的 serialized typetree（字段名 + 值都是原版精确值），
 不依赖任何人工填表，也不需要 IDA。
@@ -16,15 +18,71 @@ FxUVTweener / FxUVTweenerAdvance / FxUVRotation 参数还原到替身组件上�
 """
 import argparse
 import json
+import math
 import os
 import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-# 已实现替身的类 -> 字段映射（字段名与原版 serialized 名一致）
-SUPPORTED = ("FxUVTweener", "FxUVTweenerAdvance", "FxUVRotation", "FxDelay",
-             "OnPlayEmitter", "OnFinishEmitter", "RandomEmitter", "OnPlayEmitterIf",
-             "FollowMountPoint")
+# 已实现/已有显式字段映射的类（字段名与原版 serialized 名一致）
+EXPLICIT_CLASSES = ("FxUVTweener", "FxUVTweenerAdvance", "FxUVRotation", "FxDelay",
+                    "OnPlayEmitter", "OnFinishEmitter", "RandomEmitter", "OnPlayEmitterIf",
+                    "FollowMountPoint")
+
+# 尚未实现替身、但需要把原版脚本参数保存到 ArkFxScriptStub.rawJson 的类。
+# 这些类先不执行逻辑，只做参数存档；后续实现 Switchable* / PauseEffectIf* /
+# ColorModifier / FxLODSetting 等替身时可直接从 fxparams.json 读取，不需要重跑 AB 解包。
+# 注意：刻意不包含 ParticleEffect（1078 个实例、字段多且已被 Kick 的粒子播放覆盖），
+# 避免 fxparams.json 体积和启动解析成本无谓膨胀。
+RAW_CLASSES = frozenset({
+    "SwitchableBackEffect",
+    "SwitchableRightEffect",
+    "SwitchableEffectByFaceDirection",
+    "SwitchableEffectByModeIndex",
+    "SwitchableMultiEffectByBuffStackCnt",
+    "PauseEffectIf",
+    "PauseEffectIfDisappeared",
+    "PauseEffectIfRenderInvisible",
+    "PauseEffectIfRacingEnemy",
+    "PauseAnotherEffect",
+    "ColorModifier",
+    "FxLODSetting",
+    "ProjectileEffect",
+    "FollowDirection",
+    "FollowOwner",
+    "FollowOwnerRootTileHeight",
+    "FollowOwnerSpineWithCertainHeight",
+    "FollowCamera",
+    "SetAnimatorFloatByCondition",
+    "BuffProgressFloatSource",
+    "FlyToPredefinedLocation",
+    "CameraEffect",
+    "OnPlayAudioPlayer",
+    "EmptyEffect",
+})
+
+PARAM_CLASSES = frozenset(EXPLICIT_CLASSES) | RAW_CLASSES
+
+
+def _safe_json_value(value):
+    """把 typetree 转成可 json.dumps 的普通结构（PPtr/枚举/特殊对象统一转字符串）。"""
+    if value is None or isinstance(value, (str, int, bool)):
+        return value
+    if isinstance(value, float):
+        # JSON 标准不允许 NaN/Infinity；Unity JsonUtility 也可能拒绝。
+        if math.isnan(value) or math.isinf(value):
+            return str(value)
+        return value
+    if isinstance(value, (list, tuple)):
+        return [_safe_json_value(x) for x in value]
+    if isinstance(value, dict):
+        return {str(k): _safe_json_value(v) for k, v in value.items()}
+    return str(value)
+
+
+def dump_raw_typetree(t):
+    return json.dumps(_safe_json_value(t), ensure_ascii=False,
+                      separators=(",", ":"), default=str)
 
 
 def patch_unitypy():
@@ -111,7 +169,7 @@ def entries_for_prefab(root_go, scripts):
             if cls is None:
                 continue
             short = cls.split(".")[-1]
-            if short not in SUPPORTED:
+            if short not in PARAM_CLASSES:
                 continue
             try:
                 t = comp.read_typetree()
@@ -179,7 +237,7 @@ def entries_for_prefab(root_go, scripts):
                 e["randomRangeTo"] = _v3(t.get("_randomRangeTo"))
             elif short == "FxDelay":
                 e["delayTime"] = float(t.get("_delayTime", 0.0))
-            else:  # FxUVRotation
+            elif short == "FxUVRotation":
                 e.update({
                     "rotPropertyName": t.get("_propertyName") or "_Rotation",
                     "rotateTex1": bool(t.get("_rotateTex1", False)),
@@ -191,6 +249,11 @@ def entries_for_prefab(root_go, scripts):
                     "angle3": float(t.get("_angle3", 0.0)),
                     "angle4": float(t.get("_angle4", 0.0)),
                 })
+            elif short in RAW_CLASSES:
+                # 只存档，不执行；ArkFxLoader 会把它挂成 ArkFxScriptStub。
+                e["raw"] = dump_raw_typetree(t)
+            else:
+                continue
             out.append(e)
         if tr is not None:
             for ch in (tr.m_Children or []):

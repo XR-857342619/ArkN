@@ -107,6 +107,25 @@ public static class PathHelper
         return result.Replace('\\', '/');
     }
 
+    /// <summary>
+    /// 游戏内置数据导出/导表校验日志目录。
+    /// 编辑器：工程根目录/Logs；
+    /// 非编辑器桌面端：PathHelper.AppHotfixResPath/Logs（桌面端即 StreamingAssets/Logs）；
+    /// 移动端：persistentDataPath/&lt;productName&gt;/Logs（热更可写目录）。
+    /// </summary>
+    public static string ExportLogPath
+    {
+        get
+        {
+#if UNITY_EDITOR
+            string root = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+#else
+            string root = AppHotfixResPath;
+#endif
+            return Path.Combine(root, "Logs");
+        }
+    }
+
     public static string DataPath = "Assets/Bundles/Data/";
     public static string UIPath = "Assets/Bundles/UI/";
     public static string SpritePath = "Assets/Bundles/Image/";

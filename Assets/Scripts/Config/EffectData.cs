@@ -11,5 +11,5 @@ public class EffectData : IConfig
       public int ScaleXFollow;
       public int ForwordDirection;
       public float FaceCamera;
-      public float LifeTime;
+      public float LifeTime = 5f;
 }

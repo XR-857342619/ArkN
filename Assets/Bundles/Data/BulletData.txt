@@ -1,8 +1,8 @@
 {"Id":"时蒙1子弹","Type":"棘刺2","Model":"midn_attack_01_trail","Speed":10,"Data":{"LifeTime":8,"InitRadius":0.8,"MaxRadius":2.4,"RadiusExponentRate":0.2,"Trigger":1,"MoveHeight":2,"TriggerTimes":-1,"TargetTeam":3,"MaxTargetCount":-1}}
 {"Id":"流涟3子弹","Type":"大飞镖","Model":"midn_skill_01_trail","Speed":5,"Data":{"LiftTime":0,"Radius":0.8,"Trigger":0.02,"MoveHeight":0.5,"TriggerTimes":1,"TargetTeam":3,"MaxTargetCount":-1}}
-{"Id":"萃儿链奶弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Modifys":[26,3],"Data":{"MoveHeight":0,"MaxLinkNum":3,"SkillId":"通用干员链式弹道索敌","CanBack":"false"}}
-{"Id":"萃儿一链奶弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Modifys":[3],"Data":{"MoveHeight":0,"MaxLinkNum":3,"SkillId":"通用干员链式弹道索敌","CanBack":"false"}}
-{"Id":"通用链奶弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Modifys":[26],"Data":{"MoveHeight":0,"MaxLinkNum":4,"SkillId":"通用干员链式弹道索敌","CanBack":"false"}}
+{"Id":"萃儿链奶弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Modifys":[26,3],"ModifysIds":["通用链奶衰减","萃儿二天赋额外治疗量"],"Data":{"MoveHeight":0,"MaxLinkNum":3,"SkillId":"通用干员链式弹道索敌","CanBack":"false"}}
+{"Id":"萃儿一链奶弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Modifys":[3],"ModifysIds":["萃儿二天赋额外治疗量"],"Data":{"MoveHeight":0,"MaxLinkNum":3,"SkillId":"通用干员链式弹道索敌","CanBack":"false"}}
+{"Id":"通用链奶弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":10,"EffectBase":1,"Modifys":[26],"ModifysIds":["通用链奶衰减"],"Data":{"MoveHeight":0,"MaxLinkNum":4,"SkillId":"通用干员链式弹道索敌","CanBack":"false"}}
 {"Id":"阿米娅子弹","Type":"子弹","Model":"蓝色子弹","Speed":10,"FaceCamera":2}
 {"Id":"抛物线子弹","Type":"子弹","Model":"testBullet","Speed":3,"Data":{"MoveHeight":2}}
 {"Id":"阿米娅强力击子弹","Type":"子弹","Model":"testBullet","Speed":10}
@@ -79,11 +79,10 @@
 {"Id":"移动弹道","Type":"棘刺2","Model":"amiya_skill_03_trail","Speed":10,"Data":{"MoveHeight":0,"MaxRadius":1.5,"InitRadius":1.5}}
 {"Id":"CCB棘刺2弹道","Type":"棘刺2","Model":"common_item_recycle_trail_01","Speed":2.25,"FaceCamera":2,"Data":{"MoveHeight":0,"MaxRadius":1.5,"InitRadius":0.75,"RadiusExponentRate":0.25,"Trigger":0.15,"LifeTime":6,"Alpha":0.1,"Color":"#f8bc31"}}
 {"Id":"电大普攻","Type":"棘刺2","Model":"milu_attack_01_trail","Speed":3,"FaceCamera":2,"Data":{"MoveHeight":0,"InitRadius":1.5,"Trigger":0.5,"LifeTime":5,"Alpha":0.25,"Color":"#f8c387"}}
+{"Id":"塔露拉火球","Type":"火球","Model":"amgoat_skill_02_trail","Speed":3,"Data":{"InitRadius": 1,"MaxRadius": 0.5,"RadiusExponentRate": -0.5,"DamageSkillId": "塔露拉火球AOE伤害","Trigger": 0.5,"SkillId": "火球索敌","Homing":1,"HomingDelay":0.5,"CollisionRadius": 0.3,"Alpha":0.25,"Color":"#f8c387"}}
 {"Id":"逻附加子弹","Type":"子弹","Model":"common_magic_trail_01","Speed":50,"FaceCamera":2}
-{"Id":"艾拉弹道","Type":"子弹","Model":"angle_skill_01_trail","Speed":200,"FaceCamera":2}
 {"Id":"测试弩箭","Type":"冲击波","Model":"platnm_attack_01_trail","Speed":2}
 {"Id":"M3链式弹道","Type":"链式弹道","Model":"frostl_attack_01_trail","Speed":5,"EffectBase":1,"Data":{"MoveHeight":0,"MaxLinkNum":4,"SkillId":"干员链式弹道索敌","ReductionRate":0.1,"CanBack":"false"}}
-{"Id":"逻附加子弹","Type":"子弹","Model":"common_magic_trail_01","Speed":50,"FaceCamera":2}
 {"Id":"烛煌弹道","Type":"子弹","Model":"skfire_skill_02_trail","Speed":50,"FaceCamera":2}
 {"Id":"真言2链式弹道","Type":"链式弹道","Model":"common_magic_trail_01","Speed":10,"EffectBase":1,"Data":{"MoveHeight":0,"MaxLinkNum":4,"ReductionRate":0,"SkillId":"真言链式弹道索敌","CanBack":"false"}}
 {"Id":"真言3链式弹道","Type":"链式弹道","Model":"common_magic_trail_01","Speed":10,"EffectBase":1,"Data":{"MoveHeight":0,"MaxLinkNum":2,"ReductionRate":0,"SkillId":"真言链式弹道索敌","CanBack":"false"}}
