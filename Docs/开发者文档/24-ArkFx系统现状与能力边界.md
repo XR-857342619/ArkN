@@ -5,6 +5,31 @@
 
 ---
 
+## 0. 最近变更：P0 新旧生命周期对接修复（2026-10-28）
+
+本轮修复了表驱动特效进入 ArkFx 时的时序问题，详见
+[26-ArkFx-P0回归修复与验收](26-ArkFx-P0回归修复与验收.md)。
+
+| 修复 | 变化 |
+|---|---|
+| Kick 时机 | `EffectManager.GetEffect` / `BulletManager.Get` 不再在零位置 Kick；由 `Effect.Play()` 在 `Init()` 定位后首次启动 |
+| FxDelay | ArkFx 实例的 `Effect.Play()` 不再强行 `SetActive(true)`，延迟不会被抵消 |
+| LifeTime 默认值 | `EffectData.LifeTime = 5f`，并在 Excel 导出生成器中加入默认值表，避免再次被覆盖 |
+| OnFinishEmitter | 覆盖 `OnFinish()`：只发射尾段，不再被基类 `clearWhenFinish` 同帧清空 |
+| 共享 prefab | `EffectManager` 对 `AddComponent<Effect>()` 判重，避免多条 EffectData 共用 prefab 时重复挂组件 |
+| 池化清理 | `Effect.Awake` 收集 inactive 粒子/拖尾，减少复用残留 |
+
+> ⚠️ 这一轮**没有**新增 `Switchable*` / `PauseEffectIf*` 等替身类；后续路线仍见 §6。
+
+### 0.1 P1 补充（2026-10-28）
+
+- `ArkFxUVTweenV6` / `ArkFxUVTweenAdvanceV6` 已加入对象池复用的 offset/ST 初始快照与 `OnRecycle()` 复位。
+- `dump_fx_params.py` 已把 `Switchable*` / `PauseEffectIf*` / `ColorModifier` / `FxLODSetting` / `ProjectileEffect` / `FollowDirection` 等未实现类的 typetree 写入 `raw` 字段。
+- `ArkFxScriptStub` 现在支持同一节点多条 `entries`，并新增独立的 `baked` 标记。
+- 详见 [27-ArkFx-P1池化与参数管线](27-ArkFx-P1池化与参数管线.md)。
+
+---
+
 ## 1. ArkFx 是什么
 
 **一句话**：把「明日方舟客户端里的原版特效 AB」搬进本工程并跑起来的一套运行时兼容层。
@@ -40,7 +65,7 @@ Assets/StreamingAssets/arkfx/                     ← 101 个标准 AB（主包 
         │  Tools/dump_fx_params.py
         │    从 AB 内嵌 typetree 直接读出原版脚本的精确字段值
         ▼
-Assets/StreamingAssets/arkfx/fxparams.json        ← 430 个 prefab / 826 条参数
+Assets/StreamingAssets/arkfx/fxparams.json        ← 9410 个 prefab / 17753 条参数（2026-10-28）
 ```
 
 > `StreamingAssets` 在 `.gitignore` 里，**这些产物需要本地跑脚本生成**。
@@ -119,7 +144,7 @@ EffectManager.GetEffect(id) / BulletManager.Get(model)
 |---|---|
 | 支持的 AB | **621 个（570 主包 + 51 依赖），311 MB** |
 | 包内 prefab 总数 | **14665 个（方舟原版特效全量）** |
-| 有参数驱动的 prefab | **7620 个（`fxparams.json`，13812 条参数）** |
+| 有参数驱动的 prefab | **9410 个（`fxparams.json`，17753 条参数；含 3928 条 raw 存档）** |
 | 原版脚本类 | 34 种 / 2261 个实例 |
 | **已实现替身** | **8 种 / 711 个实例（31.4%）** |
 | 表内特效命中 | EffectData 343 → 330；BulletData 57 → 52 |
@@ -162,8 +187,8 @@ EffectManager.GetEffect(id) / BulletManager.Get(model)
 
 | # | 项 | 实例数 | 说明 |
 |---|---|---|---|
-| 4 | `ColorModifier` | 11 | `_color` 叠加到所有 Renderer |
-| 5 | `FxLODSetting` | 35 | 低配降级（`_disableObjects` / `_particleDetailsHookers`） |
+| 4 | `ColorModifier` | 11 | `_color` 叠加到所有 Renderer（raw 参数已存档，逻辑待实现） |
+| 5 | `FxLODSetting` | 35 | 低配降级（`_disableObjects` / `_particleDetailsHookers`；raw 参数已存档，逻辑待实现） |
 | 6 | 剥离 AB prefab 里的 Missing Script | — | 重打包时用 UnityPy 删掉原版 MonoBehaviour，可消除 Console 刷屏 |
 
 ### 6.3 低价值 / 可选
@@ -275,7 +300,7 @@ Addressables 把读取抽象成 URL 请求，所以天生支持 APK 内路径；
 | arkfx 包数 | 621（570 主包 + 51 依赖） |
 | 体积 | **311 MB**（StreamingAssets 合计 333 MB） |
 | 包内 prefab | **14665 个** |
-| 有参数驱动 | 7620 个 / 13812 条 |
+| 有参数驱动 | 9410 个 / 17753 条（含 3928 条 raw 存档） |
 | 表当前引用 | 398 个（380 在包内） |
 
 ### 新增产物：`prefab列表.txt`

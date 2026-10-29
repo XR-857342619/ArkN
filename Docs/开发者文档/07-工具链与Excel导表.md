@@ -33,8 +33,11 @@ Excel 文件放在 `Excel/<作者或分类>/`（如 `Main/`、`Test/`、`一方�
 | `UnityEngine.Vector2` / `Vector2Int` | `{"x":1,"y":2}` |
 | `UnityEngine.Vector3` / `Vector3Int` | `{"x":1,"y":2,"z":3}` |
 | `UnityEngine.Vector2[]` / `Vector2Int[]` | `[{"x":1,"y":2},...]`，点之间用 `#` 分隔 |
+| `UnityEngine.Vector3[]` / `Vector3Int[]` | `[{"x":1,"y":2,"z":3},...]`，点之间用 `#` 分隔 |
 | `UnityEngine.Rect` | `{"x":1,"y":2,"width":3,"height":4}` |
-| `Data` | 直接内嵌 `{...}` |
+| `UnityEngine.Rect[]` | `[{"x":1,"y":2,"width":3,"height":4},...]`，点之间用 `#` 分隔 |
+| `Data` / `System.Collections.Generic.Dictionary<...>` | 严格 JSON 对象；`Data` 会按 `{...}` 包装后校验 |
+| `float?` / `int?` 等可空类型 | 校验时归一化为基础类型；导出仍按原值写出 |
 
 ### 1.3 导出方式
 
@@ -43,10 +46,11 @@ Excel 文件放在 `Excel/<作者或分类>/`（如 `Main/`、`Test/`、`一方�
    - 生成配置类：`Assets/Scripts/Config/<SheetName>.cs`（注意：会覆盖）；
    - 合并所有同名 Sheet 并导出到 `Assets/Bundles/Data/<SheetName>.txt`（每行一个 JSON）；`UnitData` 首行写入 `Id=0` 占位行；
    - 自动 `AssetDatabase.Refresh()`。
-2. **游戏内导出**：主界面勾选玩家 Excel → 点击导出，走 `ExcelHelper.Export(ExcelList)`（`Assets/Scripts/Helper/ExcelHelper.cs`）。
+2. **游戏内导出**：主界面勾选玩家 Excel → 点击导出，走 `ExcelHelper.Export(ExcelList)`（`Assets/Scripts/Helper/ExcelHelper.cs`），**返回 bool**。
    - 用于玩家自定义表（DIY/一方通行/尊尼获加等），运行时把选中的 Excel 导出到热更路径；
-   - 并行写出 `Data/<SheetName>/<Excel文件名>.txt`，并为每个 Sheet 生成 `Data/<SheetName>/_index.txt`；
-   - 导出后 `Database.Clear()` → `Database.Init()` 重新加载，并 `GameData.RefreshCardData()`。
+   - 先并行写入 `Data_ExportTemp_<guid>/` 临时目录，全部成功后再复制到正式 `Data/<SheetName>/<Excel文件名>.txt`，并生成 `Data/<SheetName>/_index.txt`；
+   - 任一步校验/导出失败返回 `false`，`UI_Main` 不会移除排除列表、不会重载 `Database`，并提示“导表失败，已保留原数据”；
+   - 只有成功后才会 `Database.Clear()` → `Database.Init()` 重新加载，并 `GameData.RefreshCardData()`。
 
 ### 1.4 导出实现要点
 
@@ -101,9 +105,63 @@ Excel 文件放在 `Excel/<作者或分类>/`（如 `Main/`、`Test/`、`一方�
       ...
   }
   ```
-  引用其他表的字段会自动变成 `int?` 或 `int[]`（下标引用）。
+  引用其他表的字段会生成旧版 `int?` / `int[]`，以及新的 `[ConfigRef] string *Id / *Ids`。
 - 配置类手写扩展在 `Config/Ex/`（如 `SkillDataEx`、`RewardDataEx`），用于补充计算属性/扩展方法。
 - 注意：导表不会生成 `SkillJsonData` 的可读配置，`SkillJson` 以 `Data/SkillJson.txt` / 热更分类目录为准。
+
+### 4.1 引用字段与字符串 Id（2026-10-28）
+
+- 引用其他表的字段会同时生成两套字段：
+  - 旧版兼容：`int?` / `int[]`（数组下标）
+  - 新版稳定引用：`[ConfigRef("目标表")] string XxxId` / `string[] XxxIds`
+- 运行时 `Database` 会把 `*Id/*Ids` 解析回旧 int 字段，因此旧代码仍然可读。
+- 导出前会检查重复 Id、跨表引用不存在、基础数值非法；空 Id 行会跳过（视为临时数据），有问题会弹窗并阻止导出。
+- 导出日志与校验报告统一写到 `PathHelper.ExportLogPath`（编辑器为工程 `Logs/`；非编辑器桌面为 `StreamingAssets/Logs/`；移动端为 `persistentDataPath/<productName>/Logs/`）。
+- 详细设计与迁移动见 [28-Excel配置字符串Id迁移与导表校验](28-Excel配置字符串Id迁移与导表校验.md)。
+
+### 4.2 Type 合法性检查（2026-10-30）
+
+- 新增 `Assets/Scripts/Core/ConfigTypeRegistry.cs`，通过反射枚举以下命名空间下的可实例化子类，不再维护整份文字白名单：
+  - `UnitData` → `Units.<Type>` : `Unit`
+  - `SkillData` → `Skills.<Type>` : `Skill`，特殊值 `Json` → `JsonSkill`
+  - `BuffData` → `Buffs.<Type>` : `Buff`
+  - `ModifyData` → `Modifys.<Type>` : `Modify`
+  - `BulletData` → `Bullets.<Type>` : `Bullet`
+- 过滤规则：`public class`、非抽象、非泛型定义、非嵌套、基类匹配、存在 public 无参构造函数。
+- `ExcelHelper.ValidateExcelFiles` 逐行检查五张表的 `Type` 列；空 Type、首尾空白、类名/命名空间不存在都会阻断导出。
+- 反射结果按表缓存；`ReflectionTypeLoadException` 会降级到可加载类型并输出错误；结果为空时直接报错，避免“空集合导致全部通过/全部失败”。
+- 特殊别名与设计性排除集中在 `ConfigTypeRegistry.ManualAliases / ManualExclusions`，只需维护极少量例外，不再维护完整白名单。
+- 若未来切换 IL2CPP，`Assets/link.xml` 已保留 `Units/Skills/Buffs/Modifys/Bullets` 命名空间，避免反射类型被裁剪。
+
+### 4.3 导表校验 P0 完成与剩余待办（2026-10-30）
+
+#### 本轮已完成 P0
+
+- **Dictionary/Data JSON**：新增 `Assets/Scripts/Core/StrictJsonValidator.cs`，对 `System.Collections.Generic.Dictionary` 和 `Data` 字段做严格 JSON 校验；不使用宽松的 `JToken.Parse`，会拒绝尾随逗号、单引号、`NaN/Infinity`、非法数字格式和多余内容。
+- **数组类型**：校验 `int[] / float[] / bool[]` 等数组的元素类型和空元素。
+- **Vector / Rect**：校验 `UnityEngine.Vector2/Vector2Int/Vector3/Vector3Int/Rect` 的分量数量和分量数值类型，并支持对应数组。
+- **可空类型**：校验前归一化 `float? / int?` 等写法（`GetBaseType` / `NormalizeTypeToken`）。
+- **导出失败传播**：`ExcelHelper.Export` 改为返回 `bool`；`UI_Main` 只在成功时移除排除列表、重载 Database、提示“数据更新完成”。
+- **部分导出失败处理**：`ExportData` 先写入 `Data_ExportTemp_<guid>` 临时目录，全部 Excel 成功后才覆盖正式 `Data`；任一文件失败则不写 `_index.txt` 并返回失败。
+
+#### 剩余 P1 待办
+
+1. **引用边界**：目标表完全未选中时目前仍静默跳过，建议给出警告；引用类型字符串 Trim/归一化仍需与 `Convert`/`AppendReferenceIdFields` 统一（引用数组空项已在 `ValidateExcelFiles` 中检查）。
+2. **枚举值域**：`XxxEnum`/`XxxEnum[]` 仍未校验值域；`Convert` 对枚举解析失败会原样输出，可能写出非法 JSON 或错误数据。
+3. **字符串 JSON 转义**：`string` / `string[]` 内的双引号、换行尚未检查，导出时可能破坏 JSON。
+4. **数值格式与范围**：当前 `int/float` 校验接受 `+1`、`01`、`1.`、`.5` 等 .NET 可解析但 JSON 非法的写法，建议统一使用严格 JSON number 语法；`uint/ulong` 目前也按 `long` 解析，极端大值需要单独处理。
+5. **未知字段类型**：未知类型、拼写错误的类型目前静默跳过，建议汇总为警告/错误。
+6. **导出后校验**：尚未重新解析写出的 JSON，也未校验 `_index.txt` 与数据文件一一对应；删除/重命名 Excel 后的旧分类文件不会自动清理；正式 Data 覆盖仍不是全目录原子替换，复制/写索引中途异常仍可能留下部分新文件。
+7. **编辑器导表入口**：`ExcelExportEditor.ExportData` 仍直接写正式目录，未使用临时目录，也没有返回值传播；建议与 `ExcelHelper.Export` 统一。
+8. **Config 类生成**：字段名是否为合法 C# 标识符、同 Sheet 重复字段名、未知类型是否会生成无法编译的 C#，尚未校验；`ExportClass` 整体覆盖 `Config/*.cs` 的手写字段/默认值保护仍有限。
+
+#### 剩余 P2 待办
+
+- 结构检查：Id 是否位于第一列、字段名/类型列为空、重复列、空 Id 但包含数据等结构问题仍只做跳过/计数。
+- 语义检查：`Data` 字典内部键值类型/必填键、`SkillCondition/OrderExpression` 表达式、数值业务范围（负生命、零速度、非法 Team 等）未校验。
+- 运行期防御：`Battle.CreateSceneUnit/CreatePlayerUnit/CreateEnemy/CreateBullet`、`ModifyManager.Get(int,Bullet)` 对反射创建结果仍缺少 null 防御。
+- 反射边界：编辑器与真机条件编译类型差异、未来拆分 asmdef 时需要更新 `ConfigTypeRegistry.CandidateAssemblies`；`SkillData` 空 Type + `SkillJsonData` 的兼容特例仍需明确策略。
+- 报告/日志：成功导出后旧的 `ExcelValidationReport.txt` 不会自动清理，容易误读。
 
 ## 5. 辅助工具
 
