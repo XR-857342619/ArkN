@@ -59,7 +59,56 @@ public class ArkFxUVTweenAdvanceV6 : ArkFxBehaviour
     string _secondSTProp;
     float _time;
 
-    void Awake() { _renderer = GetComponent<Renderer>(); }
+    // 对象池复用初始快照：见 ArkFxUVTweenV6 同名注释。
+    Vector2 _initialMainOffset;
+    Vector4 _initialSecondST = new Vector4(1f, 1f, 0f, 0f);
+    List<Vector4> _initialExtraST = new List<Vector4>();
+    bool _capturedInitial;
+
+    void Awake()
+    {
+        _renderer = GetComponent<Renderer>();
+        CaptureInitialMaterial();
+    }
+
+    void CaptureInitialMaterial()
+    {
+        if (_capturedInitial) return;
+        if (_renderer == null) _renderer = GetComponent<Renderer>();
+        if (_renderer == null) return;
+
+        var mat = _renderer.material;
+        if (mat == null) return;
+
+        _initialMainOffset = mat.mainTextureOffset;
+        if (useSecondMap && !string.IsNullOrEmpty(secondMapName))
+        {
+            string prop = secondMapName + "_ST";
+            _initialSecondST = mat.HasProperty(prop)
+                ? (Vector4)mat.GetVector(prop)
+                : new Vector4(1f, 1f, 0f, 0f);
+        }
+
+        _initialExtraST = new List<Vector4>();
+        if (extraMaps != null)
+        {
+            for (int i = 0; i < extraMaps.Count; i++)
+            {
+                var m = extraMaps[i];
+                if (m == null || string.IsNullOrEmpty(m.mapName))
+                {
+                    _initialExtraST.Add(new Vector4(1f, 1f, 0f, 0f));
+                    continue;
+                }
+
+                string prop = m.mapName + "_ST";
+                _initialExtraST.Add(mat.HasProperty(prop)
+                    ? (Vector4)mat.GetVector(prop)
+                    : m.st);
+            }
+        }
+        _capturedInitial = true;
+    }
 
     void OnEnable()
     {
@@ -71,28 +120,29 @@ public class ArkFxUVTweenAdvanceV6 : ArkFxBehaviour
     {
         if (_renderer == null) _renderer = GetComponent<Renderer>();
         if (_renderer == null) return;
+        if (!_capturedInitial) CaptureInitialMaterial();
         _mat = _renderer.material;
         if (_mat == null) return;
 
-        _mainOffset = keepInitOffset ? _mat.mainTextureOffset : Vector2.zero;
+        _mainOffset = keepInitOffset ? _initialMainOffset : Vector2.zero;
 
         if (useSecondMap && !string.IsNullOrEmpty(secondMapName))
         {
             _secondSTProp = secondMapName + "_ST";
-            _secondST = keepInitOffset && _mat.HasProperty(_secondSTProp)
-                ? (Vector4)_mat.GetVector(_secondSTProp)
+            _secondST = keepInitOffset
+                ? _initialSecondST
                 : new Vector4(1f, 1f, 0f, 0f);
         }
 
-        // 额外贴图的 ST 以材质现有值为起点（原版 OnEnable 同一套逻辑）
+        // 额外贴图的 ST 从实例首次快照起算；不要读“上一轮结束时”的材质值。
         if (extraMaps != null)
         {
             for (int i = 0; i < extraMaps.Count; i++)
             {
                 var m = extraMaps[i];
                 if (m == null || string.IsNullOrEmpty(m.mapName)) continue;
-                string prop = m.mapName + "_ST";
-                if (keepInitOffset && _mat.HasProperty(prop)) m.st = _mat.GetVector(prop);
+                if (i < _initialExtraST.Count)
+                    m.st = _initialExtraST[i];
             }
         }
     }
@@ -150,5 +200,39 @@ public class ArkFxUVTweenAdvanceV6 : ArkFxBehaviour
     {
         v.z -= Mathf.Floor(v.z);
         v.w -= Mathf.Floor(v.w);
+    }
+
+    /// <summary>
+    /// 回对象池前复位；避免 keepInitOffset 在下一次 OnEnable 时吃到上一轮结束值，
+    /// 也避免序列化在组件上的 extraMaps[i].st 逐次漂移。
+    /// </summary>
+    public override void OnRecycle()
+    {
+        _time = 0f;
+
+        Vector2 main = keepInitOffset ? _initialMainOffset : Vector2.zero;
+        Vector4 second = keepInitOffset ? _initialSecondST : new Vector4(1f, 1f, 0f, 0f);
+        _mainOffset = main;
+        _secondST = second;
+
+        if (_mat != null)
+        {
+            if (mainSpeed.x != 0f || mainSpeed.y != 0f)
+                _mat.mainTextureOffset = main;
+            if (useSecondMap && !string.IsNullOrEmpty(_secondSTProp))
+                _mat.SetVector(_secondSTProp, second);
+        }
+
+        if (extraMaps == null) return;
+        for (int i = 0; i < extraMaps.Count; i++)
+        {
+            var m = extraMaps[i];
+            if (m == null || string.IsNullOrEmpty(m.mapName)) continue;
+            if (i < _initialExtraST.Count)
+                m.st = _initialExtraST[i];
+
+            if (_mat != null && _mat.HasProperty(m.mapName + "_ST"))
+                _mat.SetVector(m.mapName + "_ST", m.st);
+        }
     }
 }

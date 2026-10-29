@@ -58,7 +58,17 @@ public static class ArkFxDiag
 
             var stubC = t.GetComponent<ArkFxScriptStub>();
             if (stubC != null)
-                sb.AppendLine($"  [ArkFx] ArkFxScriptStub 原版类名={stubC.className}");
+            {
+                int n = stubC.entries != null ? stubC.entries.Count : 0;
+                sb.AppendLine($"  [ArkFx] ArkFxScriptStub baked={stubC.baked} entries={n} 原版类名={stubC.className}");
+                if (stubC.entries != null)
+                    for (int i = 0; i < stubC.entries.Count; i++)
+                    {
+                        var en = stubC.entries[i];
+                        if (en == null) continue;
+                        sb.AppendLine($"      [{i}] {en.className} raw={(string.IsNullOrEmpty(en.rawJson) ? "<空>" : en.rawJson.Length + " chars")}");
+                    }
+            }
         }
         sb.AppendLine();
         sb.AppendLine("==== ArkFxDiag end ====");

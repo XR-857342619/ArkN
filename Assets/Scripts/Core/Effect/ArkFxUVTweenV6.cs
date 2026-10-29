@@ -55,9 +55,37 @@ public class ArkFxUVTweenV6 : ArkFxBehaviour
     Vector4 _secondST;             // x,y = scale ; z,w = offset
     string _secondSTProp;
 
+    // 对象池复用时的“初始材质状态”快照。
+    // 只在实例第一次 Awake 时采集；之后 OnEnable / BindMaterial 都从快照重新起算，
+    // 避免把上一轮结束时的 offset / ST 当成新初值，造成每复用一次就漂移。
+    Vector2 _initialMainOffset;
+    Vector4 _initialSecondST = new Vector4(1f, 1f, 0f, 0f);
+    bool _capturedInitial;
+
     void Awake()
     {
         _renderer = GetComponent<Renderer>();
+        CaptureInitialMaterial();
+    }
+
+    void CaptureInitialMaterial()
+    {
+        if (_capturedInitial) return;
+        if (_renderer == null) _renderer = GetComponent<Renderer>();
+        if (_renderer == null) return;
+
+        var mat = _renderer.material;   // 实例材质：克隆时就是 prefab 的初始值
+        if (mat == null) return;
+
+        _initialMainOffset = mat.mainTextureOffset;
+        if (useSecondMap && !string.IsNullOrEmpty(secondMapName))
+        {
+            string prop = secondMapName + "_ST";
+            _initialSecondST = mat.HasProperty(prop)
+                ? (Vector4)mat.GetVector(prop)
+                : new Vector4(1f, 1f, 0f, 0f);
+        }
+        _capturedInitial = true;
     }
 
     void OnEnable()
@@ -71,16 +99,17 @@ public class ArkFxUVTweenV6 : ArkFxBehaviour
         if (_renderer == null) _renderer = GetComponent<Renderer>();
         if (_renderer == null) return;
 
+        if (!_capturedInitial) CaptureInitialMaterial();
         _mat = _renderer.material;             // 实例材质，避免污染共享材质
         if (_mat == null) return;
 
-        _mainOffset = keepInitOffset ? _mat.mainTextureOffset : Vector2.zero;
+        _mainOffset = keepInitOffset ? _initialMainOffset : Vector2.zero;
 
         if (useSecondMap && !string.IsNullOrEmpty(secondMapName))
         {
             _secondSTProp = secondMapName + "_ST";
-            _secondST = keepInitOffset && _mat.HasProperty(_secondSTProp)
-                ? (Vector4)_mat.GetVector(_secondSTProp)
+            _secondST = keepInitOffset
+                ? _initialSecondST
                 : new Vector4(1f, 1f, 0f, 0f);
         }
     }
@@ -119,5 +148,27 @@ public class ArkFxUVTweenV6 : ArkFxBehaviour
     public void ResetOffset()
     {
         BindMaterial();
+    }
+
+    /// <summary>
+    /// 回对象池前复位材质/运行时偏移。
+    /// 宿主 ArkFxEffectHost.Recycle 会广播到本组件；若不在这里复位，
+    /// 下次 OnEnable 的 keepInitOffset 会读取“上一轮结束值”，导致池化复用逐次漂移。
+    /// </summary>
+    public override void OnRecycle()
+    {
+        Vector2 main = keepInitOffset ? _initialMainOffset : Vector2.zero;
+        Vector4 second = keepInitOffset ? _initialSecondST : new Vector4(1f, 1f, 0f, 0f);
+
+        _mainOffset = main;
+        _secondST = second;
+
+        if (_mat != null)
+        {
+            if (mainSpeed.x != 0f || mainSpeed.y != 0f)
+                _mat.mainTextureOffset = main;
+            if (useSecondMap && !string.IsNullOrEmpty(_secondSTProp))
+                _mat.SetVector(_secondSTProp, second);
+        }
     }
 }

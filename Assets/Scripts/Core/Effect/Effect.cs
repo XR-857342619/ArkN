@@ -19,10 +19,24 @@ public class Effect : MonoBehaviour
     bool _isBulletEffect;
     Bullet _bullet;
 
+    // —— 与 ArkFx 的启动时序对接 ——
+    // 表驱动特效由 EffectManager/BulletManager 以「先入池、后定位」的方式创建：
+    //   GetEffect -> 调用方设置位置/挂点/朝向 -> Init()/Play()
+    // ArkFx 的发射器、FxDelay 必须在最终位置确定之后才能启动，否则：
+    //   1) OnPlayEmitter 会在世界原点生成子特效；
+    //   2) 随后的 Init->Play 会把 FxDelay 刚隐藏的根节点重新激活，延迟被抵消。
+    // 因此这里把 ArkFxLoader.Kick 推迟到第一次 Play()，并用 _started 保证每个池化实例只 Kick 一次。
+    [System.NonSerialized] public string PrefabName;
+    ArkFxEffectHost _arkFxHost;
+    bool _started;
+
     private void Awake()
     {
-        PS = GetComponentsInChildren<ParticleSystem>();
-        TR = GetComponentsInChildren<TrailRenderer>();
+        // includeInactive=true：AB 特效里大量粒子节点初始未激活（由 FxDelay / 发射器点亮），
+        // 只取 active 的会在回收时漏停这些粒子，导致对象池复用残留上一轮画面。
+        PS = GetComponentsInChildren<ParticleSystem>(true);
+        TR = GetComponentsInChildren<TrailRenderer>(true);
+        _arkFxHost = GetComponent<ArkFxEffectHost>();
         // 切到 FxOverlay 层：由 SpineOverlayCamera 一并渲染，与 Spine 按深度排序（层未创建时内部自动跳过）
         SpineOverlayCameraUtil.ApplyFx(gameObject);
     }
@@ -34,8 +48,9 @@ public class Effect : MonoBehaviour
     {
         StopAllCoroutines();
         // 通知 ArkFx 生命周期宿主：回池了，下次 Play 要重新走一遍 OnPlay
-        var fxHost = GetComponent<ArkFxEffectHost>();
-        if (fxHost != null) fxHost.Recycle();
+        if (_arkFxHost == null) _arkFxHost = GetComponent<ArkFxEffectHost>();
+        if (_arkFxHost != null) _arkFxHost.Recycle();
+        _started = false;
         IsHide = false;
         Parent = null;
         _bullet = null;
@@ -74,7 +89,9 @@ public class Effect : MonoBehaviour
 
     void Update()
     {
-        if (!gameObject.activeInHierarchy && !IsHide)
+        // 非 ArkFx 的工程内特效沿用旧行为；ArkFx 的激活状态由宿主 + FxDelay 管理，
+        // 这里绝不能强行 SetActive(true)，否则会打断延迟播放。
+        if (_arkFxHost == null && !gameObject.activeInHierarchy && !IsHide)
         {
             gameObject.SetActive(true);
         }
@@ -126,6 +143,23 @@ public class Effect : MonoBehaviour
 
     public void Play()
     {
+        // AB 来源：首次 Play 才启动 ArkFx 宿主。此时调用方通常已完成 Init() 的定位/挂点/朝向。
+        // Kick 内部会统一执行 OnPlay、播放粒子/Animator、挂缺失脚本兜底。
+        if (_arkFxHost != null)
+        {
+            if (!_started)
+            {
+                _started = true;
+                ArkFxLoader.Kick(gameObject, PrefabName);
+            }
+
+            // FxDelay 可能刚刚隐藏了根节点；不要在这里 SetActive(true) 抵消延迟。
+            // 被隐藏时粒子会由 ArkFxDelay.Reveal 在延时结束后补播。
+            ClearTrails();
+            return;
+        }
+
+        // 工程内特效：保持原有激活 + 手动播放粒子的行为。
         if (!gameObject.activeInHierarchy && !IsHide)
         {
             gameObject.SetActive(true);
@@ -136,6 +170,12 @@ public class Effect : MonoBehaviour
             if (p != null)
                 p.Play();
         }
+        ClearTrails();
+    }
+
+    void ClearTrails()
+    {
+        if (TR == null) return;
         foreach (var t in TR)
         {
             if (t != null)
@@ -185,12 +225,6 @@ public class Effect : MonoBehaviour
                 var m = p.main;
                 m.simulationSpeed = speed;
             }
-        }
-
-        Play();
-        if (!gameObject.activeInHierarchy && !IsHide)
-        {
-            gameObject.SetActive(true);
         }
 
         if (EffectData.ParentFollow == 2)
@@ -258,6 +292,9 @@ public class Effect : MonoBehaviour
             angleY = Vector2.SignedAngle(user.Direction, Vector2.right);
         }
         transform.eulerAngles = new Vector3(angleX, angleY, angleZ);
+
+        // 位置/父节点/缩放/朝向全部确定后再启动；ArkFx 发射器和 FxDelay 都依赖此时机。
+        Play();
     }
 
     public virtual void Init(Bullet target, float speed = 1)
@@ -271,14 +308,11 @@ public class Effect : MonoBehaviour
             }
         }
 
-        Play();
-        if (!gameObject.activeInHierarchy && !IsHide)
-        {
-            gameObject.SetActive(true);
-        }
-
         transform.position = target.Position;
         _isBulletEffect = true;
         _bullet = target;
+
+        // 先定位再启动，保证弹道特效的发射器在正确位置生成。
+        Play();
     }
 }

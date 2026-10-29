@@ -31,6 +31,33 @@ public class EffectManager : MonoBehaviour
     {
     }
 
+    /// <summary>
+    /// 稳定字符串 Id 入口。新配置优先走这里；内部仍复用 int 缓存/池化路径。
+    /// </summary>
+    public Effect GetEffect(string effectId)
+    {
+        if (string.IsNullOrEmpty(effectId))
+        {
+            Debug.LogError("[EffectManager] 特效 Id 为空");
+            return null;
+        }
+
+        var config = Database.Instance.Get<EffectData>(effectId);
+        if (config == null)
+        {
+            Debug.LogError($"[EffectManager] 特效配置不存在: {effectId}");
+            return null;
+        }
+
+        int index = Database.Instance.GetIndex(config);
+        if (index < 0)
+        {
+            Debug.LogError($"[EffectManager] 特效配置索引解析失败: {effectId}");
+            return null;
+        }
+        return GetEffect(index);
+    }
+
     public Effect GetEffect(int id)
     {
         var config = Database.Instance.Get<EffectData>(id);
@@ -45,19 +72,18 @@ public class EffectManager : MonoBehaviour
             // 来源优先级：默认「原版 AB 优先」，AB 里没有才回落工程内 prefab
             // （开关见 ArkFxLoader.PreferAbSource / 菜单 Tools/ArkFx/0）
             GameObject go = null;
-            bool fromAb = false;
             if (ArkFxLoader.PreferAbSource)
             {
                 go = ArkFxLoader.LoadPrefabByName(config.Prefab);
-                if (go != null) { go.AddComponent<Effect>(); fromAb = true; }
+                // 同一个 AB prefab 可能被多条 EffectData 引用；必须判重，
+                // 否则第二次加载会在 prefab 资产上重复 AddComponent<Effect>()，
+                // 池化实例上会出现多个 Update / 多次 ReturnEffect。
+                if (go != null && go.GetComponent<Effect>() == null)
+                    go.AddComponent<Effect>();
             }
             if (go == null)
             {
                 go = ResHelper.GetAsset<GameObject>(PathHelper.EffectPath + config.Prefab);
-            }
-            else if (!fromAb && go.GetComponent<Effect>() == null)
-            {
-                go.AddComponent<Effect>();
             }
             if (go == null)
             {
@@ -78,16 +104,12 @@ public class EffectManager : MonoBehaviour
 
         result.Id = id;
         result.SetLifeTime(config.LifeTime);
-        // 必须先清理池化残留（内部会调 ArkFxEffectHost.Recycle），再 Kick。
-        // 反过来的话，ResetEffect 会把 ArkFxDelay 刚隐藏的根节点重新激活，延迟被抵消。
+        // 先清理池化残留（内部会调 ArkFxEffectHost.Recycle）。
+        // 这里【不 Kick】：调用方随后通常要执行 Init() 设置位置/挂点/朝向，
+        // 而 OnPlayEmitter 与 FxDelay 必须在最终位置确定后启动。
+        // 真正启动由 Effect.Play() 在第一次调用时完成（Init() 末尾会调用 Play）。
         result.ResetEffect();
-        // AB 来源的特效：实例化后踢动效（粒子/动画器）；驱动组件已烘焙进 prefab，克隆自带不会重复
-        // 注意：不能用局部变量 fromAb —— prefab 被 effectPrefabs 缓存后，
-        // 第二次起不会再走加载分支，fromAb 恒为 false，Kick 就永远不会被调用
-        // （表现为：粒子不播、发射器不发射、FxDelay 不上膛）。
-        // 改用 prefab 上是否有 ArkFxEffectHost 来判定（BakePrefab 会给 AB prefab 挂宿主）。
-        if (prefab.GetComponent<ArkFxEffectHost>() != null)
-            ArkFxLoader.Kick(result.gameObject, config.Prefab);
+        result.PrefabName = config.Prefab;
         return result;
     }
 

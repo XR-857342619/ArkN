@@ -240,10 +240,18 @@ public static class ArkFxLoader
                 return;
             }
             _params = new Dictionary<string, FxParamEntry[]>(doc.prefabs.Length);
+            int rawEntries = 0;
             foreach (var pf in doc.prefabs)
-                if (!string.IsNullOrEmpty(pf?.prefab))
-                    _params[pf.prefab.ToLowerInvariant()] = pf.entries;
-            Debug.Log($"[ArkFxLoader] fxparams.json 载入 {doc.prefabs.Length} 个 prefab 的原版脚本参数");
+            {
+                if (string.IsNullOrEmpty(pf?.prefab)) continue;
+                _params[pf.prefab.ToLowerInvariant()] = pf.entries;
+                if (pf.entries == null) continue;
+                for (int i = 0; i < pf.entries.Length; i++)
+                    if (pf.entries[i] != null && !string.IsNullOrEmpty(pf.entries[i].raw))
+                        rawEntries++;
+            }
+            Debug.Log($"[ArkFxLoader] fxparams.json 载入 {doc.prefabs.Length} 个 prefab 的原版脚本参数"
+                      + $"（raw 存档 {rawEntries} 条，供 ArkFxScriptStub 使用）");
         }
         catch (System.Exception e)
         {
@@ -458,11 +466,10 @@ public static class ArkFxLoader
         ApplyMissingScriptFallback(prefab);
         ApplyBrightness(prefab);
         ArkFxEffectHost.Ensure(prefab);
-        if (prefab.GetComponent<ArkFxScriptStub>() == null)
-        {
-            var marker = prefab.AddComponent<ArkFxScriptStub>();
-            marker.className = "_baked";
-        }
+        // 用 baked 标记，而不是占用 className（节点本身可能已有真正的原版脚本记录）
+        var marker = prefab.GetComponent<ArkFxScriptStub>();
+        if (marker == null) marker = prefab.AddComponent<ArkFxScriptStub>();
+        marker.baked = true;
     }
 
     // ================= 原版脚本替身的挂载（v5 / v6 双轨） =================
@@ -556,7 +563,9 @@ public static class ArkFxLoader
         var em = go.GetComponent<ArkFxOnFinishEmitter>();
         if (em == null) em = go.AddComponent<ArkFxOnFinishEmitter>();
         em.effects = e.effects;
-        em.clearWhenFinish = e.clearWhenFinish;
+        // 原版 OnFinishEmitter 没有 _clearWhenFinish；它发射的是父特效结束后的尾段特效，
+        // 不能清空。真正清理在 OnRecycle（回池）里做，见 ArkFxOnFinishEmitter.OnFinish。
+        em.clearWhenFinish = false;
     }
 
     /// <summary>挂随机发射器。</summary>
@@ -644,10 +653,11 @@ public static class ArkFxLoader
             }
             else if (node.gameObject.GetComponent<ArkFxScriptStub>() == null)
             {
-                // 其余原版脚本（ParticleEffect/ProjectileEffect 等）先存档备查
-                var stub = node.gameObject.AddComponent<ArkFxScriptStub>();
-                stub.className = e.cls;
-                stub.rawJson = e.raw;
+                // 其余原版脚本（Switchable* / PauseEffectIf* / ColorModifier / FxLODSetting 等）
+                // 的参数已经由 dump_fx_params.py 写进 raw，这里存档备查；同一节点可挂多条。
+                var stub = node.gameObject.GetComponent<ArkFxScriptStub>();
+                if (stub == null) stub = node.gameObject.AddComponent<ArkFxScriptStub>();
+                stub.Add(e.cls, e.raw);
             }
         }
         if (missed > 3)
@@ -659,7 +669,7 @@ public static class ArkFxLoader
     {
         if (fx == null || Brightness >= 1f) return;
         var marker = fx.GetComponent<ArkFxScriptStub>();
-        if (marker != null && marker.className == "_baked") return;
+        if (marker != null && (marker.baked || marker.className == "_baked")) return;
 
         foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
         {
