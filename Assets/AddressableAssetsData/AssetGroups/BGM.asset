@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: BGM
+  m_EditorClassIdentifier: 
+  m_GroupName: BGM
+  m_Data:
+    m_SerializedData: []
+  m_GUID: fdd8ff792afcdc3418c188c906466a65
+  m_SerializeEntries:
+  - m_GUID: 8e6addaa80ca6bc40a6b8431fc23e769
+    m_Address: Assets/Bundles/Audio/BGM/Somniomancer [null set
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0db0d1753d7891f4487a3b5fd9ad6633
+    m_Address: "Assets/Bundles/Audio/BGM/\u82B1\u7940\u65F6"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6abd8c806ae40d54e82979179b086730
+    m_Address: "Assets/Bundles/Audio/\u5DF2\u81F3"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0ff251064990b1140b8766d9ea34ce3e
+    m_Address: "Assets/Bundles/Audio/\u820D\u76D8\u6301\u96BE\u9898\u7EB3\u5A46\u7F57\u4E3A\u8C1B"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 933ae5c6da2200148a36f91f7f853b4e
+    m_Address: "Assets/Bundles/Audio/\u6267\u68CB\u8005\u4E4B\u9AA8"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 242fd0e985ecef14caef48a8cdb9ed24, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 21695d1abe46d844f9e19d033c6cd310, type: 2}
+    - {fileID: 11400000, guid: 4bdc7588e13189b40934b64e7f5aa810, type: 2}

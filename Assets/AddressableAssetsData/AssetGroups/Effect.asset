@@ -1,0 +1,1569 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Effect
+  m_EditorClassIdentifier: 
+  m_GroupName: Effect
+  m_Data:
+    m_SerializedData: []
+  m_GUID: ac70fc4627c957e4eb1a1eaf470020d6
+  m_SerializeEntries:
+  - m_GUID: 19f46d5618a6b6c49ad438ccc5c3c83f
+    m_Address: Assets/Bundles/Effect/common_ resistance_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 52bb8bfba3d886b4b820e34c3a6a5124
+    m_Address: Assets/Bundles/Effect/common_buff_parry_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 68793260fca1272418d22a2bfd569e43
+    m_Address: Assets/Bundles/Effect/common_buff_parry_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 766c11d66d8d56a4da54c855a467789d
+    m_Address: Assets/Bundles/Effect/common_call_start_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a8abe9cb76101ff47bfb593011416309
+    m_Address: Assets/Bundles/Effect/common_charge_cost_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d269f8212059c6f4793093491c17e104
+    m_Address: Assets/Bundles/Effect/common_charge_cost_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f5394a00709cae443ad2c0eb348dde1f
+    m_Address: Assets/Bundles/Effect/common_charge_cost_start_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ad767c97372b1d4498ac9a82684f9ab6
+    m_Address: Assets/Bundles/Effect/common_char_birth_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 07a020190b7430540a71dad201193fe9
+    m_Address: Assets/Bundles/Effect/common_char_die_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e64abb62c94d2ad429be44cd9b042710
+    m_Address: Assets/Bundles/Effect/common_cuting_hit_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1504b42e4a302bf45a135fd339538853
+    m_Address: Assets/Bundles/Effect/common_disarm_icon
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 168f529ff2d507544a9fc6f2f185e064
+    m_Address: Assets/Bundles/Effect/common_enemy_die_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 490cc084cd6542542810c3fe2795d336
+    m_Address: Assets/Bundles/Effect/common_enemy_hit_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d979974b825e20443b1226e20d7d5d3f
+    m_Address: Assets/Bundles/Effect/common_firemagic_hit_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 986fd5c5e1314d741b7a1f0dd84d26dc
+    m_Address: Assets/Bundles/Effect/common_gongjian_trail_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 633bfc9cd96439f4a9ef22a7e2041676
+    m_Address: Assets/Bundles/Effect/common_heal_hit_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3807a36dd6f46934b9f1e746955788d9
+    m_Address: Assets/Bundles/Effect/common_heal_range_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e09c594d66d67bc4095c432de439d86d
+    m_Address: Assets/Bundles/Effect/common_heal_start_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b504904160ff7cf4083544a5d28b725f
+    m_Address: Assets/Bundles/Effect/common_hit_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e5de764b9311f3c48ae56a75ba99db36
+    m_Address: Assets/Bundles/Effect/common_ignite_attack
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 63d40aea2a8c3d144806e9eb4946bd4d
+    m_Address: Assets/Bundles/Effect/common_ignite_defense
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7fd64ba7665c1c64883a3e46aa787b01
+    m_Address: Assets/Bundles/Effect/common_ignite_support
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 59b3e36ce5985ad429a1596936b655c8
+    m_Address: Assets/Bundles/Effect/common_invincible_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 08e91b867910aa642bfd37f0f435c90c
+    m_Address: Assets/Bundles/Effect/common_invisible
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 61f135e0c92e0194eb22164b3d9045d8
+    m_Address: Assets/Bundles/Effect/common_invisible_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ad1542b47cd6d48438e5c6d3474514a9
+    m_Address: Assets/Bundles/Effect/common_item_recycle_trail_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9af5a7f55a90780479562a736abcbc6c
+    m_Address: Assets/Bundles/Effect/common_magic_hit_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f4a729df8b4168542bf8597dd90c2792
+    m_Address: Assets/Bundles/Effect/common_magic_hit_01_m
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1af8b38c242fee44e935c874a1ad8c30
+    m_Address: Assets/Bundles/Effect/common_magic_trail_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 849ffc4397399b94397bcd75ad5a2f41
+    m_Address: Assets/Bundles/Effect/common_magic_trail_01_m
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 20d01ea8d217e3441b829b06d6547d31
+    m_Address: Assets/Bundles/Effect/common_nerve_injury_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 70cc2922000aa444abcbcf38416a44bf
+    m_Address: Assets/Bundles/Effect/common_next_atk_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e1f3f4267cc217246b56dc195f82a034
+    m_Address: Assets/Bundles/Effect/common_refresh_bullet_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d18be9e221f283542ae75420a13c86a8
+    m_Address: Assets/Bundles/Effect/common_V015_ liberation_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2037f083ced6a1a4c94e25f736b03461
+    m_Address: Assets/Bundles/Effect/common_V015_ liberation_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2590b5d2fe5557d40b944f3f3c84a02b
+    m_Address: Assets/Bundles/Effect/common_waterElementExplosion
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cc1a93560e6593643b3cf694b1371025
+    m_Address: Assets/Bundles/Effect/kros_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 02a3f8824dc4462488b719024aae43ce
+    m_Address: "Assets/Bundles/Effect/\u51B0\u672F\u58EB\u5C31\u7EEA"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4a783fa085cbf574f9ded34225389f3d
+    m_Address: "Assets/Bundles/Effect/\u84C4\u529B"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 62cfeba3c730d5e408a2529f68f92451
+    m_Address: "Assets/Bundles/Effect/\u7729\u6655"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 75817fb64010cba41940c970f0255d49
+    m_Address: "Assets/Bundles/Effect/\u51FB\u4E2D2"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 51b8e44d8556d9e43a072f2cd03821b8
+    m_Address: "Assets/Bundles/Effect/\u51FB\u4E2D1"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 19820ff38a73bc04ab69671cd3943e34
+    m_Address: "Assets/Bundles/Effect/\u5BD2\u51B7"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3f1f82360f5568b42be664a6559710d4
+    m_Address: "Assets/Bundles/Effect/\u84DD\u8272\u5B50\u5F39"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d79645b63c410d44ead0b00c91a585b0
+    m_Address: "Assets/Bundles/Effect/\u5730\u677F\u635F\u574F"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f126c7b8bc4386d4f99c4d9cb6f5a68f
+    m_Address: "Assets/Bundles/Effect/\u5EF6\u8FDF\u5B50\u5F39"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4ac1281432c04304e8ce033734c156bf
+    m_Address: "Assets/Bundles/Effect/\u9690\u8EAB"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 69f81e05419bb0b4b94d8b13571a8ce6
+    m_Address: "Assets/Bundles/Effect/\u51BB\u7ED3"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 49ea37449b8061841bb744659faea926
+    m_Address: Assets/Bundles/Effect/popka_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f79c36ab30126804fb6013ef821dfe79
+    m_Address: Assets/Bundles/Effect/midn_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 35fdcfaad94809040b9c68a619d41763
+    m_Address: Assets/Bundles/Effect/midn_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 90e81ee162d2a934b924e8d24332febb
+    m_Address: Assets/Bundles/Effect/midn_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2840ce472d1f80a4cb68f98ebccae196
+    m_Address: Assets/Bundles/Effect/midn_skill_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1bfff08e249b65a47975de201127d17c
+    m_Address: Assets/Bundles/Effect/catap_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bf856344af3757743ab67955aeeca0f4
+    m_Address: Assets/Bundles/Effect/catap_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3dab7183ea8993d4a9f36319e4b61213
+    m_Address: Assets/Bundles/Effect/catap_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 47d1d0d5b5afdf6408dd93968e852bc7
+    m_Address: Assets/Bundles/Effect/orchid_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 24ce7411c2f72ad4ea1bed400af810ee
+    m_Address: Assets/Bundles/Effect/orchid_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c93da6a468f24e346ac60996a2669b61
+    m_Address: Assets/Bundles/Effect/stward_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c55aa6da10b19b04e88eebcd4c8e6603
+    m_Address: Assets/Bundles/Effect/stward_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e83e7753cc3ef864f8aceaf7b06e9c66
+    m_Address: Assets/Bundles/Effect/stward_skill_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 574afaa5460abaf429a47fd589692074
+    m_Address: Assets/Bundles/Effect/spot_skill_01_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 67923aee75173d54b990bf6bdffd8ec2
+    m_Address: Assets/Bundles/Effect/spot_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7fe6be677fdb7774ab3a02c6dad7b8f7
+    m_Address: Assets/Bundles/Effect/spot_skill_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: aca0a4f3cf52a5b4ca35fa69495d5ba2
+    m_Address: Assets/Bundles/Effect/ansel_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a358723c3b68402449366aaedf881887
+    m_Address: Assets/Bundles/Effect/lava_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: dc552a674f9160846b8b7b5a7405e10d
+    m_Address: Assets/Bundles/Effect/svrash_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9e6493e67bcb54045bc528db0acc29d8
+    m_Address: Assets/Bundles/Effect/svrash_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0a6c4182e6d392548be697f36603eaa9
+    m_Address: Assets/Bundles/Effect/svrash_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1b0b9b8f0e5613a498e9d263502d8f48
+    m_Address: Assets/Bundles/Effect/svrash_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 108c4fdc4fd59fd4e9b93561547661a8
+    m_Address: Assets/Bundles/Effect/svrash_skill_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: fe3bc18eb85e1b54daed3a624913ec57
+    m_Address: Assets/Bundles/Effect/svrash_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7e5d9df3a01eeac40ae1426dcccc6bfd
+    m_Address: Assets/Bundles/Effect/svrash_skill_03_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: de5c4041ab2fb524e820ce9c7591d2bf
+    m_Address: Assets/Bundles/Effect/svrash_skill_03_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 15aa99ac25d5f7d4097532039cba1c86
+    m_Address: Assets/Bundles/Effect/svrash_skill_03_start_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 63d8a8df67728324799d72e797e4e84d
+    m_Address: Assets/Bundles/Effect/svrash_skill_03_start_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 898fb2da5c6748d4480750e64869a017
+    m_Address: Assets/Bundles/Effect/surtr_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 57991ddfcebe1c14996c633a31635eef
+    m_Address: Assets/Bundles/Effect/surtr_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2a2be40cec20da648be3da661010dffd
+    m_Address: Assets/Bundles/Effect/surtr_attack_01_start_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f788d90978bb46a4e802b2e59ffc639d
+    m_Address: Assets/Bundles/Effect/surtr_buff_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a0a656482213bf94aaf807c2f0809ad2
+    m_Address: Assets/Bundles/Effect/surtr_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f015e5667bfb2e04faab40b95e317c06
+    m_Address: Assets/Bundles/Effect/surtr_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 716b2ee64d14e2a48b06f1e21a426990
+    m_Address: Assets/Bundles/Effect/surtr_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6ea7b0c4474a8fa4d93b8a7905cb080d
+    m_Address: Assets/Bundles/Effect/surtr_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 96195ada0b41017409c5c6050ae1e545
+    m_Address: Assets/Bundles/Effect/surtr_skill_02_start_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1ab56ff37beb7c34ab972d1aa4ad71c6
+    m_Address: Assets/Bundles/Effect/surtr_skill_03_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 62b5d651e6405fa408f69ff0715e5d18
+    m_Address: Assets/Bundles/Effect/surtr_skill_03_buff_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bab69ebcbe6a4ca4e8fa0acba4053a55
+    m_Address: Assets/Bundles/Effect/surtr_skill_03_buff_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4c8bff877f3a1f6428357c32d0cb7ce2
+    m_Address: Assets/Bundles/Effect/surtr_skill_03_buff_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 61702cf8892d6254d94a8a05424749f3
+    m_Address: Assets/Bundles/Effect/surtr_skill_03_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e736976acb2e11b449d129188b4d51e1
+    m_Address: Assets/Bundles/Effect/surtr_skill_03_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 173a3e00035d540408247034b590c124
+    m_Address: Assets/Bundles/Effect/surtr_skill_03_start_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0e3628ba6d964254380399da8586bc1d
+    m_Address: Assets/Bundles/Effect/kalts_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7eb51ff3154fe2548821bb187fb7be42
+    m_Address: Assets/Bundles/Effect/kalts_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 66eb61a865f493a4abc076b35265133e
+    m_Address: Assets/Bundles/Effect/kalts_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3c5b009ce487ec240a5e859ef084879a
+    m_Address: Assets/Bundles/Effect/kalts_skill_01_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 67b7635c214beb8448e95d775dc16ae5
+    m_Address: Assets/Bundles/Effect/kalts_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: efa6f149801751541a869931321392c2
+    m_Address: Assets/Bundles/Effect/kalts_skill_03_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2efac3fe1dcc3d146a487da4ee0c38c2
+    m_Address: Assets/Bundles/Effect/thorns_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6023b7273963a5843a33481ccec5be83
+    m_Address: Assets/Bundles/Effect/thorns_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 60199c746485bcf4daa572481b6647e4
+    m_Address: Assets/Bundles/Effect/thorns_attack_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8e15a97a105957d439de2c72c1e69005
+    m_Address: Assets/Bundles/Effect/thorns_attack_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d0980b888fbf43b41849f24e4590b73f
+    m_Address: Assets/Bundles/Effect/thorns_attack_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1695df4190bb2314989d7f0396cf941d
+    m_Address: Assets/Bundles/Effect/thorns_buff_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cba713f9845e96f4f8cda1dc58d29196
+    m_Address: Assets/Bundles/Effect/thorns_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d8afc065714921d43845dc31e8f7344a
+    m_Address: Assets/Bundles/Effect/thorns_skill_02_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5dd601dca02b8bf43a2f921630bdc978
+    m_Address: Assets/Bundles/Effect/thorns_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7ec8e944119fc51498ed48e40084fbc6
+    m_Address: Assets/Bundles/Effect/thorns_skill_03_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 81a003af65c22764c9b82f73142cb66a
+    m_Address: Assets/Bundles/Effect/thorns_skill_03_buff_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2ceec1abf874b7544889144447c04237
+    m_Address: Assets/Bundles/Effect/thorns_skill_03_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b26f4c9c1b474d844b978c02135d2e46
+    m_Address: Assets/Bundles/Effect/thorns_skill_03_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: db4c11a5e5c277e498b7dd2f27be0e4e
+    m_Address: Assets/Bundles/Effect/thorns_skill_03_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f29bd30990a880d4da6b71b58b01c755
+    m_Address: Assets/Bundles/Effect/angle_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 377427704847a584896c159788f8aa18
+    m_Address: Assets/Bundles/Effect/angle_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8987411eac17b66449bb8317178278bd
+    m_Address: Assets/Bundles/Effect/angle_attack_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2a46d65a54737c84d8c8116c4995b646
+    m_Address: Assets/Bundles/Effect/angle_buff_00_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: aba01c81abaa2b1489b5f8ef32018388
+    m_Address: Assets/Bundles/Effect/angle_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d82dbcd6672c2a84588f1c16f8b7d97f
+    m_Address: Assets/Bundles/Effect/angle_skill_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 10ccd1b403f28dd4cb2c810ddbe36775
+    m_Address: Assets/Bundles/Effect/angle_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 93a5fdde7bb72f243ac243a5ee0a1785
+    m_Address: Assets/Bundles/Effect/angle_skill_03_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6274c4d5025bae24e8b075028073dd06
+    m_Address: Assets/Bundles/Effect/siege_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f8210ac1f261f494090ff48cf458c4f4
+    m_Address: Assets/Bundles/Effect/siege_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 538823faa80fc214ca47222feafe4e89
+    m_Address: Assets/Bundles/Effect/siege_skill_03_buff_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 734b6a028865ebc47ae1a596118f8f21
+    m_Address: Assets/Bundles/Effect/siege_skill_03_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2650f95e3e2427243ba99e4d572b0596
+    m_Address: Assets/Bundles/Effect/siege_skill_03_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: aeebe998417a99c41bd04725d23ed007
+    m_Address: Assets/Bundles/Effect/ifrit_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8c4f2b864763baf45876cc27506f3b63
+    m_Address: Assets/Bundles/Effect/ifrit_skill_02_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 24c8eb84bca00bd49919814b1a05314e
+    m_Address: Assets/Bundles/Effect/ifrit_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d79e54cbdbe51ea43b8e57802c524fe3
+    m_Address: Assets/Bundles/Effect/ifrit_skill_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 846bf1a0334656e40991bde9cb2ebf54
+    m_Address: Assets/Bundles/Effect/ifrit_skill_03_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: adbb9bc95abedf143a3b527ba16f9a62
+    m_Address: Assets/Bundles/Effect/ifrit_skill_03_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 279c7499ee2dbaf4eafbf590b1dac987
+    m_Address: Assets/Bundles/Effect/ifrit_skill_03_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b4fe02df7572c3b43928f83f1bee9f14
+    m_Address: Assets/Bundles/Effect/amgoat_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 68173c6f2d1bff64fbc49cb9c0d0830d
+    m_Address: Assets/Bundles/Effect/amgoat_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 086b2d3262d169a4c9b3c3495172df18
+    m_Address: Assets/Bundles/Effect/amgoat_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c05fd3777c3b8254d9cffcd5cd7af80b
+    m_Address: Assets/Bundles/Effect/amgoat_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c422811fd1875324da667918a440d18e
+    m_Address: Assets/Bundles/Effect/amgoat_skill_02_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1263ab241b93a7248b7b86b410b7c47b
+    m_Address: Assets/Bundles/Effect/amgoat_skill_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d8323583058cab84e847e4ff0efe55c6
+    m_Address: Assets/Bundles/Effect/amgoat_skill_03_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 48835b542e5b985499d9984c7a0514c8
+    m_Address: Assets/Bundles/Effect/amgoat_skill_03_buff_end
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2128a0b3585377c4e923e94a5dff5986
+    m_Address: Assets/Bundles/Effect/amgoat_skill_03_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4cdf8ddf6e9cfca45879e7d3ef02821a
+    m_Address: Assets/Bundles/Effect/aglina_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9271f36c11331d644ae6e866a465916c
+    m_Address: Assets/Bundles/Effect/aglina_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7955a9b71f97afd40b77379f4c821b72
+    m_Address: Assets/Bundles/Effect/aglina_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f0da74517d0c87a4793a4810fbf65ebc
+    m_Address: Assets/Bundles/Effect/aglina_skill_02_gather
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8ba045f10c31b444b8661405e3745890
+    m_Address: Assets/Bundles/Effect/aglina_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b822ddeb96add2049950649b6bd6221e
+    m_Address: Assets/Bundles/Effect/aglina_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2f3e26f3fed37e04a995e00520a2c7f4
+    m_Address: Assets/Bundles/Effect/aglina_skill_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 95124fa8b22ee484aa1999997ce6c501
+    m_Address: Assets/Bundles/Effect/aglina_skill_03_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 87f9cbd84cc972548aee7b62283c310d
+    m_Address: Assets/Bundles/Effect/aglina_skill_03_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1be29901d03a2304398e328153beaba2
+    m_Address: Assets/Bundles/Effect/shining_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e1ec3a5195ccf8149b9c23189d9c570d
+    m_Address: Assets/Bundles/Effect/shining_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 68315f90e8ba6a4469d3ab665591de23
+    m_Address: Assets/Bundles/Effect/shining_skill_01_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4b35bffd1a7468248b3699a82c45a703
+    m_Address: Assets/Bundles/Effect/shining_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 781e4e5fedbcc2644834458880e82d0c
+    m_Address: Assets/Bundles/Effect/shining_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 46853b9ffd5d3a948abf3a2a68fa57a7
+    m_Address: Assets/Bundles/Effect/shining_skill_03_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a5456c835fe57be4680262ae72d71a00
+    m_Address: Assets/Bundles/Effect/cgbird_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0036aa91005dd4c41a22eee13a1cdcdc
+    m_Address: Assets/Bundles/Effect/cgbird_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: dbe244ba74b501040a3dde4921b4eff3
+    m_Address: Assets/Bundles/Effect/cgbird_buff_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 12b2ced0088f23b439a8080d497af0fa
+    m_Address: Assets/Bundles/Effect/cgbird_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e374b29f8830d6d4c99536d8080920fd
+    m_Address: Assets/Bundles/Effect/cgbird_skill_03_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: fc09367e29f97bd42b760a2bfa6ec95c
+    m_Address: Assets/Bundles/Effect/hsguma_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e7dc9b7e7de1a2842a1e36101625bed1
+    m_Address: Assets/Bundles/Effect/hsguma_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0a2094d327a67b948b24638c18b07f12
+    m_Address: Assets/Bundles/Effect/hsguma_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c7abec9a50226de4985d20076eb996fa
+    m_Address: Assets/Bundles/Effect/hsguma_skill_03_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c0ee2072b8f97284e835c7be4daf71f3
+    m_Address: Assets/Bundles/Effect/hsguma_skill_03_buff_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0c6a360137543e447902a41e8fe96ea3
+    m_Address: Assets/Bundles/Effect/hsguma_skill_03_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 83e1075e16f77f749baf3cf74c424dd4
+    m_Address: Assets/Bundles/Effect/hsguma_skill_03_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7c09bb305b5cd4c4f88c993a6fa8270f
+    m_Address: Assets/Bundles/Effect/demkni_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c915946760b4e0c44b4cbd0038f8239a
+    m_Address: Assets/Bundles/Effect/demkni_buff_01_self
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d3b2f2b97c55a6a47990d0417fc69e55
+    m_Address: Assets/Bundles/Effect/demkni_buff_02_self
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a3980d46943ab7748b96fa7756c74405
+    m_Address: Assets/Bundles/Effect/demkni_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: af9fa270e8564354585105024d5d8884
+    m_Address: Assets/Bundles/Effect/demkni_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 191ca93b40f6c8e4e9aff3c74c2746c1
+    m_Address: Assets/Bundles/Effect/demkni_skill_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 263d6aeaa0c40d64f988f216590887ff
+    m_Address: Assets/Bundles/Effect/demkni_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5582e5a4f0b6caf4189aa1649b61e452
+    m_Address: Assets/Bundles/Effect/demkni_skill_03_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 70cf0b2f9b932934d9107be8542c8ccb
+    m_Address: Assets/Bundles/Effect/demkni_skill_03_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0151c96670faaea4990619723b44dd77
+    m_Address: Assets/Bundles/Effect/demkni_skill_03_self
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: af8d98086c5e52040aa48c3049c9a113
+    m_Address: Assets/Bundles/Effect/nights_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 054d799cd13a9124bac5ed9e723274fc
+    m_Address: Assets/Bundles/Effect/nights_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e6f665475f32dba40bda62ada096ae05
+    m_Address: Assets/Bundles/Effect/nights_skill_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: efcf61776c3f9ca4aa313dd86b89842a
+    m_Address: Assets/Bundles/Effect/fmout_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8982524f4613ec94faffd757b244d44b
+    m_Address: Assets/Bundles/Effect/fmout_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7d2ad3b8656c1e84ea8de72e944940af
+    m_Address: Assets/Bundles/Effect/fmout_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bd22445bdbc648141a19193833925477
+    m_Address: Assets/Bundles/Effect/fmout_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 13af3a537f95084488197e5452b31c85
+    m_Address: Assets/Bundles/Effect/fmout_skill_02_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: dfed6c37602093944ac068dd93327105
+    m_Address: Assets/Bundles/Effect/fmout_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3fb6d11af9e4ace4bb0cc11ccd5de824
+    m_Address: Assets/Bundles/Effect/blackd_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8917e5e9356ada3488af15d03fedc4a7
+    m_Address: Assets/Bundles/Effect/blackd_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c47e15ec7b17785418a74e35d486d69c
+    m_Address: Assets/Bundles/Effect/jesica_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 95b8641c15c36a940b9435dde2df16b0
+    m_Address: Assets/Bundles/Effect/jesica_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 204ed15157acfd14192fcd5ae65f3450
+    m_Address: Assets/Bundles/Effect/jesica_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 988c489398c00664582a0227026ccbc7
+    m_Address: Assets/Bundles/Effect/jesica_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e65fb97a1be09494aa02a369c6e4ff36
+    m_Address: Assets/Bundles/Effect/jesica_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4c4ec416fb88af3408ba2d94c94c93fd
+    m_Address: Assets/Bundles/Effect/shotst_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8008ecc9bdd3f8b4aa30a575261b4053
+    m_Address: Assets/Bundles/Effect/shotst_skill_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a40bbb793376e2b4d951052ec7eed852
+    m_Address: Assets/Bundles/Effect/shotst_skill_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4b915b12f4173364c95f9f9909a06a61
+    m_Address: Assets/Bundles/Effect/yuki_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c5fa861fa6cd51f47aae8b2662c6ea14
+    m_Address: Assets/Bundles/Effect/yuki_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 04a3fe1bcbb14714a9ecbc57c9e9b374
+    m_Address: Assets/Bundles/Effect/scave_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 81328c4d33df83e409edb60d3a7ce390
+    m_Address: Assets/Bundles/Effect/scave_attack_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c6278edc87839f4478f6d0381cb5b716
+    m_Address: Assets/Bundles/Effect/vigna_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0a187ab7f383aa244849a959beb57a18
+    m_Address: Assets/Bundles/Effect/vigna_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2a2aec98f74025844a3f31d2b2fd8703
+    m_Address: Assets/Bundles/Effect/vigna_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1e8786036dec8664095885ce21074002
+    m_Address: Assets/Bundles/Effect/vigna_skill_02_buff_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c8963536522487442ba47dd7eaec2c58
+    m_Address: Assets/Bundles/Effect/doberm_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ca3f25e1702dedb48b1486dbdd838dca
+    m_Address: Assets/Bundles/Effect/doberm_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4e0234ae3e333454a9f40fdd10f9b16e
+    m_Address: Assets/Bundles/Effect/gyuki_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0a0a9dabc3c48e24f9232a79e2bbe083
+    m_Address: Assets/Bundles/Effect/gyuki_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cf46441260c38ec4b8ee56419e8b4a89
+    m_Address: Assets/Bundles/Effect/gyuki_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e902917fe61897f4bada061b9059b2ca
+    m_Address: Assets/Bundles/Effect/frostl_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 196c607409f7560478c31a5bbb02c032
+    m_Address: Assets/Bundles/Effect/frostl_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 12e5143b2e97a4342bafdba5cc08bad4
+    m_Address: Assets/Bundles/Effect/frostl_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8b9fc5d5f9eca41489607c06fbfa6d08
+    m_Address: Assets/Bundles/Effect/frostl_skill_01_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bd0d4c7b40fdc8549a9a289ca51c2cdd
+    m_Address: Assets/Bundles/Effect/frostl_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b09d1e8a3f466694b84b5cbf2eb32b8a
+    m_Address: Assets/Bundles/Effect/frostl_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cd861d72e5beab04993d35850e9b4757
+    m_Address: Assets/Bundles/Effect/frostl_skill_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 585d0b17fd7952846be4ef94ac810d7e
+    m_Address: Assets/Bundles/Effect/frostl_skill_02_buff_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 27ddb8872943c0147b88415c97b1b8b8
+    m_Address: Assets/Bundles/Effect/estell_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b72fbd548a1bd4b4c83eb59717267c3c
+    m_Address: Assets/Bundles/Effect/estell_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b9f4e9829a117c84fb66376ec432c440
+    m_Address: Assets/Bundles/Effect/frncat_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f7b950553ab182941aa0103f8d455c0c
+    m_Address: Assets/Bundles/Effect/frncat_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 102fcecb4a7eb2f4e92593be4847e3ce
+    m_Address: Assets/Bundles/Effect/frncat_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 068c588ef7d91f64f829da655f0a0d8c
+    m_Address: Assets/Bundles/Effect/frncat_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5e51b06e89f7daf4eb5d7b9abf78815b
+    m_Address: Assets/Bundles/Effect/gravel_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7740d8999102c2c48a70cd0250914af8
+    m_Address: Assets/Bundles/Effect/gravel_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5b0651e9f22811a4b952c83b9b1deea1
+    m_Address: Assets/Bundles/Effect/gravel_skill_01_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8630f23f44c9b4e4a97a2bf0b54d6a93
+    m_Address: Assets/Bundles/Effect/gravel_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 906f7f961d1951842a49e5eb15f18bbb
+    m_Address: Assets/Bundles/Effect/ccheal_skill_01_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d0a6461a0f121b24089041bbdce5fec8
+    m_Address: Assets/Bundles/Effect/ccheal_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 05daed4d2a75eac429dbc88dbbfd6123
+    m_Address: Assets/Bundles/Effect/flower_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 38e5aa27eec231741a5483ef69f49751
+    m_Address: Assets/Bundles/Effect/flower_buff_01_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f16b3850a60ca68448d9232dc5a5142c
+    m_Address: Assets/Bundles/Effect/myrrh_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 85391b0320f5ab947a5188bb2b76cf39
+    m_Address: Assets/Bundles/Effect/myrrh_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7e17b5a742590ad46945c83745365c3a
+    m_Address: Assets/Bundles/Effect/yak_attack_01_end
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 90d5e5fdc4d112442ae4fc7d0c3cfa9d
+    m_Address: Assets/Bundles/Effect/yak_attack_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: fd87b3e3e13c0c8468e5cdf42f2e52ba
+    m_Address: Assets/Bundles/Effect/yak_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7ebd0da275d000f4181dbc62319f9966
+    m_Address: Assets/Bundles/Effect/sunbr_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 68c5cb6e33b8bdc4ebdcf4bd5312cf48
+    m_Address: Assets/Bundles/Effect/sunbr_skill_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: de7f4b368b986df488849be9471ca0cf
+    m_Address: Assets/Bundles/Effect/sunbr_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a5b77724c3694c043b790109a300ebe0
+    m_Address: Assets/Bundles/Effect/deepcl_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 482c6e12a1527704398661efd877c0e0
+    m_Address: Assets/Bundles/Effect/deepcl_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 697fe5883e10d674ab65869cf9c8be93
+    m_Address: Assets/Bundles/Effect/deepcl_skill_02_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f92e69d9880d91745a1c8f6a8bae314e
+    m_Address: Assets/Bundles/Effect/skgoat_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3af56d0dfef25a0409ea5db9c9e3fa48
+    m_Address: Assets/Bundles/Effect/skgoat_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f432229862294804ea10802a2b22914b
+    m_Address: Assets/Bundles/Effect/skgoat_skill_02_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f9bbde46451e9e44a973ecb10f72705f
+    m_Address: Assets/Bundles/Effect/plosis_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2ac8e16ad4c1b374e9a94ad2b88c60a5
+    m_Address: Assets/Bundles/Effect/headbr_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 253afec6cc66fac45a43984082a019da
+    m_Address: Assets/Bundles/Effect/headbr_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e36e48ccd30576349896b9b31b1e45ef
+    m_Address: Assets/Bundles/Effect/texas_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cedeca12bb4a4e244a45310709f6901d
+    m_Address: Assets/Bundles/Effect/texas_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4c19369d3ab0c8b449acffda864f0c97
+    m_Address: Assets/Bundles/Effect/texas_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 113c00b5bcfef8f4e8617119485fd43b
+    m_Address: Assets/Bundles/Effect/texas_skill_01_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f26c5446fbcd0b7478c41c9934124f61
+    m_Address: Assets/Bundles/Effect/texas_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e15d4dbf9d5ebb74094fc4c1d9cea3fb
+    m_Address: Assets/Bundles/Effect/franka_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 434ca2fa42acb1e42bea880dfb184135
+    m_Address: Assets/Bundles/Effect/franka_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a7691a183bf9c9647ac69a29542e3f81
+    m_Address: Assets/Bundles/Effect/franka_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ae4b29e16ad3ab349bc07cc808c0ac2b
+    m_Address: Assets/Bundles/Effect/franka_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b9479e3d5be6074429a12a182038d287
+    m_Address: Assets/Bundles/Effect/franka_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 85a52eea7e05377429f17f005ddc1a62
+    m_Address: Assets/Bundles/Effect/tiger_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: de6aa9acfd676ab45ae4ec9f667adf3c
+    m_Address: Assets/Bundles/Effect/tiger_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7620f624c1e0c504e9cefeba4837d974
+    m_Address: Assets/Bundles/Effect/tiger_skill_01_start_right
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 30cddce7b6d565b40a11982e932847b9
+    m_Address: Assets/Bundles/Effect/tiger_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0fa70808eb39ae246958167647754033
+    m_Address: Assets/Bundles/Effect/tiger_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8bf47f85c86fd4a489a3a8bfe7199951
+    m_Address: Assets/Bundles/Effect/tiger_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bb1d13018bd39dc4bb4de2b86e2c6339
+    m_Address: Assets/Bundles/Effect/whitew_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 920965052e92e30499d1c54dc5e354f1
+    m_Address: Assets/Bundles/Effect/whitew_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3e2355cf1fd2dcb479b53b9438711336
+    m_Address: Assets/Bundles/Effect/whitew_attack_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bce89af5ae9b72a42b3ef0fcb9e8b2c9
+    m_Address: Assets/Bundles/Effect/whitew_attack_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a13c9d7ebc3f35148bf738df34f11155
+    m_Address: Assets/Bundles/Effect/whitew_skill_01_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 43c4fdc72c0fd544bb63c9364d3a07fa
+    m_Address: Assets/Bundles/Effect/whitew_skill_02_buff_01_l
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 50e48894cade8f74bae9792ba54ab245
+    m_Address: Assets/Bundles/Effect/whitew_skill_02_buff_01_r
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 720ea68dac0fc3c4c817576d06abbb05
+    m_Address: Assets/Bundles/Effect/whitew_skill_02_buff_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 459a45cc32aee8842bebba779114ae2b
+    m_Address: Assets/Bundles/Effect/whitew_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 52c37193da5026941a5b3c381a3eda3a
+    m_Address: Assets/Bundles/Effect/whitew_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8ae15af6c3789a643b41d5b31ef0acaf
+    m_Address: Assets/Bundles/Effect/whitew_skill_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: fd12fb075c7d83e40b01bdd24553891a
+    m_Address: Assets/Bundles/Effect/ghost_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5cc26558558219f4a9ca37a205754a89
+    m_Address: Assets/Bundles/Effect/ghost_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3dd01ed43b69a344fbcc205837be7dd7
+    m_Address: Assets/Bundles/Effect/ghost_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 45864e0cdaf143e49806d0313c97c25d
+    m_Address: Assets/Bundles/Effect/ghost_skill_02_buff_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b47eb81de391f764689bde02e967c859
+    m_Address: Assets/Bundles/Effect/bluep_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: befa6d4f3a36d4d4a80646646126c540
+    m_Address: Assets/Bundles/Effect/bluep_skill_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 021534fb37e394947a80f0c50b184cb1
+    m_Address: Assets/Bundles/Effect/platnm_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a3aeb77998a4ca7438a84688c6581910
+    m_Address: Assets/Bundles/Effect/platnm_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8f78652e7809fdf4a878b5e063685093
+    m_Address: Assets/Bundles/Effect/platnm_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5513f0acc77d20a4c96587cc2692ab1a
+    m_Address: Assets/Bundles/Effect/platnm_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cc2cf1aaa615daa4e968640078a7306c
+    m_Address: Assets/Bundles/Effect/platnm_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e90acf9bfd33b7a4fa3cce51be2bcc74
+    m_Address: Assets/Bundles/Effect/platnm_skill_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a9b7bc0b183d78b4fbee879247a6fd62
+    m_Address: Assets/Bundles/Effect/meteo_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4869881f56c2fa04ba564a5d289615b3
+    m_Address: Assets/Bundles/Effect/meteo_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4ef4845f20b539849a3c37dee4fe58ae
+    m_Address: Assets/Bundles/Effect/meteo_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1e3c7a71a4586404992937ad2f8f7b7e
+    m_Address: Assets/Bundles/Effect/meteo_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c2a9cc349143c3043939157750fbe1d9
+    m_Address: Assets/Bundles/Effect/meteo_skill_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4abba7ef69bce224e96d8daf8f93a56d
+    m_Address: Assets/Bundles/Effect/meteo_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ac3e1409ac2ae6e429f8204dd183ebb1
+    m_Address: Assets/Bundles/Effect/meteo_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 10169fff85c5b64409071f8d530d2db3
+    m_Address: Assets/Bundles/Effect/meteo_skill_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f8cf61f40625f6b40868f25ded2378d9
+    m_Address: Assets/Bundles/Effect/amiya_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9aafc618b20f64b4d8c74c84cdee44d7
+    m_Address: Assets/Bundles/Effect/amiya_attack_01_start_yuan
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8d54a2f30ab71a041b39d9f9d7f1bb15
+    m_Address: Assets/Bundles/Effect/amiya_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2822cfcfa194295418ec8be8626a02b7
+    m_Address: Assets/Bundles/Effect/amiya_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 023fa7f3d6fc42a4fa95ea3dd1f6c9a8
+    m_Address: Assets/Bundles/Effect/amiya_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bc48ec0a4675d5d4b9c2d004de988b67
+    m_Address: Assets/Bundles/Effect/amiya_skill_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 95872c0e1d5daf2448450cb48cd06654
+    m_Address: Assets/Bundles/Effect/amiya_skill_03_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a87264f831608264db46050bc953df19
+    m_Address: Assets/Bundles/Effect/amiya_skill_03_buff_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: fd741f60822d529429cb8b100a0ebd8a
+    m_Address: Assets/Bundles/Effect/amiya_skill_03_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f5476e40550642348aca697cac8b7e85
+    m_Address: Assets/Bundles/Effect/amiya_skill_03_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f26eb7899780c594fa49d4b8b03a4686
+    m_Address: Assets/Bundles/Effect/amiya_skill_03_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 103c68230cf92fe42bf6a83b4ca028ac
+    m_Address: Assets/Bundles/Effect/skfire_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 187db418b7ea8ee468272a6b6ee8a518
+    m_Address: Assets/Bundles/Effect/skfire_skill_02_gather
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c7747de2fd459a747b29ca4aa050458e
+    m_Address: Assets/Bundles/Effect/skfire_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f14cec7cf045bee42a2a6fddc35341c8
+    m_Address: Assets/Bundles/Effect/skfire_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 84dd6006b43b08b418431b87225cb92b
+    m_Address: Assets/Bundles/Effect/skfire_skill_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4baa5a2656703864290e513ca4b2d367
+    m_Address: Assets/Bundles/Effect/otter_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ff536cb42d66c044db201d747a97bcf1
+    m_Address: Assets/Bundles/Effect/otter_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 04d1203eeeb9c1048af273f1958efc57
+    m_Address: Assets/Bundles/Effect/otter_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5fbb0284caed13442976d632a9683184
+    m_Address: Assets/Bundles/Effect/otter_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6209ea77ac5cfe0418fb3f16ff2ad938
+    m_Address: Assets/Bundles/Effect/nearl_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 51dc06ce0185b074f8efb727c5a87dde
+    m_Address: Assets/Bundles/Effect/nearl_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bf60d384b32abfd4486987ecbc72868b
+    m_Address: Assets/Bundles/Effect/nearl_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3d1ece18f446574479d52146ad3eca0a
+    m_Address: Assets/Bundles/Effect/nearl_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: afeb7e8c3400c4b46a1941e10829aeab
+    m_Address: Assets/Bundles/Effect/silent_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2c935d7bdfd2db34f8ee9e19dd425eb1
+    m_Address: Assets/Bundles/Effect/bldsk_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 72a65aa4a423d7549992bed0c71489c0
+    m_Address: Assets/Bundles/Effect/bldsk_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: db9b228ff8f1b644c9e627847eda9c5c
+    m_Address: Assets/Bundles/Effect/bldsk_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 87cdcbb3b7c005b43ba5169a95a09143
+    m_Address: Assets/Bundles/Effect/bldsk_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f0215114b9e73764285b4fd740785a83
+    m_Address: Assets/Bundles/Effect/bldsk_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 02b72eece4db7b2479b6ae9135d1954a
+    m_Address: Assets/Bundles/Effect/red_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a644c913ec34a9347b99e8ee69fbb597
+    m_Address: Assets/Bundles/Effect/red_attack_01_start_r
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5113eb9b23aa295459cc0db3e57280ea
+    m_Address: Assets/Bundles/Effect/red_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 68b4bb80fab7395418e41c34ea568b2e
+    m_Address: Assets/Bundles/Effect/red_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cc3e011d02ab89b4e9e06131a988fb34
+    m_Address: Assets/Bundles/Effect/liskam_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c4c47cfa6763fca4b9444b314adc2942
+    m_Address: Assets/Bundles/Effect/liskam_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 51fd4971f1f0d1440b70300b5ad837c5
+    m_Address: Assets/Bundles/Effect/liskam_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f909ecff04eeab44caebc9afcede68a7
+    m_Address: Assets/Bundles/Effect/liskam_skill_02_start_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ea86255e051296c4d93cea58d6856e26
+    m_Address: Assets/Bundles/Effect/moeshd_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7e5d8631477410949890471ef9a10a82
+    m_Address: Assets/Bundles/Effect/moeshd_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9c5f7ce671c3fd940b523f2e42c5f175
+    m_Address: Assets/Bundles/Effect/moeshd_buff_01_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 30a53c9b131d6524da60e68da7ece0d8
+    m_Address: Assets/Bundles/Effect/moeshd_skill_02_gather
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e8c8e99c9c0ef2845b4da280840dd218
+    m_Address: Assets/Bundles/Effect/hpsts_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cc100ade6342a3a4d820d93cd48ec079
+    m_Address: Assets/Bundles/Effect/hpsts_skill_02_gather
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bfb5f72a2a822de45b19a50cad22a094
+    m_Address: Assets/Bundles/Effect/hpsts_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b6bdd13311ef4ba45ab30ef16fd8c8f6
+    m_Address: Assets/Bundles/Effect/prove_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f4288498c703a9743be0a41fb0ef6da3
+    m_Address: Assets/Bundles/Effect/prove_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 00d73c0fa567e1a4795e1b6413ffb9ba
+    m_Address: Assets/Bundles/Effect/prove_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d0c06df6f1b38194d8b63c49581407ca
+    m_Address: Assets/Bundles/Effect/prove_skill_02_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 64238a37a8f4ff944a25ef358e3710ed
+    m_Address: Assets/Bundles/Effect/prove_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 97f77c41df2a39f4e8354a8b1fd09ea1
+    m_Address: Assets/Bundles/Effect/milu_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 254c40960370e014cad0277005b7e885
+    m_Address: Assets/Bundles/Effect/milu_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d3ee08750185d4d43b87f819e3c99b1f
+    m_Address: Assets/Bundles/Effect/milu_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9a8f9ce2e59b99b449e66f0d6c67a28a
+    m_Address: Assets/Bundles/Effect/milu_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6a3af4b4c4174ed4594873f7ad75ba49
+    m_Address: Assets/Bundles/Effect/milu_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: eefda4fabeb65844cab20a2d974fa15a
+    m_Address: Assets/Bundles/Effect/milu_skill_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e31cf052f1192be4eada843fbaddd2b3
+    m_Address: Assets/Bundles/Effect/slchan_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ce03401e3d6c8644bab0b2008838d6a4
+    m_Address: Assets/Bundles/Effect/slchan_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d45a63c74489bde40beb755f14c19f5d
+    m_Address: Assets/Bundles/Effect/slchan_skill_01_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4d47c33c6f4548349be24d9d12e36f63
+    m_Address: Assets/Bundles/Effect/slchan_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 11a1619d51b73c349ab004519108b196
+    m_Address: Assets/Bundles/Effect/slchan_skill_01_line
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 50c4ddee6e908c3438f58f3db11a649b
+    m_Address: Assets/Bundles/Effect/slchan_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a880575409be04149943f922729d4d26
+    m_Address: Assets/Bundles/Effect/slchan_skill_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: dffa940c3f9953b4e9ca9fe840a26567
+    m_Address: Assets/Bundles/Effect/slchan_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7bede83a9200f8c40bd4210499ea0c92
+    m_Address: Assets/Bundles/Effect/slchan_skill_02_line
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7eb00e482acc1ba45b14da4dc92c8c34
+    m_Address: Assets/Bundles/Effect/slbell_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3565d6909a16a004f9090ab1b370786e
+    m_Address: Assets/Bundles/Effect/slbell_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 78d0a78f447cade419736ce4408daa92
+    m_Address: Assets/Bundles/Effect/slbell_skill_01_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 227ccce0c9c20da41a6c908480df1921
+    m_Address: Assets/Bundles/Effect/slbell_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f8bc2b72bcdb37c41b227cc2b6310284
+    m_Address: Assets/Bundles/Effect/slbell_skill_02_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c48cfa7aa4217c74295e9553ac0e5975
+    m_Address: Assets/Bundles/Effect/glassb_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8f83094e37cd7ca479ae6f6199ef9ac5
+    m_Address: Assets/Bundles/Effect/glassb_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7bc9981e2064f954e9e702c6cb53874f
+    m_Address: Assets/Bundles/Effect/glassb_skill_02_range
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: cb8b4b6fb74020f41ac634fb3f66c772
+    m_Address: Assets/Bundles/Effect/sora_dance_01_loop
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f3552dea70ff9ca40974ce1a2273f9c9
+    m_Address: Assets/Bundles/Effect/mantic_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f91cce8feed5b504ebad4d7455d8fda0
+    m_Address: Assets/Bundles/Effect/mantic_attack_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 747cc077e30cf0b4f879d6c362adbe57
+    m_Address: Assets/Bundles/Effect/mantic_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a71bbbaa802537a469dd11b4f0798c3b
+    m_Address: Assets/Bundles/Effect/mantic_skill_01_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0850b306dc66ea74da776a4b41dead01
+    m_Address: Assets/Bundles/Effect/mantic_skill_02_gather
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 892d8e5053f7ac04699f61911a4b2fc1
+    m_Address: Assets/Bundles/Effect/mantic_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 87882259c7c78ce4c80aff4475a36f7a
+    m_Address: Assets/Bundles/Effect/mantic_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1ee7bacb0902e3943b97849f94284151
+    m_Address: Assets/Bundles/Effect/panda_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b31bc4987e1f5d246a78e688bbaf0268
+    m_Address: Assets/Bundles/Effect/panda_skill_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 77ed8971ecd631945ac66daba4f6573f
+    m_Address: Assets/Bundles/Effect/panda_skill_02_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6b6267f694a66844d94c972487271478
+    m_Address: Assets/Bundles/Effect/panda_skill_02_start
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6c3e28639a4ead04eb10011ee38505e2
+    m_Address: Assets/Bundles/Effect/rope_attack_01_hit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6915a61bb71a0264a96559b9feac0937
+    m_Address: Assets/Bundles/Effect/rope_attack_01_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5748f26f6daacaa4d86bf39d845b2393
+    m_Address: Assets/Bundles/Effect/rope_skill_01_buff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6a752cbae71bf8b4eb1dc2cd54a60755
+    m_Address: Assets/Bundles/Effect/rope_skill_01_line
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f2bf848512dbfe9408172b84d0d663a3
+    m_Address: Assets/Bundles/Effect/rope_skill_02_trail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 242fd0e985ecef14caef48a8cdb9ed24, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 1161a60f95c37ba45a051eeec7c2d433, type: 2}
+    - {fileID: 11400000, guid: 5dd15556e3b515b40afe55e5e0d99a12, type: 2}
