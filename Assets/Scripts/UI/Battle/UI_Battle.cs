@@ -631,8 +631,8 @@ namespace BattleUI
                 m_isPreview.selectedIndex = 0;
             }
         }
-        const int MaxDamageInfoCount = 720;
-        const int MaxUnitDamageInfoCount = 30;
+        const int MaxDamageInfoCount = 7200;
+        const int MaxUnitDamageInfoCount = 720;
 
         GObjectPool damageInfoPool;
         readonly List<UI_DamageInfo> activeDamageInfos = new List<UI_DamageInfo>();

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -13,10 +14,14 @@ public class Database
     private static Database instance;
 
     Dictionary<Type, IConfig[]> dic = new Dictionary<Type, IConfig[]>();
+    readonly Dictionary<Type, Dictionary<string, IConfig>> byId = new Dictionary<Type, Dictionary<string, IConfig>>();
+    readonly Dictionary<Type, Dictionary<string, int>> indexById = new Dictionary<Type, Dictionary<string, int>>();
     public List<int> globalSkills = new List<int>();
     public void Clear()
     {
         dic.Clear();
+        byId.Clear();
+        indexById.Clear();
     }
 
     /// <summary>
@@ -77,6 +82,10 @@ public class Database
                 Clear();
                 Init1();
             }
+            else
+            {
+                BuildLookupAndBind();
+            }
         }
         catch (Exception e)
         {
@@ -110,6 +119,7 @@ public class Database
             Add<EffectData>("EffectData", excludeNames);
             Add<ContractData>("ContractData", excludeNames);
             Add<SpineData>("SpineData", excludeNames);
+            BuildLookupAndBind();
         }
         catch (Exception e)
         {
@@ -159,8 +169,23 @@ public class Database
             return false;
         }
 
+        if (byId.TryGetValue(typeof(T), out var map) && map.TryGetValue(id, out var hit))
+        {
+            result = hit as T;
+            return result != null;
+        }
+
+        // 兼容：lookup 尚未建立时退回线性扫描
         result = configs.FirstOrDefault(x => x?.Id == id) as T;
         return result != null;
+    }
+
+    /// <summary>把数组下标转换为稳定字符串 Id；越界或空返回 null。</summary>
+    public string GetId<T>(int index) where T : class, IConfig
+    {
+        if (!dic.TryGetValue(typeof(T), out IConfig[] configs) || configs == null) return null;
+        if (index < 0 || index >= configs.Length) return null;
+        return configs[index]?.Id;
     }
 
     public T Get<T>(int id) where T : class, IConfig
@@ -436,6 +461,8 @@ public class Database
             }
         }
 
+        // 不依赖文件系统枚举顺序：重复 Id 的“第一条”必须可复现
+        result.Sort(StringComparer.OrdinalIgnoreCase);
         return result;
     }
 
@@ -450,6 +477,127 @@ public class Database
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// 建立 Type -> Id -> config / index 的运行时索引，并把新格式的 *Id 字段
+    /// 回填到旧 int 索引字段，保证旧代码兼容。
+    /// </summary>
+    private void BuildLookupAndBind()
+    {
+        byId.Clear();
+        indexById.Clear();
+
+        foreach (var kv in dic)
+        {
+            var arr = kv.Value;
+            if (arr == null) continue;
+
+            var idMap = new Dictionary<string, IConfig>(StringComparer.Ordinal);
+            var idxMap = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (int i = 0; i < arr.Length; i++)
+            {
+                var cfg = arr[i];
+                if (cfg == null || string.IsNullOrEmpty(cfg.Id)) continue;
+                // 重复 Id 在 BuildConfigArray 已报告；这里保留第一份，避免 lookup 抖动
+                if (!idMap.ContainsKey(cfg.Id))
+                {
+                    idMap[cfg.Id] = cfg;
+                    idxMap[cfg.Id] = i;
+                }
+            }
+            byId[kv.Key] = idMap;
+            indexById[kv.Key] = idxMap;
+        }
+
+        BindStringReferences();
+    }
+
+    /// <summary>
+    /// 把带 [ConfigRef] 的 string/string[] 解析回 int/int[] 旧字段。
+    /// 仅当新格式数据包含 *Id 字段时生效；老格式没有该字段时保持旧行为。
+    /// </summary>
+    private void BindStringReferences()
+    {
+        foreach (var kv in dic)
+        {
+            var arr = kv.Value;
+            if (arr == null) continue;
+            for (int i = 0; i < arr.Length; i++)
+            {
+                var cfg = arr[i];
+                if (cfg != null) BindOne(cfg);
+            }
+        }
+    }
+
+    private void BindOne(IConfig cfg)
+    {
+        var type = cfg.GetType();
+        var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
+        for (int i = 0; i < fields.Length; i++)
+        {
+            var field = fields[i];
+            var attr = field.GetCustomAttribute<ConfigRefAttribute>();
+            if (attr == null) continue;
+
+            bool isArray = field.FieldType == typeof(string[]);
+            bool isScalar = field.FieldType == typeof(string);
+            if (!isArray && !isScalar) continue;
+
+            string suffix = isArray ? "Ids" : "Id";
+            if (!field.Name.EndsWith(suffix, StringComparison.Ordinal)) continue;
+            string legacyName = field.Name.Substring(0, field.Name.Length - suffix.Length);
+            var legacy = type.GetField(legacyName, BindingFlags.Instance | BindingFlags.Public);
+            if (legacy == null)
+            {
+                AddInitError($"[ConfigRef] {type.Name}.{field.Name} 找不到对应旧字段 {legacyName}");
+                continue;
+            }
+
+            if (isScalar)
+            {
+                string id = field.GetValue(cfg) as string;
+                if (string.IsNullOrEmpty(id)) continue;
+                int index = ResolveIndex(attr.Table, id);
+                if (index < 0)
+                {
+                    AddInitError($"[ConfigRef] Sheet \"{type.Name}\" → Id \"{cfg.Id}\" → 字段 \"{field.Name}\"：无效 ID \"{id}\"（目标表 {attr.Table} 中不存在）");
+                    continue;
+                }
+                SetLegacyInt(legacy, cfg, index);
+            }
+            else
+            {
+                var ids = field.GetValue(cfg) as string[];
+                if (ids == null || ids.Length == 0) continue;
+                var indexes = new int[ids.Length];
+                bool ok = true;
+                for (int k = 0; k < ids.Length; k++)
+                {
+                    indexes[k] = ResolveIndex(attr.Table, ids[k]);
+                    if (indexes[k] < 0)
+                    {
+                        AddInitError($"[ConfigRef] Sheet \"{type.Name}\" → Id \"{cfg.Id}\" → 字段 \"{field.Name}\"[{k}]：无效 ID \"{ids[k]}\"（目标表 {attr.Table} 中不存在）");
+                        ok = false;
+                    }
+                }
+                if (ok) legacy.SetValue(cfg, indexes);
+            }
+        }
+    }
+
+    private int ResolveIndex(string table, string id)
+    {
+        var t = typeof(IConfig).Assembly.GetType(table);
+        if (t == null || !indexById.TryGetValue(t, out var map)) return -1;
+        return map.TryGetValue(id, out var index) ? index : -1;
+    }
+
+    private static void SetLegacyInt(FieldInfo legacy, object cfg, int index)
+    {
+        if (legacy.FieldType == typeof(int)) legacy.SetValue(cfg, index);
+        else if (legacy.FieldType == typeof(int?)) legacy.SetValue(cfg, (int?)index);
     }
 
     private IConfig[] BuildConfigArray<T>(string name, List<string> lines, out List<int> globalSkillIndexes) where T : IConfig
@@ -473,7 +621,18 @@ public class Database
             {
                 var cfg = JsonHelper.FromJson<T>(line);
                 if (cfg != null && cfg.Id != null)
-                    dict[cfg.Id] = cfg;
+                {
+                    if (dict.ContainsKey(cfg.Id))
+                    {
+                        // 重复 Id 是数据错误；运行时采用“第一条定义获胜”的确定性策略，
+                        // 避免结果随 Directory.GetFiles 枚举顺序变化。
+                        AddInitError($"[Config] Sheet \"{name}\" → Id \"{cfg.Id}\"：重复 ID（重复定义已忽略，保留第一条）");
+                    }
+                    else
+                    {
+                        dict[cfg.Id] = cfg;
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -484,8 +643,11 @@ public class Database
         if (index != null && index.Count > 0)
         {
             var values = new IConfig[index.Count];
+            var seen = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < index.Count; i++)
             {
+                if (!seen.Add(index[i]))
+                    AddInitError($"[Config] Sheet \"{name}\" → _index.txt 第 {i + 1} 行 → Id \"{index[i]}\"：重复索引条目");
                 if (dict.TryGetValue(index[i], out var cfg))
                 {
                     values[i] = cfg;

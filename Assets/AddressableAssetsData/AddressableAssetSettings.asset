@@ -93,6 +93,7 @@ MonoBehaviour:
   m_LabelTable:
     m_LabelNames:
     - default
+    - BGM
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 3a6399d084efda147805a46160df5d94, type: 2}

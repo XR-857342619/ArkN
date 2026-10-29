@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: def33e165d0c7a1428fdcfeb719c9963, type: 2}
+  - {fileID: 2100000, guid: a80eb3c3344679642ab29405ad49928c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -118,7 +118,7 @@ MonoBehaviour:
     materialsInsideMask: []
     materialsOutsideMask: []
   disableRenderingOnOverride: 1
-  _animationName: 
+  _animationName: Skill_3_Begin
   loop: 0
   timeScale: 1
 --- !u!1 &5317986504584927101
@@ -183,7 +183,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: df559fb7493576442ac0bd46dd5b5fdb, type: 2}
+  - {fileID: 2100000, guid: 0ed9f046b9e230e4698a4d2cb7072fab, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

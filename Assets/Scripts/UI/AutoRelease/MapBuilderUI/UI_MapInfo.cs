@@ -8,6 +8,7 @@ namespace MapBuilderUI
     public partial class UI_MapInfo : GComponent
     {
         public Controller m_editcontract;
+        public GComboBox m_SelectBGM;
         public GTextInput m_width;
         public GTextInput m_height;
         public GGraph m_next;
@@ -39,25 +40,26 @@ namespace MapBuilderUI
             base.ConstructFromXML(xml);
 
             m_editcontract = GetControllerAt(0);
-            m_width = (GTextInput)GetChildAt(4);
-            m_height = (GTextInput)GetChildAt(7);
-            m_next = (GGraph)GetChildAt(9);
-            m_craetsetting = (GGroup)GetChildAt(11);
-            m_FileName = (GTextInput)GetChildAt(14);
-            m_MapName = (GTextInput)GetChildAt(17);
-            m_MapDesc = (GTextInput)GetChildAt(20);
-            m_InitHp = (GTextInput)GetChildAt(23);
-            m_InitCost = (GTextInput)GetChildAt(26);
-            m_BuildCount = (GTextInput)GetChildAt(29);
-            m_MaxCost = (GTextInput)GetChildAt(32);
-            m_BoxCount = (GTextInput)GetChildAt(35);
-            m_NoBuildLimit = (GButton)GetChildAt(37);
-            m_SMapPackageIndex = (GComboBox)GetChildAt(38);
-            m_basicsetting = (GGroup)GetChildAt(40);
-            m_load = (GButton)GetChildAt(42);
-            m_MapPackageIndex = (GComboBox)GetChildAt(43);
-            m_quickLoad = (GComboBox)GetChildAt(44);
-            m_Contract = (GList)GetChildAt(51);
+            m_SelectBGM = (GComboBox)GetChildAt(1);
+            m_width = (GTextInput)GetChildAt(5);
+            m_height = (GTextInput)GetChildAt(8);
+            m_next = (GGraph)GetChildAt(10);
+            m_craetsetting = (GGroup)GetChildAt(12);
+            m_FileName = (GTextInput)GetChildAt(15);
+            m_MapName = (GTextInput)GetChildAt(18);
+            m_MapDesc = (GTextInput)GetChildAt(21);
+            m_InitHp = (GTextInput)GetChildAt(24);
+            m_InitCost = (GTextInput)GetChildAt(27);
+            m_BuildCount = (GTextInput)GetChildAt(30);
+            m_MaxCost = (GTextInput)GetChildAt(33);
+            m_BoxCount = (GTextInput)GetChildAt(36);
+            m_NoBuildLimit = (GButton)GetChildAt(38);
+            m_SMapPackageIndex = (GComboBox)GetChildAt(39);
+            m_basicsetting = (GGroup)GetChildAt(41);
+            m_load = (GButton)GetChildAt(43);
+            m_MapPackageIndex = (GComboBox)GetChildAt(44);
+            m_quickLoad = (GComboBox)GetChildAt(45);
+            m_Contract = (GList)GetChildAt(52);
             Init();
         }
         partial void Init();

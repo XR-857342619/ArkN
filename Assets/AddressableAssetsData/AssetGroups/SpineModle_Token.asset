@@ -12,11 +12,243 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
   m_Name: SpineModle_Token
   m_EditorClassIdentifier: 
-  m_GroupName: Packed Assets
+  m_GroupName: SpineModle_Token
   m_Data:
     m_SerializedData: []
   m_GUID: f7d15f7bbb9cc634497e7211eb3220f6
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 07b846811ba48fe44b583a7f050720ed
+    m_Address: Assets/Bundles/Units/token_10063_buddy_bddg
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: fc9dfd44b49bec6448be7e9f11cd1350
+    m_Address: Assets/Bundles/Units/token_10064_wang_stone1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e37d2de3f2471a04291be5f8c05ba2e0
+    m_Address: Assets/Bundles/Units/token_10066_closur_ourbase
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ca56b5faaabcecc4d971190b073f6b21
+    m_Address: Assets/Bundles/Units/token_10069_mcnist_mcgraf
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 09ef4d1b4d904b349af59c2cf3430d2c
+    m_Address: Assets/Bundles/Units/token_10070_aphris_pc
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6f61ec1de4a52e44b85f8a8fa93ce6bb
+    m_Address: Assets/Bundles/Units/token_10005_mgllan_drone1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 104daa5cd08be764387bd6b34a28843f
+    m_Address: Assets/Bundles/Units/token_10005_mgllan_drone2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: fbb6a524592ef0f4c9c19c2f499701e7
+    m_Address: Assets/Bundles/Units/token_10005_mgllan_drone3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 57612225fc7a89f4fb5fbe7c208c311e
+    m_Address: Assets/Bundles/Units/token_10006_vodfox_doll
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e1a007ada3f693d40986bfe0e3e25eca
+    m_Address: Assets/Bundles/Units/token_10007_phatom_twin
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 601fa5b24e62d8e44833548419f197bf
+    m_Address: Assets/Bundles/Units/token_10008_cqbw_box
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 58791e34da388ce42a6980c02050d51a
+    m_Address: Assets/Bundles/Units/token_10009_weedy_cannon
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4c0fbe69725e4504a89aeb030d992da2
+    m_Address: Assets/Bundles/Units/token_10010_folivo_car
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0fb6604b7fcb5c54d91f957dc09c5f14
+    m_Address: Assets/Bundles/Units/token_10011_beewax_oblisk
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b09dabde0e971e34788d2e7097bff1c8
+    m_Address: Assets/Bundles/Units/token_10012_rosmon_shield
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 23be63d48d3dd8047b35d8cb30ab8943
+    m_Address: Assets/Bundles/Units/token_10013_robin_mine
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b812910584225304aa0b31923dd2962c
+    m_Address: Assets/Bundles/Units/token_10014_bstalk_crab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d0808448347f36e4fb4ffdc92396914a
+    m_Address: Assets/Bundles/Units/token_10015_dusk_drgn
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5ee3c3ccd503bc94fa83880aa1dbf446
+    m_Address: Assets/Bundles/Units/token_10016_rfrost_mine
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: f1ad01580a67ad2469c3b1ccb351ed5e
+    m_Address: Assets/Bundles/Units/token_10017_skadi2_dedant
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1712008ff3aef774cbf9df7822c74fb6
+    m_Address: Assets/Bundles/Units/token_10018_robrta_mach
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 45eeea3700b3fc14198cc3a4f6688c41
+    m_Address: Assets/Bundles/Units/token_10019_nearl2_sword
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d5b6705b381aa65468cd496b07c66d8b
+    m_Address: Assets/Bundles/Units/token_10020_ling_soul1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d79700687bb86c44491b19621d660999
+    m_Address: Assets/Bundles/Units/token_10020_ling_soul2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 91eb3a36b6a2cfc43871baa80fd477cd
+    m_Address: Assets/Bundles/Units/token_10020_ling_soul3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7f162b2264a6859479a25385d6780d7b
+    m_Address: Assets/Bundles/Units/token_10021_blkngt_hypnos
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9d17e3ebd6564544abaec80fa45e712f
+    m_Address: Assets/Bundles/Units/token_10022_kazema_shadow
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d116f5adbbe5c214e95598202d2ccbee
+    m_Address: Assets/Bundles/Units/token_10023_windft_wrench
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 35f37eb4369a09d41be1b9ecc85d4bb3
+    m_Address: Assets/Bundles/Units/token_10024_ebnhlz_rcube
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e57053649e0df154b88d50021a41ab50
+    m_Address: Assets/Bundles/Units/token_10025_doroth_recttp
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3d275dde72051b646a962e0b8703fe5a
+    m_Address: Assets/Bundles/Units/token_10026_bgsnow_subbow
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 310623d47019f7d48ab391dc639b3c7d
+    m_Address: Assets/Bundles/Units/token_10027_ironmn_pile1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 53a9cbc7079657842ac7ef2c762d9a28
+    m_Address: Assets/Bundles/Units/token_10027_ironmn_pile2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8686353759e71ec49be0a25b77aaf522
+    m_Address: Assets/Bundles/Units/token_10027_ironmn_pile3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 27bed62cfac1228478b4fb24a04fc0ec
+    m_Address: Assets/Bundles/Units/token_10028_vigil_wolf
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1604cefe2403d104fb2bfc337689975f
+    m_Address: Assets/Bundles/Units/token_10029_slent2_protrb
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1e9637bb3307a664c938bcbd4658a3b2
+    m_Address: Assets/Bundles/Units/token_10030_mlyss_wtrman
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d270029f7c7ec504382e6a9c39db9b33
+    m_Address: Assets/Bundles/Units/token_10031_swire2_gdtrap
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 05134c9b9d392ae4698ab7bcf1d361e5
+    m_Address: Assets/Bundles/Units/token_10032_jesca2_jckshd
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 62f31ccbb1236ca4ba9f5db6fde7870e
+    m_Address: Assets/Bundles/Units/token_10033_ela_grzmot
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bdc688916333b564793e710535c52a0f
+    m_Address: Assets/Bundles/Units/token_10034_ray_sndbst
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 38d82106add1f914e85266fb3f0854c6
+    m_Address: Assets/Bundles/Units/token_10035_wisdel_wward
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3f539cd559f57b941b77a7f77b15e48a
+    m_Address: Assets/Bundles/Units/token_10036_lasher_mcbird
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 9861c89c70e00cb49bde542c9a148e6d
+    m_Address: Assets/Bundles/Units/token_10037_mitm_trshrb
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5e43307177fcab547a0b7ac9feebe97d
+    m_Address: Assets/Bundles/Units/token_10040_siege2_vlion
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d4f5050d8f65a894dba8a1547d2f2e15
+    m_Address: Assets/Bundles/Units/token_10041_cathy_catsld
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d1ce0748f170765489acdf48e3e5d052
+    m_Address: Assets/Bundles/Units/token_10042_tecno_puppet
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 426aeef046cc6e74292ec2847146b6da
+    m_Address: Assets/Bundles/Units/token_10043_necras_skeltn
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 66f69802c3c51f149a7c3d63b0ceb846
+    m_Address: Assets/Bundles/Units/token_10044_wulfen_mine
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1b60546d03daf6141bdd6b3ac1aae07e
+    m_Address: Assets/Bundles/Units/token_10045_alanna_crane
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c9830f7711e917d42bec429ec3392ebc
+    m_Address: Assets/Bundles/Units/token_10054_phatm2_encdool
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bc22a0b11a19bf849b27566e8faad45a
+    m_Address: Assets/Bundles/Units/token_10056_angel2_target
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 2476da727f6e9d04caac8ebd100df4fe
+    m_Address: Assets/Bundles/Units/token_10050_monstr_prosts
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0876ba5e568c1684a90e5dda54c1be56
+    m_Address: Assets/Bundles/Units/token_10000_silent_healrb
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 4ab1a00c3dd524a4c865ba714ae08088
+    m_Address: Assets/Bundles/Units/token_10001_deepcl_tentacle
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 644bd438562fdbf4d9c6f629518291e7
+    m_Address: Assets/Bundles/Units/token_10002_kalts_mon3tr
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 608bdd1da2e4cf14a9bd9c1a3179abda
+    m_Address: Assets/Bundles/Units/token_10003_cgbird_bird
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5a50f01389eba24458a665d06985d5c1
+    m_Address: Assets/Bundles/Units/token_10004_otter_motter
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 242fd0e985ecef14caef48a8cdb9ed24, type: 2}
   m_SchemaSet:

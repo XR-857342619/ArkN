@@ -39,6 +39,18 @@ public class AudioManager : MonoBehaviour
     // 预加载并长期持有的音效路径（如战斗音效），避免首次播放时异步加载卡顿。
     private readonly HashSet<string> _pinnedSfx = new HashSet<string>();
 
+    // ===== BGM 默认曲目与淡入淡出 =====
+    /// <summary>默认 BGM：地图没有配置 BGM（或配置失效）时使用。</summary>
+    public const string DefaultBgmAddress = "Assets/Bundles/Audio/执棋者之骨";
+    /// <summary>BGM 淡出时长（秒，非缩放时间）。</summary>
+    public const float DefaultBgmFadeOutSeconds = 0.5f;
+    /// <summary>BGM 淡入时长（秒，非缩放时间）。</summary>
+    public const float DefaultBgmFadeInSeconds = 0.8f;
+
+    /// <summary>BGM 淡入淡出系数（0~1），叠加在最终音量上；初始为 0，首曲淡入。</summary>
+    private float _backgroundFade = 0f;
+    private Coroutine _backgroundFadeCoroutine;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -57,6 +69,7 @@ public class AudioManager : MonoBehaviour
     {
         if (Instance == this) Instance = null;
 
+        if (_backgroundFadeCoroutine != null) StopCoroutine(_backgroundFadeCoroutine);
         ReleaseOwned(ref _currentBackgroundPath);
         ReleaseOwned(ref _currentDialoguePath);
         ReleasePreloadedSoundEffects();
@@ -111,9 +124,23 @@ public class AudioManager : MonoBehaviour
     private void ApplyVolumes()
     {
         float master = MasterVolume;
-        if (Background != null) Background.volume = master * GetChannelVolume(AudioChannel.Background);
+        if (Background != null) Background.volume = master * GetChannelVolume(AudioChannel.Background) * _backgroundFade;
         if (Dialogue != null) Dialogue.volume = master * GetChannelVolume(AudioChannel.Voice);
         if (SoundEffect != null) SoundEffect.volume = master * GetChannelVolume(AudioChannel.SoundEffect);
+    }
+
+    /// <summary>
+    /// 解析音频地址：
+    /// - 传入完整的 Addressables 地址（以 "Assets/" 开头）时直接使用；
+    /// - 否则视为文件名，拼到 PathHelper.AudioPath 下。
+    /// 这样既能兼容原来的 "生命流" 这种短名，也能直接用地图配置里保存的完整 BGM 地址。
+    /// </summary>
+    public static string ResolveAudioAddress(string clipNameOrAddress)
+    {
+        if (string.IsNullOrEmpty(clipNameOrAddress)) return null;
+        return clipNameOrAddress.StartsWith("Assets/", StringComparison.Ordinal)
+            ? clipNameOrAddress
+            : PathHelper.AudioPath + clipNameOrAddress;
     }
 
     // ========================= 背景音乐 =========================
@@ -123,32 +150,33 @@ public class AudioManager : MonoBehaviour
     {
         if (clip == null) { Debug.LogWarning("[AudioManager] BGM clip 为空"); return; }
 
-        ReleaseOwned(ref _currentBackgroundPath);
-        Background.clip = clip;
-        ApplyVolumes();
-        Background.Play();
+        int requestId = ++_backgroundRequestId;
+        _ = SwitchBackgroundClipAsync(requestId, clip);
     }
 
-    /// <summary>按名称播放背景音乐（Assets/Bundles/Audio/&lt;clipName&gt;）。</summary>
+    /// <summary>按名称/地址播放背景音乐（带淡入淡出）。</summary>
     public void PlayBackgroundAudio(string clipName)
     {
         _ = PlayBackgroundAudioAsync(clipName);
     }
 
-    /// <summary>按名称异步播放背景音乐，可 await 以确保加载/切换完成。</summary>
+    /// <summary>按名称/地址异步播放背景音乐，可 await 以确保加载/切换完成。</summary>
     public async Task PlayBackgroundAudioAsync(string clipName)
     {
         if (string.IsNullOrEmpty(clipName)) { Debug.LogWarning("[AudioManager] BGM 名称为空"); return; }
 
         int requestId = ++_backgroundRequestId;
-        string path = PathHelper.AudioPath + clipName;
+        string path = ResolveAudioAddress(clipName);
 
-        // 同一首正在播放：只刷新音量，避免重复加载与从头重播
+        // 同一首正在播放：只确保淡入到正常音量，避免重复加载与从头重播
         if (_currentBackgroundPath == path && Background != null && Background.isPlaying)
         {
-            ApplyVolumes();
+            StartBackgroundFade(1f, DefaultBgmFadeInSeconds);
             return;
         }
+
+        // 先开始淡出，与资源加载并行
+        StartBackgroundFade(0f, DefaultBgmFadeOutSeconds);
 
         AudioClip clip;
         try
@@ -158,11 +186,21 @@ public class AudioManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"[AudioManager] 加载 BGM 失败: {path}\n{e}");
+            // 加载失败：把仍在播放的旧 BGM 淡回来
+            if (requestId == _backgroundRequestId && Background != null && Background.isPlaying)
+                StartBackgroundFade(1f, DefaultBgmFadeInSeconds);
             return;
         }
 
         // 已被更新的请求取代：归还本次引用
         if (requestId != _backgroundRequestId)
+        {
+            ResHelper.ReleaseAsset(path);
+            return;
+        }
+
+        // 等淡出完成（加载通常比淡出快，这里最多等剩余淡出时间）
+        if (!await WaitBackgroundFadeOutAsync(requestId))
         {
             ResHelper.ReleaseAsset(path);
             return;
@@ -175,9 +213,71 @@ public class AudioManager : MonoBehaviour
             ReleaseOwned(ref _currentBackgroundPath);
         _currentBackgroundPath = path;
 
+        ApplyBackgroundClip(clip);
+        StartBackgroundFade(1f, DefaultBgmFadeInSeconds);
+    }
+
+    /// <summary>直接换 clip 的淡出/淡入流程（用于直接传入 AudioClip 的重载）。</summary>
+    private async Task SwitchBackgroundClipAsync(int requestId, AudioClip clip)
+    {
+        StartBackgroundFade(0f, DefaultBgmFadeOutSeconds);
+        if (!await WaitBackgroundFadeOutAsync(requestId)) return;
+
+        // 淡出完成后再释放上一首的引用，避免提前卸载正在淡出的 clip
+        ReleaseOwned(ref _currentBackgroundPath);
+        ApplyBackgroundClip(clip);
+        StartBackgroundFade(1f, DefaultBgmFadeInSeconds);
+    }
+
+    /// <summary>换 clip 并以静音状态开始播放，随后由调用方淡入。</summary>
+    private void ApplyBackgroundClip(AudioClip clip)
+    {
+        if (Background == null) return;
+        Background.Stop();
         Background.clip = clip;
-        ApplyVolumes();
+        ApplyVolumes(); // 此时 _backgroundFade 已为 0
         Background.Play();
+    }
+
+    private void StartBackgroundFade(float target, float duration)
+    {
+        if (_backgroundFadeCoroutine != null)
+            StopCoroutine(_backgroundFadeCoroutine);
+        _backgroundFadeCoroutine = StartCoroutine(BackgroundFadeRoutine(target, duration));
+    }
+
+    private IEnumerator BackgroundFadeRoutine(float target, float duration)
+    {
+        float from = _backgroundFade;
+        if (duration <= 0f)
+        {
+            _backgroundFade = target;
+            ApplyVolumes();
+            _backgroundFadeCoroutine = null;
+            yield break;
+        }
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            // 用非缩放时间：进出关卡/暂停时 Time.timeScale 可能为 0
+            elapsed += Time.unscaledDeltaTime;
+            _backgroundFade = Mathf.Lerp(from, target, Mathf.Clamp01(elapsed / duration));
+            ApplyVolumes();
+            yield return null;
+        }
+
+        _backgroundFade = target;
+        ApplyVolumes();
+        _backgroundFadeCoroutine = null;
+    }
+
+    /// <summary>等待淡出到 0；被新请求取代时返回 false。</summary>
+    private async Task<bool> WaitBackgroundFadeOutAsync(int requestId)
+    {
+        while (_backgroundFade > 0.001f && requestId == _backgroundRequestId)
+            await Task.Yield();
+        return requestId == _backgroundRequestId;
     }
 
     // ========================= 对白 / 语音 =========================
@@ -205,7 +305,7 @@ public class AudioManager : MonoBehaviour
         if (string.IsNullOrEmpty(clipName)) { Debug.LogWarning("[AudioManager] 对白名称为空"); return; }
 
         int requestId = ++_dialogueRequestId;
-        string path = PathHelper.AudioPath + clipName;
+        string path = ResolveAudioAddress(clipName);
 
         if (_currentDialoguePath == path && Dialogue != null && Dialogue.isPlaying)
         {
@@ -269,7 +369,7 @@ public class AudioManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(clipName)) { Debug.LogWarning("[AudioManager] 音效名称为空"); return; }
 
-        string path = PathHelper.AudioPath + clipName;
+        string path = ResolveAudioAddress(clipName);
         AudioClip clip;
         try
         {
@@ -308,7 +408,7 @@ public class AudioManager : MonoBehaviour
         {
             if (string.IsNullOrEmpty(clipName)) continue;
 
-            string path = PathHelper.AudioPath + clipName;
+            string path = ResolveAudioAddress(clipName);
             if (!_pinnedSfx.Add(path)) continue; // 已经预加载过，不重复持有
 
             try
@@ -335,8 +435,17 @@ public class AudioManager : MonoBehaviour
 
     // ========================= 停止 / 工具 =========================
 
-    public void StopBackground()
+    public void StopBackground(float fadeSeconds = DefaultBgmFadeOutSeconds)
     {
+        _ = StopBackgroundAsync(fadeSeconds);
+    }
+
+    private async Task StopBackgroundAsync(float fadeSeconds)
+    {
+        int requestId = ++_backgroundRequestId;
+        StartBackgroundFade(0f, fadeSeconds);
+        if (!await WaitBackgroundFadeOutAsync(requestId)) return;
+
         if (Background != null) Background.Stop();
         ReleaseOwned(ref _currentBackgroundPath);
     }

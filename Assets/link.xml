@@ -1,5 +1,13 @@
 <linker>
-<assembly fullname="I18N" preserve="all"/>
-<assembly fullname="I18N.West" preserve="all"/>
-<assembly fullname="GeometryGymIFC" preserve="all"/>
+  <assembly fullname="I18N" preserve="all"/>
+  <assembly fullname="I18N.West" preserve="all"/>
+  <assembly fullname="GeometryGymIFC" preserve="all"/>
+  <!-- 配置 Type 通过反射创建，IL2CPP 下必须保留这些命名空间下的子类。 -->
+  <assembly fullname="Assembly-CSharp">
+    <namespace fullname="Units" preserve="all"/>
+    <namespace fullname="Skills" preserve="all"/>
+    <namespace fullname="Buffs" preserve="all"/>
+    <namespace fullname="Modifys" preserve="all"/>
+    <namespace fullname="Bullets" preserve="all"/>
+  </assembly>
 </linker>

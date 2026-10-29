@@ -122,7 +122,14 @@ namespace MainUI
                 if (ReloadExcelList.Count > 0)
                 {
                     //GameData.Instance.RefreshExcludedExcelList();
-                    ExcelHelper.Export(ReloadExcelList);
+                    bool exportSucceeded = ExcelHelper.Export(ReloadExcelList);
+                    if (!exportSucceeded)
+                    {
+                        TipManager.Instance.ShowTip("导表失败，已保留原数据");
+                        ReloadExcelList.Clear();
+                        ReloadTreeViewInit();
+                        return;
+                    }
 
                     // 已更新的 Excel 不再属于排除列表
                     foreach (var path in ReloadExcelList)

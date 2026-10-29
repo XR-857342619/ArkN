@@ -124,8 +124,9 @@ public class BattleManager : MonoBehaviour
         // 皮肤已全部实例化完毕：释放预载持有的**资产**引用（实例各自持引用，不会消失）
         SkinResourcePreloader.ReleaseAll();
         loadingUI.SetProgress(0.25f, "场景加载完成");
-        //AudioManager.Instance.PlayBackgroundAudio("battle");
-        AudioManager.Instance.PlayBackgroundAudio("已至");
+        // 按地图配置播放 BGM；旧地图没有 BGM 字段时回退到默认曲目
+        AudioManager.Instance.PlayBackgroundAudio(
+            string.IsNullOrEmpty(mapInfo.BGM) ? AudioManager.DefaultBgmAddress : mapInfo.BGM);
         await TimeHelper.Instance.WaitAsync(0.5f);
         Battle = new Battle();
         Battle.Init(battleConfig);

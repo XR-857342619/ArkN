@@ -1825,6 +1825,46 @@ MonoBehaviour:
     m_Address: Assets/Bundles/Units/char_4204_mantra
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 48d9786cd6e66c64987c7cb36c6f0695
+    m_Address: Assets/Bundles/Units/char_1052_kalts2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1fdea2eb72b3dbf46a8f68cb1a21f414
+    m_Address: Assets/Bundles/Units/char_1015_aglna2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a4baa46e349a3fd499cf0937e666ee11
+    m_Address: Assets/Bundles/Units/char_4217_makoto
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: db9d22636d9338348aa7b9e5a9014956
+    m_Address: Assets/Bundles/Units/char_4218_aigis
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3fbbaba75c2449a41822fa53f9a96540
+    m_Address: Assets/Bundles/Units/char_4219_yukari
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c539ae4a51340024294b07d1d9715c01
+    m_Address: Assets/Bundles/Units/char_4220_kormr
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 886d75090dde8564cb0f7d40d3059107
+    m_Address: Assets/Bundles/Units/char_4230_mcnist
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7e065fac112f9c344914831ec6cc32e8
+    m_Address: Assets/Bundles/Units/char_4235_thumpy
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: ed649f101ceae5547ab5a5444c7de150
+    m_Address: Assets/Bundles/Units/char_4236_tmslot
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0e5d530ccb682304e9ec3eddccfe501d
+    m_Address: Assets/Bundles/Units/char_4237_jcinta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 242fd0e985ecef14caef48a8cdb9ed24, type: 2}
   m_SchemaSet:

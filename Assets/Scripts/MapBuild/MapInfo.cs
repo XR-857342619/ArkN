@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,6 +14,9 @@ public class MapInfo
     public string Description;
     [JsonProperty("Scene")]
     public string Scene;
+    /// <summary>地图使用的 BGM：存 Addressables 完整地址（打了 BGM 标签的音频资源）。</summary>
+    [JsonProperty("BGM")]
+    public string BGM;
     [JsonProperty("InitHp")]
     public int InitHp;
     [JsonProperty("InitCost")]

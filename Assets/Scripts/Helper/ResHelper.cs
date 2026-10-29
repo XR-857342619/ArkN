@@ -53,6 +53,45 @@ public class ResHelper
         throw new Exception($"Addressables 加载失败: {path}, Status={op.Status}, Error={op.OperationException}");
     }
 
+    /// <summary>
+    /// 查询某个 Addressables Label（或 key）下所有资源的地址。
+    /// 只加载 location、不加载资源本体；返回的地址可直接用于 LoadAssetAsync / PlayBackgroundAudio 等。
+    /// 结果按地址排序，保证下拉框等 UI 的顺序稳定。
+    /// </summary>
+    public static async Task<List<string>> GetAddressesByLabelAsync(string label, Type resourceType = null)
+    {
+        var result = new List<string>();
+        if (string.IsNullOrEmpty(label)) return result;
+
+        // 界面刚创建时 Addressables 可能还没初始化，InitializeAsync 是幂等的
+        await Addressables.InitializeAsync().Task;
+
+        var handle = Addressables.LoadResourceLocationsAsync(label, resourceType);
+        try
+        {
+            await handle.Task;
+            if (handle.Status == AsyncOperationStatus.Succeeded && handle.Result != null)
+            {
+                foreach (var loc in handle.Result)
+                {
+                    if (loc != null && !string.IsNullOrEmpty(loc.PrimaryKey))
+                        result.Add(loc.PrimaryKey);
+                }
+            }
+            else
+            {
+                Debug.LogError($"Addressables 查询 Label 失败: {label}, Status={handle.Status}, Error={handle.OperationException}");
+            }
+        }
+        finally
+        {
+            if (handle.IsValid()) Addressables.Release(handle);
+        }
+
+        result.Sort(StringComparer.Ordinal);
+        return result;
+    }
+
     // ===== 引用计数异步加载/释放（GetAssetRefAsync 必须与 ReleaseAsset 成对使用）=====
 
     /// <summary>
