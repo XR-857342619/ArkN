@@ -36,6 +36,11 @@ public interface IDamageModify
     void Modify(DamageInfo damageInfo);
 }
 
+public interface IAfterDamageEffect
+{
+    void Modify(DamageInfo damageInfo);
+}
+
 public interface IDamageRewrite
 {
     void DamageRewrite(DamageInfo damageInfo);

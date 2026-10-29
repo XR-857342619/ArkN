@@ -15,3 +15,14 @@ public enum DamageTypeEnum
     LoseHP,
 }
 
+public enum DamageBase
+{
+    UnitAttack,
+    TargetAttack,
+    UnitMaxHp,
+    TargetMaxHp,
+    UnitHp,
+    TargetHp,
+    Fixed,
+    ParentAttack,
+}

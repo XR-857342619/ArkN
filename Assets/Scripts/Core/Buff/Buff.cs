@@ -40,12 +40,28 @@ public class Buff
         updateLastTime();
         //Log.Debug(Unit.UnitData.Name + "获取了buff: " + BuffData.Id + "持续时间" + Duration.value);
         // 持续特效（显示用）
-        if (BuffData.LastingEffect.HasValue)
+        if (BuffData.LastingEffect.HasValue || !string.IsNullOrEmpty(BuffData.LastingEffectId))
         {
-            LastingEffect = EffectManager.Instance.GetEffect(BuffData.LastingEffect.Value);
-            if (Unit is not null) LastingEffect.Init(SourceUnit, Unit, Unit.Position, Unit.Direction);
-            else if (Bullet is not null) LastingEffect.Init(Bullet);
-            LastingEffect.SetLifeTime(float.PositiveInfinity);
+            // 新格式优先用稳定字符串 Id；老格式没有 LastingEffectId 时继续用 int 索引。
+            if (!string.IsNullOrEmpty(BuffData.LastingEffectId))
+                LastingEffect = EffectManager.Instance.GetEffect(BuffData.LastingEffectId);
+            else
+                LastingEffect = EffectManager.Instance.GetEffect(BuffData.LastingEffect.Value);
+
+            // 新 Id 找不到时回退旧索引，保证老数据/部分迁移数据的兼容性。
+            if (LastingEffect == null && BuffData.LastingEffect.HasValue)
+                LastingEffect = EffectManager.Instance.GetEffect(BuffData.LastingEffect.Value);
+
+            if (LastingEffect == null)
+            {
+                Debug.LogError($"[Buff] {BuffData.Id} 持久特效创建失败：effectIndex={BuffData.LastingEffect} effectId={BuffData.LastingEffectId}");
+            }
+            else
+            {
+                if (Unit is not null) LastingEffect.Init(SourceUnit, Unit, Unit.Position, Unit.Direction);
+                else if (Bullet is not null) LastingEffect.Init(Bullet);
+                LastingEffect.SetLifeTime(float.PositiveInfinity);
+            }
         }
         
         if (Unit is not null && Unit.InputTime == -1) HideEffect();
@@ -80,6 +96,11 @@ public class Buff
             }
             Finish();
         }
+
+        //Debug.Log($"[Buff] {BuffData.Id} effectIndex={BuffData.LastingEffect} effectId={BuffData.LastingEffectId} " +
+        //  $"effect={(LastingEffect == null ? "NULL" : LastingEffect.name)} " +
+        //  $"active={(LastingEffect == null ? false : LastingEffect.gameObject.activeInHierarchy)} " +
+        //  $"pos={(LastingEffect == null ? Vector3.zero : LastingEffect.transform.position)}");
     }
 
 

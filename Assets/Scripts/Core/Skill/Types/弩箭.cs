@@ -9,7 +9,10 @@ namespace Skills
 {
     public class 弩箭 : 非指向技能
     {
+        private const string BackDirectionStartPos = "背后方向";
+
         public string StartPos;
+        private string configuredStartPos;
         public int Line;
         public int MaxLine;
         public float BaseAngle;
@@ -20,7 +23,8 @@ namespace Skills
         public override void Init()
         {
             base.Init();
-            StartPos = SkillData.Data.GetStr("StartPos", defaultValue: "UnitPos");
+            configuredStartPos = SkillData.Data.GetStr("StartPos", defaultValue: "UnitPos");
+            StartPos = configuredStartPos;
             Line = SkillData.Data.GetInt("Line", defaultValue: 1);
             MaxLine = SkillData.Data.GetInt("MaxLine", SkillData.Data.GetInt("maxLine", Line));
             BaseAngle = SkillData.Data.GetFloat("BaseAngle",
@@ -161,7 +165,49 @@ namespace Skills
             }
         }
 
+        /// <summary>
+        /// 根据单位背朝方向选择对应的地图边缘发射点。
+        /// 地图坐标约定：x 轴正方向为 MapRight，z 轴正方向为 MapDown。
+        /// </summary>
+        private string GetBackDirectionMapEdge()
+        {
+            Vector2 backDirection = -Unit.Direction;
+            if (backDirection.sqrMagnitude < 0.0001f)
+                return "MapLeft";
+
+            if (Mathf.Abs(backDirection.x) >= Mathf.Abs(backDirection.y))
+                return backDirection.x < 0f ? "MapLeft" : "MapRight";
+
+            return backDirection.y > 0f ? "MapUp" : "MapDown";
+        }
+
+        private void RestoreConfiguredStartPos()
+        {
+            StartPos = configuredStartPos ?? "UnitPos";
+        }
+
         public override void Effect(Unit target)
+        {
+            if (SkillData.Bullet == null)
+                return;
+
+            // “背后方向”只在本次释放期间生效，发射完毕后恢复为技能配置值。
+            bool useBackDirectionStartPos = StartPos == BackDirectionStartPos;
+            if (useBackDirectionStartPos)
+                StartPos = GetBackDirectionMapEdge();
+
+            try
+            {
+                FireBullets(target);
+            }
+            finally
+            {
+                if (useBackDirectionStartPos)
+                    RestoreConfiguredStartPos();
+            }
+        }
+
+        private void FireBullets(Unit target)
         {
             if (SkillData.Bullet != null)
             {
@@ -333,6 +379,8 @@ namespace Skills
 
         public override void BreakCast()
         {
+            // 释放被打断时也要确保不会把临时的地图边缘发射点留在技能状态里。
+            RestoreConfiguredStartPos();
             base.BreakCast();
         }
     }

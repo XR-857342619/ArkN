@@ -44,10 +44,12 @@ public class BulletManager
         }
 
         var spawned = Pool.Spawn(prefab, Vector3.zero);
-        // AB 来源的子弹：实例化后踢动效；驱动组件已烘焙进 prefab，克隆自带不会重复
-        // 同样不能用局部 fromAb（缓存后第二次起恒为 false），改用宿主组件判定
-        if (spawned != null && prefab.GetComponent<ArkFxEffectHost>() != null)
-            ArkFxLoader.Kick(spawned.gameObject, model);
+        // 与 EffectManager 同一套时序：这里只取实例，不启动 ArkFx。
+        // Bullet.CreateModel -> BulletModel.Init 会先把模型摆到弹道位置，再调 Effect.Play()，
+        // 由 Play() 首次调用 ArkFxLoader.Kick，避免发射器在原点生成子特效。
+        var spawnedEffect = spawned != null ? spawned.GetComponent<Effect>() : null;
+        if (spawnedEffect != null)
+            spawnedEffect.PrefabName = model;
         return spawned;
     }
 

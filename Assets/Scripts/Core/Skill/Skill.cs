@@ -1,3 +1,4 @@
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -208,6 +209,9 @@ public class Skill
                 ReadyEffect = EffectManager.Instance.GetEffect(SkillData.ReadyEffect.Value);
                 ReadyEffect.transform.SetParent(Unit.UnitModel.transform);
                 ReadyEffect.transform.position = Unit.UnitModel.GetPoint(Database.Instance.Get<EffectData>(SkillData.ReadyEffect.Value).BindPoint);
+                // GetEffect 现在只负责取池化实例 + 重置；启动统一由 Play() 在定位之后完成。
+                // ReadyEffect 是少数不经过 Init() 的调用点，必须在这里显式 Play。
+                ReadyEffect.Play();
             }
             else if (ReadyEffect != null && Power < MaxPower)
             {
@@ -975,12 +979,12 @@ public class Skill
     protected virtual void AttackArea(HashSet<Unit> targets, Unit target, ref DamageInfo dInfo, Bullet bullet = null)
     {
         if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
+        if (SkillData.EffectEffect != null)
+            showEffectEffect(target, Unit);
         foreach (var t in targets)
         {
             //Log.Debug(t.UnitData.Name);
             addSkillEffect(t);
-            if (SkillData.EffectEffect != null)
-                showEffectEffect(target, t);
             //dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
             dInfo = GetDamageInfo(t, t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage, bullet is not null ? bullet.Attack : 1);
             if (bullet is not null)
@@ -1010,11 +1014,11 @@ public class Skill
     protected virtual void AttackAreaPoints(HashSet<Unit> targets, Unit target, ref DamageInfo dInfo, Bullet bullet = null)
     {
         if (!SkillData.AreaNoCheck) targets.RemoveWhere(x => !CanUseTo(x));
+        if (SkillData.EffectEffect != null)
+            showEffectEffect(target, Unit);
         foreach (var t in targets)
         {
             addSkillEffect(t);
-            if (SkillData.EffectEffect != null)
-                showEffectEffect(target, t);
             //dInfo = GetDamageInfo(t, (t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage) * ((bullet != null && bullet is 链式弹道 linkBullet) ? linkBullet.reductionRate : 1));
             dInfo = GetDamageInfo(t, t == target ? SkillData.AreaMainDamage : SkillData.AreaDamage, bullet is not null ? bullet.Attack : 1);
             if (bullet is not null)

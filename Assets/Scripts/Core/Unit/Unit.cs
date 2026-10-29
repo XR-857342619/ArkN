@@ -567,6 +567,7 @@ public class Unit
                         skill.SkillData.Data?.GetStr("ElementType") == eventSkill.SkillData.Data?.GetStr("ElementType") &&
                         IfAlive)
                         skill.Start();
+                    
                 }
             }
         }
@@ -928,6 +929,16 @@ public class Unit
         if (damageInfo.FinalDamage >= damageInfo.ExpectedDamage * 1.5f) UnitModel.ShowCrit(damageInfo);
 
         //if (damageInfo.DamageType == DamageTypeEnum.LoseHP) Debug.Log($"{UnitData.Name}受到{damageInfo.FinalDamage}点生命流失");
+        if (damageInfo.Source is Skill skill && skill.Modifies.Count > 0)
+        {
+            foreach (Modify modify in skill.Modifies)
+            {
+                if (modify is IAfterDamageEffect afterEffect)
+                {
+                    afterEffect.Modify(damageInfo);
+                }
+            }
+        }
 
         Hp -= damageInfo.FinalDamage;
 
